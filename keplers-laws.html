@@ -1,0 +1,1125 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Kepler's Laws Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<style>
+/* Page: title, five tabs that follow the lesson, then a PhET-style black stage for each part.
+   On wide screens the grey control panels float over the stage (left: graphs and values, right: checkboxes,
+   bottom: play controls). On narrow screens they stack under the stage. Lesson text and questions sit below. */
+:root{
+  --bg:#F3F4F9; --surface:#FFFFFF; --ink:#151A3A; --muted:#545A78; --line:#D7DAE8;
+  --accent:#A86406; --amber:#F2A93B;
+  --display:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B0E22; --surface:#151A38; --ink:#E9EBF7; --muted:#A3A8C6; --line:#2A3058;
+    --accent:#F2B04E; --amber:#F2A93B; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B0E22; --surface:#151A38; --ink:#E9EBF7; --muted:#A3A8C6; --line:#2A3058;
+  --accent:#F2B04E; --amber:#F2A93B; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1200px;margin-inline:auto;padding-inline:clamp(16px,3vw,32px);padding-block:28px 48px;display:flex;flex-direction:column;gap:16px}
+.eyebrow{margin:0;font-family:var(--mono);font-size:.74rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.2em 0 .2em;font-family:var(--display);font-weight:700;font-size:clamp(2rem,5vw,3rem);line-height:1.05;letter-spacing:-.01em;text-wrap:balance}
+p{margin:0}
+.lede{max-width:70ch;color:var(--muted);font-size:1.05rem}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:900px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tab{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;
+  padding:9px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:1px;min-width:0}
+.tab small{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tab b{font-size:.98rem;line-height:1.25}
+.tab:hover{border-color:var(--ink)}
+.tab[aria-selected="true"]{border-color:var(--amber);box-shadow:inset 0 -4px 0 var(--amber)}
+.panel{display:flex;flex-direction:column;gap:14px}
+
+/* ---------- PhET-style stage ---------- */
+.sim{position:relative;background:#000;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;gap:8px;
+  padding-bottom:10px;color:#fff;font:14px/1.3 Arial,Helvetica,sans-serif}
+.sim .stagecv{display:block;width:100%;background:#000;touch-action:none;order:0}
+.sim .ovl,.sim .ovr{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;padding:0 8px;align-items:start}
+.sim .ovb{order:1;align-self:center}
+.sim .sw-box{order:2;align-self:center}
+.sim .ovr{order:3}
+.sim .ovl{order:4}
+.sim.wide{display:block;padding:0}
+.sim.wide .ovl{position:absolute;left:10px;top:10px;width:224px;display:flex;flex-direction:column;align-items:stretch;padding:0}
+.sim.wide .ovr{position:absolute;right:10px;top:10px;width:212px;display:flex;flex-direction:column;align-items:stretch;padding:0}
+.sim.wide .ovb{position:absolute;bottom:10px;left:calc(234px + (100% - 456px) / 2);transform:translateX(-50%)}
+.sim.wide .sw-box{position:absolute;left:244px;bottom:12px}
+.sim.flow .pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2px}
+.sim.flow canvas{display:block;width:100%;background:#000}
+@media (max-width:640px){.sim.flow .pair{grid-template-columns:minmax(0,1fr)}}
+.prow{display:flex;flex-wrap:wrap;gap:8px;padding:0 10px;align-items:flex-start}
+.prow > .pp{flex:1 1 240px}
+.prow > .ovb{flex:0 0 auto;align-self:center;margin-inline:auto}
+
+.pp{background:#2A2A2A;border:1px solid #6F6F6F;border-radius:7px;padding:9px 11px;display:flex;flex-direction:column;gap:5px;min-width:0;color:#fff}
+.pp h4{margin:0 0 2px;font-size:15px;font-weight:700;text-align:center}
+.pp hr{border:0;border-top:1px solid #6F6F6F;margin:3px 0;width:100%}
+.pp p{font-size:13.5px}
+.pp canvas{display:block;width:100%}
+.ck{display:flex;align-items:center;gap:8px;cursor:pointer;min-height:26px}
+.ck input{width:17px;height:17px;margin:0;flex:none;accent-color:#FFFFFF;cursor:pointer}
+.ck > span{flex:1}
+.ck.sub{padding-left:25px}
+.ck.off{opacity:.4;cursor:default}
+.ic{width:30px;height:14px;flex:none}
+.sqb{font:13px Arial,Helvetica,sans-serif;color:#000;background:#E8E8E8;border:1px solid #9A9A9A;border-radius:5px;padding:5px 8px;cursor:pointer}
+.sqb:hover{background:#FFF}
+.sqb:disabled{opacity:.4;cursor:default;background:#E8E8E8}
+.pp select,.pp input[type=number]{font:14px Arial,Helvetica,sans-serif;color:#000;background:#FFF;border:1px solid #9A9A9A;border-radius:5px;padding:4px 6px;width:100%;min-width:0}
+.pp input[type=range]{width:100%;margin:0;height:24px;accent-color:#E8E8E8}
+.vals{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0}
+.vals dt{font-weight:700}
+.vals dd{margin:0;text-align:right;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px}
+.stepper{display:flex;align-items:center;justify-content:center;gap:12px}
+.stepper output{font-size:20px;font-weight:700;min-width:2ch;text-align:center}
+.stepper .sqb{width:30px;padding:3px 0}
+.phead{display:flex;align-items:center;justify-content:center;position:relative;min-height:22px}
+.coll{position:absolute;left:0;top:0;width:22px;height:22px;padding:0;font:700 15px/1 Arial;color:#000;background:#E8E8E8;border:1px solid #9A9A9A;border-radius:4px;cursor:pointer}
+.ratio{margin:0;text-align:center;font:13px ui-monospace,Menlo,Consolas,monospace}
+.gwrap{display:grid;grid-template-columns:32px minmax(0,1fr);gap:4px}
+.vbtns{display:flex;flex-direction:column;justify-content:space-around;gap:4px}
+.hbtns{display:flex;justify-content:space-around;gap:4px;padding-left:36px}
+.pw{font:13px Arial,Helvetica,sans-serif;color:#000;background:#E8E8E8;border:1px solid #9A9A9A;border-radius:4px;padding:3px 0;cursor:pointer;min-width:30px}
+.pw[aria-pressed="true"]{background:#FFE36E;border-color:#FFE36E;font-weight:700}
+.ticks{position:relative;height:16px;font-size:11px;color:#DDD;margin:0 8px}
+.ticks span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.okmsg{margin:0;color:#7CFF7C;font-weight:700;font-size:13px}
+.tmsg{margin:0;color:#CCC;font-size:12.5px}
+.omsg{margin:0;color:#FF8A80;font-weight:700;font-size:13px}
+.omsg:empty,.okmsg:empty,.tmsg:empty{display:none}
+.zoomrow{display:flex;align-items:center;gap:6px}
+.zb{width:24px;height:24px;flex:none;border-radius:50%;padding:0;font:700 16px/1 Arial;color:#000;background:#E8E8E8;border:1px solid #9A9A9A;cursor:pointer}
+.resetRow{display:flex;justify-content:flex-end}
+.resetAll{width:46px;height:46px;border-radius:50%;padding:0;border:1px solid #A85200;cursor:pointer;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#FFD29A,#F7941D 55%,#D96F00)}
+.resetAll svg{width:60%;height:60%}
+.playbar{display:flex;align-items:center;gap:14px}
+.pbtns{display:flex;align-items:center;gap:8px}
+.rb{width:38px;height:38px;border-radius:50%;border:1px solid #5E9CC4;padding:0;cursor:pointer;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#EAF7FF,#A6D7F4 58%,#73B7E2)}
+.rb.big{width:54px;height:54px}
+.rb svg{width:56%;height:56%}
+.spd{display:flex;flex-direction:column;gap:0;font-size:13px}
+.spd label{display:flex;align-items:center;gap:5px;cursor:pointer}
+.spd input{margin:0;accent-color:#FFF}
+.swread{font:600 16px ui-monospace,Menlo,Consolas,monospace;background:#FFF;color:#000;border-radius:4px;padding:2px 8px;text-align:right;min-width:120px}
+.swbtns{display:flex;gap:6px}
+.swbtns .sqb{flex:1}
+.status{align-self:flex-start;font-weight:700;padding:.3em .8em;border-radius:999px;border:2px solid #6F6F6F;color:#DDD}
+.status.hot{background:#F2A93B;border-color:#F2A93B;color:#1D1400}
+.pp table.data{width:100%;border-collapse:collapse;font-size:13px}
+.pp table.data th,.pp table.data td{padding:5px 5px;border-bottom:1px solid #555;text-align:right}
+.pp table.data th{color:#BBB;font-weight:700;font-size:12px}
+.pp table.data th:first-child,.pp table.data td:first-child{text-align:left}
+.pp table.data td{font-family:ui-monospace,Menlo,Consolas,monospace;color:#FFF}
+.pp table.data td:first-child{font-family:Arial,Helvetica,sans-serif;font-weight:700}
+.pp table.data td:last-child{color:#FFE36E}
+.tablewrap{overflow-x:auto}
+.calc .row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.calc label{display:flex;flex-direction:column;gap:3px;font-size:12.5px;font-weight:700}
+.steps{font:13px ui-monospace,Menlo,Consolas,monospace;background:#151515;border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:3px;overflow-wrap:anywhere}
+.steps b{font-family:Arial,Helvetica,sans-serif;color:#FFE36E}
+
+/* ---------- lesson text under the stage ---------- */
+.below{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:14px;align-items:start}
+.below.one{grid-template-columns:minmax(0,1fr)}
+@media (max-width:820px){.below{grid-template-columns:minmax(0,1fr)}}
+.law{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--amber);border-radius:12px;padding:14px 16px;
+  font-family:var(--display);font-size:1.1rem;font-weight:600;line-height:1.38}
+.law small{display:block;margin-top:6px;font-family:var(--body);font-weight:400;font-size:.93rem;color:var(--muted)}
+.try{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+.try h3{margin:0 0 6px;font-family:var(--display);font-size:1.15rem}
+.try ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:5px;max-width:84ch}
+.foot{font-size:.84rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;max-width:92ch}
+</style>
+
+<div class="wrap" id="app">
+  <header>
+    <p class="eyebrow">Grade 10 Physics · Module 7, Lesson 1 · Planetary Motion and Gravitation</p>
+    <h1>Kepler's Laws Lab</h1>
+    <p class="lede">Start with the puzzle of Mars moving backward, then test each of Kepler's three laws. Drag the planet, or the “V” handle on its green velocity arrow, to make your own orbit.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Parts of the lab">
+    <button class="tab" role="tab" id="t-retro" aria-controls="p-retro" aria-selected="true"><small>Session 1 warm-up</small><b>Why does Mars go backward?</b></button>
+    <button class="tab" role="tab" id="t-first" aria-controls="p-first" aria-selected="false" tabindex="-1"><small>Session 1 · Law of Ellipses</small><b>First Law</b></button>
+    <button class="tab" role="tab" id="t-second" aria-controls="p-second" aria-selected="false" tabindex="-1"><small>Session 2 · Law of Equal Areas</small><b>Second Law</b></button>
+    <button class="tab" role="tab" id="t-third" aria-controls="p-third" aria-selected="false" tabindex="-1"><small>Session 3 · Law of Periods</small><b>Third Law</b></button>
+    <button class="tab" role="tab" id="t-moons" aria-controls="p-moons" aria-selected="false" tabindex="-1"><small>Session 3 · worked example</small><b>Jupiter's moons</b></button>
+  </div>
+
+  <!-- ================= WARM-UP: RETROGRADE ================= -->
+  <section class="panel" id="p-retro" role="tabpanel" aria-labelledby="t-retro">
+    <div class="sim flow">
+      <div class="pair">
+        <canvas id="cRetro" role="img" aria-label="Top view of the Sun, Earth and Mars, with a line of sight from Earth through Mars to the distant stars"></canvas>
+        <canvas id="cRetroPlot" role="img" aria-label="Graph of where Mars appears among the stars against time"></canvas>
+      </div>
+      <div class="prow">
+        <div class="pp">
+          <span class="status" id="retroStatus">Mars appears to move forward</span>
+          <p>Earth (inner orbit) moves faster than Mars (outer orbit). Follow the line of sight from Earth through Mars to the distant stars.</p>
+          <label class="ck"><input type="checkbox" id="rLine" checked><span>Line of sight</span></label>
+          <label class="ck"><input type="checkbox" id="rTrail" checked><span>Mark where Mars appears among the stars</span></label>
+        </div>
+        <div class="pp">
+          <dl class="vals">
+            <dt>Time</dt><dd id="rTime">0.00 years</dd>
+            <dt>Mars seen moving</dt><dd id="rDir">forward</dd>
+            <dt>Earth's period</dt><dd>1.00 year</dd>
+            <dt>Mars's period</dt><dd>1.88 years</dd>
+          </dl>
+        </div>
+        <div class="ovb" id="ovb-retro"></div>
+      </div>
+    </div>
+    <div class="below one">
+      <div class="try">
+        <h3>Think-pair-share</h3>
+        <ol>
+          <li>Pause the moment the graph turns amber. Where is Earth compared with Mars?</li>
+          <li>Look at the view from above. Does Mars ever really move backward along its orbit?</li>
+          <li>Why could a model with Earth fixed at the centre not explain this easily?</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FIRST LAW ================= -->
+  <section class="panel" id="p-first" role="tabpanel" aria-labelledby="t-first" hidden>
+    <div class="sim lawsim">
+      <canvas class="stagecv" id="cFirst" role="img" aria-label="A planet on an elliptical orbit around a star. Drag the planet or its velocity arrow to change the orbit."></canvas>
+      <div class="ovl">
+        <div class="pp" id="eccPanel" hidden>
+          <h4>Eccentricity = c / a</h4>
+          <canvas id="cEcc" role="img" aria-label="Eccentricity scale from 0 to 1 comparing this orbit with Earth, Mercury, Eris, Nereid and Halley's comet"></canvas>
+        </div>
+        <div class="pp">
+          <h4>Orbit values</h4>
+          <dl class="vals">
+            <dt style="color:#FF8C1A">a</dt><dd id="f1a">–</dd>
+            <dt style="color:#A7E86A">b</dt><dd id="f1b">–</dd>
+            <dt style="color:#D1A8FF">c</dt><dd id="f1c">–</dd>
+            <dt>e = c/a</dt><dd id="f1e">–</dd>
+            <dt style="color:#E2C291">d₁ + d₂</dt><dd id="f1d">–</dd>
+          </dl>
+        </div>
+      </div>
+      <div class="ovr" id="ovr-first">
+        <div class="pp">
+          <label class="ck"><input type="checkbox" id="f1Foci"><span>Foci</span><svg class="ic" viewBox="0 0 30 14" aria-hidden="true"><path d="M10 2l10 10M20 2L10 12" stroke="#4C8BFF" stroke-width="2.6"/></svg></label>
+          <label class="ck sub off"><input type="checkbox" id="f1String" disabled><span>String</span><svg class="ic" viewBox="0 0 30 14" aria-hidden="true"><path d="M2 7h26" stroke="#E2C291" stroke-width="2.4" stroke-dasharray="4 3"/></svg></label>
+          <label class="ck"><input type="checkbox" id="f1Axes"><span>Axes</span></label>
+          <label class="ck sub off"><input type="checkbox" id="f1Semi" disabled><span>Semiaxes</span></label>
+          <label class="ck"><input type="checkbox" id="f1Ecc"><span>Eccentricity</span></label>
+        </div>
+      </div>
+      <div class="ovb" id="ovb-first"></div>
+      <div class="sw-box" id="swb-first"></div>
+    </div>
+    <div class="below">
+      <p class="law">“The orbit of a planet is an ellipse, with the Sun at one focus.”<small>Eccentricity e = c / a tells how stretched the ellipse is: 0 is a circle, close to 1 is very stretched.</small></p>
+      <div class="try">
+        <h3>Try this</h3>
+        <ol>
+          <li>Turn on Foci, then String. Watch d₁ + d₂ while the planet moves. Does the total change? This is your pins-and-string ellipse lab.</li>
+          <li>Drag the velocity arrow until the two foci meet. What is e now, and what shape is the orbit?</li>
+          <li>Turn on Eccentricity. Pick Earth, then Mercury, as the Target Orbit and press “Put my planet on this orbit”. Which is more stretched? Compare with the slides (e = 0.1 and e = 0.7).</li>
+          <li>Turn on Axes. Is the star at the centre of the ellipse?</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECOND LAW ================= -->
+  <section class="panel" id="p-second" role="tabpanel" aria-labelledby="t-second" hidden>
+    <div class="sim lawsim">
+      <canvas class="stagecv" id="cSecond" role="img" aria-label="A planet sweeping out coloured areas in equal times. Drag the planet or its velocity arrow to change the orbit."></canvas>
+      <div class="ovl">
+        <div class="pp">
+          <h4>Period Divisions</h4>
+          <div class="stepper">
+            <button type="button" class="sqb" id="divDn" aria-label="Fewer divisions">◀</button>
+            <output id="divOut" aria-live="polite">4</output>
+            <button type="button" class="sqb" id="divUp" aria-label="More divisions">▶</button>
+          </div>
+          <label class="ck"><input type="checkbox" id="s2Area"><span>Area Values</span></label>
+          <label class="ck"><input type="checkbox" id="s2Time"><span>Time Values</span></label>
+          <label class="ck"><input type="checkbox" id="s2SpeedG"><span>Speed Graph</span></label>
+        </div>
+        <div class="pp">
+          <div class="phead"><button type="button" class="coll" id="areaColl" aria-expanded="true" aria-controls="areaBody" aria-label="Hide the swept area graph">−</button><h4>Swept Area</h4></div>
+          <div id="areaBody" style="display:flex;flex-direction:column;gap:6px">
+            <canvas id="cArea" role="img" aria-label="Bar chart of the area swept in each equal-time division"></canvas>
+            <button type="button" class="sqb" id="erase2">Erase and sweep again</button>
+          </div>
+        </div>
+        <div class="pp" id="speedPanel" hidden>
+          <h4>Speed</h4>
+          <canvas id="cSpeed" role="img" aria-label="Graph of the planet's speed through one orbit"></canvas>
+        </div>
+      </div>
+      <div class="ovr" id="ovr-second">
+        <div class="pp">
+          <label class="ck"><input type="checkbox" id="s2Apo"><span>Apoapsis</span><svg class="ic" viewBox="0 0 30 14" aria-hidden="true"><path d="M10 2l10 10M20 2L10 12" stroke="#00E5FF" stroke-width="2.6"/></svg></label>
+          <label class="ck"><input type="checkbox" id="s2Peri"><span>Periapsis</span><svg class="ic" viewBox="0 0 30 14" aria-hidden="true"><path d="M10 2l10 10M20 2L10 12" stroke="#FFE600" stroke-width="2.6"/></svg></label>
+        </div>
+      </div>
+      <div class="ovb" id="ovb-second"></div>
+      <div class="sw-box" id="swb-second"></div>
+    </div>
+    <div class="below">
+      <p class="law">“An imaginary line from the Sun to a planet sweeps out equal areas in equal intervals of time.”<small>Near the star the planet moves fast; far away it moves slowly.</small></p>
+      <div class="try">
+        <h3>Speed detective</h3>
+        <ol>
+          <li>Before you press play: where will the planet move fastest? Slowest? Turn on Periapsis and Apoapsis, then watch.</li>
+          <li>Turn on Area Values. Are the coloured areas equal, even though their shapes are different?</li>
+          <li>Turn on Time Values. How long does each division take?</li>
+          <li>Turn on Gravity Force. Where is the pull strongest? How does that connect to the speed?</li>
+          <li>Tick Always Circular. What happens to the shapes of the areas and to the speed graph?</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= THIRD LAW ================= -->
+  <section class="panel" id="p-third" role="tabpanel" aria-labelledby="t-third" hidden>
+    <div class="sim lawsim">
+      <canvas class="stagecv" id="cThird" role="img" aria-label="A planet orbiting a star with its semi-major axis and period shown. Drag the planet or its velocity arrow to change the orbit."></canvas>
+      <div class="ovl">
+        <div class="pp">
+          <h4 id="graphTitle">T vs a Graph</h4>
+          <p class="ratio" id="ratio" aria-live="polite"></p>
+          <div class="gwrap">
+            <div class="vbtns" role="group" aria-label="Power of the period T" id="yPow">
+              <button type="button" class="pw" data-v="3" aria-pressed="false">T³</button>
+              <button type="button" class="pw" data-v="2" aria-pressed="false">T²</button>
+              <button type="button" class="pw" data-v="1" aria-pressed="true">T</button>
+            </div>
+            <canvas id="cGraph" role="img" aria-label="Graph of the period against the semi-major axis for the planets and your orbits"></canvas>
+          </div>
+          <div class="hbtns" role="group" aria-label="Power of the semi-major axis a" id="xPow">
+            <button type="button" class="pw" data-v="1" aria-pressed="true">a</button>
+            <button type="button" class="pw" data-v="2" aria-pressed="false">a²</button>
+            <button type="button" class="pw" data-v="3" aria-pressed="false">a³</button>
+          </div>
+          <label class="ck"><input type="checkbox" id="t3Planets" checked><span>Show the planets' data</span></label>
+          <button type="button" class="sqb" id="t3Erase">Erase my orbits</button>
+        </div>
+        <div class="pp">
+          <h4>Star Mass</h4>
+          <input type="range" id="mass" min="0.5" max="2" step="0.05" value="1" aria-label="Star mass, in Sun masses">
+          <div class="ticks" aria-hidden="true"><span style="left:0">0.5</span><span style="left:33.33%">Our Sun</span><span style="left:66.67%">1.5</span><span style="left:100%">2.0</span></div>
+        </div>
+      </div>
+      <div class="ovr" id="ovr-third">
+        <div class="pp">
+          <label class="ck"><input type="checkbox" id="t3Axis"><span>Semi-major Axis (a)</span><svg class="ic" viewBox="0 0 30 14" aria-hidden="true"><path d="M2 7h26" stroke="#FF8C1A" stroke-width="3"/></svg></label>
+          <label class="ck"><input type="checkbox" id="t3Per"><span>Period (T)</span><svg class="ic" viewBox="0 0 30 14" aria-hidden="true"><path d="M3 12Q15 -4 27 12" fill="none" stroke="#FFE36E" stroke-width="3"/></svg></label>
+        </div>
+      </div>
+      <div class="ovb" id="ovb-third"></div>
+      <div class="sw-box" id="swb-third"></div>
+    </div>
+    <div class="below">
+      <p class="law">(T₁ / T₂)² = (r₁ / r₂)³<small>The square of the period is proportional to the cube of the average distance (the semi-major axis, a). For our Sun, T² / a³ = 1 when T is in years and a is in AU.</small></p>
+      <div class="try">
+        <h3>Find the pattern</h3>
+        <ol>
+          <li>Drag the planet to make three or four different orbits. Each new orbit leaves a point on the graph.</li>
+          <li>Try the T and a buttons. Which pair gives a straight line through the origin?</li>
+          <li>Turn on Period (T) and Semi-major Axis (a). Check that T² ÷ a³ stays the same for every orbit.</li>
+          <li>Move the Star Mass slider. Does T² ÷ a³ stay the same? What does that tell you?</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= JUPITER'S MOONS ================= -->
+  <section class="panel" id="p-moons" role="tabpanel" aria-labelledby="t-moons" hidden>
+    <div class="sim flow">
+      <div class="pair">
+        <canvas id="cMoons" role="img" aria-label="Jupiter with its four large moons orbiting on one shared clock"></canvas>
+        <canvas id="cTR" role="img" aria-label="Graph of period squared against radius cubed for the moons, forming a straight line"></canvas>
+      </div>
+      <div class="prow">
+        <div class="pp">
+          <label class="ck"><input type="checkbox" id="mHide"><span>Card sort: hide the distances</span></label>
+          <label class="ck"><input type="checkbox" id="mMine"><span>Add my own moon</span></label>
+          <div id="mineField" hidden>
+            <label for="rMine" style="font-weight:700">My moon's distance, r = <output id="rMineOut" for="rMine">13.0</output></label>
+            <input type="range" id="rMine" min="3" max="22" step="0.1" value="13">
+          </div>
+          <div class="tablewrap">
+            <table class="data">
+              <thead><tr><th scope="col">Moon</th><th scope="col">r (×10⁵ km)</th><th scope="col">T (days)</th><th scope="col">Orbits</th><th scope="col">T² ÷ r³</th></tr></thead>
+              <tbody id="mBody"></tbody>
+            </table>
+          </div>
+          <p id="mClock" style="color:#BBB">Shared clock: 0.0 days</p>
+        </div>
+        <div class="pp calc">
+          <h4>Sketch → Analyze → Solve → Evaluate</h4>
+          <div class="row">
+            <label>Known r₁<input id="cr1" type="number" step="any" min="0" value="4.2"></label>
+            <label>Known T₁<input id="cT1" type="number" step="any" min="0" value="1.8"></label>
+          </div>
+          <div class="row">
+            <label>I know the second…<select id="cMode"><option value="T" selected>period T₂</option><option value="r">distance r₂</option></select></label>
+            <label><span id="cKnownLbl">Known T₂</span><input id="cK" type="number" step="any" min="0" value="3.55"></label>
+          </div>
+          <div class="steps" id="cSteps" aria-live="polite"></div>
+          <p style="color:#BBB">Loaded with the worked example: Io (r = 4.2 units, T = 1.8 days) and Europa (T = 3.55 days).</p>
+        </div>
+        <div class="ovb" id="ovb-moons"></div>
+      </div>
+    </div>
+    <div class="below one">
+      <div class="try">
+        <h3>Mystery moons</h3>
+        <ol>
+          <li>Turn on the card sort. Using the periods only, rank the moons from closest to farthest. Then turn it off to check.</li>
+          <li>Look at the T² ÷ r³ column. What do you notice for all four moons?</li>
+          <li>Add your own moon and move it outward. Doubling the distance makes the period how many times longer?</li>
+          <li>Exit ticket: a moon at r = 6.0 has T = 4.5 days. A second moon orbits at r = 12.0. Find its period by hand, then check with the solver.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- shared pieces: moved into whichever tab is open -->
+  <div id="parking" hidden>
+    <div class="playbar" id="playbar">
+      <div class="pbtns">
+        <button type="button" class="rb" id="restart" aria-label="Restart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V1L7 5.5 12 10V7a5 5 0 1 1-5 5H4.5A7.5 7.5 0 1 0 12 4z" fill="#1E1E1E"/></svg></button>
+        <button type="button" class="rb big" id="play" aria-label="Pause"><svg viewBox="0 0 24 24" aria-hidden="true" id="playIcon"></svg></button>
+        <button type="button" class="rb" id="step" aria-label="Step forward"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l10 7-10 7z M16 5h3v14h-3z" fill="#1E1E1E"/></svg></button>
+      </div>
+      <div class="spd" role="radiogroup" aria-label="Simulation speed">
+        <label><input type="radio" name="spd" value="2.2"> Fast</label>
+        <label><input type="radio" name="spd" value="1" checked> Normal</label>
+        <label><input type="radio" name="spd" value="0.4"> Slow</label>
+      </div>
+    </div>
+
+    <div class="pp" id="swPanel" hidden>
+      <div class="swread" id="swTime" aria-live="off">0.00 years</div>
+      <div class="swbtns"><button type="button" class="sqb" id="swGo">Start</button><button type="button" class="sqb" id="swReset">Reset</button></div>
+    </div>
+
+    <div class="pp" id="targetPanel">
+      <h4><label for="target">Target Orbit</label></h4>
+      <select id="target">
+        <option value="none" selected>None</option>
+        <option value="Mercury">Mercury</option>
+        <option value="Venus">Venus</option>
+        <option value="Earth">Earth</option>
+        <option value="Mars">Mars</option>
+        <option value="Jupiter">Jupiter</option>
+      </select>
+      <button type="button" class="sqb" id="snap" disabled>Put my planet on this orbit</button>
+      <p class="tmsg" id="matchMsg" aria-live="polite"></p>
+    </div>
+
+    <div class="pp" id="commonPanel">
+      <label class="ck"><input type="checkbox" id="oCirc"><span>Always Circular</span></label>
+      <hr>
+      <label class="ck"><input type="checkbox" id="oSpeed"><span>Speed (km/s)</span></label>
+      <label class="ck"><input type="checkbox" id="oVel" checked><span>Velocity</span><svg class="ic" viewBox="0 0 30 14" aria-hidden="true"><path d="M2 7h19" stroke="#33FF33" stroke-width="3"/><path d="M19 1.5L29 7l-10 5.5z" fill="#33FF33"/></svg></label>
+      <label class="ck"><input type="checkbox" id="oGrav"><span>Gravity Force</span><svg class="ic" viewBox="0 0 30 14" aria-hidden="true"><path d="M2 7h19" stroke="#4C8BFF" stroke-width="3"/><path d="M19 1.5L29 7l-10 5.5z" fill="#4C8BFF"/></svg></label>
+      <hr>
+      <div class="zoomrow">
+        <button type="button" class="zb" id="zoomOut" aria-label="Zoom out">−</button>
+        <input type="range" id="zoom" min="0" max="100" step="1" value="43" aria-label="Zoom">
+        <button type="button" class="zb" id="zoomIn" aria-label="Zoom in">+</button>
+      </div>
+      <label class="ck"><input type="checkbox" id="oGrid"><span>Grid</span></label>
+      <label class="ck"><input type="checkbox" id="oSw"><span>Stopwatch</span></label>
+      <p class="omsg" id="orbitMsg" aria-live="polite"></p>
+    </div>
+
+    <div class="resetRow" id="resetRow">
+      <button type="button" class="resetAll" id="resetAll" aria-label="Reset all"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V1L7 5.5 12 10V7a5 5 0 1 1-5 5H4.5A7.5 7.5 0 1 0 12 4z" fill="#FFFFFF"/></svg></button>
+    </div>
+  </div>
+
+  <p class="foot">The look and controls follow the layout of PhET Interactive Simulations' Kepler's Laws (University of Colorado Boulder, phet.colorado.edu); this is a separate lesson tool built for this class. Orbits follow Kepler's equation and Newton's gravity exactly, in astronomical units (AU) and years, so speeds and times are real. Planets and moons are drawn larger than scale so you can see them.</p>
+</div>
+
+<script>
+(function(){
+'use strict';
+var TAU = Math.PI * 2, AUYR = 4.74047; // 1 AU/year in km/s
+var $ = function(id){ return document.getElementById(id); };
+var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+var C = { text:'#FFFFFF', dim:'#9A9A9A', grid:'#2E2E2E', sun:'#FFD84A', planet:'#7E9BFF', mars:'#FF6B5A', amber:'#F2A93B',
+  vel:'#33FF33', grav:'#4C8BFF', a:'#FF8C1A', b:'#A7E86A', c:'#D1A8FF', focus:'#4C8BFF', string:'#E2C291',
+  apo:'#00E5FF', peri:'#FFE600', per:'#FFE36E', mag:'#FF4FFF', bad:'#FF6B6B' };
+var SANS = 'Arial, Helvetica, sans-serif', MONO = 'ui-monospace, Menlo, Consolas, monospace';
+
+/* ---------- canvas helpers ---------- */
+var stages = [];
+function stage(id, sizer){
+  var cv = $(id), s = { cv: cv, ctx: cv.getContext('2d'), W: 0, H: 0 };
+  s.fit = function(){
+    var w = cv.clientWidth; if (!w) return;
+    var h = Math.round(sizer(w, s)); if (cv.style.height !== h + 'px') cv.style.height = h + 'px';
+    var d = Math.min(window.devicePixelRatio || 1, 2.5), pw = Math.round(w * d), ph = Math.round(h * d);
+    if (cv.width !== pw || cv.height !== ph){ cv.width = pw; cv.height = ph; }
+    s.ctx.setTransform(d, 0, 0, d, 0, 0); s.W = w; s.H = h; draw();
+  };
+  if (window.ResizeObserver) new ResizeObserver(function(){ s.fit(); }).observe(cv); else window.addEventListener('resize', s.fit);
+  stages.push(s); return s;
+}
+function ratio(r, minH){ return function(w){ return Math.max(minH || 0, w * r); }; }
+var WIDE = 860;
+function lawSizer(w, s){
+  var wide = w >= WIDE; s.cv.parentNode.classList.toggle('wide', wide);
+  return wide ? Math.max(600, Math.min(720, w * 0.56)) : Math.max(340, w);
+}
+function clear(s){ s.ctx.clearRect(0, 0, s.W, s.H); }
+function dot(c, x, y, r, col){ c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = col; c.fill(); }
+function shade(hex){ var n = parseInt(hex.slice(1), 16); return 'rgb(' + ((n >> 16 & 255) * .5 | 0) + ',' + ((n >> 8 & 255) * .5 | 0) + ',' + ((n & 255) * .5 | 0) + ')'; }
+function ball(c, x, y, r, col){
+  var g = c.createRadialGradient(x - r * .35, y - r * .35, r * .15, x, y, r);
+  g.addColorStop(0, '#FFFFFF'); g.addColorStop(.3, col); g.addColorStop(1, shade(col)); dot(c, x, y, r, g);
+}
+function star(c, x, y, r){
+  var g = c.createRadialGradient(x, y, r * .2, x, y, r * 2.6);
+  g.addColorStop(0, 'rgba(255,216,74,.5)'); g.addColorStop(1, 'rgba(255,216,74,0)');
+  c.fillStyle = g; c.beginPath(); c.arc(x, y, r * 2.6, 0, TAU); c.fill(); ball(c, x, y, r, C.sun);
+}
+function label(c, t, x, y, o){
+  o = o || {}; c.font = (o.w || '400') + ' ' + (o.s || 13) + 'px ' + (o.f || SANS);
+  c.fillStyle = o.c || C.text; c.textAlign = o.a || 'left'; c.textBaseline = o.b || 'middle'; c.fillText(t, x, y);
+}
+function line(c, x1, y1, x2, y2, col, w, dash){
+  c.strokeStyle = col; c.lineWidth = w || 2; c.setLineDash(dash || []); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); c.setLineDash([]);
+}
+function arrow(c, x1, y1, x2, y2, col, w){
+  var dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy); if (L < 2) return;
+  var ux = dx / L, uy = dy / L, hl = Math.min(14, L * .45);
+  c.strokeStyle = col; c.fillStyle = col; c.lineWidth = w || 3; c.lineCap = 'butt';
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2 - ux * hl * .8, y2 - uy * hl * .8); c.stroke();
+  c.beginPath(); c.moveTo(x2, y2); c.lineTo(x2 - ux * hl - uy * hl * .55, y2 - uy * hl + ux * hl * .55);
+  c.lineTo(x2 - ux * hl + uy * hl * .55, y2 - uy * hl - ux * hl * .55); c.closePath(); c.fill();
+}
+function cross(c, x, y, col, r){ r = r || 7; c.strokeStyle = col; c.lineWidth = 3; c.beginPath(); c.moveTo(x - r, y - r); c.lineTo(x + r, y + r); c.moveTo(x + r, y - r); c.lineTo(x - r, y + r); c.stroke(); }
+function stars(s, seed){
+  var c = s.ctx, r = seed; function rnd(){ r = (r * 16807) % 2147483647; return r / 2147483647; }
+  c.fillStyle = 'rgba(255,255,255,.35)'; for (var i = 0; i < 80; i++) c.fillRect(rnd() * s.W, rnd() * s.H, 1.2, 1.2);
+}
+function keplerE(M, e){
+  M = ((M % TAU) + TAU) % TAU; var E = e < 0.8 ? M : Math.PI;
+  for (var i = 0; i < 50; i++){ var f = E - e * Math.sin(E) - M; E -= f / (1 - e * Math.cos(E)); if (Math.abs(f) < 1e-12) break; }
+  return E;
+}
+function nice(v){ return v >= 100 ? Math.round(v).toString() : v >= 10 ? v.toFixed(0) : v >= 1 ? v.toFixed(1) : v.toFixed(2); }
+
+/* ================= ORBIT MODEL (shared by the three law tabs) ================= */
+var PLANETS = { Mercury: { a: 0.387, e: 0.206, T: 0.241 }, Venus: { a: 0.723, e: 0.007, T: 0.615 },
+  Earth: { a: 1.000, e: 0.017, T: 1.000 }, Mars: { a: 1.524, e: 0.093, T: 1.881 }, Jupiter: { a: 5.203, e: 0.049, T: 11.86 } };
+var DEF = { a: 1.5, e: 1 / 3, w: 0, dir: 1, M: Math.PI };
+var O = { mass: 1, a: 1.5, e: 1 / 3, w: 0, dir: 1, M: Math.PI, M0: Math.PI, zoom: 2.3, target: 'none' };
+var trail = [], sweepStart = 0, periodStart = 0, drag = null, preview = null;
+var swT = 0, swRun = false;
+function GM(){ return 4 * Math.PI * Math.PI * O.mass; }
+function period(a){ return Math.sqrt(a * a * a / O.mass); }
+function orbPos(M, o){ // world position (AU) and velocity (AU/yr)
+  o = o || O; var E = keplerE(M, o.e), b = Math.sqrt(1 - o.e * o.e), cw = Math.cos(o.w), sw = Math.sin(o.w);
+  var xp = o.a * (Math.cos(E) - o.e), yp = o.a * b * Math.sin(E) * o.dir;
+  var n = TAU / period(o.a), f = n * o.a / (1 - o.e * Math.cos(E));
+  var vxp = -Math.sin(E) * f, vyp = b * Math.cos(E) * f * o.dir;
+  return { x: xp * cw - yp * sw, y: xp * sw + yp * cw, vx: vxp * cw - vyp * sw, vy: vxp * sw + vyp * cw };
+}
+function fromRV(rx, ry, vx, vy){
+  var r = Math.hypot(rx, ry), v2 = vx * vx + vy * vy, gm = GM(), eps = v2 / 2 - gm / r;
+  if (r < 0.08) return { bad: 'Too close to the star. The planet would crash into it.' };
+  if (eps >= 0) return { bad: 'Too fast! The planet would escape and never come back.' };
+  var a = -gm / (2 * eps), h = rx * vy - ry * vx;
+  if (Math.abs(h) < 1e-6) return { bad: 'The planet would fall straight into the star.' };
+  var rv = rx * vx + ry * vy, ex = ((v2 - gm / r) * rx - rv * vx) / gm, ey = ((v2 - gm / r) * ry - rv * vy) / gm, e = Math.hypot(ex, ey);
+  if (e > 0.95) return { bad: 'That orbit is too stretched (e above 0.95).' };
+  if (a * (1 - e) < 0.07) return { bad: 'Too close to the star. The planet would crash into it.' };
+  if (a * (1 + e) > 12) return { bad: 'That orbit is too big for this screen.' };
+  var dir = h > 0 ? 1 : -1, w = e > 1e-6 ? Math.atan2(ey, ex) : Math.atan2(ry, rx);
+  var nu = dir * (Math.atan2(ry, rx) - w), E = 2 * Math.atan2(Math.sqrt(1 - e) * Math.sin(nu / 2), Math.sqrt(1 + e) * Math.cos(nu / 2));
+  return { a: a, e: e, w: w, dir: dir, M: E - e * Math.sin(E) };
+}
+function circular(px, py, dir){ var r = Math.hypot(px, py), v = Math.sqrt(GM() / r); return { x: px, y: py, vx: -py / r * v * dir, vy: px / r * v * dir }; }
+function resetSweep(){ sweepStart = O.M; }
+function resetPeriod(){ periodStart = O.M; }
+function setOrbit(o, addTrail){
+  O.a = o.a; O.e = o.e; O.w = o.w; O.dir = o.dir; O.M = o.M; O.M0 = o.M;
+  if (addTrail !== false){
+    var T = period(O.a), last = trail[trail.length - 1];
+    if (!last || Math.abs(last.a - O.a) > 0.005 || Math.abs(last.T - T) > 0.005){ trail.push({ a: O.a, T: T }); if (trail.length > 60) trail.shift(); }
+  }
+  resetSweep(); resetPeriod();
+}
+function cur(){ return drag ? drag.p : orbPos(O.M); }
+
+/* zoom: slider 0 to 100 = 8 AU down to 0.45 AU from the star to the edge of the view */
+var ZMAX = 8, ZMIN = 0.45;
+function zoomOf(v){ return ZMAX * Math.pow(ZMIN / ZMAX, v / 100); }
+function sliderOf(z){ return 100 * Math.log(z / ZMAX) / Math.log(ZMIN / ZMAX); }
+function setZoom(z){ O.zoom = Math.max(ZMIN, Math.min(ZMAX, z)); $('zoom').value = Math.round(sliderOf(O.zoom)); }
+
+/* view: star in the middle of the open space between the panels */
+function view(s){
+  var wide = s.W >= WIDE, half, cx, cy;
+  if (wide){ half = Math.min(s.H / 2 - 70, (s.W - 456) / 2 - 10); cx = 234 + (s.W - 456) / 2; cy = s.H / 2; }
+  else { half = Math.min(s.W / 2 - 16, s.H / 2 - 48); cx = s.W / 2; cy = s.H / 2 + 14; }
+  var sc = half / O.zoom;
+  return { sc: sc, cx: cx, cy: cy, half: half, wide: wide, X: function(x){ return cx + x * sc; }, Y: function(y){ return cy - y * sc; } };
+}
+function KV(V){ return 0.06 * V.half; } // px of velocity arrow per AU/yr
+function ellipsePath(c, V, o){
+  var cxw = -o.a * o.e * Math.cos(o.w), cyw = -o.a * o.e * Math.sin(o.w), b = o.a * Math.sqrt(1 - o.e * o.e);
+  c.beginPath(); c.ellipse(V.X(cxw), V.Y(cyw), o.a * V.sc, b * V.sc, -o.w, 0, TAU);
+}
+function drawGrid(s, V){
+  var c = s.ctx, step = O.zoom > 3 ? 1 : O.zoom > 1.2 ? 0.5 : 0.25; c.lineWidth = 1; c.strokeStyle = C.grid;
+  var n = Math.ceil(Math.max(s.W, s.H) / V.sc / step) + 1;
+  for (var i = -n; i <= n; i++){
+    var px = V.X(i * step), py = V.Y(i * step);
+    if (px >= 0 && px <= s.W){ c.beginPath(); c.moveTo(px, 0); c.lineTo(px, s.H); c.stroke(); }
+    if (py >= 0 && py <= s.H){ c.beginPath(); c.moveTo(0, py); c.lineTo(s.W, py); c.stroke(); }
+  }
+  label(c, 'Grid: ' + step + ' AU', V.cx + V.half, s.H - 14, { a: 'right', c: C.dim, s: 12 });
+}
+function drawBase(s, extra){
+  var c = s.ctx; clear(s); var V = view(s);
+  if ($('oGrid').checked) drawGrid(s, V);
+  if (O.target !== 'none'){
+    var t = PLANETS[O.target], to = { a: t.a, e: t.e, w: 0, dir: 1 };
+    c.setLineDash([8, 6]); c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 2; ellipsePath(c, V, to); c.stroke(); c.setLineDash([]);
+    label(c, O.target + ' (target)', V.X(-t.a * t.e), V.Y(t.a * Math.sqrt(1 - t.e * t.e)) - 12, { a: 'center', c: 'rgba(255,255,255,.8)', s: 12 });
+  }
+  if (extra.under) extra.under(c, V);
+  c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1.6; ellipsePath(c, V, O); c.stroke();
+  if (preview && !preview.bad){ c.setLineDash([5, 5]); c.strokeStyle = 'rgba(51,255,51,.75)'; c.lineWidth = 1.6; ellipsePath(c, V, preview); c.stroke(); c.setLineDash([]); }
+  if (extra.over) extra.over(c, V);
+  star(c, V.cx, V.cy, 10 + 5 * (O.mass - 1));
+  var p = cur(), px = V.X(p.x), py = V.Y(p.y);
+  if ($('oGrav').checked){
+    var r = Math.hypot(p.x, p.y), rp = r * V.sc, g = Math.min(0.85 * rp, 230, 0.18 * V.half * O.mass / (r * r));
+    arrow(c, px, py, px - p.x / r * g, py + p.y / r * g, C.grav, 4);
+  }
+  ball(c, px, py, 10, C.planet);
+  if ($('oVel').checked){
+    var k = KV(V), tx = px + p.vx * k, ty = py - p.vy * k;
+    arrow(c, px, py, tx, ty, C.vel, 4);
+    c.setLineDash([3, 3]); c.strokeStyle = '#BBBBBB'; c.lineWidth = 2; c.beginPath(); c.arc(tx, ty, 12, 0, TAU); c.stroke(); c.setLineDash([]);
+    label(c, 'V', tx, ty + 1, { a: 'center', c: '#DDDDDD', w: '700', s: 13 });
+  }
+  if ($('oSpeed').checked) label(c, '|v| = ' + (Math.hypot(p.vx, p.vy) * AUYR).toFixed(2) + ' km/s', px, py - 26, { a: 'center', c: C.text, w: '700', s: 14 });
+  if (preview && preview.bad) label(c, preview.bad, V.cx, V.cy - V.half - 8 < 30 ? 30 : V.cy - V.half - 8, { a: 'center', c: C.bad, w: '700', s: 14 });
+  return V;
+}
+function setupDrag(s){
+  var cv = s.cv;
+  function pt(ev){ var r = cv.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+  function handles(){ var V = view(s), p = orbPos(O.M), px = V.X(p.x), py = V.Y(p.y), k = KV(V); return { V: V, p: p, px: px, py: py, tx: px + p.vx * k, ty: py - p.vy * k }; }
+  cv.addEventListener('pointerdown', function(ev){
+    var h = handles(), m = pt(ev);
+    var hitTip = $('oVel').checked && Math.hypot(m.x - h.tx, m.y - h.ty) < 18, hitP = Math.hypot(m.x - h.px, m.y - h.py) < 18;
+    if (!hitTip && !hitP) return;
+    drag = { what: hitTip ? 'vel' : 'pos', p: { x: h.p.x, y: h.p.y, vx: h.p.vx, vy: h.p.vy } };
+    try { cv.setPointerCapture(ev.pointerId); } catch (e) {}
+    ev.preventDefault(); cv.style.cursor = 'grabbing';
+  });
+  cv.addEventListener('pointermove', function(ev){
+    var m = pt(ev);
+    if (!drag){ var h = handles(); cv.style.cursor = (Math.hypot(m.x - h.px, m.y - h.py) < 18 || ($('oVel').checked && Math.hypot(m.x - h.tx, m.y - h.ty) < 18)) ? 'grab' : 'default'; return; }
+    var V = view(s), circ = $('oCirc').checked, q = drag.p;
+    if (drag.what === 'pos'){
+      q.x = (m.x - V.cx) / V.sc; q.y = -(m.y - V.cy) / V.sc;
+      if (circ){ var c1 = circular(q.x, q.y, O.dir); q.vx = c1.vx; q.vy = c1.vy; }
+    } else {
+      var k = KV(V); q.vx = (m.x - V.X(q.x)) / k; q.vy = -(m.y - V.Y(q.y)) / k;
+      if (circ){ var hz = q.x * q.vy - q.y * q.vx, c2 = circular(q.x, q.y, hz >= 0 ? 1 : -1); q.vx = c2.vx; q.vy = c2.vy; }
+    }
+    preview = fromRV(q.x, q.y, q.vx, q.vy); draw();
+  });
+  function end(){
+    if (!drag) return;
+    var o = fromRV(drag.p.x, drag.p.y, drag.p.vx, drag.p.vy);
+    if (o.bad) flash(o.bad + ' The orbit was not changed.'); else { setOrbit(o); flash(''); }
+    drag = null; preview = null; s.cv.style.cursor = 'default'; draw();
+  }
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+}
+var flashT = 0;
+function flash(t){ $('orbitMsg').textContent = t; clearTimeout(flashT); if (t) flashT = setTimeout(function(){ $('orbitMsg').textContent = ''; }, 6000); }
+
+/* ---------- First Law ---------- */
+var st1 = stage('cFirst', lawSizer), stEcc = stage('cEcc', function(w){ return Math.min(260, Math.max(200, w * 1.15)); });
+setupDrag(st1);
+function geom(){
+  var cw = Math.cos(O.w), sw = Math.sin(O.w), ae = O.a * O.e, b = O.a * Math.sqrt(1 - O.e * O.e);
+  return { cw: cw, sw: sw, b: b, c: ae, cx: -ae * cw, cy: -ae * sw, f2x: -2 * ae * cw, f2y: -2 * ae * sw };
+}
+function drawFirst(){
+  var s = st1; if (!s.W) return; var G = geom();
+  drawBase(s, { over: function(c, V){
+    var CX = V.X(G.cx), CY = V.Y(G.cy), axes = $('f1Axes').checked, semi = $('f1Semi').checked, ecc = $('f1Ecc').checked;
+    if (axes){
+      line(c, V.X(G.cx + O.a * G.cw), V.Y(G.cy + O.a * G.sw), V.X(G.cx - O.a * G.cw), V.Y(G.cy - O.a * G.sw), 'rgba(255,255,255,.9)', 1.5);
+      line(c, V.X(G.cx - G.b * G.sw), V.Y(G.cy + G.b * G.cw), V.X(G.cx + G.b * G.sw), V.Y(G.cy - G.b * G.cw), 'rgba(255,255,255,.9)', 1.5);
+    }
+    if (semi || ecc){ // a: centre to the far end, away from the star
+      var ax = G.cx - O.a * G.cw, ay = G.cy - O.a * G.sw;
+      line(c, CX, CY, V.X(ax), V.Y(ay), C.a, 4);
+      label(c, 'a', (CX + V.X(ax)) / 2, (CY + V.Y(ay)) / 2 - 13, { a: 'center', c: C.a, w: '700', s: 17 });
+    }
+    if (semi){
+      var bx = G.cx - G.b * G.sw, by = G.cy + G.b * G.cw;
+      line(c, CX, CY, V.X(bx), V.Y(by), C.b, 4);
+      label(c, 'b', (CX + V.X(bx)) / 2 + 12, (CY + V.Y(by)) / 2, { a: 'center', c: C.b, w: '700', s: 17 });
+    }
+    if (ecc && O.e > 0.003){
+      line(c, CX, CY, V.cx, V.cy, C.c, 4);
+      label(c, 'c', (CX + V.cx) / 2, (CY + V.cy) / 2 + 15, { a: 'center', c: C.c, w: '700', s: 17 });
+    }
+    var p = cur();
+    if ($('f1String').checked){
+      var d1 = Math.hypot(p.x, p.y), d2 = Math.hypot(p.x - G.f2x, p.y - G.f2y);
+      line(c, V.cx, V.cy, V.X(p.x), V.Y(p.y), C.string, 2.4, [7, 5]);
+      line(c, V.X(G.f2x), V.Y(G.f2y), V.X(p.x), V.Y(p.y), C.string, 2.4, [7, 5]);
+      label(c, 'd₁', (V.cx + V.X(p.x)) / 2 + 10, (V.cy + V.Y(p.y)) / 2 - 8, { c: C.string, w: '700', s: 15 });
+      label(c, 'd₂', (V.X(G.f2x) + V.X(p.x)) / 2 - 10, (V.Y(G.f2y) + V.Y(p.y)) / 2 - 8, { a: 'right', c: C.string, w: '700', s: 15 });
+      stringDiagram(c, s, V, d1, d2);
+    }
+    if ($('f1Foci').checked){ cross(c, V.cx, V.cy, C.focus, 8); cross(c, V.X(G.f2x), V.Y(G.f2y), C.focus, 8); }
+  }});
+}
+function stringDiagram(c, s, V, d1, d2){
+  var L = Math.min(280, V.half * 1.1), x0 = V.cx - L / 2, tot = d1 + d2, xm = x0 + L * d1 / tot;
+  c.lineCap = 'butt';
+  line(c, x0, 22, xm, 22, C.string, 6); line(c, xm + 1.5, 22, x0 + L, 22, '#B8935C', 6);
+  label(c, 'd₁', (x0 + xm) / 2, 10, { a: 'center', c: C.string, w: '700', s: 13 });
+  label(c, 'd₂', (xm + x0 + L) / 2, 10, { a: 'center', c: '#D8B47E', w: '700', s: 13 });
+  line(c, x0, 38, x0 + L / 2 - 1.5, 38, C.a, 6); line(c, x0 + L / 2 + 1.5, 38, x0 + L, 38, C.a, 6);
+  label(c, 'a', x0 + L / 4, 51, { a: 'center', c: C.a, w: '700', s: 13 });
+  label(c, 'a', x0 + 3 * L / 4, 51, { a: 'center', c: C.a, w: '700', s: 13 });
+  var eq = 'd₁ + d₂ = ' + tot.toFixed(2) + ' AU = 2a';
+  if (V.wide) label(c, eq, x0 + L + 12, 30, { c: C.text, w: '700', s: 14 });
+  else label(c, eq, V.cx, 64, { a: 'center', c: C.text, w: '700', s: 13 });
+}
+function drawEcc(){
+  var s = stEcc, c = s.ctx; if (!s.W) return; clear(s);
+  var top = 12, bot = s.H - 12, x = 46, Y = function(e){ return bot - (bot - top) * e; };
+  c.fillStyle = '#555'; c.fillRect(x - 5, top, 10, bot - top);
+  c.fillStyle = C.c; c.fillRect(x - 5, Y(O.e), 10, bot - Y(O.e));
+  label(c, '0', x - 12, bot, { a: 'right', c: '#BBB', s: 11 }); label(c, '1', x - 12, top, { a: 'right', c: '#BBB', s: 11 });
+  [['Earth', .017], ['Mercury', .206], ['Eris', .44], ['Nereid', .75], ["Halley's comet", .967]].forEach(function(b){
+    line(c, x - 8, Y(b[1]), x + 8, Y(b[1]), '#FFFFFF', 1.5);
+    label(c, b[0] + '  ' + b[1], x + 14, Y(b[1]), { c: '#E6E6E6', s: 11.5 });
+  });
+  arrow(c, x - 38, Y(O.e), x - 8, Y(O.e), C.mag, 3.5);
+}
+function firstText(){
+  var p = orbPos(O.M), G = geom(), d1 = Math.hypot(p.x, p.y), d2 = Math.hypot(p.x - G.f2x, p.y - G.f2y);
+  $('f1a').textContent = O.a.toFixed(2) + ' AU'; $('f1b').textContent = G.b.toFixed(2) + ' AU';
+  $('f1c').textContent = G.c.toFixed(2) + ' AU'; $('f1e').textContent = O.e.toFixed(3);
+  $('f1d').textContent = (d1 + d2).toFixed(2) + ' AU';
+}
+
+/* ---------- Second Law ---------- */
+var st2 = stage('cSecond', lawSizer), stArea = stage('cArea', ratio(0.72, 130)), stSp = stage('cSpeed', ratio(0.7, 120));
+setupDrag(st2);
+var N = 4;
+function wedgeCol(k){ var L = N > 1 ? 80 - 35 * k / (N - 1) : 70; return 'hsl(300,100%,' + L.toFixed(1) + '%)'; }
+function wedgePts(m0, m1){ var pts = [], n = Math.max(8, Math.ceil((m1 - m0) / TAU * 400)); for (var i = 0; i <= n; i++) pts.push(orbPos(m0 + (m1 - m0) * i / n)); return pts; }
+function wedgeArea(pts){ var A = 0, prev = { x: 0, y: 0 }; pts.concat([{ x: 0, y: 0 }]).forEach(function(p){ A += prev.x * p.y - p.x * prev.y; prev = p; }); return Math.abs(A) / 2; }
+// divisions are equal slices of time, the first one centred on periapsis; only what the planet has swept since sweepStart is shown
+function sweptPieces(){
+  var w = TAU / N, s0 = sweepStart, s1 = s0 + Math.min(TAU, O.M - sweepStart), out = [];
+  for (var k = 0; k < N; k++){
+    var d0 = k * w - w / 2, d1 = d0 + w, pcs = [], tot = 0, area = 0;
+    for (var m = Math.floor((s0 - d1) / TAU); m <= Math.ceil((s1 - d0) / TAU); m++){
+      var lo = Math.max(d0 + m * TAU, s0), hi = Math.min(d1 + m * TAU, s1);
+      if (hi > lo + 1e-9){ var pts = wedgePts(lo, hi); pcs.push(pts); tot += hi - lo; area += wedgeArea(pts); }
+    }
+    out.push({ k: k, pcs: pcs, done: tot >= w - 1e-6, d0: d0, d1: d1, area: area });
+  }
+  return out;
+}
+function drawSecond(){
+  var s = st2; if (!s.W) return; var P = sweptPieces(), T = period(O.a);
+  drawBase(s, { under: function(c, V){
+    P.forEach(function(d){
+      d.pcs.forEach(function(pts){
+        c.beginPath(); c.moveTo(V.cx, V.cy); pts.forEach(function(p){ c.lineTo(V.X(p.x), V.Y(p.y)); }); c.closePath();
+        c.fillStyle = wedgeCol(d.k); c.fill(); c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = 1; c.stroke();
+      });
+    });
+    var av = $('s2Area').checked, tv = $('s2Time').checked;
+    if (av || tv) P.forEach(function(d){
+      if (!d.done) return;
+      var mid = orbPos((d.d0 + d.d1) / 2), x = V.X(mid.x * 0.62), y = V.Y(mid.y * 0.62), lines = [];
+      if (av) lines.push(d.area.toFixed(2) + ' AU²'); if (tv) lines.push((T / N).toFixed(2) + ' yr');
+      lines.forEach(function(t, i){ label(c, t, x, y + (i - (lines.length - 1) / 2) * 15, { a: 'center', c: '#000', w: '700', s: 12.5 }); });
+    });
+  }, over: function(c, V){
+    var p = cur(); line(c, V.cx, V.cy, V.X(p.x), V.Y(p.y), '#FFFFFF', 1.6);
+    function mark(M, col, name){
+      var q = orbPos(M), r = Math.hypot(q.x, q.y), x = V.X(q.x), y = V.Y(q.y);
+      cross(c, x, y, col, 8);
+      var sx = q.x >= 0 ? 1 : -1, al = sx > 0 ? 'left' : 'right';
+      label(c, name, x + sx * 14, y + 2, { a: al, c: col, w: '700', s: 13 });
+      label(c, 'r = ' + r.toFixed(2) + ' AU', x + sx * 14, y + 17, { a: al, c: col, s: 12 });
+    }
+    if ($('s2Apo').checked) mark(Math.PI, C.apo, 'Apoapsis');
+    if ($('s2Peri').checked) mark(0, C.peri, 'Periapsis');
+  }});
+  drawAreaChart(P);
+}
+function drawAreaChart(P){
+  var s = stArea, c = s.ctx; if (!s.W || $('areaBody').hidden) return; clear(s);
+  var m = { l: 34, r: 6, t: 8, b: 20 }, pw = s.W - m.l - m.r, ph = s.H - m.t - m.b;
+  var full = Math.PI * O.a * O.a * Math.sqrt(1 - O.e * O.e) / N, top = full * 1.3;
+  line(c, m.l, m.t, m.l, m.t + ph, '#FFF', 1.5); line(c, m.l, m.t + ph, m.l + pw, m.t + ph, '#FFF', 1.5);
+  var yf = m.t + ph - full / top * ph;
+  line(c, m.l, yf, m.l + pw, yf, 'rgba(255,255,255,.5)', 1, [4, 4]);
+  label(c, full.toFixed(2), m.l - 4, yf, { a: 'right', c: '#DDD', s: 11 });
+  c.save(); c.translate(10, m.t + ph / 2); c.rotate(-Math.PI / 2); label(c, 'Area (AU²)', 0, 0, { a: 'center', c: '#DDD', s: 11 }); c.restore();
+  var bw = pw / N;
+  P.forEach(function(d){
+    var h = d.area / top * ph; c.fillStyle = wedgeCol(d.k); c.fillRect(m.l + d.k * bw + bw * .15, m.t + ph - h, bw * .7, h);
+    label(c, String(d.k + 1), m.l + d.k * bw + bw / 2, m.t + ph + 10, { a: 'center', c: '#DDD', s: 11 });
+  });
+}
+function drawSpeed(){
+  var s = stSp, c = s.ctx; if (!s.W || $('speedPanel').hidden) return; clear(s);
+  var m = { l: 34, r: 8, t: 10, b: 20 }, pw = s.W - m.l - m.r, ph = s.H - m.t - m.b;
+  var spAt = function(M){ var p = orbPos(M); return Math.hypot(p.vx, p.vy) * AUYR; };
+  var vmax = spAt(0), top = Math.max(10, Math.ceil(vmax * 1.15 / 10) * 10);
+  var X = function(f){ return m.l + f * pw; }, Y = function(v){ return m.t + (1 - v / top) * ph; };
+  line(c, m.l, m.t, m.l, m.t + ph, '#FFF', 1.5); line(c, m.l, m.t + ph, m.l + pw, m.t + ph, '#FFF', 1.5);
+  [top / 2, top].forEach(function(v){ line(c, m.l, Y(v), m.l + pw, Y(v), '#444', 1); label(c, String(v), m.l - 4, Y(v), { a: 'right', c: '#DDD', s: 11 }); });
+  c.save(); c.translate(10, m.t + ph / 2); c.rotate(-Math.PI / 2); label(c, 'km/s', 0, 0, { a: 'center', c: '#DDD', s: 11 }); c.restore();
+  label(c, 'one orbit, from periapsis →', m.l + pw, s.H - 7, { a: 'right', c: '#BBB', s: 10.5 });
+  c.strokeStyle = C.mag; c.lineWidth = 2.2; c.beginPath();
+  for (var i = 0; i <= 160; i++){ var f = i / 160, v = spAt(f * TAU); if (i) c.lineTo(X(f), Y(v)); else c.moveTo(X(f), Y(v)); } c.stroke();
+  var fN = ((O.M % TAU) + TAU) % TAU / TAU; dot(c, X(fN), Y(spAt(O.M)), 5, '#FFF');
+}
+
+/* ---------- Third Law ---------- */
+var st3 = stage('cThird', lawSizer), stG = stage('cGraph', ratio(0.92, 140));
+setupDrag(st3);
+var PX = 1, PY = 1, SUP = ['', '', '²', '³'];
+function drawThird(){
+  var s = st3; if (!s.W) return; var T = period(O.a);
+  drawBase(s, { over: function(c, V){
+    if ($('t3Per').checked){
+      var cov = Math.min(TAU, O.M - periodStart);
+      if (cov > 1e-6){
+        var pts = wedgePts(periodStart, periodStart + cov); c.strokeStyle = C.per; c.lineWidth = 5; c.lineCap = 'round'; c.beginPath();
+        pts.forEach(function(p, i){ if (i) c.lineTo(V.X(p.x), V.Y(p.y)); else c.moveTo(V.X(p.x), V.Y(p.y)); }); c.stroke(); c.lineCap = 'butt';
+      }
+      var done = cov >= TAU - 1e-9, txt = done ? 'Period T = ' + T.toFixed(2) + ' years' : 'Timing: ' + (cov / TAU * T).toFixed(2) + ' years';
+      label(c, txt, V.cx, 24, { a: 'center', c: C.per, w: '700', s: 16 });
+    }
+    if ($('t3Axis').checked){
+      var G = geom(), CX = V.X(G.cx), CY = V.Y(G.cy), ax = G.cx - O.a * G.cw, ay = G.cy - O.a * G.sw;
+      line(c, CX, CY, V.X(ax), V.Y(ay), C.a, 4);
+      label(c, 'a = ' + O.a.toFixed(2) + ' AU', (CX + V.X(ax)) / 2, (CY + V.Y(ay)) / 2 - 14, { a: 'center', c: C.a, w: '700', s: 14 });
+    }
+  }});
+}
+function drawGraph(){
+  var s = stG, c = s.ctx; if (!s.W) return; clear(s);
+  var m = { l: 8, r: 10, t: 10, b: 8 }, pw = s.W - m.l - m.r, ph = s.H - m.t - m.b, pts = [];
+  if ($('t3Planets').checked) ['Mercury', 'Venus', 'Earth', 'Mars'].forEach(function(n){ var p = PLANETS[n]; pts.push({ n: n, a: p.a, T: p.T, col: '#C8C8C8' }); });
+  trail.forEach(function(t){ pts.push({ a: t.a, T: t.T, col: 'rgba(255,79,255,.5)', tr: true }); });
+  pts.push({ a: O.a, T: period(O.a), col: C.mag, now: true });
+  var xs = pts.map(function(p){ return Math.pow(p.a, PX); }), ys = pts.map(function(p){ return Math.pow(p.T, PY); });
+  var xmax = Math.max.apply(null, xs) * 1.15, ymax = Math.max.apply(null, ys) * 1.15;
+  var X = function(v){ return m.l + v / xmax * pw; }, Y = function(v){ return m.t + (1 - v / ymax) * ph; };
+  arrow(c, m.l, m.t + ph, m.l, m.t - 6, '#FFF', 1.5); arrow(c, m.l, m.t + ph, m.l + pw + 8, m.t + ph, '#FFF', 1.5);
+  label(c, nice(ymax), m.l + 5, m.t + 2, { c: '#AAA', s: 10 });
+  label(c, nice(xmax), m.l + pw, m.t + ph - 8, { a: 'right', c: '#AAA', s: 10 });
+  if (PX === 3 && PY === 2){ // T² = a³ / M for this star
+    var xe = Math.min(xmax, ymax * O.mass); line(c, X(0), Y(0), X(xe), Y(xe / O.mass), 'rgba(255,79,255,.8)', 1.6, [5, 4]);
+  }
+  pts.forEach(function(p, i){
+    var x = X(xs[i]), y = Y(ys[i]);
+    dot(c, x, y, p.now ? 6 : p.tr ? 3.5 : 4.5, p.col);
+    if (p.n) label(c, p.n, x + 6, y - 8, { c: '#C8C8C8', s: 10 });
+  });
+  var Tn = Math.pow(period(O.a), PY), an = Math.pow(O.a, PX);
+  $('graphTitle').textContent = 'T' + SUP[PY] + ' vs a' + SUP[PX] + ' Graph';
+  $('ratio').innerHTML = 'T' + SUP[PY] + ' / a' + SUP[PX] + ' = ' + Tn.toFixed(2) + ' / ' + an.toFixed(2) + ' = <b style="color:#FF4FFF">' + (Tn / an).toFixed(2) + '</b>';
+}
+function powGroup(id, set){
+  $(id).addEventListener('click', function(ev){
+    var b = ev.target.closest('button'); if (!b) return;
+    Array.prototype.forEach.call($(id).querySelectorAll('button'), function(o){ o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+    set(+b.dataset.v); draw();
+  });
+}
+powGroup('xPow', function(v){ PX = v; }); powGroup('yPow', function(v){ PY = v; });
+function setPow(id, v){ Array.prototype.forEach.call($(id).querySelectorAll('button'), function(o){ o.setAttribute('aria-pressed', +o.dataset.v === v ? 'true' : 'false'); }); }
+
+/* ================= WARM-UP: RETROGRADE ================= */
+var stR = stage('cRetro', ratio(1, 260)), stRP = stage('cRetroPlot', ratio(1, 260));
+var RE = 1, RM = 1.524, TM = 1.881, TSPAN = 2.2, thM0 = -TAU / TM, tR = 0, RPTS = [];
+function rA(t){ var aE = TAU * t, aM = thM0 + TAU * t / TM, ex = RE * Math.cos(aE), ey = RE * Math.sin(aE), mx = RM * Math.cos(aM), my = RM * Math.sin(aM);
+  return { ex: ex, ey: ey, mx: mx, my: my, lam: Math.atan2(my - ey, mx - ex) }; }
+(function(){ var prev = null, off = 0;
+  for (var i = 0; i <= 880; i++){ var t = TSPAN * i / 880, L = rA(t).lam;
+    if (prev !== null){ while (L + off - prev > Math.PI) off -= TAU; while (L + off - prev < -Math.PI) off += TAU; }
+    prev = L + off; RPTS.push({ t: t, lam: prev * 180 / Math.PI }); }
+  for (i = 0; i < RPTS.length; i++){ var q = RPTS[Math.min(i + 1, 880)], o = RPTS[Math.max(i - 1, 0)]; RPTS[i].back = q.lam - o.lam < 0; }
+})();
+function isBack(t){ return RPTS[Math.max(0, Math.min(880, Math.round(t / TSPAN * 880)))].back; }
+function ringHit(x0, y0, dx, dy, R){ var b = x0 * dx + y0 * dy, cc = x0 * x0 + y0 * y0 - R * R, s = -b + Math.sqrt(b * b - cc); return { x: x0 + s * dx, y: y0 + s * dy }; }
+function drawRetro(){
+  var s = stR, c = s.ctx; if (!s.W) return; clear(s); stars(s, 7);
+  var cx = s.W / 2, cy = s.H / 2, R = 2.05, sc = Math.min(s.W, s.H) / 2 / (R + 0.15), a = rA(tR);
+  c.setLineDash([2, 6]); c.strokeStyle = C.dim; c.lineWidth = 1.2; c.beginPath(); c.arc(cx, cy, R * sc, 0, TAU); c.stroke(); c.setLineDash([]);
+  label(c, 'distant stars', cx, cy - R * sc + 12, { a: 'center', c: C.dim, s: 12 });
+  c.strokeStyle = 'rgba(126,155,255,.5)'; c.lineWidth = 1.5; c.beginPath(); c.arc(cx, cy, RE * sc, 0, TAU); c.stroke();
+  c.strokeStyle = 'rgba(255,107,90,.5)'; c.beginPath(); c.arc(cx, cy, RM * sc, 0, TAU); c.stroke();
+  var ex = cx + a.ex * sc, ey = cy - a.ey * sc, mx = cx + a.mx * sc, my = cy - a.my * sc;
+  if ($('rTrail').checked){ var n = Math.round(tR / TSPAN * 880);
+    for (var i = 0; i <= n; i += 4){ var p = RPTS[i], ang = p.lam * Math.PI / 180, A = rA(p.t), h = ringHit(A.ex, A.ey, Math.cos(ang), Math.sin(ang), R);
+      dot(c, cx + h.x * sc, cy - h.y * sc, p.back ? 3.2 : 2.2, p.back ? C.amber : 'rgba(255,107,90,.8)'); } }
+  if ($('rLine').checked){ var hh = ringHit(a.ex, a.ey, Math.cos(a.lam), Math.sin(a.lam), R);
+    line(c, ex, ey, cx + hh.x * sc, cy - hh.y * sc, isBack(tR) ? C.amber : 'rgba(255,255,255,.6)', 1.5, [6, 5]); }
+  star(c, cx, cy, 9);
+  ball(c, ex, ey, 7, C.planet); label(c, 'Earth', ex + 11, ey, { c: C.planet, w: '700' });
+  ball(c, mx, my, 6, C.mars); label(c, 'Mars', mx + 10, my, { c: C.mars, w: '700' });
+}
+function drawRetroPlot(){
+  var s = stRP, c = s.ctx; if (!s.W) return; clear(s);
+  var m = { l: 44, r: 12, t: 30, b: 36 }, pw = s.W - m.l - m.r, ph = s.H - m.t - m.b, lo = Infinity, hi = -Infinity;
+  RPTS.forEach(function(p){ lo = Math.min(lo, p.lam); hi = Math.max(hi, p.lam); });
+  var X = function(t){ return m.l + t / TSPAN * pw; }, Y = function(l){ return m.t + (hi - l) / (hi - lo) * ph; };
+  label(c, "Mars's position among the stars", m.l, 14, { w: '700', s: 13 });
+  for (var k = 0; k <= 4; k++){ var gy = m.t + ph * k / 4; line(c, m.l, gy, m.l + pw, gy, C.grid, 1); }
+  [0, 0.5, 1, 1.5, 2].forEach(function(t){ var gx = X(t); line(c, gx, m.t, gx, m.t + ph, C.grid, 1);
+    label(c, String(t), gx, m.t + ph + 12, { a: 'center', c: C.dim, s: 11 }); });
+  label(c, 'time (years)', m.l + pw / 2, s.H - 8, { a: 'center', c: C.dim, s: 11 });
+  c.save(); c.translate(14, m.t + ph / 2); c.rotate(-Math.PI / 2); label(c, 'position in sky →', 0, 0, { a: 'center', c: C.dim, s: 11 }); c.restore();
+  var n = Math.round(tR / TSPAN * 880); c.lineWidth = 3; c.lineCap = 'round';
+  for (var i = 1; i <= n; i++){ var p = RPTS[i - 1], q = RPTS[i]; c.strokeStyle = q.back ? C.amber : C.mars; c.beginPath(); c.moveTo(X(p.t), Y(p.lam)); c.lineTo(X(q.t), Y(q.lam)); c.stroke(); }
+  c.lineCap = 'butt';
+  if (n > 0) dot(c, X(RPTS[n].t), Y(RPTS[n].lam), 5, RPTS[n].back ? C.amber : C.mars);
+  var mid = RPTS.filter(function(p){ return p.back; }), mp = mid[Math.floor(mid.length / 2)];
+  if (mp && tR > mp.t) label(c, 'backward!', X(mp.t), Y(mp.lam) + 18, { a: 'center', c: C.amber, w: '700' });
+}
+function retroText(){
+  var back = isBack(tR), st = $('retroStatus');
+  st.textContent = back ? 'Mars appears to move BACKWARD' : 'Mars appears to move forward'; st.className = 'status' + (back ? ' hot' : '');
+  $('rTime').textContent = tR.toFixed(2) + ' years'; $('rDir').textContent = back ? 'backward' : 'forward';
+}
+
+/* ================= JUPITER'S MOONS ================= */
+var stM = stage('cMoons', ratio(0.8, 260), null), stTR = stage('cTR', ratio(0.8, 260)), tM = 0;
+var MOONS = [ { n: 'Io', r: 4.22, T: 1.769, c: '#FFD36E' }, { n: 'Europa', r: 6.71, T: 3.551, c: '#E6E8F5' },
+  { n: 'Ganymede', r: 10.70, T: 7.155, c: '#B9C2E0' }, { n: 'Callisto', r: 18.83, T: 16.689, c: '#9AA0BC' } ];
+var K3 = MOONS.reduce(function(s, m){ return s + m.T * m.T / Math.pow(m.r, 3); }, 0) / MOONS.length;
+function moonList(){ if (!$('mMine').checked) return MOONS; var r = +$('rMine').value; return MOONS.concat([{ n: 'My moon', r: r, T: Math.sqrt(K3 * r * r * r), c: '#33FF33', mine: true }]); }
+function drawMoons(){
+  var s = stM, c = s.ctx; if (!s.W) return; clear(s); stars(s, 9);
+  var cx = s.W / 2, cy = s.H / 2, sc = (Math.min(s.W, s.H) / 2 - 18) / 22;
+  var g = c.createRadialGradient(cx - 4, cy - 4, 2, cx, cy, 16); g.addColorStop(0, '#F6D7A8'); g.addColorStop(1, '#B9784A');
+  dot(c, cx, cy, 14, g); label(c, 'Jupiter', cx, cy + 26, { a: 'center', c: C.text, s: 12 });
+  moonList().forEach(function(m, i){
+    var R = m.r * sc; c.strokeStyle = m.mine ? 'rgba(51,255,51,.5)' : 'rgba(255,255,255,.25)'; c.lineWidth = 1.3;
+    c.beginPath(); c.arc(cx, cy, R, 0, TAU); c.stroke();
+    var a = TAU * tM / m.T + i * 0.9, x = cx + R * Math.cos(a), y = cy - R * Math.sin(a);
+    dot(c, x, y, m.mine ? 6 : 5.5, m.c); label(c, m.n, x + 9, y - 9, { c: m.c, w: '700', s: 12 });
+  });
+  label(c, 'Day ' + tM.toFixed(1), 14, 16, { c: C.text, f: MONO, w: '600' });
+  if ($('mHide').checked) label(c, 'Distances hidden: rank by period', s.W - 12, 16, { a: 'right', c: C.amber, w: '700', s: 12 });
+}
+function drawTR(){
+  var s = stTR, c = s.ctx; if (!s.W) return; clear(s);
+  var m = { l: 50, r: 16, t: 30, b: 34 }, pw = s.W - m.l - m.r, ph = s.H - m.t - m.b, hide = $('mHide').checked, list = moonList(), xmax = 12000, ymax = 500;
+  list.forEach(function(o){ xmax = Math.max(xmax, Math.pow(o.r, 3) * 1.08); ymax = Math.max(ymax, o.T * o.T * 1.08); });
+  var X = function(v){ return m.l + v / xmax * pw; }, Y = function(v){ return m.t + (1 - v / ymax) * ph; };
+  label(c, 'T² against r³ for the moons', m.l, 14, { w: '700', s: 13 });
+  for (var k = 0; k <= 4; k++){ var vy = ymax * k / 4; line(c, m.l, Y(vy), m.l + pw, Y(vy), C.grid, 1); label(c, Math.round(vy).toString(), m.l - 6, Y(vy), { a: 'right', c: C.dim, f: MONO, s: 10 }); }
+  c.save(); c.translate(12, m.t + ph / 2); c.rotate(-Math.PI / 2); label(c, 'T² (days²)', 0, 0, { a: 'center', c: C.dim, s: 11 }); c.restore();
+  label(c, hide ? 'r³ (hidden for the card sort)' : 'r³ (×10¹⁵ km³) →', m.l + pw, s.H - 10, { a: 'right', c: C.dim, s: 11 });
+  if (hide) return;
+  line(c, X(0), Y(0), X(xmax), Y(K3 * xmax), 'rgba(242,169,59,.7)', 1.6, [5, 5]);
+  list.forEach(function(o){ var x = X(Math.pow(o.r, 3)), y = Y(o.T * o.T); dot(c, x, y, 5, o.c); label(c, o.n, x - 8, y - 10, { a: 'right', c: o.c, w: '700', s: 12 }); });
+}
+function moonsText(){
+  var hide = $('mHide').checked;
+  $('mBody').innerHTML = moonList().map(function(o){ var k = o.T * o.T / Math.pow(o.r, 3);
+    return '<tr><td>' + o.n + '</td><td>' + (hide ? '?' : o.r.toFixed(2)) + '</td><td>' + o.T.toFixed(2) + '</td><td>' + Math.floor(tM / o.T) + '</td><td>' + (hide ? '?' : k.toFixed(4)) + '</td></tr>'; }).join('');
+  $('mClock').textContent = 'Shared clock: ' + tM.toFixed(1) + ' days'; $('rMineOut').textContent = (+$('rMine').value).toFixed(1);
+}
+function calc(){
+  var r1 = parseFloat($('cr1').value), T1 = parseFloat($('cT1').value), K = parseFloat($('cK').value), mode = $('cMode').value, out = $('cSteps');
+  $('cKnownLbl').textContent = mode === 'T' ? 'Known T₂' : 'Known r₂';
+  if (!(r1 > 0 && T1 > 0 && K > 0)){ out.textContent = 'Enter three positive numbers.'; return; }
+  var h = '<span><b>Analyze:</b> (T₁/T₂)² = (r₁/r₂)³</span>';
+  if (mode === 'T'){ var f = Math.pow(K / T1, 2 / 3), r2 = r1 * f;
+    h += '<span><b>Solve:</b> r₂ = r₁ × (T₂/T₁)^(2/3)</span><span>r₂ = ' + r1 + ' × (' + K + ' ÷ ' + T1 + ')^(2/3) = ' + r1 + ' × ' + f.toFixed(3) + '</span><span>r₂ = <b>' + r2.toFixed(2) + '</b> units</span>' +
+      '<span><b>Evaluate:</b> ' + (K > T1 ? 'T₂ is longer than T₁, so r₂ should be bigger than r₁. ✓' : K < T1 ? 'T₂ is shorter than T₁, so r₂ should be smaller than r₁. ✓' : 'Same period, same distance. ✓') + '</span>';
+  } else { var f2 = Math.pow(K / r1, 1.5), T2 = T1 * f2;
+    h += '<span><b>Solve:</b> T₂ = T₁ × (r₂/r₁)^(3/2)</span><span>T₂ = ' + T1 + ' × (' + K + ' ÷ ' + r1 + ')^(3/2) = ' + T1 + ' × ' + f2.toFixed(3) + '</span><span>T₂ = <b>' + T2.toFixed(2) + '</b> (same time unit as T₁)</span>' +
+      '<span><b>Evaluate:</b> ' + (K > r1 ? 'r₂ is farther out, so T₂ should be longer than T₁. ✓' : K < r1 ? 'r₂ is closer in, so T₂ should be shorter than T₁. ✓' : 'Same distance, same period. ✓') + '</span>'; }
+  out.innerHTML = h;
+}
+['cr1', 'cT1', 'cK'].forEach(function(id){ $(id).addEventListener('input', calc); }); $('cMode').addEventListener('change', calc);
+
+/* ================= tabs, shared controls, loop ================= */
+var TABS = ['retro', 'first', 'second', 'third', 'moons'], LAWS = { first: 1, second: 1, third: 1 }, tab = 'retro', playing = !reduce, rate = 1;
+function refit(){ stages.forEach(function(s){ s.fit(); }); }
+function selectTab(name, focus){
+  tab = name;
+  TABS.forEach(function(t){ var b = $('t-' + t), on = t === name; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; $('p-' + t).hidden = !on; if (on && focus) b.focus(); });
+  $('ovb-' + name).appendChild($('playbar'));
+  var park = $('parking');
+  if (LAWS[name]){ var r = $('ovr-' + name); r.appendChild($('targetPanel')); r.appendChild($('commonPanel')); r.appendChild($('resetRow')); $('swb-' + name).appendChild($('swPanel')); }
+  else { park.appendChild($('targetPanel')); park.appendChild($('commonPanel')); park.appendChild($('resetRow')); park.appendChild($('swPanel')); }
+  refit(); draw();
+}
+TABS.forEach(function(t, i){ var b = $('t-' + t);
+  b.addEventListener('click', function(){ selectTab(t); });
+  b.addEventListener('keydown', function(ev){ if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft'){ ev.preventDefault(); selectTab(TABS[(i + (ev.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length], true); } });
+});
+function syncPlay(){
+  $('playIcon').innerHTML = playing ? '<path d="M6 4h4.5v16H6z M13.5 4H18v16h-4.5z" fill="#1E1E1E"/>' : '<path d="M7 4l13 8-13 8z" fill="#1E1E1E"/>';
+  $('play').setAttribute('aria-label', playing ? 'Pause' : 'Play');
+}
+function syncSubs(){
+  [['f1Foci', 'f1String'], ['f1Axes', 'f1Semi']].forEach(function(pr){
+    var on = $(pr[0]).checked, ch = $(pr[1]); if (!on) ch.checked = false; ch.disabled = !on; ch.closest('.ck').classList.toggle('off', !on);
+  });
+  $('eccPanel').hidden = !$('f1Ecc').checked;
+  $('speedPanel').hidden = !$('s2SpeedG').checked;
+  $('swPanel').hidden = !$('oSw').checked;
+  $('mineField').hidden = !$('mMine').checked;
+  $('divOut').textContent = N; $('divDn').disabled = N <= 2; $('divUp').disabled = N >= 8;
+  $('snap').disabled = O.target === 'none';
+}
+$('play').addEventListener('click', function(){ playing = !playing; syncPlay(); });
+$('step').addEventListener('click', function(){ playing = false; syncPlay(); advance(1 / 12); draw(); });
+$('restart').addEventListener('click', function(){
+  if (tab === 'retro') tR = 0; else if (tab === 'moons') tM = 0; else { O.M = O.M0; resetSweep(); resetPeriod(); }
+  draw();
+});
+Array.prototype.forEach.call(document.querySelectorAll('input[name="spd"]'), function(r){ r.addEventListener('change', function(){ rate = +this.value; }); });
+$('swGo').addEventListener('click', function(){ swRun = !swRun; commonText(); });
+$('swReset').addEventListener('click', function(){ swT = 0; swRun = false; commonText(); });
+
+function fitTo(apo){ if (apo * 1.15 > O.zoom) setZoom(apo * 1.15); }
+$('target').addEventListener('change', function(){
+  O.target = this.value; syncSubs();
+  if (O.target !== 'none'){ var t = PLANETS[O.target]; setZoom(Math.max(t.a * (1 + t.e), O.a * (1 + O.e)) * 1.15); }
+  draw();
+});
+$('snap').addEventListener('click', function(){
+  if (O.target === 'none') return; var t = PLANETS[O.target];
+  O.mass = 1; $('mass').value = 1; $('oCirc').checked = false;
+  setOrbit({ a: t.a, e: t.e, w: 0, dir: O.dir, M: ((O.M % TAU) + TAU) % TAU }); setZoom(t.a * (1 + t.e) * 1.3); flash(''); draw();
+});
+$('oCirc').addEventListener('change', function(){
+  if (this.checked){ var p = orbPos(O.M), r = Math.hypot(p.x, p.y);
+    setOrbit({ a: r, e: 0, w: Math.atan2(p.y, p.x), dir: O.dir, M: 0 }); }
+  draw();
+});
+$('mass').addEventListener('input', function(){
+  var p = orbPos(O.M), old = O.mass; O.mass = +this.value;
+  var q = $('oCirc').checked ? circular(p.x, p.y, O.dir) : p, o = fromRV(q.x, q.y, q.vx, q.vy);
+  if (o.bad){ O.mass = old; this.value = old; flash(o.bad + ' The star mass was not changed.'); }
+  else { trail = []; setOrbit(o); flash(''); }
+  draw();
+});
+$('zoom').addEventListener('input', function(){ O.zoom = zoomOf(+this.value); draw(); });
+$('zoomIn').addEventListener('click', function(){ setZoom(O.zoom / 1.3); draw(); });
+$('zoomOut').addEventListener('click', function(){ setZoom(O.zoom * 1.3); draw(); });
+$('divDn').addEventListener('click', function(){ if (N > 2){ N--; resetSweep(); syncSubs(); draw(); } });
+$('divUp').addEventListener('click', function(){ if (N < 8){ N++; resetSweep(); syncSubs(); draw(); } });
+$('erase2').addEventListener('click', function(){ resetSweep(); draw(); });
+$('areaColl').addEventListener('click', function(){
+  var body = $('areaBody'), open = body.hidden; body.hidden = !open;
+  this.textContent = open ? '−' : '+'; this.setAttribute('aria-expanded', open ? 'true' : 'false');
+  this.setAttribute('aria-label', open ? 'Hide the swept area graph' : 'Show the swept area graph'); refit(); draw();
+});
+$('t3Erase').addEventListener('click', function(){ trail = []; draw(); });
+$('t3Per').addEventListener('change', function(){ resetPeriod(); draw(); });
+['f1Foci', 'f1Axes', 'f1Ecc', 's2SpeedG', 'oSw', 'mMine'].forEach(function(id){ $(id).addEventListener('change', function(){ syncSubs(); refit(); draw(); }); });
+['f1String', 'f1Semi', 's2Area', 's2Time', 's2Apo', 's2Peri', 't3Axis', 't3Planets', 'oSpeed', 'oVel', 'oGrav', 'oGrid', 'rLine', 'rTrail', 'mHide']
+  .forEach(function(id){ $(id).addEventListener('change', draw); });
+$('rMine').addEventListener('input', draw);
+
+function resetAll(){
+  Array.prototype.forEach.call(document.querySelectorAll('#app input'), function(i){
+    if (i.type === 'checkbox' || i.type === 'radio') i.checked = i.defaultChecked; else i.value = i.defaultValue;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#app select'), function(sel){
+    Array.prototype.forEach.call(sel.options, function(o){ o.selected = o.defaultSelected; });
+  });
+  rate = 1; O.mass = 1; O.target = 'none'; N = 4; PX = 1; PY = 1; setPow('xPow', 1); setPow('yPow', 1);
+  swT = 0; swRun = false; trail = []; tR = 0; tM = 0;
+  if ($('areaBody').hidden) $('areaColl').click();
+  setOrbit(DEF); setZoom(2.3); flash(''); playing = !reduce; syncPlay(); syncSubs(); calc(); refit(); draw();
+}
+$('resetAll').addEventListener('click', resetAll);
+
+function advance(sec){ // sec = seconds of screen time
+  if (tab === 'retro'){ tR += sec / 6; if (tR > TSPAN) tR = 0; }
+  else if (tab === 'moons'){ tM += sec * 2.2; }
+  else if (!drag){
+    // an Earth-like orbit takes 5 s; shorter orbits are faster, longer ones slower (squeezed so all are watchable)
+    var T = period(O.a), yrs = sec * 0.2 * Math.sqrt(T);
+    O.M += TAU * yrs / T; if (swRun) swT += yrs;
+  }
+}
+function commonText(){
+  var mm = $('matchMsg');
+  if (O.target === 'none'){ mm.textContent = ''; mm.className = 'tmsg'; }
+  else {
+    var t = PLANETS[O.target], ok = Math.abs(O.a - t.a) / t.a < 0.04 && Math.abs(O.e - t.e) < 0.04;
+    mm.textContent = ok ? 'You matched ' + O.target + '\'s orbit!' : 'Goal: a = ' + t.a.toFixed(2) + ' AU, e = ' + t.e.toFixed(3);
+    mm.className = ok ? 'okmsg' : 'tmsg';
+  }
+  $('swTime').textContent = swT.toFixed(2) + ' years'; $('swGo').textContent = swRun ? 'Stop' : 'Start';
+}
+function draw(){
+  if (tab === 'retro'){ drawRetro(); drawRetroPlot(); retroText(); }
+  else if (tab === 'first'){ drawFirst(); drawEcc(); firstText(); commonText(); }
+  else if (tab === 'second'){ drawSecond(); drawSpeed(); commonText(); }
+  else if (tab === 'third'){ drawThird(); drawGraph(); commonText(); }
+  else { drawMoons(); drawTR(); moonsText(); }
+}
+var last = 0;
+function frame(now){
+  var dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  if (playing){ advance(dt * rate); draw(); }
+  requestAnimationFrame(frame);
+}
+setOrbit(DEF); setZoom(2.3);
+if (reduce){ tR = 1.0; tM = 5; }
+syncPlay(); syncSubs(); calc(); selectTab('retro');
+requestAnimationFrame(function(t){ last = t; requestAnimationFrame(frame); });
+})();
+</script>
+
+</body></html>
