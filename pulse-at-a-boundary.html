@@ -1,0 +1,447 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pulse at a Boundary</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<style>
+/* Layout: one wide stage (the springs) on top, transport under it, then set-up on the left and results on the right. */
+:root {
+  --bg: #F3F8F7;
+  --surface: #FFFFFF;
+  --stage: #E6F2F1;
+  --ink: #12263A;
+  --muted: #53667A;
+  --line: #CBDCDB;
+  --spring1: #0B4F5C;
+  --spring2: #0E8A92;
+  --reflect: #CC3F23;
+  --amber: #F2A541;
+  --amber-wash: #FBE9CC;
+  --on-amber: #3A2600;
+  --btn: #0B4F5C;
+  --on-btn: #FFFFFF;
+  --focus: #0E8A92;
+  --display: "Source Serif 4", Cambria, Georgia, serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1920; --surface: #11252E; --stage: #0D2B34; --ink: #E7F1F1; --muted: #9FB6BC; --line: #27454F;
+    --spring1: #B5E1E3; --spring2: #45C2C8; --reflect: #FF8E70; --amber: #F2A541; --amber-wash: #3A2B10; --on-amber: #FBE3B8;
+    --btn: #B5E1E3; --on-btn: #0B1920; --focus: #45C2C8; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1920; --surface: #11252E; --stage: #0D2B34; --ink: #E7F1F1; --muted: #9FB6BC; --line: #27454F;
+  --spring1: #B5E1E3; --spring2: #45C2C8; --reflect: #FF8E70; --amber: #F2A541; --amber-wash: #3A2B10; --on-amber: #FBE3B8;
+  --btn: #B5E1E3; --on-btn: #0B1920; --focus: #45C2C8; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 48px; display: flex; flex-direction: column; gap: 20px; }
+
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--spring2); margin: 0; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(28px, 4.2vw, 42px); line-height: 1.1; margin: 4px 0 8px; text-wrap: balance; }
+.lede { margin: 0; max-width: 62ch; color: var(--muted); font-size: 17px; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 21px; margin: 0; }
+
+/* stage */
+.stage { background: var(--stage); border-radius: 16px; padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.stage-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.phase { font-weight: 600; font-size: 17px; min-width: 0; }
+.ideal { font-size: 13px; color: var(--muted); }
+canvas { display: block; width: 100%; max-width: 100%; aspect-ratio: 16 / 6.4; touch-action: pan-y; }
+.transport { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.transport .scrub { flex: 1 1 220px; min-width: 0; display: flex; align-items: center; gap: 10px; }
+.transport input[type="range"] { width: 100%; }
+.transport .speed { display: flex; align-items: center; gap: 10px; }
+.tlabel { font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+button, select, input { font: inherit; color: inherit; }
+.btn { border: 0; border-radius: 10px; padding: 10px 18px; font-weight: 600; cursor: pointer; background: var(--btn); color: var(--on-btn); min-width: 96px; }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--spring1); }
+select { background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+input[type="range"] { accent-color: var(--spring2); }
+:is(button, select, input):focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* set-up and results */
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.preset { border: 1.5px solid var(--line); background: transparent; border-radius: 10px; padding: 10px 12px; text-align: left; cursor: pointer; font-weight: 500; line-height: 1.25; }
+.preset small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+.preset[aria-pressed="true"] { border-color: var(--spring1); background: var(--stage); font-weight: 600; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-weight: 500; }
+.field output { font-family: var(--mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ticks { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.checks { display: flex; flex-direction: column; gap: 8px; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--spring2); flex: none; }
+
+.rows { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 16px; margin: 0; }
+.rows dt { color: var(--muted); }
+.rows dd { margin: 0; font-weight: 500; }
+.rows .num { font-family: var(--mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+.dot.r { background: var(--reflect); } .dot.t { background: var(--spring2); } .dot.s { background: var(--muted); }
+.energy { display: flex; flex-direction: column; gap: 8px; }
+.energy h3 { font-size: 15px; font-weight: 600; margin: 0; }
+.bar { display: flex; height: 30px; border-radius: 8px; overflow: hidden; background: var(--line); }
+.bar span { display: block; height: 100%; transition: width .25s ease; }
+.bar .r { background: var(--reflect); } .bar .t { background: var(--spring2); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 14px; }
+.note { margin: 0; font-size: 14px; color: var(--muted); }
+
+.look { background: var(--amber-wash); color: var(--on-amber); border-radius: 16px; padding: 18px 20px; }
+.look h2 { margin-bottom: 8px; }
+.look ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; max-width: 78ch; }
+
+@media (max-width: 760px) {
+  .cols { grid-template-columns: minmax(0, 1fr); }
+  canvas { aspect-ratio: 4 / 3; }
+  .wrap { padding-inline: 16px; }
+  .rows { grid-template-columns: minmax(0, 1fr); gap: 2px 0; }
+  .rows dd { margin-bottom: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .bar span { transition: none; } }
+</style>
+
+<main class="wrap">
+  <header>
+    <p class="eyebrow">Lesson 3 · Wave Behavior · Waves at boundaries</p>
+    <h1>Pulse at a boundary</h1>
+    <p class="lede">Send one pulse along spring 1 and watch what happens where it joins spring 2. Change spring 2 and send the pulse again.</p>
+  </header>
+
+  <section class="stage" aria-label="Simulation">
+    <div class="stage-top">
+      <span class="phase" id="phase">Before: the incident pulse travels toward the boundary</span>
+      <span class="ideal">Ideal springs under the same tension. No energy is lost to friction.</span>
+    </div>
+    <canvas id="cv" role="img" aria-label="Two springs joined end to end. A pulse travels along spring 1, and at the join it splits into a reflected pulse and a transmitted pulse."></canvas>
+    <div class="transport">
+      <button class="btn" id="play" type="button">Pause</button>
+      <button class="btn ghost" id="restart" type="button">Send pulse again</button>
+      <div class="scrub">
+        <label class="tlabel" for="scrub">Time</label>
+        <input id="scrub" type="range" min="0" max="1000" value="0" step="1" aria-label="Move through time">
+      </div>
+      <div class="speed">
+        <label class="tlabel" for="speed">Speed</label>
+        <select id="speed">
+          <option value="1">Normal</option>
+          <option value="0.5">Half speed</option>
+          <option value="0.25">Slow motion</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <div class="cols">
+    <section class="panel" aria-labelledby="h-setup">
+      <h2 id="h-setup">Set up the springs</h2>
+      <div class="presets" id="presets">
+        <button class="preset" type="button" data-m="0.25" aria-pressed="true">Heavier → lighter<small>the case on the slide</small></button>
+        <button class="preset" type="button" data-m="4" aria-pressed="false">Lighter → heavier<small>spring 2 is harder to move</small></button>
+        <button class="preset" type="button" data-m="1" aria-pressed="false">Same spring<small>no real boundary</small></button>
+        <button class="preset" type="button" data-m="wall" aria-pressed="false">Rigid wall<small>spring 1 is fixed at the end</small></button>
+      </div>
+      <div class="field">
+        <label for="ratio">Mass per metre of spring 2: <output id="ratioOut" for="ratio">0.25×</output> <span id="ratioTail">spring 1</span></label>
+        <input id="ratio" type="range" min="-100" max="100" value="-60" step="1">
+        <div class="ticks" aria-hidden="true"><span>0.1× lighter</span><span>same</span><span>10× heavier</span></div>
+      </div>
+      <div class="checks">
+        <label><input id="labels" type="checkbox" checked> <span>Label the pulses</span></label>
+        <label><input id="parts" type="checkbox"> <span>Show the incident and reflected pulses separately while they overlap</span></label>
+        <label><input id="predict" type="checkbox"> <span>Predict first: hide the results until the pulse has passed the boundary</span></label>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-results">
+      <h2 id="h-results">What happens at the boundary</h2>
+      <dl class="rows">
+        <dt><span class="dot r"></span>Reflected pulse</dt><dd id="outR">—</dd>
+        <dt><span class="dot t"></span>Transmitted pulse</dt><dd id="outT">—</dd>
+        <dt><span class="dot s"></span>Speed in spring 2</dt><dd id="outV">—</dd>
+      </dl>
+      <div class="energy">
+        <h3>Where the incident energy goes</h3>
+        <div class="bar" id="bar" role="img" aria-label="Energy split"><span class="r" id="barR"></span><span class="t" id="barT"></span></div>
+        <div class="legend"><span><span class="dot r"></span>Reflected <b class="num" id="eR">—</b></span><span><span class="dot t"></span>Transmitted <b class="num" id="eT">—</b></span></div>
+      </div>
+      <p class="note" id="note">The two parts always add up to 100% of the incident energy.</p>
+    </section>
+  </div>
+
+  <section class="look" aria-labelledby="h-look">
+    <h2 id="h-look">Questions to ask while it runs</h2>
+    <ol>
+      <li>Which pulse is the incident wave, which is the reflected wave and which is the transmitted wave?</li>
+      <li>Is the reflected pulse upright or inverted? Change spring 2 until it flips. What did you change?</li>
+      <li>Compare the energy of the incident wave with the energy of the reflected wave.</li>
+      <li>Going from heavier to lighter, the transmitted pulse is taller than the incident pulse. How can it still carry less energy?</li>
+    </ol>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  // ---- model -------------------------------------------------------------
+  // Boundary at x = 0. Spring 1 is x < 0, spring 2 is x > 0. Same tension in both.
+  // y1(x,t) = A[ G(t - x/v1) + R G(t + x/v1) ],  y2(x,t) = A T G(t - x/v2)
+  // With m = (mass per metre of spring 2) / (mass per metre of spring 1), r = sqrt(m):
+  // v2 = v1 / r,  R = (1 - r)/(1 + r),  T = 2/(1 + r),  energy reflected = R^2.
+  var X0 = -1, X1 = 0.9, V1 = 0.36, WIDTH = 0.075, SIG = WIDTH / V1;
+  var T_START = -0.88 / V1, T_END = 0.97 / V1;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var st = { m: 0.25, wall: false, t: T_START, playing: !reduce, rate: 1, labels: true, parts: false, predict: false };
+  if (reduce) st.t = 1.25;
+
+  function G(s) { var u = s / SIG; return Math.exp(-u * u); }
+  function derive() {
+    if (st.wall) return { R: -1, T: 0, v2: 0, r: Infinity };
+    var r = Math.sqrt(st.m);
+    return { R: (1 - r) / (1 + r), T: 2 / (1 + r), v2: V1 / r, r: r };
+  }
+  function smooth(a, b, v) { var x = Math.min(1, Math.max(0, (v - a) / (b - a))); return x * x * (3 - 2 * x); }
+
+  // ---- elements ----------------------------------------------------------
+  var $ = function (id) { return document.getElementById(id); };
+  var cv = $("cv"), ctx = cv.getContext("2d");
+  var W = 0, H = 0, colors = {};
+
+  function readColors() {
+    var cs = getComputedStyle(document.documentElement);
+    ["ink", "muted", "line", "spring1", "spring2", "reflect", "stage", "body"].forEach(function (k) {
+      colors[k] = cs.getPropertyValue("--" + k).trim();
+    });
+  }
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+
+  // ---- drawing -----------------------------------------------------------
+  function draw() {
+    if (!W) return;
+    var d = derive(), t = st.t;
+    var pad = Math.max(14, W * 0.025);
+    var base = H * 0.62, A = H * 0.25;
+    var px = function (x) { return pad + (x - X0) / (X1 - X0) * (W - 2 * pad); };
+    var small = W < 560;
+    var fs = small ? 13 : 15;
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineJoin = "round"; ctx.lineCap = "round";
+
+    // rest line
+    ctx.strokeStyle = colors.line; ctx.lineWidth = 1; ctx.setLineDash([4, 6]);
+    ctx.beginPath(); ctx.moveTo(pad, base); ctx.lineTo(W - pad, base); ctx.stroke(); ctx.setLineDash([]);
+
+    var w1 = small ? 5 : 6.5;
+    var w2 = st.wall ? 0 : Math.min(w1 * 2.1, Math.max(1.8, w1 * d.r));
+    var n = 260, i, x, y;
+
+    // optional: the two pulses on spring 1 drawn separately
+    if (st.parts) {
+      ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
+      ctx.globalAlpha = 0.75;
+      ctx.strokeStyle = colors.spring1; ctx.beginPath();
+      for (i = 0; i <= n; i++) { x = X0 + (0 - X0) * i / n; y = base - A * G(t - x / V1); i ? ctx.lineTo(px(x), y) : ctx.moveTo(px(x), y); }
+      ctx.stroke();
+      ctx.strokeStyle = colors.reflect; ctx.beginPath();
+      for (i = 0; i <= n; i++) { x = X0 + (0 - X0) * i / n; y = base - A * d.R * G(t + x / V1); i ? ctx.lineTo(px(x), y) : ctx.moveTo(px(x), y); }
+      ctx.stroke();
+      ctx.globalAlpha = 1; ctx.setLineDash([]);
+    }
+
+    // spring 2 (or the wall)
+    if (st.wall) {
+      var wx = px(0), ww = Math.max(12, W * 0.016);
+      ctx.fillStyle = colors.muted;
+      ctx.fillRect(wx, base - H * 0.36, ww, H * 0.64);
+    } else {
+      ctx.strokeStyle = colors.spring2; ctx.lineWidth = w2; ctx.beginPath();
+      for (i = 0; i <= n; i++) { x = X1 * i / n; y = base - A * d.T * G(t - x / d.v2); i ? ctx.lineTo(px(x), y) : ctx.moveTo(px(x), y); }
+      ctx.stroke();
+    }
+    // spring 1
+    ctx.strokeStyle = colors.spring1; ctx.lineWidth = w1; ctx.beginPath();
+    for (i = 0; i <= n; i++) {
+      x = X0 + (0 - X0) * i / n;
+      y = base - A * (G(t - x / V1) + d.R * G(t + x / V1));
+      i ? ctx.lineTo(px(x), y) : ctx.moveTo(px(x), y);
+    }
+    ctx.stroke();
+    // the join
+    if (!st.wall) {
+      var yb = base - A * d.T * G(t);
+      ctx.fillStyle = colors.reflect; ctx.beginPath(); ctx.arc(px(0), yb, small ? 6 : 8, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // captions under the springs
+    ctx.font = "500 " + (small ? 12 : 14) + "px " + colors.body;
+    ctx.fillStyle = colors.muted; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    var c1 = "spring 1", c2 = "spring 2";
+    if (!st.wall) {
+      if (st.m < 0.95) { c1 += " (heavier)"; c2 += " (lighter)"; }
+      else if (st.m > 1.05) { c1 += " (lighter)"; c2 += " (heavier)"; }
+      else { c1 += " (same)"; c2 += " (same)"; }
+    } else { c2 = "rigid wall"; }
+    ctx.fillText(c1, (px(X0) + px(0)) / 2, H - 8);
+    ctx.fillText(c2, st.wall ? px(0) + Math.max(48, W * 0.07) : (px(0) + px(X1)) / 2, H - 8);
+
+    // labels that travel with the pulses
+    if (st.labels) {
+      var off = Math.max(20, H * 0.075), aL = Math.max(26, W * 0.038);
+      var before = 1 - smooth(-2.2 * SIG, -1.1 * SIG, t), after = smooth(1.1 * SIG, 2.2 * SIG, t);
+      ctx.font = "600 " + fs + "px " + colors.body;
+      if (before > 0.01) tag("incident", px(V1 * t), base - A - off, 1, aL, colors.spring1, before, true);
+      if (after > 0.01) {
+        if (Math.abs(d.R) > 0.03) {
+          // always labelled above the spring: over the crest when upright, over the rest line when inverted
+          tag("reflected", px(-V1 * t), d.R > 0 ? base - A * d.R - off : base - off, -1, aL, colors.reflect, after, true);
+        }
+        if (d.T > 0.03 && d.v2 * t < X1 + 0.05) {
+          tag("transmitted", px(d.v2 * t), base - A * d.T - off, 1, Math.min(aL * 2.4, Math.max(aL * 0.45, aL / d.r)), colors.spring2, after, true);
+        }
+      }
+    }
+
+    function tag(text, cx, cy, dir, len, color, alpha, above) {
+      var half = Math.max(ctx.measureText(text).width, len) / 2 + 4;
+      cx = Math.min(W - pad - half, Math.max(pad + half, cx));
+      ctx.globalAlpha = alpha; ctx.fillStyle = color; ctx.strokeStyle = color;
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      var ty = above ? cy - 9 : cy + 9, ay = above ? cy + 9 : cy - 9;
+      ctx.fillText(text, cx, ty);
+      var xa = cx - dir * len / 2, xb = cx + dir * len / 2;
+      ctx.lineWidth = 2.25; ctx.beginPath(); ctx.moveTo(xa, ay); ctx.lineTo(xb - dir * 5, ay); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xb, ay); ctx.lineTo(xb - dir * 9, ay - 5); ctx.lineTo(xb - dir * 9, ay + 5); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // ---- text read-outs ----------------------------------------------------
+  function pct(v) { return Math.round(v * 100) + "%"; }
+  function fmt(v) { return (v >= 9.95 ? v.toFixed(0) : v >= 0.995 ? v.toFixed(1) : v.toFixed(2)) + "×"; }
+  var lastPhase = "", lastHidden = null;
+
+  function updatePhase() {
+    var d = derive(), t = st.t, s;
+    if (t < -1.5 * SIG) s = "Before: the incident pulse travels toward the boundary";
+    else if (t <= 1.5 * SIG) s = st.wall ? "At the wall" : "At the boundary";
+    else if (st.wall) s = "After: the whole pulse comes back, inverted";
+    else if (Math.abs(d.R) < 0.03) s = "After: the whole pulse carries on. Nothing is reflected";
+    else s = "After: one reflected pulse and one transmitted pulse";
+    if (s !== lastPhase) { $("phase").textContent = s; lastPhase = s; }
+    var hidden = st.predict && t <= 1.5 * SIG;
+    if (hidden !== lastHidden) { lastHidden = hidden; updateResults(); }
+  }
+
+  function updateResults() {
+    var d = derive(), hide = st.predict && st.t <= 1.5 * SIG;
+    var eR = d.R * d.R, eT = 1 - eR;
+    if (hide) {
+      $("outR").textContent = "?"; $("outT").textContent = "?"; $("outV").textContent = "?";
+      $("eR").textContent = "?"; $("eT").textContent = "?";
+      $("barR").style.width = "0%"; $("barT").style.width = "0%";
+      $("bar").setAttribute("aria-label", "Energy split hidden until the pulse has passed the boundary");
+      $("note").textContent = "Make your prediction, then watch. The results appear once the pulse has passed the boundary.";
+      return;
+    }
+    var rText;
+    if (Math.abs(d.R) < 0.005) rText = "None. Nothing is reflected";
+    else rText = pct(Math.abs(d.R)) + " of the incident amplitude, " + (d.R > 0 ? "upright" : "inverted");
+    $("outR").textContent = rText;
+    $("outT").textContent = st.wall ? "None. The wall does not move" : pct(d.T) + " of the incident amplitude, upright";
+    $("outV").textContent = st.wall ? "No spring 2" :
+      (Math.abs(d.r - 1) < 0.02 ? "The same as in spring 1" : fmt(1 / d.r) + " the speed in spring 1, so the pulse is " + fmt(1 / d.r) + " as long");
+    $("eR").textContent = pct(eR); $("eT").textContent = pct(eT);
+    $("barR").style.width = (eR * 100) + "%"; $("barT").style.width = (eT * 100) + "%";
+    $("bar").setAttribute("aria-label", "Energy split: " + pct(eR) + " reflected, " + pct(eT) + " transmitted");
+    var note;
+    if (st.wall) note = "A rigid wall transmits almost nothing, so the pulse returns with the same amplitude, inverted.";
+    else if (Math.abs(d.R) < 0.03) note = "With identical springs there is no boundary, so all of the energy carries on.";
+    else if (d.R > 0) note = "Spring 2 is lighter. The reflected pulse stays upright and the transmitted pulse speeds up.";
+    else note = "Spring 2 is heavier. The reflected pulse is inverted and the transmitted pulse slows down.";
+    $("note").textContent = note;
+  }
+
+  // ---- controls ----------------------------------------------------------
+  function syncPlay() { $("play").textContent = st.playing ? "Pause" : (st.t >= T_END ? "Play again" : "Play"); }
+  function syncScrub() { $("scrub").value = Math.round((st.t - T_START) / (T_END - T_START) * 1000); }
+  function restart() { st.t = reduce ? 1.25 : T_START; st.playing = !reduce; last = 0; refresh(); }
+  function refresh() { syncPlay(); syncScrub(); updatePhase(); updateResults(); draw(); }
+
+  function syncSetup() {
+    var presets = document.querySelectorAll(".preset");
+    for (var i = 0; i < presets.length; i++) {
+      var v = presets[i].getAttribute("data-m");
+      var on = v === "wall" ? st.wall : (!st.wall && Math.abs(Math.log10(st.m) - Math.log10(parseFloat(v))) < 0.006);
+      presets[i].setAttribute("aria-pressed", on ? "true" : "false");
+    }
+    $("ratio").disabled = st.wall;
+    $("ratio").value = Math.round(Math.log10(st.m) * 100);
+    $("ratioOut").textContent = st.wall ? "" : fmt(st.m);
+    $("ratioTail").textContent = st.wall ? "not used with a rigid wall" : "spring 1";
+  }
+
+  $("presets").addEventListener("click", function (e) {
+    var b = e.target.closest(".preset"); if (!b) return;
+    var v = b.getAttribute("data-m");
+    if (v === "wall") st.wall = true; else { st.wall = false; st.m = parseFloat(v); }
+    syncSetup(); restart();
+  });
+  $("ratio").addEventListener("input", function () {
+    st.wall = false; st.m = Math.pow(10, parseInt(this.value, 10) / 100);
+    syncSetup(); restart();
+  });
+  $("play").addEventListener("click", function () {
+    if (st.t >= T_END) st.t = T_START;
+    st.playing = !st.playing; last = 0; syncPlay();
+  });
+  $("restart").addEventListener("click", function () { st.t = T_START; st.playing = true; last = 0; refresh(); });
+  $("scrub").addEventListener("input", function () {
+    st.playing = false; st.t = T_START + (T_END - T_START) * parseInt(this.value, 10) / 1000;
+    syncPlay(); updatePhase(); draw();
+  });
+  $("speed").addEventListener("change", function () { st.rate = parseFloat(this.value); });
+  $("labels").addEventListener("change", function () { st.labels = this.checked; draw(); });
+  $("parts").addEventListener("change", function () { st.parts = this.checked; draw(); });
+  $("predict").addEventListener("change", function () { st.predict = this.checked; lastHidden = null; updatePhase(); });
+
+  // ---- loop --------------------------------------------------------------
+  var last = 0;
+  function frame(now) {
+    if (st.playing) {
+      if (last) st.t += Math.min(0.05, (now - last) / 1000) * st.rate;
+      last = now;
+      if (st.t >= T_END) { st.t = T_END; st.playing = false; syncPlay(); }
+      syncScrub(); updatePhase(); draw();
+    } else { last = 0; }
+    requestAnimationFrame(frame);
+  }
+
+  readColors();
+  colors.body = getComputedStyle(document.body).fontFamily;
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(cv); else window.addEventListener("resize", resize);
+  var recolor = function () { readColors(); colors.body = getComputedStyle(document.body).fontFamily; draw(); };
+  new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", recolor);
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+  syncSetup(); resize(); refresh();
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>
