@@ -3,81 +3,174 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Physics Simulations</title>
+<title>Science Simulations</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* Layout: a short title block, then one card per simulation in a grid that stacks on phones. */
+/* Layout: title, grade filter, then one section per grade with a row of cards per subject. */
 :root{
   --bg:#EDF1F0; --surface:#FFFFFF; --ink:#13232B; --muted:#52646C; --line:#C6D2D1;
-  --accent:#0A6A88; --accent-soft:#E1EEF2;
+  --phys:#0A6A88; --phys-soft:#E1EEF2;
+  --chem:#8A2F86; --chem-soft:#F4E4F2;
+  --focus:#0A6A88;
   --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){
   :root{ --bg:#0D161A; --surface:#142127; --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44;
-         --accent:#56C3DF; --accent-soft:#16323B; color-scheme:dark; }
+         --phys:#56C3DF; --phys-soft:#16323B; --chem:#E39BDD; --chem-soft:#3A1E39; --focus:#56C3DF; color-scheme:dark; }
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
-.wrap{max-width:980px;margin-inline:auto;padding-inline:20px;padding-block:44px 56px}
+.wrap{max-width:1040px;margin-inline:auto;padding-inline:20px;padding-block:44px 56px}
 .eyebrow{margin:0;font-family:var(--mono);font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 h1{margin:.25em 0 .3em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,3.2rem);line-height:1.02;letter-spacing:-.02em}
-.lede{margin:0 0 32px;max-width:60ch;color:var(--muted);font-size:1.06rem}
+.lede{margin:0 0 24px;max-width:60ch;color:var(--muted);font-size:1.06rem}
+
+.filter{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 32px;padding:0;list-style:none}
+.filter button{font:inherit;font-weight:700;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);
+  border-radius:999px;padding:.45em 1.1em;cursor:pointer}
+.filter button:hover{border-color:var(--ink)}
+.filter button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+
+.grade{margin-bottom:44px}
+.grade > h2{margin:0 0 4px;font-family:var(--display);font-weight:800;font-size:1.9rem;letter-spacing:-.01em;
+  padding-bottom:8px;border-bottom:2px solid var(--line)}
+.subject{margin-top:20px}
+.subject h3{margin:0 0 12px;font-family:var(--mono);font-weight:500;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;color:var(--muted)}
+.subject h3::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c)}
+.physics{--c:var(--phys);--c-soft:var(--phys-soft)}
+.chemistry{--c:var(--chem);--c-soft:var(--chem-soft)}
+
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:16px;list-style:none;margin:0;padding:0}
 .card{display:flex;flex-direction:column;gap:10px;height:100%;padding:20px;background:var(--surface);border:1.5px solid var(--line);
   border-radius:14px;color:inherit;text-decoration:none;transition:border-color .15s,transform .15s}
-.card:hover{border-color:var(--accent)}
-.card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.card:hover{border-color:var(--c)}
 .tag{align-self:flex-start;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--accent);background:var(--accent-soft);padding:.25em .6em;border-radius:6px}
-.card h2{margin:0;font-family:var(--display);font-weight:700;font-size:1.35rem;line-height:1.15}
+  color:var(--c);background:var(--c-soft);padding:.25em .6em;border-radius:6px}
+.card h4{margin:0;font-family:var(--display);font-weight:700;font-size:1.35rem;line-height:1.15}
 .card p{margin:0;color:var(--muted)}
-.go{margin-top:auto;font-weight:700;color:var(--accent)}
+.go{margin-top:auto;font-weight:700;color:var(--c)}
 svg.icon{width:100%;height:auto;max-height:90px;display:block}
-.icon path{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.icon .ghost{stroke:var(--line)}
-footer{margin-top:36px;font-size:.88rem;color:var(--muted)}
+.icon .s{fill:none;stroke:var(--c);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.icon .g{fill:none;stroke:var(--line);stroke-width:3;stroke-linecap:round}
+.icon .f{fill:var(--c)}
+.icon .fl{fill:var(--line)}
+footer{margin-top:8px;font-size:.88rem;color:var(--muted)}
 @media (prefers-reduced-motion:no-preference){.card:hover{transform:translateY(-2px)}}
 </style>
 </head>
 <body>
 <main class="wrap">
-  <p class="eyebrow">NASA International Schools · Physics</p>
-  <h1>Physics Simulations</h1>
-  <p class="lede">Interactive simulations for class and home. Pick one to open it. They work on computers, tablets and phones.</p>
+  <p class="eyebrow">NASA International Schools · Science</p>
+  <h1>Science Simulations</h1>
+  <p class="lede">Interactive simulations for class and home, sorted by grade. Pick one to open it.</p>
 
-  <ul class="grid">
-    <li>
-      <a class="card" href="resonance-on-a-string.html">
-        <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
-          <path class="ghost" d="M10 40 Q47.5 -5 85 40 T160 40 T235 40 T290 40"/>
-          <path d="M10 40 Q47.5 85 85 40 T160 40 T235 40 T290 40"/>
-        </svg>
-        <span class="tag">Grade 11 · Standing waves</span>
-        <h2>Resonance on a String</h2>
-        <p>Shake one end of a string and find the frequencies where it swings many times wider than the driver.</p>
-        <span class="go">Open simulation →</span>
-      </a>
-    </li>
-    <li>
-      <a class="card" href="pulse-at-a-boundary.html">
-        <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
-          <path d="M10 55 H60 Q80 55 85 25 Q90 55 110 55 H150"/>
-          <path class="ghost" d="M150 30 V70"/>
-          <path d="M150 55 H200 Q220 55 228 35 Q236 55 256 55 H290"/>
-        </svg>
-        <span class="tag">Waves · Boundaries</span>
-        <h2>Pulse at a Boundary</h2>
-        <p>Send a pulse from one spring into another and see which part reflects, which part passes through, and where the energy goes.</p>
-        <span class="go">Open simulation →</span>
-      </a>
-    </li>
+  <ul class="filter" aria-label="Show grade">
+    <li><button type="button" data-show="all" aria-pressed="true">All grades</button></li>
+    <li><button type="button" data-show="grade-10" aria-pressed="false">Grade 10</button></li>
+    <li><button type="button" data-show="grade-11" aria-pressed="false">Grade 11</button></li>
   </ul>
+
+  <section class="grade" id="grade-10" aria-labelledby="g10">
+    <h2 id="g10">Grade 10</h2>
+
+    <div class="subject chemistry">
+      <h3>Chemistry</h3>
+      <ul class="grid">
+        <li>
+          <a class="card" href="five-types-of-chemical-reactions.html">
+            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
+              <circle class="f" cx="40" cy="40" r="14"/><circle class="fl" cx="78" cy="40" r="11"/><circle class="fl" cx="104" cy="40" r="11"/>
+              <path class="s" d="M135 40 H175 M165 30 L177 40 L165 50"/>
+              <path class="g" d="M220 40 H252"/><circle class="f" cx="220" cy="40" r="14"/><circle class="fl" cx="254" cy="40" r="11"/>
+            </svg>
+            <span class="tag">Chemical reactions</span>
+            <h4>5 Types of Chemical Reactions</h4>
+            <p>Build the reactants atom by atom, predict the products, then watch synthesis, decomposition, combustion, single and double replacement happen.</p>
+            <span class="go">Open simulation →</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="grade" id="grade-11" aria-labelledby="g11">
+    <h2 id="g11">Grade 11</h2>
+
+    <div class="subject physics">
+      <h3>Physics</h3>
+      <ul class="grid">
+        <li>
+          <a class="card" href="resonance-on-a-string.html">
+            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
+              <path class="g" d="M10 40 Q47.5 -5 85 40 T160 40 T235 40 T290 40"/>
+              <path class="s" d="M10 40 Q47.5 85 85 40 T160 40 T235 40 T290 40"/>
+            </svg>
+            <span class="tag">Standing waves</span>
+            <h4>Resonance on a String</h4>
+            <p>Shake one end of a string and find the frequencies where it swings many times wider than the driver.</p>
+            <span class="go">Open simulation →</span>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="pulse-at-a-boundary.html">
+            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
+              <path class="s" d="M10 55 H60 Q80 55 85 25 Q90 55 110 55 H150"/>
+              <path class="g" d="M150 30 V70"/>
+              <path class="s" d="M150 55 H200 Q220 55 228 35 Q236 55 256 55 H290"/>
+            </svg>
+            <span class="tag">Waves at boundaries</span>
+            <h4>Pulse at a Boundary</h4>
+            <p>Send a pulse from one spring into another and see which part reflects, which part passes through, and where the energy goes.</p>
+            <span class="go">Open simulation →</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="subject chemistry">
+      <h3>Chemistry</h3>
+      <ul class="grid">
+        <li>
+          <a class="card" href="entropy-lab.html">
+            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
+              <circle class="fl" cx="30" cy="30" r="7"/><circle class="fl" cx="50" cy="30" r="7"/><circle class="fl" cx="70" cy="30" r="7"/>
+              <circle class="fl" cx="30" cy="50" r="7"/><circle class="fl" cx="50" cy="50" r="7"/><circle class="fl" cx="70" cy="50" r="7"/>
+              <path class="s" d="M120 40 H170 M160 30 L172 40 L160 50"/>
+              <circle class="f" cx="210" cy="18" r="7"/><circle class="f" cx="262" cy="30" r="7"/><circle class="f" cx="232" cy="60" r="7"/>
+              <circle class="f" cx="284" cy="62" r="7"/><circle class="f" cx="250" cy="10" r="7"/><circle class="f" cx="200" cy="52" r="7"/>
+            </svg>
+            <span class="tag">Entropy &amp; spontaneity</span>
+            <h4>Entropy Lab</h4>
+            <p>Compare the particles before and after a change, predict the sign of ΔS, then see how ΔH and temperature decide if it happens.</p>
+            <span class="go">Open simulation →</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
 
   <footer>New simulations are added to this page as they are made.</footer>
 </main>
+<script>
+(function(){
+  var btns = document.querySelectorAll('.filter button'), secs = document.querySelectorAll('.grade');
+  function show(id){
+    secs.forEach(function(s){ s.hidden = !(id === 'all' || s.id === id); });
+    btns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.show === id ? 'true' : 'false'); });
+  }
+  btns.forEach(function(b){ b.addEventListener('click', function(){
+    show(b.dataset.show);
+    try { history.replaceState(null, '', b.dataset.show === 'all' ? location.pathname : '#' + b.dataset.show); } catch(e) {}
+  }); });
+  var h = location.hash.slice(1);
+  if (h === 'grade-10' || h === 'grade-11') show(h);
+})();
+</script>
 </body>
 </html>

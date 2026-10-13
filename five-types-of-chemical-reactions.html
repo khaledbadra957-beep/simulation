@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KineticLab Pro - Prediction Mode</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.85);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 24px;
+            max-width: 1300px;
+            width: 95%;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls { display: flex; flex-direction: column; gap: 20px; }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        select, button {
+            width: 100%;
+            font-family: inherit;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        select:focus { outline: none; border-color: var(--accent); }
+
+        button.primary { background: var(--success); color: #0f172a; font-weight: 700; }
+        button.primary:hover { background: #059669; }
+        button.reset { background: rgba(255, 255, 255, 0.1); }
+        button.reset:hover { background: rgba(255, 255, 255, 0.15); }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .tool-btn {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; font-size: 14px;
+            color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            padding: 0; margin: 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .tool-btn.active {
+            border-color: var(--accent);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .status-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .equation-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.2rem; 
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .feedback {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+            min-height: 60px;
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #000000;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+            cursor: crosshair;
+        }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="controls">
+        <h1>Sandbox Prediction Mode</h1>
+        
+        <div>
+            <label>1. Select Test Reaction</label>
+            <select id="reactionSelector" onchange="simulation.init()">
+                <option value="synthesis">1. Synthesis (2Na + Cl₂)</option>
+                <option value="decomposition">2. Decomposition (H₂O₂)</option>
+                <option value="combustion">3. Combustion (CH₄ + 2O₂)</option>
+                <option value="single">4. Single Replacement (Fe + CuSO₄)</option>
+                <option value="double">5. Double Replacement (AgNO₃ + NaCl)</option>
+                <option value="water_synth">6. Synthesis (2H₂ + O₂)</option>
+                <option value="co2_synth">7. Synthesis (C + O₂)</option>
+                <option value="mercury_decomp">8. Decomposition (2HgO)</option>
+                <option value="zinc_single">9. Single Replacement (Zn + 2HCl)</option>
+                <option value="neutralization">10. Double Replacement (NaOH + HCl)</option>
+            </select>
+        </div>
+
+        <div>
+            <label>2. Select Element to Place</label>
+            <div class="toolbar" id="toolbar"></div>
+        </div>
+
+        <button class="primary" onclick="simulation.verifyAndReact()">Verify Atoms & React</button>
+        <button class="reset" onclick="simulation.init()">Clear Canvas</button>
+    </div>
+
+    <div>
+        <div class="status-panel">
+            <div id="eqDisplay" class="equation-display"></div>
+            <div id="feedbackText" class="feedback">Select an atom from the left and click the canvas to build the <strong>Reactants</strong>.</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="simCanvas" width="850" height="500"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+
+const elements = {
+    H: { color1: '#ffffff', color2: '#94a3b8', radius: 12 },
+    C: { color1: '#475569', color2: '#1e293b', radius: 20 },
+    N: { color1: '#3b82f6', color2: '#1e3a8a', radius: 18 },
+    O: { color1: '#ff4d4d', color2: '#991b1b', radius: 18 },
+    Na: { color1: '#a855f7', color2: '#6b21a8', radius: 22 },
+    S: { color1: '#fde047', color2: '#a16207', radius: 20 },
+    Cl: { color1: '#22c55e', color2: '#14532d', radius: 19 },
+    Fe: { color1: '#94a3b8', color2: '#334155', radius: 24 },
+    Cu: { color1: '#fb923c', color2: '#9a3412', radius: 22 },
+    Ag: { color1: '#e2e8f0', color2: '#64748b', radius: 26 },
+    Zn: { color1: '#cbd5e1', color2: '#64748b', radius: 21 },
+    Hg: { color1: '#d1d5db', color2: '#9ca3af', radius: 25 }
+};
+
+// Hidden products logic added here (qEq vs fullEq)
+const reactionRequirements = {
+    synthesis: { Na: 2, Cl: 2, qEq: '2Na + Cl₂ → ?', fullEq: '2Na + Cl₂ → 2NaCl' },
+    decomposition: { H: 2, O: 2, qEq: 'H₂O₂ → ?', fullEq: 'H₂O₂ → H₂ + O₂' },
+    combustion: { C: 1, H: 4, O: 4, qEq: 'CH₄ + 2O₂ → ?', fullEq: 'CH₄ + 2O₂ → CO₂ + 2H₂O' },
+    single: { Fe: 1, Cu: 1, S: 1, O: 4, qEq: 'Fe + CuSO₄ → ?', fullEq: 'Fe + CuSO₄ → FeSO₄ + Cu' },
+    double: { Ag: 1, N: 1, O: 3, Na: 1, Cl: 1, qEq: 'AgNO₃ + NaCl → ?', fullEq: 'AgNO₃ + NaCl → AgCl + NaNO₃' },
+    water_synth: { H: 4, O: 2, qEq: '2H₂ + O₂ → ?', fullEq: '2H₂ + O₂ → 2H₂O' },
+    co2_synth: { C: 1, O: 2, qEq: 'C + O₂ → ?', fullEq: 'C + O₂ → CO₂' },
+    mercury_decomp: { Hg: 2, O: 2, qEq: '2HgO → ?', fullEq: '2HgO → 2Hg + O₂' },
+    zinc_single: { Zn: 1, H: 2, Cl: 2, qEq: 'Zn + 2HCl → ?', fullEq: 'Zn + 2HCl → ZnCl₂ + H₂' },
+    neutralization: { Na: 1, O: 1, H: 2, Cl: 1, qEq: 'NaOH + HCl → ?', fullEq: 'NaOH + HCl → NaCl + H₂O' }
+};
+
+class Atom {
+    constructor(symbol, x, y, id = null) {
+        this.symbol = symbol;
+        this.id = id || Math.random().toString(36).substr(2, 9);
+        this.x = x; this.y = y; this.targetX = x; this.targetY = y;
+        this.props = elements[symbol];
+        this.vx = (Math.random() - 0.5) * 0.2;
+        this.vy = (Math.random() - 0.5) * 0.2;
+    }
+    update(isReacting) {
+        this.x += this.vx; this.y += this.vy;
+        if (isReacting) {
+            this.vx += (this.targetX - this.x) * 0.005;
+            this.vy += (this.targetY - this.y) * 0.005;
+        } else {
+            if(this.x < 20 || this.x > canvas.width - 20) this.vx *= -1;
+            if(this.y < 20 || this.y > canvas.height - 20) this.vy *= -1;
+        }
+        this.vx *= 0.9; this.vy *= 0.9;
+    }
+    draw(ctx) {
+        const grad = ctx.createRadialGradient(
+            this.x - this.props.radius * 0.3, this.y - this.props.radius * 0.3, 
+            this.props.radius * 0.1, this.x, this.y, this.props.radius
+        );
+        grad.addColorStop(0, this.props.color1);
+        grad.addColorStop(1, this.props.color2);
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.props.radius, 0, Math.PI * 2);
+        ctx.fillStyle = grad; ctx.fill();
+        ctx.fillStyle = (['H','S','Ag','Hg','Zn'].includes(this.symbol)) ? '#0f172a' : '#ffffff';
+        ctx.font = 'bold 14px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(this.symbol, this.x, this.y);
+    }
+}
+
+class Particle {
+    constructor(x, y, color) {
+        this.x = x; this.y = y; this.color = color;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 5 + 2;
+        this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
+        this.life = 1.0; this.decay = Math.random() * 0.03 + 0.02;
+    }
+    update() { this.x += this.vx; this.y += this.vy; this.life -= this.decay; }
+    draw(ctx) {
+        ctx.globalAlpha = this.life; ctx.fillStyle = this.color;
+        ctx.beginPath(); ctx.arc(this.x, this.y, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1.0;
+    }
+}
+
+const simulation = {
+    atoms: [], bonds: [], particles: [], currentTool: 'H',
+    isReacting: false, type: 'synthesis', animationId: null,
+
+    init() {
+        if (this.animationId) { cancelAnimationFrame(this.animationId); this.animationId = null; }
+        this.atoms = []; this.bonds = []; this.particles = [];
+        this.isReacting = false; this.type = document.getElementById('reactionSelector').value;
+        
+        // Show masked equation
+        document.getElementById('eqDisplay').innerText = reactionRequirements[this.type].qEq;
+        this.setFeedback(`Build the reactants! Predict the products in your head before clicking verify.`, 'var(--text-muted)');
+        
+        this.buildToolbar();
+        this.loop();
+    },
+
+    buildToolbar() {
+        const tb = document.getElementById('toolbar'); tb.innerHTML = '';
+        Object.keys(elements).forEach(sym => {
+            const btn = document.createElement('button');
+            btn.className = `tool-btn ${this.currentTool === sym ? 'active' : ''}`;
+            btn.style.background = elements[sym].color2;
+            btn.innerText = sym;
+            btn.onclick = () => { this.currentTool = sym; this.buildToolbar(); };
+            tb.appendChild(btn);
+        });
+    },
+
+    setFeedback(msg, color) {
+        const fb = document.getElementById('feedbackText');
+        fb.innerHTML = msg; fb.style.color = color;
+    },
+
+    addAtom(x, y) {
+        if(this.isReacting) return;
+        this.atoms.push(new Atom(this.currentTool, x, y));
+    },
+
+    verifyAndReact() {
+        if(this.isReacting) return;
+        const counts = {};
+        this.atoms.forEach(a => { counts[a.symbol] = (counts[a.symbol] || 0) + 1; });
+        const req = reactionRequirements[this.type];
+        let isCorrect = true; let errorMsg = [];
+
+        Object.keys(req).forEach(sym => {
+            if(sym !== 'eq' && sym !== 'qEq' && sym !== 'fullEq') {
+                const have = counts[sym] || 0;
+                if(have !== req[sym]) { isCorrect = false; errorMsg.push(`Need ${req[sym]} ${sym} (You have ${have})`); }
+            }
+        });
+        Object.keys(counts).forEach(sym => {
+            if(!req[sym]) { isCorrect = false; errorMsg.push(`Remove extra ${sym}`); }
+        });
+
+        if(!isCorrect) {
+            this.setFeedback(`<strong>Incorrect Atoms!</strong><br>${errorMsg.join(' | ')}`, 'var(--warning)');
+            return;
+        }
+
+        // CORRECT! Reveal the full equation and react
+        document.getElementById('eqDisplay').innerText = reactionRequirements[this.type].fullEq;
+        this.setFeedback(`<strong>Correct!</strong> Watch the predicted products form...`, 'var(--success)');
+        this.isReacting = true;
+        this.snapToReactants();
+    },
+
+    snapToReactants() {
+        const getAtoms = (sym, count) => {
+            const found = this.atoms.filter(a => a.symbol === sym && !a.assigned).slice(0, count);
+            found.forEach(a => a.assigned = true); return found;
+        };
+
+        if (this.type === 'synthesis') {
+            const nas = getAtoms('Na', 2); const cls = getAtoms('Cl', 2);
+            nas[0].id = 'na1'; this.setTarget(nas[0], 200, 150); nas[1].id = 'na2'; this.setTarget(nas[1], 200, 350);
+            cls[0].id = 'cl1'; this.setTarget(cls[0], 550, 250); cls[1].id = 'cl2'; this.setTarget(cls[1], 610, 250);
+            this.bonds = [['cl1', 'cl2']];
+        } else if (this.type === 'decomposition') {
+            const os = getAtoms('O', 2); const hs = getAtoms('H', 2);
+            os[0].id = 'o1'; this.setTarget(os[0], 370, 250); os[1].id = 'o2'; this.setTarget(os[1], 430, 250);
+            hs[0].id = 'h1'; this.setTarget(hs[0], 330, 210); hs[1].id = 'h2'; this.setTarget(hs[1], 470, 290);
+            this.bonds = [['o1', 'o2'], ['o1', 'h1'], ['o2', 'h2']];
+        } else if (this.type === 'combustion') {
+            const c = getAtoms('C', 1)[0]; const hs = getAtoms('H', 4); const os = getAtoms('O', 4);
+            c.id = 'c1'; this.setTarget(c, 200, 250);
+            hs[0].id='ch1'; this.setTarget(hs[0], 200, 190); hs[1].id='ch2'; this.setTarget(hs[1], 200, 310); hs[2].id='ch3'; this.setTarget(hs[2], 140, 250); hs[3].id='ch4'; this.setTarget(hs[3], 260, 250);
+            os[0].id='o1'; this.setTarget(os[0], 550, 150); os[1].id='o2'; this.setTarget(os[1], 610, 150); os[2].id='o3'; this.setTarget(os[2], 550, 350); os[3].id='o4'; this.setTarget(os[3], 610, 350);
+            this.bonds = [['c1','ch1'],['c1','ch2'],['c1','ch3'],['c1','ch4'],['o1','o2'],['o3','o4']];
+        } else if (this.type === 'single') {
+            const fe = getAtoms('Fe', 1)[0]; const cu = getAtoms('Cu', 1)[0]; const s = getAtoms('S', 1)[0]; const os = getAtoms('O', 4);
+            fe.id = 'fe'; this.setTarget(fe, 150, 250); cu.id = 'cu'; this.setTarget(cu, 450, 250); s.id = 's'; this.setTarget(s, 520, 250);
+            os[0].id='o1'; this.setTarget(os[0], 520, 190); os[1].id='o2'; this.setTarget(os[1], 520, 310); os[2].id='o3'; this.setTarget(os[2], 580, 250); os[3].id='o4'; this.setTarget(os[3], 480, 200);
+            this.bonds = [['cu','s'],['s','o1'],['s','o2'],['s','o3'],['s','o4']];
+        } else if (this.type === 'double') {
+            const ag = getAtoms('Ag', 1)[0]; const n = getAtoms('N', 1)[0]; const os = getAtoms('O', 3); const na = getAtoms('Na', 1)[0]; const cl = getAtoms('Cl', 1)[0];
+            ag.id='ag'; this.setTarget(ag, 200, 250); n.id='n'; this.setTarget(n, 270, 250);
+            os[0].id='o1'; this.setTarget(os[0], 320, 250); os[1].id='o2'; this.setTarget(os[1], 270, 200); os[2].id='o3'; this.setTarget(os[2], 270, 300);
+            na.id='na'; this.setTarget(na, 550, 250); cl.id='cl'; this.setTarget(cl, 620, 250);
+            this.bonds = [['ag','n'],['n','o1'],['n','o2'],['n','o3'],['na','cl']];
+        } else if (this.type === 'water_synth') {
+            const hs = getAtoms('H', 4); const os = getAtoms('O', 2);
+            hs[0].id='h1'; this.setTarget(hs[0], 150, 150); hs[1].id='h2'; this.setTarget(hs[1], 210, 150); hs[2].id='h3'; this.setTarget(hs[2], 150, 350); hs[3].id='h4'; this.setTarget(hs[3], 210, 350);
+            os[0].id='o1'; this.setTarget(os[0], 550, 250); os[1].id='o2'; this.setTarget(os[1], 610, 250);
+            this.bonds = [['h1','h2'],['h3','h4'],['o1','o2']];
+        } else if (this.type === 'co2_synth') {
+            const c = getAtoms('C', 1)[0]; const os = getAtoms('O', 2);
+            c.id='c1'; this.setTarget(c, 250, 250); os[0].id='o1'; this.setTarget(os[0], 550, 250); os[1].id='o2'; this.setTarget(os[1], 610, 250);
+            this.bonds = [['o1','o2']];
+        } else if (this.type === 'mercury_decomp') {
+            const hgs = getAtoms('Hg', 2); const os = getAtoms('O', 2);
+            hgs[0].id='hg1'; this.setTarget(hgs[0], 300, 150); os[0].id='o1'; this.setTarget(os[0], 360, 150);
+            hgs[1].id='hg2'; this.setTarget(hgs[1], 300, 350); os[1].id='o2'; this.setTarget(os[1], 360, 350);
+            this.bonds = [['hg1','o1'],['hg2','o2']];
+        } else if (this.type === 'zinc_single') {
+            const zn = getAtoms('Zn', 1)[0]; const hs = getAtoms('H', 2); const cls = getAtoms('Cl', 2);
+            zn.id='zn'; this.setTarget(zn, 200, 250);
+            hs[0].id='h1'; this.setTarget(hs[0], 500, 150); cls[0].id='cl1'; this.setTarget(cls[0], 560, 150);
+            hs[1].id='h2'; this.setTarget(hs[1], 500, 350); cls[1].id='cl2'; this.setTarget(cls[1], 560, 350);
+            this.bonds = [['h1','cl1'],['h2','cl2']];
+        } else if (this.type === 'neutralization') {
+            const na = getAtoms('Na', 1)[0]; const o = getAtoms('O', 1)[0]; const hs = getAtoms('H', 2); const cl = getAtoms('Cl', 1)[0];
+            na.id='na'; this.setTarget(na, 200, 250); o.id='o'; this.setTarget(o, 260, 250); hs[0].id='h1'; this.setTarget(hs[0], 320, 250);
+            hs[1].id='h2'; this.setTarget(hs[1], 550, 250); cl.id='cl'; this.setTarget(cl, 610, 250);
+            this.bonds = [['na','o'],['o','h1'],['h2','cl']];
+        }
+
+        setTimeout(() => this.executeReaction(), 1500);
+    },
+
+    setTarget(atom, x, y) { atom.targetX = x; atom.targetY = y; },
+    setTargetById(id, x, y) { const atom = this.atoms.find(a => a.id === id); if(atom) { atom.targetX = x; atom.targetY = y; } },
+
+    executeReaction() {
+        if (this.type === 'synthesis') {
+            this.setTargetById('na1', 400, 150); this.setTargetById('cl1', 460, 150); this.setTargetById('na2', 400, 350); this.setTargetById('cl2', 460, 350);
+            this.bonds = []; this.createExplosion(580, 250, '#22c55e');
+            setTimeout(() => { this.bonds = [['na1', 'cl1'], ['na2', 'cl2']]; this.setFeedback(`<strong>Reaction Complete!</strong> Synthesis successful.`, 'var(--accent)'); }, 800);
+        } else if (this.type === 'decomposition') {
+            this.setTargetById('h1', 250, 250); this.setTargetById('h2', 290, 250); this.setTargetById('o1', 510, 250); this.setTargetById('o2', 570, 250);
+            this.bonds = []; this.createExplosion(400, 250, '#ffffff');
+            setTimeout(() => { this.bonds = [['h1', 'h2'], ['o1', 'o2']]; this.setFeedback(`<strong>Reaction Complete!</strong> Decomposition successful.`, 'var(--accent)'); }, 800);
+        } else if (this.type === 'combustion') {
+            this.setTargetById('c1', 400, 250); this.setTargetById('o1', 340, 250); this.setTargetById('o3', 460, 250);
+            this.setTargetById('o2', 200, 100); this.setTargetById('ch1', 170, 70); this.setTargetById('ch2', 230, 70);
+            this.setTargetById('o4', 600, 400); this.setTargetById('ch3', 570, 430); this.setTargetById('ch4', 630, 430);
+            this.bonds = []; this.createExplosion(200, 250, '#fb923c'); this.createExplosion(580, 150, '#ff4d4d'); this.createExplosion(580, 350, '#ff4d4d');
+            setTimeout(() => { this.bonds = [['c1', 'o1'], ['c1', 'o3'], ['o2', 'ch1'], ['o2', 'ch2'], ['o4', 'ch3'], ['o4', 'ch4']]; this.setFeedback(`<strong>Reaction Complete!</strong> Combustion successful.`, 'var(--accent)'); }, 1000);
+        } else if (this.type === 'single') {
+            this.setTargetById('fe', 450, 250); this.setTargetById('cu', 150, 250); 
+            setTimeout(() => { this.bonds = this.bonds.filter(b => b[0] !== 'cu'); this.createExplosion(485, 250, '#fb923c'); this.bonds.push(['fe', 's']); this.setFeedback(`<strong>Reaction Complete!</strong> Single Replacement successful.`, 'var(--accent)'); }, 800);
+        } else if (this.type === 'double') {
+            this.setTargetById('ag', 550, 350); this.setTargetById('cl', 620, 350); this.setTargetById('na', 200, 150); this.setTargetById('n', 270, 150); this.setTargetById('o1', 320, 150); this.setTargetById('o2', 270, 100); this.setTargetById('o3', 270, 200);
+            setTimeout(() => { this.bonds = this.bonds.filter(b => !(b[0]==='ag' && b[1]==='n') && !(b[0]==='na' && b[1]==='cl')); this.createExplosion(235, 250, '#e2e8f0'); this.createExplosion(585, 250, '#22c55e'); this.bonds.push(['ag', 'cl'], ['na', 'n']); this.setFeedback(`<strong>Reaction Complete!</strong> Double Replacement successful.`, 'var(--accent)'); }, 800);
+        } else if (this.type === 'water_synth') {
+            this.setTargetById('o1', 400, 150); this.setTargetById('h1', 350, 180); this.setTargetById('h2', 450, 180); this.setTargetById('o2', 400, 350); this.setTargetById('h3', 350, 380); this.setTargetById('h4', 450, 380);
+            this.bonds = []; this.createExplosion(580, 250, '#ffffff');
+            setTimeout(() => { this.bonds = [['o1','h1'],['o1','h2'],['o2','h3'],['o2','h4']]; this.setFeedback(`<strong>Reaction Complete!</strong> Water Synthesis successful.`, 'var(--accent)'); }, 800);
+        } else if (this.type === 'co2_synth') {
+            this.setTargetById('c1', 400, 250); this.setTargetById('o1', 340, 250); this.setTargetById('o2', 460, 250);
+            this.bonds = []; this.createExplosion(580, 250, '#ff4d4d');
+            setTimeout(() => { this.bonds = [['c1','o1'],['c1','o2']]; this.setFeedback(`<strong>Reaction Complete!</strong> CO₂ Synthesis successful.`, 'var(--accent)'); }, 800);
+        } else if (this.type === 'mercury_decomp') {
+            this.setTargetById('hg1', 200, 150); this.setTargetById('hg2', 200, 350); this.setTargetById('o1', 600, 250); this.setTargetById('o2', 660, 250);
+            this.bonds = []; this.createExplosion(330, 150, '#ff4d4d'); this.createExplosion(330, 350, '#ff4d4d');
+            setTimeout(() => { this.bonds = [['o1','o2']]; this.setFeedback(`<strong>Reaction Complete!</strong> Mercury Oxide Decomposition successful.`, 'var(--accent)'); }, 800);
+        } else if (this.type === 'zinc_single') {
+            this.setTargetById('zn', 530, 250); this.setTargetById('cl1', 590, 200); this.setTargetById('cl2', 590, 300); this.setTargetById('h1', 200, 250); this.setTargetById('h2', 260, 250);
+            this.bonds = []; this.createExplosion(530, 150, '#ffffff'); this.createExplosion(530, 350, '#ffffff');
+            setTimeout(() => { this.bonds = [['zn','cl1'],['zn','cl2'],['h1','h2']]; this.setFeedback(`<strong>Reaction Complete!</strong> Single Replacement successful.`, 'var(--accent)'); }, 800);
+        } else if (this.type === 'neutralization') {
+            this.setTargetById('na', 550, 250); this.setTargetById('cl', 610, 250); this.setTargetById('o', 200, 250); this.setTargetById('h1', 150, 280); this.setTargetById('h2', 250, 280);
+            this.bonds = []; this.createExplosion(230, 250, '#a855f7'); this.createExplosion(580, 250, '#22c55e');
+            setTimeout(() => { this.bonds = [['na','cl'],['o','h1'],['o','h2']]; this.setFeedback(`<strong>Reaction Complete!</strong> Acid-Base Neutralization successful.`, 'var(--accent)'); }, 800);
+        }
+    },
+
+    createExplosion(x, y, color) { for(let i=0; i<30; i++) this.particles.push(new Particle(x, y, color)); },
+    drawBonds() {
+        ctx.lineWidth = 4;
+        this.bonds.forEach(bond => {
+            const a1 = this.atoms.find(a => a.id === bond[0]); const a2 = this.atoms.find(a => a.id === bond[1]);
+            if (!a1 || !a2) return;
+            const grad = ctx.createLinearGradient(a1.x, a1.y, a2.x, a2.y);
+            grad.addColorStop(0, a1.props.color1); grad.addColorStop(1, a2.props.color1);
+            ctx.strokeStyle = grad; ctx.beginPath(); ctx.moveTo(a1.x, a1.y); ctx.lineTo(a2.x, a2.y); ctx.stroke();
+        });
+    },
+
+    loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#ffffff0a'; ctx.lineWidth = 1;
+        for(let i=0; i<canvas.width; i+=50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke(); }
+        this.drawBonds();
+        this.atoms.forEach(a => { a.update(this.isReacting); a.draw(ctx); });
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            let p = this.particles[i]; p.update(); p.draw(ctx);
+            if (p.life <= 0) this.particles.splice(i, 1);
+        }
+        this.animationId = requestAnimationFrame(() => this.loop());
+    }
+};
+
+canvas.addEventListener('mousedown', (e) => {
+    if (simulation.isReacting) return;
+    const rect = canvas.getBoundingClientRect();
+    simulation.addAtom(e.clientX - rect.left, e.clientY - rect.top);
+});
+
+window.onload = () => simulation.init();
+</script>
+</body>
+</html>

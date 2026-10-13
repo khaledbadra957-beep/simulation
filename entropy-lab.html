@@ -1,0 +1,659 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Entropy Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a change picker on the left, two dark-field "microscope" vessels (before / after) on top of the work area,
+   then predict, then energy. The vessels stay dark in both themes so atom colours read the same everywhere. */
+:root {
+  --bg: #F1F3F8;
+  --surface: #FFFFFF;
+  --surface2: #E7EBF3;
+  --fg: #131926;
+  --muted: #546075;
+  --line: #D3DAE6;
+  --accent: #9B2A8F;
+  --accent-ink: #FFFFFF;
+  --pos: #0A7A6E;
+  --pos-bg: #D3F0EA;
+  --neg: #9E4708;
+  --neg-bg: #FBE3CE;
+  --vessel: #0B1220;
+  --vessel-line: #26334D;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1017; --surface: #141A24; --surface2: #1C2430; --fg: #E7ECF4; --muted: #9AA6BA; --line: #2A3446;
+    --accent: #E48ADA; --accent-ink: #1B0A19; --pos: #4FD1BC; --pos-bg: #0F3A35; --neg: #F2A25C; --neg-bg: #46280F;
+    --vessel: #070C16; --vessel-line: #26334D; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C1017; --surface: #141A24; --surface2: #1C2430; --fg: #E7ECF4; --muted: #9AA6BA; --line: #2A3446;
+  --accent: #E48ADA; --accent-ink: #1B0A19; --pos: #4FD1BC; --pos-bg: #0F3A35; --neg: #F2A25C; --neg-bg: #46280F;
+  --vessel: #070C16; --vessel-line: #26334D; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-inline: 16px; padding-block: 20px 40px;
+}
+.wrap { max-width: 1120px; margin-inline: auto; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+sub, sup { line-height: 0; }
+
+header.top { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: end; justify-content: space-between; margin-bottom: 20px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.9rem, 4vw, 2.6rem); letter-spacing: -0.02em; line-height: 1.05; margin: 0 0 6px; }
+.lede { margin: 0; max-width: 62ch; color: var(--muted); }
+.score { font-family: var(--font-mono); font-size: 13px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; white-space: nowrap; }
+
+.app { display: grid; grid-template-columns: minmax(0, 15.5rem) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 860px) { .app { grid-template-columns: minmax(0, 1fr); } }
+
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; margin: 0; letter-spacing: -0.01em; }
+.eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+
+/* picker */
+.picker { position: sticky; top: env(safe-area-inset-top, 0px); }
+@media (max-width: 860px) { .picker { position: static; } }
+.chips { display: flex; flex-direction: column; gap: 6px; }
+@media (max-width: 860px) { .chips { flex-direction: row; flex-wrap: wrap; } }
+.chip { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+@media (max-width: 860px) { .chip { flex: 1 1 11rem; } }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-current="true"] { border-color: var(--accent); background: var(--surface2); box-shadow: inset 4px 0 0 var(--accent); }
+.chip-name { font-weight: 600; font-size: 14px; }
+.chip-eq { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); overflow-wrap: anywhere; }
+
+/* work area */
+.work { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.eqline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.eq { font-family: var(--font-mono); font-size: 15px; color: var(--muted); }
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; }
+@media (max-width: 640px) { .stage { grid-template-columns: minmax(0, 1fr); } .midarrow { transform: rotate(90deg); justify-self: center; } }
+.vessel { margin: 0; min-width: 0; }
+.vcap { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; min-height: 28px; }
+.vcap strong { font-family: var(--font-display); font-weight: 700; font-size: 1rem; }
+.vcap .sub { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+canvas { display: block; width: 100%; aspect-ratio: 4 / 3; background: var(--vessel); border: 1px solid var(--vessel-line); border-radius: 10px; }
+.midarrow { font-size: 26px; color: var(--muted); line-height: 1; }
+.badge { font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; border-radius: 5px; padding: 3px 8px; border: 1px solid var(--line); background: var(--surface2); color: var(--muted); }
+.badge.pos { background: var(--pos-bg); color: var(--pos); border-color: var(--pos); }
+.badge.neg { background: var(--neg-bg); color: var(--neg); border-color: var(--neg); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 13px; color: var(--muted); }
+.legend span.k { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.35); }
+.legend .tools { margin-left: auto; }
+.btn { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-weight: 500; font-size: 14px; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.card h2 { margin-bottom: 4px; }
+.card .hint { margin: 0 0 12px; color: var(--muted); }
+.pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 480px) { .pick { grid-template-columns: 1fr; } }
+.pick button { background: var(--surface2); border: 2px solid var(--line); border-radius: 10px; padding: 12px 14px; text-align: left; display: flex; flex-direction: column; gap: 2px; }
+.pick button b { font-family: var(--font-mono); font-size: 18px; font-weight: 500; }
+.pick button span { font-size: 13px; color: var(--muted); }
+.pick button:hover:not(:disabled) { border-color: var(--accent); }
+.pick button[aria-pressed="true"] { border-color: var(--accent); background: var(--surface); }
+.pick button:disabled { cursor: default; opacity: 0.9; }
+
+.verdict { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+.banner { border-radius: 8px; padding: 10px 12px; font-weight: 600; border: 1px solid var(--line); }
+.banner.pos { background: var(--pos-bg); border-color: var(--pos); color: var(--pos); }
+.banner.neg { background: var(--neg-bg); border-color: var(--neg); color: var(--neg); }
+.banner small { display: block; font-weight: 400; color: var(--fg); font-size: 14px; margin-top: 2px; }
+.ledger { display: grid; grid-template-columns: minmax(0, 1.4fr) auto auto auto minmax(0, 1fr); gap: 6px 12px; align-items: center; font-size: 14px; }
+.ledger .h { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.ledger .n { font-family: var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.ledger .chg { font-weight: 600; }
+.bars { grid-column: 1 / -1; display: grid; grid-template-columns: 5rem minmax(0, 1fr); gap: 4px 10px; align-items: center; font-size: 13px; }
+.bar { height: 12px; border-radius: 3px; background: var(--muted); opacity: 0.85; min-width: 3px; }
+.bar.after.pos { background: var(--pos); opacity: 1; }
+.bar.after.neg { background: var(--neg); opacity: 1; }
+.fine { font-size: 12.5px; color: var(--muted); margin: 0; }
+
+.energy-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 760px) { .energy-grid { grid-template-columns: minmax(0, 1fr); } }
+.heat svg, .chart svg { width: 100%; height: auto; display: block; }
+.heat-note { margin: 8px 0 0; }
+.slider { display: flex; flex-direction: column; gap: 4px; margin: 14px 0 6px; }
+.slider label { display: flex; justify-content: space-between; font-weight: 600; font-size: 14px; }
+.slider output { font-family: var(--font-mono); font-weight: 500; }
+input[type="range"] { width: 100%; accent-color: var(--accent); height: 28px; }
+.dsbars { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 6px 10px; align-items: center; font-size: 13.5px; margin-top: 8px; }
+@media (max-width: 480px) { .dsbars { grid-template-columns: minmax(0, 1fr); } }
+.dsbars .lab { font-family: var(--font-mono); font-size: 12.5px; }
+.track { position: relative; height: 20px; background: var(--surface2); border-radius: 4px; }
+.track::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 2px; background: var(--muted); }
+.track .fill { position: absolute; top: 3px; bottom: 3px; border-radius: 2px; }
+.track .fill.pos { background: var(--pos); left: 50%; }
+.track .fill.neg { background: var(--neg); right: 50%; }
+.track .val { position: absolute; top: 0; font-family: var(--font-mono); font-size: 11.5px; line-height: 20px; padding-inline: 6px; color: var(--fg); }
+.gline { font-family: var(--font-mono); font-size: 13px; background: var(--surface2); border-radius: 8px; padding: 10px 12px; margin: 12px 0 8px; overflow-wrap: anywhere; }
+.chart text { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+.chart .axis { stroke: var(--line); }
+.chart .zero { stroke: var(--fg); stroke-width: 1.2; }
+.chart .gline-path { stroke: var(--accent); stroke-width: 2.4; fill: none; }
+.chart .dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+.chart .xmark { fill: var(--surface); stroke: var(--fg); stroke-width: 1.5; }
+.chart .lbl { fill: var(--fg); }
+table.signs { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; table-layout: fixed; }
+table.signs th, table.signs td { border: 1px solid var(--line); padding: 7px 8px; text-align: center; overflow-wrap: anywhere; }
+table.signs th { background: var(--surface2); font-family: var(--font-mono); font-weight: 500; font-size: 12px; }
+table.signs td.on { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.locked { border: 1px dashed var(--line); border-radius: 10px; padding: 14px; color: var(--muted); }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: no-preference) { .chip, .btn, .pick button { transition: border-color .15s, background .15s; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Entropy Lab</h1>
+      <p class="lede">Compare the particles before and after a change. Predict whether the number of ways to arrange them goes up or down, then see how ΔH and temperature decide if the change happens.</p>
+    </div>
+    <div class="score" id="score" aria-live="polite">Predictions right: 0 of 0</div>
+  </header>
+
+  <div class="app">
+    <nav class="picker" aria-label="Choose a change">
+      <p class="eyebrow">Choose a change</p>
+      <div class="chips" id="chips"></div>
+    </nav>
+
+    <section class="work" aria-label="Simulation">
+      <div class="eqline">
+        <h2 id="eqName">Ice melts</h2>
+        <div class="eq" id="eq"></div>
+      </div>
+
+      <div class="stage">
+        <figure class="vessel">
+          <div class="vcap"><strong>Before</strong><span class="sub" id="subB"></span></div>
+          <canvas id="cB" role="img" aria-label="Before"></canvas>
+        </figure>
+        <div class="midarrow" aria-hidden="true">→</div>
+        <figure class="vessel">
+          <div class="vcap"><strong>After</strong><span class="badge" id="badgeA">ΔS = ?</span></div>
+          <canvas id="cA" role="img" aria-label="After"></canvas>
+        </figure>
+      </div>
+
+      <div class="legend">
+        <span id="legend" style="display:contents"></span>
+        <span class="tools"><button type="button" class="btn" id="playBtn">Pause</button></span>
+      </div>
+
+      <section class="card" id="predictCard" aria-labelledby="pTitle">
+        <p class="eyebrow">Predict</p>
+        <h2 id="pTitle">Does the number of ways to arrange the particles go up or down?</h2>
+        <p class="hint">Look at how many particles there are, which are gas, and how freely they can move.</p>
+        <div class="pick" id="pick">
+          <button type="button" id="pPos" aria-pressed="false"><b>ΔS &gt; 0</b><span>Entropy increases: more arrangements</span></button>
+          <button type="button" id="pNeg" aria-pressed="false"><b>ΔS &lt; 0</b><span>Entropy decreases: fewer arrangements</span></button>
+        </div>
+        <div class="verdict" id="verdict" hidden aria-live="polite">
+          <div class="banner" id="banner"></div>
+          <div class="ledger" id="ledger"></div>
+          <div><button type="button" class="btn primary" id="nextBtn">Next change →</button></div>
+        </div>
+      </section>
+
+      <section class="card" id="energyCard" aria-labelledby="eTitle">
+        <p class="eyebrow">Energy</p>
+        <h2 id="eTitle">What the heat flow does</h2>
+        <div class="energy-grid">
+          <div class="heat">
+            <svg id="heatSvg" viewBox="0 0 340 100" role="img" aria-label="Heat flow between system and surroundings"></svg>
+            <p class="fine heat-note" id="heatNote"></p>
+            <div class="slider">
+              <label for="tRange"><span>Temperature</span><output id="tOut" for="tRange">298 K · 25 °C</output></label>
+              <input type="range" id="tRange" min="200" max="1500" step="1" value="298">
+              <p class="fine" id="tNote">Raise the temperature and watch the particles speed up.</p>
+            </div>
+          </div>
+          <div id="gibbsCol">
+            <div class="locked" id="lockedNote">Make your prediction to unlock the entropy numbers and the free energy chart.</div>
+            <div id="gibbs" hidden>
+              <div class="dsbars" id="dsbars"></div>
+              <div class="gline" id="gline"></div>
+              <div class="banner" id="gverdict"></div>
+            </div>
+          </div>
+        </div>
+        <div id="gibbsBottom" hidden style="margin-top:16px">
+          <div class="energy-grid">
+            <div class="chart"><svg id="chart" viewBox="0 0 360 190" role="img" aria-label="ΔG against temperature"></svg></div>
+            <div>
+              <table class="signs" id="signs"></table>
+              <p class="fine" id="srcNote" style="margin-top:8px"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); };
+
+  /* ---------- atoms and molecules ---------- */
+  var ATOM = {
+    H:  { c: "#EEF2F8", r: 5.5 }, C:  { c: "#8E98AA", r: 8 }, N:  { c: "#5B8CFF", r: 8 }, O: { c: "#FF5A5A", r: 8 },
+    Na: { c: "#B48CFF", r: 8 },   Cl: { c: "#4FD17A", r: 10 }, Ca: { c: "#35D0C4", r: 10 }
+  };
+  var ELNAME = { H: "Hydrogen", C: "Carbon", N: "Nitrogen", O: "Oxygen", Na: "Sodium", Cl: "Chlorine", Ca: "Calcium" };
+  var MOL = {
+    H2O:  { n: "H₂O",   atoms: [["O",0,-2],["H",-9.5,5.5],["H",9.5,5.5]], bonds: [[0,1],[0,2]] },
+    H2:   { n: "H₂",    atoms: [["H",-4.5,0],["H",4.5,0]], bonds: [[0,1]] },
+    N2:   { n: "N₂",    atoms: [["N",-6.5,0],["N",6.5,0]], bonds: [[0,1]] },
+    O2:   { n: "O₂",    atoms: [["O",-6.5,0],["O",6.5,0]], bonds: [[0,1]] },
+    NH3:  { n: "NH₃",   atoms: [["N",0,0],["H",-11,8],["H",11,8],["H",0,-12]], bonds: [[0,1],[0,2],[0,3]] },
+    CO2:  { n: "CO₂",   atoms: [["O",-17,0],["C",0,0],["O",17,0]], bonds: [[0,1],[1,2]] },
+    NO2:  { n: "NO₂",   atoms: [["N",0,-4],["O",-11,6],["O",11,6]], bonds: [[0,1],[0,2]] },
+    N2O4: { n: "N₂O₄",  atoms: [["N",-6.5,0],["N",6.5,0],["O",-15,-9],["O",-15,9],["O",15,-9],["O",15,9]], bonds: [[0,1],[0,2],[0,3],[1,4],[1,5]] },
+    H2O2: { n: "H₂O₂",  atoms: [["O",-6.5,0],["O",6.5,0],["H",-12,-8],["H",12,8]], bonds: [[0,1],[0,2],[1,3]] },
+    O3:   { n: "O₃",    atoms: [["O",0,-5],["O",-11,6],["O",11,6]], bonds: [[0,1],[0,2]] },
+    CaCO3:{ n: "CaCO₃", atoms: [["Ca",-17,-2],["C",6,0],["O",6,-13],["O",17,6.5],["O",-5,6.5]], bonds: [[1,2],[1,3],[1,4]] },
+    CaO:  { n: "CaO",   atoms: [["Ca",-8,0],["O",9,0]], bonds: [[0,1]] },
+    Na:   { n: "Na⁺",   atoms: [["Na",0,0]], bonds: [], lab: "+" },
+    Cl:   { n: "Cl⁻",   atoms: [["Cl",0,0]], bonds: [], lab: "−" }
+  };
+  Object.keys(MOL).forEach(function (k) {
+    var m = MOL[k], r = 0;
+    m.atoms.forEach(function (a) { r = Math.max(r, Math.hypot(a[1], a[2]) + ATOM[a[0]].r); });
+    m.rad = r;
+  });
+  var PHN = { lattice: "solid", liquid: "liquid", aq: "dissolved", gas: "gas" };
+  var WEIGHT = { lattice: 1, liquid: 3, aq: 3, gas: 10 };   /* teaching estimate of freedom of movement */
+
+  /* ---------- the changes ---------- */
+  function L(sp, n, ph) { return { sp: sp, n: n, ph: ph }; }
+  function seq(list, ph) { return list.map(function (sp) { return { sp: sp, n: 1, ph: ph }; }); }
+  var LIQ = { x0: 70, x1: 330, y0: 190 };
+  var LIQW = { x0: 20, x1: 380, y0: 196 };
+
+  var SC = [
+    { id: "melt", name: "Ice melts", eq: "H₂O(s) → H₂O(l)", dH: 6.01, dS: 22.0, src: "Standard values for 1 mol at 273 K, treated as constant.",
+      before: { items: [L("H2O", 12, "lattice")], cols: 4, cell: 32 },
+      after:  { items: [L("H2O", 12, "liquid")], liq: LIQ },
+      why: "In ice every molecule is held in one place. In liquid water the molecules slide past each other, so there are many more ways to arrange them." },
+    { id: "freeze", name: "Water freezes", eq: "H₂O(l) → H₂O(s)", dH: -6.01, dS: -22.0, src: "Standard values for 1 mol at 273 K, treated as constant.",
+      before: { items: [L("H2O", 12, "liquid")], liq: LIQ },
+      after:  { items: [L("H2O", 12, "lattice")], cols: 4, cell: 32 },
+      why: "Molecules that could move freely lock into fixed positions. Fewer ways to arrange them means entropy falls." },
+    { id: "nacl", name: "NaCl dissolves", eq: "NaCl(s) → Na⁺(aq) + Cl⁻(aq)", dH: 3.9, dS: 43, src: "Approximate standard-table values per mole of NaCl.",
+      before: { water: 150, items: seq(["Na","Cl","Na","Cl","Cl","Na","Cl","Na"], "lattice"), cols: 4, cell: 26 },
+      after:  { water: 150, items: [L("Na", 4, "aq"), L("Cl", 4, "aq")] },
+      why: "The ions leave the crystal and spread through the water. A freed ion can be in far more positions than one locked in the lattice." },
+    { id: "co2", name: "CO₂ dissolves", eq: "CO₂(g) → CO₂(aq)", dH: -20.3, dS: -96, src: "Approximate standard-table values per mole of CO₂.",
+      before: { water: 190, items: [L("CO2", 4, "gas")] },
+      after:  { water: 190, items: [L("CO2", 4, "aq")] },
+      why: "A gas particle can roam the whole container. Once dissolved it stays in the liquid. Less freedom means fewer arrangements." },
+    { id: "cool", name: "Gas is cooled", eq: "gas, 400 K → 200 K", dH: null, dS: null, hsign: -1, dsign: -1, src: "",
+      before: { items: [L("N2", 6, "gas")], T: 400 },
+      after:  { items: [L("N2", 6, "gas")], T: 200 },
+      why: "The number of particles is the same, but at lower temperature they move more slowly and have less energy to share out. Fewer arrangements." },
+    { id: "caco3", name: "CaCO₃ decomposes", eq: "CaCO₃(s) → CaO(s) + CO₂(g)", dH: 178, dS: 161, src: "Values from your Session 2 station cards.",
+      before: { items: [L("CaCO3", 4, "lattice")], cols: 2, cell: 54 },
+      after:  { items: [L("CaO", 4, "lattice"), L("CO2", 4, "gas")], cols: 2, cell: 44 },
+      why: "One solid becomes a solid plus a gas. The new gas particles roam freely and the number of particles doubles." },
+    { id: "h2o2", name: "H₂O₂ decomposes", eq: "2H₂O₂(l) → 2H₂O(l) + O₂(g)", dH: -196, dS: 126, src: "Approximate standard-table values for the equation as written.",
+      before: { items: [L("H2O2", 4, "liquid")], liq: LIQW },
+      after:  { items: [L("H2O", 4, "liquid"), L("O2", 2, "gas")], liq: LIQW },
+      why: "A gas appears (O₂) and the number of particles rises. A gas particle has far more freedom than a liquid one." },
+    { id: "nh3", name: "NH₃ synthesis", eq: "N₂(g) + 3H₂(g) → 2NH₃(g)", dH: -92, dS: -199, src: "Values from your Session 2 station cards.",
+      before: { items: [L("N2", 2, "gas"), L("H2", 6, "gas")] },
+      after:  { items: [L("NH3", 4, "gas")] },
+      why: "Four gas molecules become two. Fewer gas particles means fewer ways to arrange them." },
+    { id: "no2", name: "NO₂ dimerizes", eq: "2NO₂(g) → N₂O₄(g)", dH: -57.2, dS: -176, src: "Approximate standard-table values for the equation as written.",
+      before: { items: [L("NO2", 6, "gas")] },
+      after:  { items: [L("N2O4", 3, "gas")] },
+      why: "Two gas molecules join into one. Fewer gas particles means entropy falls." },
+    { id: "o3", name: "Ozone forms", eq: "3O₂(g) → 2O₃(g)", dH: 285, dS: -137, src: "Approximate standard-table values for the equation as written.",
+      before: { items: [L("O2", 6, "gas")] },
+      after:  { items: [L("O3", 4, "gas")] },
+      why: "Three O₂ molecules become two O₃ molecules. Fewer gas particles means fewer arrangements, and the reaction absorbs heat." }
+  ];
+
+  /* ---------- state ---------- */
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var st = { i: 0, pred: null, T: 298, playing: !reduce, right: 0, total: 0, panels: null };
+
+  function sc() { return SC[st.i]; }
+  function dsign(s) { return s.dS === null ? s.dsign : (s.dS > 0 ? 1 : -1); }
+  function hsign(s) { return s.dH === null ? s.hsign : (s.dH > 0 ? 1 : -1); }
+  function fmt(v, d) { return (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(d); }
+  function dig(v) { return Number.isInteger(v) ? 0 : (Math.abs(v) < 10 ? 2 : 1); }
+
+  /* ---------- panels (the particle model) ---------- */
+  var FLOOR = 294, LEFT = 8, RIGHT = 392, TOP = 8;
+
+  function makePanel(spec) {
+    var P = { spec: spec, parts: [], T: spec.T || null, water: spec.water || null, liq: spec.liq || null };
+    var lat = [], latBlock = null;
+    spec.items.forEach(function (it) {
+      for (var k = 0; k < it.n; k++) {
+        var p = { sp: it.sp, ph: it.ph, rad: MOL[it.sp].rad, ang: Math.random() * 6.28, rot: Math.random() * 6.28,
+                  w: (Math.random() < .5 ? -1 : 1) * (0.6 + Math.random() * 1.2), s: 0, ph0: Math.random() * 6.28 };
+        if (it.ph === "lattice") lat.push(p);
+        P.parts.push(p);
+      }
+    });
+    var gasBottom = FLOOR;
+    if (lat.length) {
+      var cols = spec.cols, cell = spec.cell, rows = Math.ceil(lat.length / cols), bw = cols * cell, x0 = (400 - bw) / 2, y0 = FLOOR - rows * cell;
+      lat.forEach(function (p, i) {
+        p.hx = x0 + cell * ((i % cols) + .5); p.hy = y0 + cell * (Math.floor(i / cols) + .5); p.rot = 0; p.w = 0;
+      });
+      latBlock = y0; gasBottom = Math.min(gasBottom, y0 - 2);
+    }
+    if (P.water) gasBottom = Math.min(gasBottom, P.water - 2);
+    if (P.liq) gasBottom = Math.min(gasBottom, P.liq.y0 - 2);
+    P.gasBottom = gasBottom;
+    var regL = P.liq ? { x0: P.liq.x0, x1: P.liq.x1, y0: P.liq.y0 + 4, y1: FLOOR - 2 } : null;
+    var regA = P.water ? { x0: LEFT, x1: RIGHT, y0: P.water + 6, y1: FLOOR - 2 } : null;
+    var regG = { x0: LEFT, x1: RIGHT, y0: TOP, y1: gasBottom };
+    P.reg = { liquid: regL, aq: regA, gas: regG };
+    P.parts.forEach(function (p) {
+      if (p.ph === "lattice") { p.x = p.hx; p.y = p.hy; return; }
+      var r = P.reg[p.ph], tries = 0, ok;
+      do {
+        p.x = r.x0 + p.rad + Math.random() * Math.max(1, r.x1 - r.x0 - 2 * p.rad);
+        p.y = r.y0 + p.rad + Math.random() * Math.max(1, r.y1 - r.y0 - 2 * p.rad);
+        ok = true;
+        if (p.ph !== "gas") P.parts.forEach(function (q) {
+          if (q !== p && q.ph === p.ph && q.x !== undefined && Math.hypot(q.x - p.x, q.y - p.y) < (q.rad + p.rad) * .95) ok = false;
+        });
+      } while (!ok && ++tries < 60);
+      p.s = p.ph === "gas" ? 46 + Math.random() * 34 : (p.ph === "aq" ? 20 : 15) * (0.7 + Math.random() * 0.6);
+    });
+    return P;
+  }
+
+  function update(P, dt, t, Tcur) {
+    var f = Math.sqrt((P.T || Tcur) / 300);
+    P.parts.forEach(function (p) {
+      if (p.ph === "lattice") {
+        var A = 0.8 + 1.5 * f;
+        p.x = p.hx + A * Math.cos(t * 7 * f + p.ph0);
+        p.y = p.hy + A * Math.sin(t * 6 * f + p.ph0 * 1.7);
+        return;
+      }
+      var r = P.reg[p.ph];
+      if (p.ph !== "gas") p.ang += (Math.random() - .5) * 7 * dt;
+      var sp = p.s * f;
+      p.x += Math.cos(p.ang) * sp * dt; p.y += Math.sin(p.ang) * sp * dt;
+      p.rot += p.w * dt * (p.ph === "gas" ? f : .3);
+      if (p.x < r.x0 + p.rad) { p.x = r.x0 + p.rad; p.ang = Math.PI - p.ang; }
+      if (p.x > r.x1 - p.rad) { p.x = r.x1 - p.rad; p.ang = Math.PI - p.ang; }
+      if (p.y < r.y0 + p.rad) { p.y = r.y0 + p.rad; p.ang = -p.ang; }
+      if (p.y > r.y1 - p.rad) { p.y = r.y1 - p.rad; p.ang = -p.ang; }
+    });
+    var c = P.parts.filter(function (p) { return p.ph === "liquid" || p.ph === "aq"; });
+    for (var i = 0; i < c.length; i++) for (var j = i + 1; j < c.length; j++) {
+      var a = c[i], b = c[j]; if (a.ph !== b.ph) continue;
+      var dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .01, m = (a.rad + b.rad) * .85;
+      if (d < m) { var k = (m - d) / 2 / d; a.x -= dx * k; a.y -= dy * k; b.x += dx * k; b.y += dy * k; }
+    }
+  }
+
+  function atomPath(ctx, el, x, y) {
+    var A = ATOM[el], g = ctx.createRadialGradient(x - A.r * .35, y - A.r * .35, A.r * .1, x, y, A.r);
+    g.addColorStop(0, "#ffffff"); g.addColorStop(.25, A.c); g.addColorStop(1, shade(A.c, .62));
+    ctx.beginPath(); ctx.arc(x, y, A.r, 0, 6.2832); ctx.fillStyle = g; ctx.fill();
+    ctx.lineWidth = 1; ctx.strokeStyle = "rgba(0,0,0,.45)"; ctx.stroke();
+  }
+  function shade(hex, k) {
+    var n = parseInt(hex.slice(1), 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return "rgb(" + Math.round(r * k) + "," + Math.round(g * k) + "," + Math.round(b * k) + ")";
+  }
+
+  function draw(cv, P, Tcur) {
+    var ctx = cv.getContext("2d"), s = cv._s;
+    ctx.setTransform(s, 0, 0, s, 0, 0);
+    ctx.clearRect(0, 0, 400, 300);
+    if (P.water) {
+      ctx.fillStyle = "rgba(70,140,255,.20)"; ctx.fillRect(0, P.water, 400, 300 - P.water);
+      ctx.fillStyle = "rgba(140,190,255,.55)"; ctx.fillRect(0, P.water, 400, 1.5);
+    }
+    if (P.liq) {
+      ctx.fillStyle = "rgba(70,140,255,.13)"; ctx.fillRect(P.liq.x0, P.liq.y0, P.liq.x1 - P.liq.x0, 300 - P.liq.y0);
+      ctx.fillStyle = "rgba(140,190,255,.45)"; ctx.fillRect(P.liq.x0, P.liq.y0, P.liq.x1 - P.liq.x0, 1.5);
+    }
+    P.parts.forEach(function (p) {
+      var m = MOL[p.sp];
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.lineCap = "round"; ctx.strokeStyle = "#C9D1DE"; ctx.lineWidth = 3;
+      m.bonds.forEach(function (b) {
+        ctx.beginPath(); ctx.moveTo(m.atoms[b[0]][1], m.atoms[b[0]][2]); ctx.lineTo(m.atoms[b[1]][1], m.atoms[b[1]][2]); ctx.stroke();
+      });
+      m.atoms.forEach(function (a) { atomPath(ctx, a[0], a[1], a[2]); });
+      if (m.lab) {
+        ctx.rotate(-p.rot); ctx.fillStyle = "#0B1220"; ctx.font = "700 13px 'IBM Plex Mono', monospace";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(m.lab, 0, 0.5);
+      }
+      ctx.restore();
+    });
+    ctx.fillStyle = "#9FB0C8"; ctx.font = "500 11px 'IBM Plex Mono', monospace"; ctx.textAlign = "left"; ctx.textBaseline = "top";
+    ctx.fillText("T = " + Math.round(P.T || Tcur) + " K", 10, 8);
+  }
+
+  /* ---------- sizing / loop ---------- */
+  var cB = $("#cB"), cA = $("#cA");
+  function fit() {
+    [cB, cA].forEach(function (c) {
+      var w = Math.max(200, c.getBoundingClientRect().width), d = window.devicePixelRatio || 1;
+      c.width = Math.round(w * d); c.height = Math.round(w * .75 * d); c._s = c.width / 400;
+    });
+    paint();
+  }
+  var tAcc = 0, last = 0, raf = 0;
+  function paint() { draw(cB, st.panels.b, st.T); draw(cA, st.panels.a, st.T); }
+  function frame(ts) {
+    var dt = Math.min(.05, (ts - last) / 1000 || .016); last = ts; tAcc += dt;
+    update(st.panels.b, dt, tAcc, st.T); update(st.panels.a, dt, tAcc, st.T); paint();
+    raf = st.playing ? requestAnimationFrame(frame) : 0;
+  }
+  function run() { cancelAnimationFrame(raf); raf = 0; if (st.playing) { last = performance.now(); raf = requestAnimationFrame(frame); } else paint(); }
+  $("#playBtn").addEventListener("click", function () {
+    st.playing = !st.playing; this.textContent = st.playing ? "Pause" : "Play"; run();
+  });
+  if (window.ResizeObserver) new ResizeObserver(fit).observe($(".stage"));
+  window.addEventListener("resize", fit);
+
+  /* ---------- stats for the ledger ---------- */
+  function stats(spec) {
+    var total = 0, gas = 0, score = 0, f = Math.sqrt((spec.T || 300) / 300);
+    spec.items.forEach(function (it) { total += it.n; if (it.ph === "gas") gas += it.n; score += it.n * WEIGHT[it.ph] * f; });
+    return { total: total, gas: gas, score: score, T: spec.T || null };
+  }
+  function describe(spec) {
+    var o = {};
+    spec.items.forEach(function (it) { var k = MOL[it.sp].n + " (" + PHN[it.ph] + ")"; o[k] = (o[k] || 0) + it.n; });
+    return Object.keys(o).map(function (k) { return o[k] + " × " + k; }).join(", ");
+  }
+
+  /* ---------- build UI for a change ---------- */
+  function select(i) {
+    st.i = i; st.pred = null; var s = sc();
+    st.panels = { b: makePanel(s.before), a: makePanel(s.after) };
+    document.querySelectorAll(".chip").forEach(function (b, k) { b.setAttribute("aria-current", k === i ? "true" : "false"); });
+    $("#eqName").textContent = s.name; $("#eq").textContent = s.eq;
+    var cool = s.dH === null;
+    $("#subB").textContent = "";
+    cB.setAttribute("aria-label", "Before: " + describe(s.before));
+    cA.setAttribute("aria-label", "After: " + describe(s.after));
+    var els = {}; [s.before, s.after].forEach(function (sp) { sp.items.forEach(function (it) { MOL[it.sp].atoms.forEach(function (a) { els[a[0]] = 1; }); }); });
+    if (s.before.water || s.after.water) els.__w = 1;
+    $("#legend").innerHTML = Object.keys(els).map(function (e) {
+      return e === "__w" ? '<span class="k"><i style="background:rgba(70,140,255,.55)"></i>Water</span>'
+                         : '<span class="k"><i style="background:' + ATOM[e].c + '"></i>' + ELNAME[e] + "</span>";
+    }).join("");
+    var b = $("#badgeA"); b.className = "badge"; b.textContent = "ΔS = ?";
+    $("#pPos").disabled = $("#pNeg").disabled = false;
+    $("#pPos").setAttribute("aria-pressed", "false"); $("#pNeg").setAttribute("aria-pressed", "false");
+    $("#verdict").hidden = true;
+    $("#gibbs").hidden = true; $("#gibbsBottom").hidden = true; $("#lockedNote").hidden = false;
+    $("#lockedNote").textContent = cool ? "Make your prediction to see the verdict. This change has no ΔH or ΔS values to calculate with, since only the temperature changes."
+                                        : "Make your prediction to unlock the entropy numbers and the free energy chart.";
+    var tr = $("#tRange"); tr.disabled = cool;
+    $("#tNote").textContent = cool ? "This change sets its own temperatures (400 K and 200 K), so the slider is off."
+                                   : "Raise the temperature and watch the particles speed up and the solids vibrate harder.";
+    heat(); run(); fit();
+  }
+
+  /* ---------- heat strip ---------- */
+  function heat() {
+    var s = sc(), h = hsign(s), out = h < 0;
+    var lab = s.dH === null ? (out ? "Heat leaves the gas" : "") : (out ? "Heat released" : "Heat absorbed") + " · ΔH = " + fmt(s.dH, dig(s.dH)) + " kJ";
+    var arrow = out
+      ? '<path d="M128 52 H206" stroke="var(--accent)" stroke-width="4" fill="none"/><path d="M206 42 L224 52 L206 62 Z" fill="var(--accent)"/>'
+      : '<path d="M212 52 H134" stroke="var(--accent)" stroke-width="4" fill="none"/><path d="M134 42 L116 52 L134 62 Z" fill="var(--accent)"/>';
+    $("#heatSvg").innerHTML =
+      '<rect x="6" y="26" width="108" height="52" rx="8" fill="var(--surface2)" stroke="var(--line)"/>' +
+      '<text x="60" y="56" text-anchor="middle" style="fill:var(--fg);font-size:13px;font-family:var(--font-body);font-weight:600">System</text>' +
+      '<rect x="226" y="26" width="108" height="52" rx="8" fill="var(--surface2)" stroke="var(--line)"/>' +
+      '<text x="280" y="56" text-anchor="middle" style="fill:var(--fg);font-size:13px;font-family:var(--font-body);font-weight:600">Surroundings</text>' +
+      arrow +
+      '<text x="170" y="22" text-anchor="middle" style="fill:var(--fg);font-size:11.5px;font-family:var(--font-mono)">' + lab + "</text>" +
+      '<text x="170" y="92" text-anchor="middle" style="fill:var(--muted);font-size:11px;font-family:var(--font-mono)">' + (out ? "exothermic" : "endothermic") + "</text>";
+    $("#heatNote").textContent = out
+      ? "The surroundings gain energy and warm up. Their particles move faster, so the surroundings gain entropy (ΔS of the surroundings > 0)."
+      : "The surroundings lose energy and cool down. Their particles move more slowly, so the surroundings lose entropy (ΔS of the surroundings < 0).";
+  }
+
+  /* ---------- prediction ---------- */
+  function predict(sign) {
+    if (st.pred !== null) return;
+    var s = sc(), real = dsign(s); st.pred = sign; st.total++;
+    var ok = sign === real; if (ok) st.right++;
+    $("#score").textContent = "Predictions right: " + st.right + " of " + st.total;
+    $("#pPos").disabled = $("#pNeg").disabled = true;
+    $("#pPos").setAttribute("aria-pressed", sign > 0 ? "true" : "false");
+    $("#pNeg").setAttribute("aria-pressed", sign < 0 ? "true" : "false");
+    var b = $("#badgeA"); b.className = "badge " + (real > 0 ? "pos" : "neg");
+    b.textContent = real > 0 ? "ΔS > 0  ↑ more arrangements" : "ΔS < 0  ↓ fewer arrangements";
+    var bn = $("#banner"); bn.className = "banner " + (real > 0 ? "pos" : "neg");
+    bn.innerHTML = (ok ? "Correct. " : "Not this time. ") + "ΔS " + (real > 0 ? "> 0" : "< 0") + ".<small></small>";
+    bn.querySelector("small").textContent = s.why;
+    ledger(); $("#verdict").hidden = false;
+    $("#lockedNote").hidden = true;
+    if (s.dH !== null) { $("#gibbs").hidden = false; $("#gibbsBottom").hidden = false; gibbs(); }
+    else { $("#lockedNote").hidden = false; $("#lockedNote").textContent = "Only the temperature changes here, so there are no ΔH or ΔS values to calculate with. The particles have less energy to share out, so ΔS < 0."; }
+  }
+  $("#pPos").addEventListener("click", function () { predict(1); });
+  $("#pNeg").addEventListener("click", function () { predict(-1); });
+  $("#nextBtn").addEventListener("click", function () { select((st.i + 1) % SC.length); });
+
+  function ledger() {
+    var s = sc(), a = stats(s.before), z = stats(s.after), rows = [];
+    function row(label, x, y, more, less, same) {
+      var c = y > x ? more : y < x ? less : same;
+      rows.push('<div>' + label + '</div><div class="n">' + x + '</div><div aria-hidden="true">→</div><div class="n">' + y + '</div><div class="chg">' + c + "</div>");
+    }
+    row("Particles in the system", a.total, z.total, "↑ more", "↓ fewer", "= same");
+    row("Gas particles", a.gas, z.gas, "↑ more", "↓ fewer", "= same");
+    if (a.T !== null) row("Temperature (K)", a.T, z.T, "↑ higher", "↓ lower", "= same");
+    var mx = Math.max(a.score, z.score), sg = z.score > a.score ? "pos" : "neg";
+    var h = '<div class="h">Measure</div><div class="h" style="text-align:right">Before</div><div></div><div class="h" style="text-align:right">After</div><div class="h">Change</div>' + rows.join("") +
+      '<div class="bars"><span>Before</span><span class="bar" style="width:' + (a.score / mx * 100) + '%"></span>' +
+      '<span>After</span><span class="bar after ' + sg + '" style="width:' + (z.score / mx * 100) + '%"></span></div>' +
+      '<p class="fine" style="grid-column:1/-1">Bars show a teaching estimate of disorder: how many particles there are and how freely they move (solid 1, liquid 3, gas 10 per particle).</p>';
+    $("#ledger").innerHTML = h;
+  }
+
+  /* ---------- free energy ---------- */
+  function nice(x) { var e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; }
+  function gibbs() {
+    var s = sc(), T = st.T, dH = s.dH, dS = s.dS / 1000;
+    var dG = dH - T * dS, Ssurr = -dH * 1000 / T, Suni = s.dS + Ssurr;
+    var span = Math.max(Math.abs(s.dS), Math.abs(Ssurr), Math.abs(Suni), 1);
+    function bar(label, v) {
+      var w = Math.min(50, Math.abs(v) / span * 50), cls = v >= 0 ? "pos" : "neg";
+      return '<div class="lab">' + label + " " + fmt(v, 0) + ' J/K</div><div class="track"><div class="fill ' + cls + '" style="width:' + w + '%"></div></div>';
+    }
+    $("#dsbars").innerHTML = bar("ΔS system", s.dS) + bar("ΔS surroundings", Ssurr) + bar("ΔS universe", Suni);
+    var dGs = Math.abs(dG) < .05 ? "0.0" : fmt(dG, 1);
+    $("#gline").innerHTML = "ΔG = ΔH − TΔS<br>= (" + fmt(dH, dig(dH)) + ") − (" + T + ")(" + fmt(Number(dS.toPrecision(3)), 3) + ") <br>= <b>" + dGs + " kJ</b>";
+    var gv = $("#gverdict"), eq = Math.abs(dG) < .05;
+    gv.className = "banner " + (eq ? "" : dG < 0 ? "pos" : "neg");
+    gv.innerHTML = eq ? "ΔG ≈ 0: at equilibrium at this temperature" : dG < 0 ? "ΔG < 0: spontaneous at " + T + " K" : "ΔG > 0: not spontaneous at " + T + " K";
+    $("#srcNote").textContent = s.src;
+    var cross = (s.dH > 0) === (s.dS > 0) ? s.dH / dS : null;
+    var tx = cross === null ? "ΔH and ΔS have different signs, so the answer does not depend on temperature." :
+      "Crossover temperature T = ΔH ÷ ΔS = " + Math.round(cross) + " K" + (cross < 200 || cross > 1500 ? " (outside the chart)." : ".");
+    $("#srcNote").textContent = tx + (s.src ? " " + s.src : "");
+    signs(s); chart(s, cross);
+  }
+  function signs(s) {
+    var h = s.dH > 0, d = s.dS > 0;
+    function td(isH, isD, txt) { return '<td' + (isH === h && isD === d ? ' class="on"' : "") + ">" + txt + (isH === h && isD === d ? " ◀" : "") + "</td>"; }
+    $("#signs").innerHTML = "<tr><th></th><th>ΔS &gt; 0</th><th>ΔS &lt; 0</th></tr>" +
+      "<tr><th>ΔH &lt; 0</th>" + td(false, true, "Always spontaneous") + td(false, false, "Spontaneous at low T") + "</tr>" +
+      "<tr><th>ΔH &gt; 0</th>" + td(true, true, "Spontaneous at high T") + td(true, false, "Never spontaneous") + "</tr>";
+  }
+  function chart(s, cross) {
+    var W = 360, Hh = 190, ml = 46, mr = 12, mt = 22, mb = 30, x0 = 200, x1 = 1500, dS = s.dS / 1000;
+    function G(T) { return s.dH - T * dS; }
+    var g1 = G(x0), g2 = G(x1), lo = Math.min(g1, g2, 0), hi = Math.max(g1, g2, 0), step = nice((hi - lo) / 4 || 1);
+    lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+    var X = function (T) { return ml + (T - x0) / (x1 - x0) * (W - ml - mr); };
+    var Y = function (g) { return mt + (hi - g) / (hi - lo) * (Hh - mt - mb); };
+    var o = "";
+    for (var g = lo; g <= hi + 1e-9; g += step) {
+      o += '<line class="' + (Math.abs(g) < 1e-9 ? "zero" : "axis") + '" x1="' + ml + '" x2="' + (W - mr) + '" y1="' + Y(g) + '" y2="' + Y(g) + '"/>' +
+           '<text x="' + (ml - 5) + '" y="' + (Y(g) + 3.5) + '" text-anchor="end">' + (Math.abs(g) < 1e-9 ? "0" : Number(g.toPrecision(3))) + "</text>";
+    }
+    [200, 500, 800, 1100, 1400].forEach(function (T) {
+      o += '<line class="axis" x1="' + X(T) + '" x2="' + X(T) + '" y1="' + mt + '" y2="' + (Hh - mb) + '"/>' +
+           '<text x="' + X(T) + '" y="' + (Hh - mb + 13) + '" text-anchor="middle">' + T + "</text>";
+    });
+    o += '<text x="' + ((ml + W - mr) / 2) + '" y="' + (Hh - 3) + '" text-anchor="middle">Temperature (K)</text>' +
+         '<text x="' + ml + '" y="10">ΔG (kJ)</text>' +
+         '<text x="' + (W - mr - 4) + '" y="' + (mt + 10) + '" text-anchor="end">ΔG &gt; 0  not spontaneous</text>' +
+         '<text x="' + (W - mr - 4) + '" y="' + (Hh - mb - 5) + '" text-anchor="end">ΔG &lt; 0  spontaneous</text>';
+    o += '<path class="gline-path" d="M' + X(x0) + " " + Y(g1) + " L" + X(x1) + " " + Y(g2) + '"/>';
+    if (cross !== null && cross >= x0 && cross <= x1) {
+      o += '<path class="xmark" d="M' + X(cross) + " " + (Y(0) - 6) + " l6 6 l-6 6 l-6 -6 Z\"/>" +
+           '<text class="lbl" x="' + X(cross) + '" y="' + (Y(0) - 10) + '" text-anchor="middle">' + Math.round(cross) + " K</text>";
+    }
+    o += '<circle class="dot" cx="' + X(st.T) + '" cy="' + Y(G(st.T)) + '" r="5.5"/>';
+    $("#chart").innerHTML = o;
+  }
+
+  /* ---------- temperature slider ---------- */
+  $("#tRange").addEventListener("input", function () {
+    st.T = +this.value;
+    $("#tOut").textContent = st.T + " K · " + Math.round(st.T - 273.15) + " °C";
+    if (!st.playing) paint();
+    if (st.pred !== null && sc().dH !== null) gibbs();
+  });
+
+  /* ---------- init ---------- */
+  var chips = $("#chips");
+  SC.forEach(function (s, i) {
+    var b = document.createElement("button"); b.type = "button"; b.className = "chip";
+    b.innerHTML = '<span class="chip-name">' + s.name + '</span><span class="chip-eq">' + s.eq + "</span>";
+    b.addEventListener("click", function () { select(i); });
+    chips.appendChild(b);
+  });
+  if (reduce) $("#playBtn").textContent = "Play";
+  select(0);
+})();
+</script>
+
+</body></html>
