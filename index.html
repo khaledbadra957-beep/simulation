@@ -37,6 +37,7 @@ h1{margin:.25em 0 .3em;font-family:var(--display);font-weight:800;font-size:clam
 :focus-visible{outline:3px solid var(--focus);outline-offset:3px}
 
 .grade{margin-bottom:44px}
+.empty{margin:16px 0 0;padding:20px;border:1.5px dashed var(--line);border-radius:14px;color:var(--muted)}
 .grade > h2{margin:0 0 4px;font-family:var(--display);font-weight:800;font-size:1.9rem;letter-spacing:-.01em;
   padding-bottom:8px;border-bottom:2px solid var(--line)}
 .subject{margin-top:20px}
@@ -74,6 +75,7 @@ footer{margin-top:8px;font-size:.88rem;color:var(--muted)}
     <li><button type="button" data-show="all" aria-pressed="true">All grades</button></li>
     <li><button type="button" data-show="grade-10" aria-pressed="false">Grade 10</button></li>
     <li><button type="button" data-show="grade-11" aria-pressed="false">Grade 11</button></li>
+    <li><button type="button" data-show="grade-12" aria-pressed="false">Grade 12</button></li>
   </ul>
 
   <section class="grade" id="grade-10" aria-labelledby="g10">
@@ -155,6 +157,11 @@ footer{margin-top:8px;font-size:.88rem;color:var(--muted)}
     </div>
   </section>
 
+  <section class="grade" id="grade-12" aria-labelledby="g12">
+    <h2 id="g12">Grade 12</h2>
+    <p class="empty">Grade 12 simulations will appear here soon.</p>
+  </section>
+
   <footer>New simulations are added to this page as they are made.</footer>
 </main>
 <script>
@@ -169,7 +176,7 @@ footer{margin-top:8px;font-size:.88rem;color:var(--muted)}
     try { history.replaceState(null, '', b.dataset.show === 'all' ? location.pathname : '#' + b.dataset.show); } catch(e) {}
   }); });
   var h = location.hash.slice(1);
-  if (h === 'grade-10' || h === 'grade-11') show(h);
+  if (h === 'grade-10' || h === 'grade-11' || h === 'grade-12') show(h);
 })();
 </script>
 </body>
