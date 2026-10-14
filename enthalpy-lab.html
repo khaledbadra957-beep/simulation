@@ -1,0 +1,1222 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Enthalpy Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<style>
+/* Layout: title, five tabs that follow Inspire Chemistry Module 14 (heat, calorimetry, thermochemical
+   equations, Hess's law, enthalpies of formation). Each tab: a simulation (left) with controls and a live
+   step-by-step solution (right), then worked examples revealed one step at a time
+   (Analyze -> Solve -> Evaluate, as in the book). Orange = heat out / hot, blue = heat in / cold. */
+:root{
+  --bg:#F3F5F9; --surface:#FFFFFF; --sunk:#EDF0F6; --ink:#16213A; --muted:#566079; --line:#D6DBE6;
+  --accent:#0B7A72; --on-accent:#FFFFFF; --hot:#C2410C; --hot-soft:#FCE5D7; --cold:#1F5FCF; --cold-soft:#DCE7FA;
+  --ok:#11743A; --bad:#B42318; --metal:#8C93A6; --water:#9CC7F0;
+  --display:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1322; --surface:#161E33; --sunk:#111829; --ink:#E7EBF5; --muted:#A1AAC4; --line:#2A3452;
+    --accent:#3CC2B6; --on-accent:#05211E; --hot:#FB8A4C; --hot-soft:#3B2216; --cold:#7DAEFF; --cold-soft:#16294B;
+    --ok:#4ADE80; --bad:#FF8A80; --metal:#7C849A; --water:#2E5F92; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1322; --surface:#161E33; --sunk:#111829; --ink:#E7EBF5; --muted:#A1AAC4; --line:#2A3452;
+  --accent:#3CC2B6; --on-accent:#05211E; --hot:#FB8A4C; --hot-soft:#3B2216; --cold:#7DAEFF; --cold-soft:#16294B;
+  --ok:#4ADE80; --bad:#FF8A80; --metal:#7C849A; --water:#2E5F92; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1200px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px;display:flex;flex-direction:column;gap:18px}
+.eyebrow{margin:0;font-family:var(--mono);font-size:.74rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:700;font-size:clamp(2rem,5vw,3rem);line-height:1.05;text-wrap:balance}
+h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+.lede{max-width:68ch;color:var(--muted);font-size:1.05rem}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:900px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tab{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:1px;min-width:0}
+.tab small{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tab b{font-size:.98rem;line-height:1.25}
+.tab:hover{border-color:var(--ink)}
+.tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 -4px 0 var(--accent)}
+
+.panel{display:flex;flex-direction:column;gap:16px}
+.lab{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:880px){.lab{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h3{font-family:var(--mono);font-size:.74rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.law{font-family:var(--display);font-size:1.12rem;font-weight:600;line-height:1.35;border-left:4px solid var(--accent);padding:.2em 0 .2em .8em}
+.stage svg{display:block;width:100%;height:auto}
+.caption{font-size:.87rem;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:420px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.field{display:flex;flex-direction:column;gap:3px;min-width:0}
+.field label,.flabel{font-weight:700;font-size:.9rem}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+output,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+select,input[type=number],input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:.35em .5em;width:100%;min-width:0}
+input[type=range]{width:100%;margin:0;height:26px;accent-color:var(--accent)}
+.btn{font:inherit;font-weight:700;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:.45em 1em;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.small{font-size:.85rem;padding:.3em .7em}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* step-by-step solutions */
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--sunk);display:flex;flex-direction:column;gap:4px}
+.step .tag{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.step .math{font-family:var(--mono);font-size:.95rem;overflow-x:auto;line-height:2}
+.step.new{animation:pop .35s ease}
+@keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.step.new{animation:none}}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.25;margin:0 .15em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.fr>span:last-child{padding:0 .2em}
+.ans{font-weight:700;color:var(--accent)}
+.hot{color:var(--hot)} .cold{color:var(--cold)}
+.known{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px;font-family:var(--mono);font-size:.92rem}
+.worked{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;align-items:start}
+@media (max-width:880px){.worked{grid-template-columns:minmax(0,1fr)}}
+.problem{font-size:1.02rem;background:var(--sunk);border-radius:10px;padding:12px 14px}
+.exlist{display:flex;flex-direction:column;gap:6px}
+.exlist .btn{text-align:left;font-weight:400}
+.exlist .btn[aria-pressed="true"]{font-weight:700}
+.progress{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+
+table.data{width:100%;border-collapse:collapse;font-size:.88rem}
+table.data th,table.data td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+table.data th{font-size:.74rem;color:var(--muted);font-weight:700}
+table.data th:first-child,table.data td:first-child{text-align:left}
+table.data td{font-family:var(--mono)}
+table.data td:first-child{font-family:var(--body)}
+.tablewrap{overflow-x:auto}
+
+/* Hess's law */
+.eqs{display:flex;flex-direction:column;gap:10px}
+.eq{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.eq .orig{font-size:.85rem;color:var(--muted)}
+.eq .now{font-family:var(--mono);font-size:1rem;overflow-x:auto;white-space:nowrap}
+.eq .dh{font-family:var(--mono);font-weight:600}
+.target{border:2px dashed var(--accent);border-radius:12px;padding:10px 12px;font-family:var(--mono);overflow-x:auto;white-space:nowrap}
+.sum{font-family:var(--mono);overflow-wrap:anywhere;line-height:2}
+.x{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
+.verdict{font-weight:700;padding:.5em .8em;border-radius:10px}
+.verdict.good{background:var(--cold-soft);color:var(--ok)}
+.verdict.wait{background:var(--sunk);color:var(--muted)}
+.verdict.bad{background:var(--hot-soft);color:var(--bad)}
+.verdict .cnt{margin:.3em 0 .5em;padding-left:1.2em;font-weight:500}
+.verdict .sub{font-weight:500}
+.eqin{display:flex;gap:8px}
+.eqin input{flex:1;font-family:var(--mono)}
+#fEq{font-family:var(--mono)}
+.eqchip{font:inherit;font-size:.85rem;color:var(--accent);background:none;border:1px dashed var(--accent);border-radius:999px;padding:.05em .6em;cursor:pointer;margin:2px 0}
+table.data td .sub{font-size:.76rem;color:var(--muted);font-family:var(--body)}
+table.data td .miss{color:var(--bad)}
+table.data td.nm{font-family:var(--body);color:var(--muted)}
+.hfin{max-width:8em}
+.feq{font-family:var(--mono);font-size:.82rem;margin-top:4px;line-height:1.5;overflow-wrap:anywhere;color:var(--ink)}
+.feq .dh{color:var(--accent);font-weight:600;white-space:nowrap}
+.feq .x2{color:var(--muted)}
+.feq .eqchip{display:table;font-family:var(--body);font-size:.74rem;margin-top:2px}
+.tablewrap.tall{max-height:420px;overflow-y:auto}
+.tablewrap.tall th{position:sticky;top:0;background:var(--surface)}
+.check{display:flex;gap:6px;align-items:center}
+.check input{max-width:9em}
+.mark{font-weight:700}
+.mark.ok{color:var(--ok)} .mark.no{color:var(--bad)}
+.foot{font-size:.84rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;max-width:92ch}
+
+/* svg classes (colors come from tokens so both themes work) */
+.s-ink{fill:var(--ink)} .s-muted{fill:var(--muted)} .s-line{stroke:var(--line)} .s-inkline{stroke:var(--ink)}
+.s-hot{fill:var(--hot)} .s-cold{fill:var(--cold)} .s-hotl{stroke:var(--hot)} .s-coldl{stroke:var(--cold)}
+.s-water{fill:var(--water)} .s-metal{fill:var(--metal)} .s-surface{fill:var(--surface)} .s-sunk{fill:var(--sunk)} .s-accent{fill:var(--accent)} .s-accentl{stroke:var(--accent)}
+.s-text{fill:var(--ink);font-family:var(--body);font-size:13px}
+.s-mono{fill:var(--ink);font-family:var(--mono);font-size:12px}
+.s-small{fill:var(--muted);font-family:var(--body);font-size:11px}
+.flow{animation:flow 1.6s linear infinite}
+.flow.in{animation-direction:reverse}
+@keyframes flow{to{stroke-dashoffset:-24}}
+@media (prefers-reduced-motion: reduce){.flow{animation:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Grade 11 Chemistry · Module 14 · Energy and Chemical Change</p>
+    <h1>Enthalpy Lab</h1>
+    <p class="lede">Heat samples, run a calorimeter, burn fuels, combine equations with Hess's law and use enthalpies of formation. Every tab solves your numbers step by step, and the worked examples reveal one step at a time: Analyze, Solve, Evaluate.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Parts of the lab">
+    <button class="tab" role="tab" id="t-heat" aria-controls="p-heat" aria-selected="true"><small>Lesson 1 · Energy</small><b>Heat and specific heat</b></button>
+    <button class="tab" role="tab" id="t-cal" aria-controls="p-cal" aria-selected="false" tabindex="-1"><small>Lesson 2 · Heat</small><b>Calorimetry</b></button>
+    <button class="tab" role="tab" id="t-thermo" aria-controls="p-thermo" aria-selected="false" tabindex="-1"><small>Lesson 3</small><b>Thermochemical equations</b></button>
+    <button class="tab" role="tab" id="t-hess" aria-controls="p-hess" aria-selected="false" tabindex="-1"><small>Lesson 4</small><b>Hess's law</b></button>
+    <button class="tab" role="tab" id="t-form" aria-controls="p-form" aria-selected="false" tabindex="-1"><small>Lesson 4</small><b>Enthalpy of formation</b></button>
+  </div>
+
+  <!-- ================= 1. HEAT ================= -->
+  <section class="panel" id="p-heat" role="tabpanel" aria-labelledby="t-heat">
+    <div class="lab">
+      <div class="card stage">
+        <h3>Two samples, same burners, same heat</h3>
+        <svg id="svgHeat" viewBox="0 0 640 330" role="img" aria-label="Two samples on identical burners with thermometers showing their temperatures"></svg>
+        <div class="row">
+          <button class="btn primary" id="heatGo">Start heating</button>
+          <button class="btn" id="heatReset">Reset</button>
+          <span class="caption">Each burner gives 200 J every second. Heating stops at 100 °C.</span>
+        </div>
+      </div>
+      <div class="card">
+        <p class="law">q = c × m × ΔT</p>
+        <div class="grid2">
+          <div class="field"><label for="hA">Sample A</label><select id="hA"></select></div>
+          <div class="field"><label for="hB">Sample B</label><select id="hB"></select></div>
+          <div class="field"><div class="field-head"><label for="mA">Mass A</label><output id="mAo">100 g</output></div><input type="range" id="mA" min="10" max="500" step="5" value="100"></div>
+          <div class="field"><div class="field-head"><label for="mB">Mass B</label><output id="mBo">100 g</output></div><input type="range" id="mB" min="10" max="500" step="5" value="100"></div>
+        </div>
+        <h3>Your numbers, step by step</h3>
+        <div class="steps" id="heatLive" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Worked examples</h3>
+      <div class="worked" id="wkHeat"></div>
+    </div>
+    <div class="card">
+      <h3>Specific heats (J/(g·°C)) at 298 K</h3>
+      <div class="tablewrap"><table class="data" id="tblC"></table></div>
+    </div>
+  </section>
+
+  <!-- ================= 2. CALORIMETRY ================= -->
+  <section class="panel" id="p-cal" role="tabpanel" aria-labelledby="t-cal" hidden>
+    <div class="lab">
+      <div class="card stage">
+        <h3>Coffee-cup calorimeter</h3>
+        <svg id="svgCal" viewBox="0 0 640 330" role="img" aria-label="A hot metal sample dropped into water in an insulated cup, with a graph of both temperatures against time"></svg>
+        <div class="row">
+          <button class="btn primary" id="calGo">Drop the metal in</button>
+          <button class="btn" id="calReset">Reset</button>
+          <span class="caption">Assume no heat escapes the cup: heat lost by the metal = heat gained by the water.</span>
+        </div>
+      </div>
+      <div class="card">
+        <p class="law">q<sub>lost by metal</sub> = q<sub>gained by water</sub></p>
+        <div class="grid2">
+          <div class="field"><label for="cMetal">Metal</label><select id="cMetal"></select></div>
+          <div class="field"><div class="field-head"><label for="cmM">Metal mass</label><output id="cmMo">50.0 g</output></div><input type="range" id="cmM" min="10" max="200" step="1" value="50"></div>
+          <div class="field"><div class="field-head"><label for="cTM">Metal starts at</label><output id="cTMo">100.0 °C</output></div><input type="range" id="cTM" min="50" max="200" step="1" value="100"></div>
+          <div class="field"><div class="field-head"><label for="cmW">Water mass</label><output id="cmWo">100.0 g</output></div><input type="range" id="cmW" min="50" max="250" step="1" value="100"></div>
+          <div class="field"><div class="field-head"><label for="cTW">Water starts at</label><output id="cTWo">25.0 °C</output></div><input type="range" id="cTW" min="15" max="35" step="0.5" value="25"></div>
+        </div>
+        <h3>Your numbers, step by step</h3>
+        <div class="steps" id="calLive" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Worked examples</h3>
+      <div class="worked" id="wkCal"></div>
+    </div>
+  </section>
+
+  <!-- ================= 3. THERMOCHEMICAL EQUATIONS ================= -->
+  <section class="panel" id="p-thermo" role="tabpanel" aria-labelledby="t-thermo" hidden>
+    <div class="lab">
+      <div class="card stage">
+        <h3>Enthalpy diagram</h3>
+        <svg id="svgThermo" viewBox="0 0 640 330" role="img" aria-label="Enthalpy diagram showing reactants and products and the heat exchanged with the surroundings"></svg>
+      </div>
+      <div class="card">
+        <p class="law">q = n × ΔH &nbsp; with &nbsp; n = <span class="fr"><span>mass</span><span>molar mass</span></span></p>
+        <div class="field"><label for="tProc">Process</label><select id="tProc"></select></div>
+        <div class="field"><div class="field-head"><label for="tMass">Mass of substance</label><output id="tMasso">50.0 g</output></div><input type="range" id="tMass" min="1" max="500" step="0.5" value="50"></div>
+        <h3>Your numbers, step by step</h3>
+        <div class="steps" id="thermoLive" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Worked examples</h3>
+      <div class="worked" id="wkThermo"></div>
+    </div>
+    <div class="card">
+      <h3>Standard enthalpies of combustion, ΔH°<sub>comb</sub> (kJ/mol, 25 °C, 1 atm)</h3>
+      <div class="tablewrap"><table class="data" id="tblComb"></table></div>
+    </div>
+  </section>
+
+  <!-- ================= 4. HESS'S LAW ================= -->
+  <section class="panel" id="p-hess" role="tabpanel" aria-labelledby="t-hess" hidden>
+    <div class="lab">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <h3>Build the target equation</h3>
+          <div class="field" style="min-width:12em"><label for="hProb" class="flabel">Problem</label><select id="hProb"></select></div>
+        </div>
+        <div class="target" id="hTarget"></div>
+        <p class="caption">Reverse an equation (the sign of ΔH flips) or multiply it (ΔH is multiplied too) until the equations add up to the target.</p>
+        <div class="eqs" id="hEqs"></div>
+      </div>
+      <div class="card">
+        <p class="law">If equations add up to the target, their ΔH values add up to ΔH of the target.</p>
+        <h3>Sum of your equations</h3>
+        <div class="sum" id="hSum"></div>
+        <div id="hVerdict" class="verdict wait" aria-live="polite"></div>
+        <ul class="caption" id="hHints" style="margin:0;padding-left:1.2em"></ul>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Worked examples</h3>
+      <div class="worked" id="wkHess"></div>
+    </div>
+  </section>
+
+  <!-- ================= 5. ENTHALPY OF FORMATION ================= -->
+  <section class="panel" id="p-form" role="tabpanel" aria-labelledby="t-form" hidden>
+    <div class="lab">
+      <div class="card stage">
+        <h3>Enthalpy diagram through the elements</h3>
+        <svg id="svgForm" viewBox="0 0 640 360" role="img" aria-label="Enthalpy levels of the elements, the reactants and the products, with the enthalpy change of the reaction"></svg>
+      </div>
+      <div class="card">
+        <p class="law">ΔH°<sub>rxn</sub> = ΣΔH°<sub>f</sub>(products) − ΣΔH°<sub>f</sub>(reactants)</p>
+        <div class="field"><label for="fEq">Type any equation</label>
+          <div class="eqin"><input type="text" id="fEq" placeholder="C2H4(g) + 3O2(g) -> 2CO2(g) + 2H2O(l)" spellcheck="false" autocomplete="off" autocapitalize="off"><button class="btn primary" id="fEqGo" type="button">Calculate</button></div>
+          <p class="caption">Use -> or = as the arrow. States are optional: (s) (l) (g) (aq). Ions: Ca^2+ or Ca2+. Try: <button class="eqchip" type="button" data-eq="C2H5OH(l) + 3O2(g) -> 2CO2(g) + 3H2O(l)">ethanol burning</button> <button class="eqchip" type="button" data-eq="Fe2O3 + CO -> Fe + CO2">blast furnace (unbalanced)</button> <button class="eqchip" type="button" data-eq="Ag+(aq) + Cl-(aq) -> AgCl(s)">AgCl precipitate</button></p>
+          <div id="fEqMsg" class="verdict" aria-live="polite" hidden></div>
+        </div>
+        <div class="field"><label for="fRxn">Reaction</label><select id="fRxn"></select></div>
+        <div class="tablewrap"><table class="data" id="fUsed"></table></div>
+        <h3>Try it yourself</h3>
+        <div class="check"><label for="fP" style="flex:1">ΣΔH°<sub>f</sub>(products)</label><input type="number" id="fP" step="any"><span class="mark" id="fPm"></span></div>
+        <div class="check"><label for="fR" style="flex:1">ΣΔH°<sub>f</sub>(reactants)</label><input type="number" id="fR" step="any"><span class="mark" id="fRm"></span></div>
+        <div class="check"><label for="fH" style="flex:1">ΔH°<sub>rxn</sub> (kJ)</label><input type="number" id="fH" step="any"><span class="mark" id="fHm"></span></div>
+        <div class="row"><button class="btn primary" id="fCheck">Check my answers</button><button class="btn" id="fShow">Show the steps</button></div>
+        <div class="steps" id="formLive" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Worked examples</h3>
+      <div class="worked" id="wkForm"></div>
+    </div>
+    <div class="card">
+      <h3>Table of standard enthalpies of formation, ΔH°<sub>f</sub> (kJ/mol, 25 °C, 1 atm)</h3>
+      <p class="caption">Each substance shows its <b>formation equation</b>: 1 mol of the substance made from its elements in their standard states, so fractions such as ½O₂ can appear. Doubling the equation doubles ΔH°. For ions, values are measured relative to H⁺(aq) = 0, so H⁺(aq) and H₂(g) appear in the equation. Your own equations use this table. Values come from Wikipedia's “Standard enthalpy of formation” table (CRC Handbook and NIST data); a few common ions and liquids were added from the CRC Handbook. The ready-made reactions above use the book's rounded values (for example CO₂ = −394), so answers can differ by a few kJ. An element in its standard state (O₂, H₂, N₂, Cl₂, Br₂(l), I₂(s), C graphite, Fe, Al…) has ΔH°<sub>f</sub> = 0. The table is built into the page, so it works offline.</p>
+      <div class="row"><input type="text" id="fSearch" placeholder="Search: CO2, ethanol, sulfate…" aria-label="Search the table" spellcheck="false" autocomplete="off" style="flex:1;min-width:12em"><span class="caption" id="tblCount"></span></div>
+      <div class="tablewrap tall"><table class="data" id="tblForm"></table></div>
+    </div>
+  </section>
+
+  <p class="foot">Values follow the tables in Inspire Chemistry (Module 14) rounded as the book does; the “type any equation” tool uses the fuller ΔH°<sub>f</sub> table (Wikipedia/CRC). Worked examples follow the book's Analyze → Solve → Evaluate format. Answers are given to three significant figures.</p>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- number formatting ---------- */
+var SUP = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+function sup(n){ return String(n).split('').map(function(ch){ return SUP[ch] || ch; }).join(''); }
+function sf(x, n){
+  n = n || 3; if (!isFinite(x)) return '—'; if (x === 0) return '0';
+  var s = x.toPrecision(n);
+  if (s.indexOf('e') >= 0){ var p = s.split('e'); return p[0] + ' × 10' + sup(parseInt(p[1], 10)); }
+  return s.replace('-', '−');
+}
+function fx(x, d){ return x.toFixed(d).replace('-', '−'); }
+function sign(x, d){ return (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x).toFixed(d === undefined ? 0 : d); }
+function fr(a, b){ return '<span class="fr"><span>' + a + '</span><span>' + b + '</span></span>'; }
+function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+/* ---------- step renderer ---------- */
+function stepsHTML(steps, upto, newest){
+  return steps.slice(0, upto).map(function(s, i){
+    return '<div class="step' + (i === newest ? ' new' : '') + '"><span class="tag">' + s.tag + '</span><div' + (s.math ? ' class="math"' : '') + '>' + s.html + '</div></div>';
+  }).join('');
+}
+function knownHTML(known, unknown){
+  return '<div class="known"><div><b>Known</b><br>' + known.join('<br>') + '</div><div><b>Unknown</b><br>' + unknown.join('<br>') + '</div></div>';
+}
+
+/* ---------- worked-example widget ---------- */
+function worked(hostId, examples){
+  var host = $(hostId), cur = 0, shown = 1;
+  host.innerHTML = '<div class="exlist"></div><div class="card" style="padding:14px"><p class="problem"></p><div class="steps"></div>' +
+    '<div class="row"><button class="btn primary nx">Next step</button><button class="btn all">Show all steps</button><button class="btn rs">Start again</button><span class="progress"></span></div></div>';
+  var list = host.querySelector('.exlist'), prob = host.querySelector('.problem'), st = host.querySelector('.steps');
+  var nx = host.querySelector('.nx'), all = host.querySelector('.all'), rs = host.querySelector('.rs'), pg = host.querySelector('.progress');
+  list.innerHTML = examples.map(function(e, i){ return '<button class="btn" data-i="' + i + '" aria-pressed="' + (i === 0) + '">' + e.title + '</button>'; }).join('');
+  function render(newest){
+    var ex = examples[cur];
+    prob.innerHTML = ex.problem;
+    st.innerHTML = stepsHTML(ex.steps, shown, newest);
+    nx.disabled = shown >= ex.steps.length; pg.textContent = 'Step ' + shown + ' of ' + ex.steps.length;
+  }
+  list.addEventListener('click', function(ev){
+    var b = ev.target.closest('button'); if (!b) return;
+    cur = +b.dataset.i; shown = 1;
+    Array.prototype.forEach.call(list.children, function(c){ c.setAttribute('aria-pressed', c === b ? 'true' : 'false'); });
+    render(-1);
+  });
+  nx.addEventListener('click', function(){ if (shown < examples[cur].steps.length){ shown++; render(shown - 1); } });
+  all.addEventListener('click', function(){ shown = examples[cur].steps.length; render(-1); });
+  rs.addEventListener('click', function(){ shown = 1; render(-1); });
+  render(-1);
+}
+
+/* =====================================================================
+   1. HEAT AND SPECIFIC HEAT
+   ===================================================================== */
+var SUBS = [
+  { n: 'Water (liquid)', c: 4.184, liquid: true }, { n: 'Ethanol (liquid)', c: 2.44, liquid: true },
+  { n: 'Ice (solid)', c: 2.03 }, { n: 'Aluminum', c: 0.897 }, { n: 'Granite', c: 0.803 },
+  { n: 'Iron', c: 0.449 }, { n: 'Copper', c: 0.385 }, { n: 'Silver', c: 0.235 },
+  { n: 'Lead', c: 0.129 }, { n: 'Gold', c: 0.129 }
+];
+$('tblC').innerHTML = '<tr><th>Substance</th><th>c (J/(g·°C))</th><th>Heat to warm 100 g by 1 °C</th></tr>' +
+  SUBS.map(function(s){ return '<tr><td>' + s.n + '</td><td>' + s.c + '</td><td>' + sf(s.c * 100) + ' J</td></tr>'; }).join('');
+['hA', 'hB'].forEach(function(id, k){
+  $(id).innerHTML = SUBS.map(function(s, i){ return '<option value="' + i + '"' + (i === (k ? 5 : 0) ? ' selected' : '') + '>' + s.n + '</option>'; }).join('');
+});
+var T0 = 20, POWER = 200, heat = { on: false, q: 0 };
+function sampleState(k){
+  var s = SUBS[+$(k ? 'hB' : 'hA').value], m = +$(k ? 'mB' : 'mA').value, cm = s.c * m;
+  var qmax = cm * (100 - T0), q = Math.min(heat.q, qmax);
+  return { s: s, m: m, q: q, T: T0 + q / cm, full: heat.q >= qmax };
+}
+function thermo(x, y, h, T, lo, hi){
+  var f = Math.max(0, Math.min(1, (T - lo) / (hi - lo))), fh = (h - 18) * f;
+  var col = T > 60 ? 's-hot' : 's-cold';
+  var ticks = '';
+  for (var t = lo; t <= hi; t += 20){ var ty = y + h - 18 - (h - 18) * (t - lo) / (hi - lo);
+    ticks += '<line x1="' + (x + 10) + '" x2="' + (x + 16) + '" y1="' + ty + '" y2="' + ty + '" class="s-inkline" stroke-width="1"/><text x="' + (x + 19) + '" y="' + (ty + 4) + '" class="s-small">' + t + '</text>'; }
+  return '<rect x="' + (x - 6) + '" y="' + y + '" width="12" height="' + (h - 12) + '" rx="6" class="s-sunk s-inkline" stroke-width="1.5"/>' +
+    '<rect x="' + (x - 3) + '" y="' + (y + h - 18 - fh) + '" width="6" height="' + (fh + 8) + '" class="' + col + '"/>' +
+    '<circle cx="' + x + '" cy="' + (y + h - 6) + '" r="10" class="' + col + '"/>' + ticks;
+}
+function drawHeat(){
+  var A = sampleState(0), B = sampleState(1), out = '';
+  [A, B].forEach(function(S, k){
+    var cx = k ? 470 : 150, base = 250;
+    // burner + flame
+    out += '<rect x="' + (cx - 60) + '" y="' + (base + 20) + '" width="120" height="14" rx="4" class="s-metal"/>';
+    if (heat.on && !S.full){ for (var f = -2; f <= 2; f++) out += '<path d="M' + (cx + f * 20 - 6) + ' ' + (base + 18) + ' q6 -' + (16 + (f % 2 ? 4 : 0)) + ' 12 0 z" class="s-hot"/>'; }
+    // sample: beaker of liquid or a solid block, size grows with mass
+    var size = 34 + Math.sqrt(S.m) * 3.2;
+    var glow = Math.min(1, (S.T - T0) / 80);
+    if (S.s.liquid){
+      out += '<path d="M' + (cx - 55) + ' ' + (base - 120) + ' v118 h110 v-118" fill="none" class="s-inkline" stroke-width="2"/>';
+      var lh = Math.min(112, size * 0.9);
+      out += '<rect x="' + (cx - 53) + '" y="' + (base - 2 - lh) + '" width="106" height="' + lh + '" class="s-water"/>';
+      out += '<rect x="' + (cx - 53) + '" y="' + (base - 2 - lh) + '" width="106" height="' + lh + '" class="s-hot" opacity="' + (glow * 0.45).toFixed(2) + '"/>';
+    } else {
+      out += '<rect x="' + (cx - size / 2) + '" y="' + (base - size) + '" width="' + size + '" height="' + size + '" rx="4" class="s-metal"/>';
+      out += '<rect x="' + (cx - size / 2) + '" y="' + (base - size) + '" width="' + size + '" height="' + size + '" rx="4" class="s-hot" opacity="' + (glow * 0.75).toFixed(2) + '"/>';
+    }
+    out += thermo(cx + 92, 40, 200, S.T, 0, 100);
+    out += '<text x="' + cx + '" y="22" text-anchor="middle" class="s-text" font-weight="700">' + (k ? 'B' : 'A') + ': ' + esc(S.s.n) + ', ' + S.m + ' g</text>';
+    out += '<text x="' + cx + '" y="' + (base + 54) + '" text-anchor="middle" class="s-mono">q = ' + sf(S.q) + ' J · T = ' + fx(S.T, 1) + ' °C</text>';
+    out += '<text x="' + cx + '" y="' + (base + 72) + '" text-anchor="middle" class="s-small">' + (S.full ? 'reached 100 °C, heating stopped' : 'c = ' + S.s.c + ' J/(g·°C)') + '</text>';
+  });
+  $('svgHeat').innerHTML = out;
+  var lines = [A, B].map(function(S, k){
+    var dT = S.T - T0;
+    return { tag: 'Sample ' + (k ? 'B' : 'A') + ' · ' + esc(S.s.n), math: true,
+      html: 'ΔT = ' + fx(S.T, 1) + ' − ' + T0 + '.0 = ' + fx(dT, 1) + ' °C<br>q = c × m × ΔT = ' + S.s.c + ' × ' + S.m + ' × ' + fx(dT, 1) + ' = <span class="ans">' + sf(S.q) + ' J</span>' };
+  });
+  var msg;
+  if (heat.q === 0) msg = 'Press <b>Start heating</b>. Both samples get the same heat every second.';
+  else if (Math.abs(A.T - B.T) < 0.05) msg = 'Both temperatures rose by the same amount.';
+  else { var hi = A.T > B.T ? 'A' : 'B', lo = hi === 'A' ? 'B' : 'A';
+    msg = 'Sample <b>' + hi + '</b> warmed more. Its c × m is smaller, so each joule raises its temperature more. Sample ' + lo + ' needs more heat for each degree.'; }
+  lines.push({ tag: 'What it shows', html: msg });
+  $('heatLive').innerHTML = stepsHTML(lines, lines.length, -1);
+}
+$('heatGo').addEventListener('click', function(){ heat.on = !heat.on; this.textContent = heat.on ? 'Pause' : 'Start heating'; drawHeat(); });
+$('heatReset').addEventListener('click', function(){ heat.on = false; heat.q = 0; $('heatGo').textContent = 'Start heating'; drawHeat(); });
+['hA', 'hB', 'mA', 'mB'].forEach(function(id){ $(id).addEventListener('input', function(){ $('mAo').textContent = $('mA').value + ' g'; $('mBo').textContent = $('mB').value + ' g'; drawHeat(); }); });
+
+worked('wkHeat', [
+  { title: 'Example 1 · Converting energy units', problem: 'A breakfast of cereal, orange juice and milk contains <b>230 nutritional Calories</b>. Express this energy in joules.',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['energy = 230 Cal', '1 Cal = 1000 cal', '1 cal = 4.184 J'], ['energy = ? J']) },
+      { tag: '2 · Plan', html: 'Use two conversion factors: Calories → calories → joules. Arrange each factor so the unit you want to remove is on the bottom.' },
+      { tag: '3 · Solve for the unknown', math: true, html: '230 Cal × ' + fr('1000 cal', '1 Cal') + ' × ' + fr('4.184 J', '1 cal') },
+      { tag: '3 · Solve (continued)', math: true, html: '= 230 × 1000 × 4.184 J = <span class="ans">9.62 × 10⁵ J</span>' },
+      { tag: '4 · Evaluate the answer', html: 'A joule is much smaller than a Calorie, so the number of joules must be much larger. 230 has three significant figures, so the answer has three.' }
+    ] },
+  { title: 'Example 2 · Calculating specific heat', problem: 'The temperature of a <b>10.0 g</b> sample of iron changed from <b>50.4 °C</b> to <b>25.0 °C</b> as it released <b>114 J</b> of heat. What is the specific heat of iron?',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['m = 10.0 g', 'T<sub>i</sub> = 50.4 °C', 'T<sub>f</sub> = 25.0 °C', 'q = 114 J (released)'], ['c = ? J/(g·°C)']) },
+      { tag: '2 · Find ΔT', math: true, html: 'ΔT = T<sub>f</sub> − T<sub>i</sub> = 25.0 − 50.4 = −25.4 °C<br><span class="caption">The iron cooled. Use the sizes: 114 J and 25.4 °C.</span>' },
+      { tag: '3 · Rearrange the equation', math: true, html: 'q = c × m × ΔT &nbsp;→&nbsp; c = ' + fr('q', 'm × ΔT') },
+      { tag: '4 · Substitute and solve', math: true, html: 'c = ' + fr('114 J', '(10.0 g)(25.4 °C)') + ' = <span class="ans">0.449 J/(g·°C)</span>' },
+      { tag: '5 · Evaluate the answer', html: 'The unit J/(g·°C) is correct for specific heat. The value matches iron in the table (0.449). Three significant figures, like the data.' }
+    ] },
+  { title: 'Example 3 · Identifying a metal', problem: 'A <b>4.68 g</b> piece of metal absorbs <b>256 J</b> of heat when its temperature rises by <b>182 °C</b>. What is its specific heat? Which alkaline earth metal could it be? (Be 1.825, Mg 1.023, Ca 0.647, Sr 0.301, Ba 0.204 J/(g·°C))',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['m = 4.68 g', 'q = 256 J', 'ΔT = 182 °C'], ['c = ? J/(g·°C)', 'identity of the metal']) },
+      { tag: '2 · Rearrange the equation', math: true, html: 'c = ' + fr('q', 'm × ΔT') },
+      { tag: '3 · Substitute and solve', math: true, html: 'c = ' + fr('256 J', '(4.68 g)(182 °C)') + ' = ' + fr('256 J', '852 g·°C') + ' = <span class="ans">0.301 J/(g·°C)</span>' },
+      { tag: '4 · Compare with the table', html: '0.301 J/(g·°C) matches <b>strontium</b>.' },
+      { tag: '5 · Evaluate the answer', html: 'A small mass and a large temperature change for only 256 J means c must be small, like other metals. The unit is correct and there are three significant figures.' }
+    ] }
+]);
+
+/* =====================================================================
+   2. CALORIMETRY
+   ===================================================================== */
+var METALS = [
+  { n: 'Aluminum', c: 0.897 }, { n: 'Iron', c: 0.449 }, { n: 'Copper', c: 0.385 }, { n: 'Silver', c: 0.235 }, { n: 'Gold', c: 0.129 },
+  { n: 'Unknown metal X', c: null }
+];
+$('cMetal').innerHTML = METALS.map(function(m, i){ return '<option value="' + i + '"' + (i === 2 ? ' selected' : '') + '>' + m.n + '</option>'; }).join('');
+var cal = { t: 0, run: false, done: false, unknownC: null };
+function pickUnknown(){ var opts = [0.897, 0.449, 0.385, 0.235]; cal.unknownC = opts[Math.floor(Math.random() * opts.length)]; }
+pickUnknown();
+function calIn(){
+  var M = METALS[+$('cMetal').value], c = M.c === null ? cal.unknownC : M.c;
+  var mm = +$('cmM').value, Tm = +$('cTM').value, mw = +$('cmW').value, Tw = +$('cTW').value, cw = 4.184;
+  var Tf = (mm * c * Tm + mw * cw * Tw) / (mm * c + mw * cw);
+  return { M: M, c: c, mm: mm, Tm: Tm, mw: mw, Tw: Tw, cw: cw, Tf: Tf, unknown: M.c === null };
+}
+var TAU = 1.1, TEND = 7;
+function calTemps(I, t){ var k = Math.exp(-t / TAU); return { m: I.Tf + (I.Tm - I.Tf) * k, w: I.Tf - (I.Tf - I.Tw) * k }; }
+function drawCal(){
+  var I = calIn(), t = cal.t, inCup = cal.run || cal.done, T = inCup ? calTemps(I, t) : { m: I.Tm, w: I.Tw }, out = '';
+  // cup
+  out += '<path d="M40 120 L58 300 H202 L220 120" fill="none" class="s-inkline" stroke-width="3"/>';
+  out += '<path d="M44 160 L55 296 H205 L216 160 Z" class="s-water"/>';
+  out += '<rect x="30" y="108" width="200" height="12" rx="3" class="s-metal"/>';
+  out += '<text x="130" y="320" text-anchor="middle" class="s-small">insulated cup, ' + I.mw + ' g water</text>';
+  // metal block
+  var by = inCup ? Math.min(250, 40 + t * 600) : 40;
+  var glow = Math.max(0, Math.min(1, (T.m - 25) / 120));
+  out += '<rect x="105" y="' + by + '" width="50" height="40" rx="4" class="s-metal"/>';
+  out += '<rect x="105" y="' + by + '" width="50" height="40" rx="4" class="s-hot" opacity="' + (glow * 0.8).toFixed(2) + '"/>';
+  out += '<text x="130" y="' + (by - 6) + '" text-anchor="middle" class="s-small">' + esc(I.M.n) + ', ' + I.mm + ' g</text>';
+  // thermometer in water
+  out += thermo(244, 60, 230, T.w, 0, 100);
+  out += '<text x="' + 330 + '" y="312" class="s-mono">water ' + fx(T.w, 1) + ' °C · metal ' + fx(T.m, 1) + ' °C</text>';
+  // graph
+  var gx = 330, gy = 40, gw = 290, gh = 230, Tmax = Math.max(I.Tm, 60), X = function(s){ return gx + s / TEND * gw; }, Y = function(v){ return gy + gh - v / Tmax * gh; };
+  out += '<line x1="' + gx + '" y1="' + (gy + gh) + '" x2="' + (gx + gw) + '" y2="' + (gy + gh) + '" class="s-inkline" stroke-width="1.5"/><line x1="' + gx + '" y1="' + gy + '" x2="' + gx + '" y2="' + (gy + gh) + '" class="s-inkline" stroke-width="1.5"/>';
+  for (var v = 0; v <= Tmax; v += Tmax > 120 ? 50 : 20){ out += '<text x="' + (gx - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end" class="s-small">' + v + '</text><line x1="' + gx + '" x2="' + (gx + gw) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="s-line" stroke-width="1"/>'; }
+  out += '<text x="' + (gx + gw) + '" y="' + (gy + gh + 18) + '" text-anchor="end" class="s-small">time →</text><text x="' + gx + '" y="' + (gy - 10) + '" class="s-small">T (°C)</text>';
+  if (inCup){
+    var pm = '', pw = '';
+    for (var s = 0; s <= t + 1e-9; s += TEND / 120){ var Ts = calTemps(I, s); pm += (s ? 'L' : 'M') + X(s).toFixed(1) + ' ' + Y(Ts.m).toFixed(1); pw += (s ? 'L' : 'M') + X(s).toFixed(1) + ' ' + Y(Ts.w).toFixed(1); }
+    out += '<path d="' + pm + '" fill="none" class="s-hotl" stroke-width="3"/><path d="' + pw + '" fill="none" class="s-coldl" stroke-width="3"/>';
+    if (cal.done){ out += '<line x1="' + gx + '" x2="' + (gx + gw) + '" y1="' + Y(I.Tf) + '" y2="' + Y(I.Tf) + '" class="s-accentl" stroke-width="1.5" stroke-dasharray="5 4"/><text x="' + (gx + gw) + '" y="' + (Y(I.Tf) - 6) + '" text-anchor="end" class="s-mono">T<tspan font-size="9" dy="3">f</tspan><tspan dy="-3"> = ' + fx(I.Tf, 1) + ' °C</tspan></text>'; }
+  }
+  out += '<text x="' + (gx + 8) + '" y="' + (gy + 14) + '" class="s-small"><tspan class="s-hot">■</tspan> metal &nbsp; <tspan class="s-cold">■</tspan> water</text>';
+  $('svgCal').innerHTML = out;
+  calSteps(I);
+}
+function calSteps(I){
+  var L = [];
+  if (!cal.done){
+    L.push({ tag: 'Before you start', html: 'Predict: will the final temperature be closer to the metal\'s ' + fx(I.Tm, 1) + ' °C or the water\'s ' + fx(I.Tw, 1) + ' °C? Then press <b>Drop the metal in</b>.' });
+  } else {
+    var Tf = Math.round(I.Tf * 10) / 10, dTw = Tf - I.Tw, qw = I.cw * I.mw * dTw, dTm = I.Tm - Tf, c = qw / (I.mm * dTm);
+    L.push({ tag: '1 · Measured', math: true, html: 'T<sub>f</sub> = ' + fx(Tf, 1) + ' °C' });
+    L.push({ tag: '2 · Heat gained by the water', math: true, html: 'q<sub>water</sub> = c × m × ΔT = 4.184 × ' + I.mw.toFixed(1) + ' × (' + fx(Tf, 1) + ' − ' + fx(I.Tw, 1) + ')<br>= 4.184 × ' + I.mw.toFixed(1) + ' × ' + fx(dTw, 1) + ' = <span class="ans">' + sf(qw) + ' J</span>' });
+    L.push({ tag: '3 · Heat lost by the metal is the same', math: true, html: 'q<sub>metal</sub> = ' + sf(qw) + ' J, &nbsp; ΔT<sub>metal</sub> = ' + fx(I.Tm, 1) + ' − ' + fx(Tf, 1) + ' = ' + fx(dTm, 1) + ' °C' });
+    L.push({ tag: '4 · Specific heat of the metal', math: true, html: 'c = ' + fr('q', 'm × ΔT') + ' = ' + fr(sf(qw) + ' J', '(' + I.mm.toFixed(1) + ' g)(' + fx(dTm, 1) + ' °C)') + ' = <span class="ans">' + sf(c) + ' J/(g·°C)</span>' });
+    if (I.unknown){
+      var best = METALS.slice(0, 5).reduce(function(b, m){ return Math.abs(m.c - c) < Math.abs(b.c - c) ? m : b; });
+      L.push({ tag: '5 · Identify the metal', html: 'The closest value in the table is <b>' + best.n + '</b> (' + best.c + ' J/(g·°C)).' });
+    } else {
+      L.push({ tag: '5 · Evaluate', html: 'The table value for ' + I.M.n.toLowerCase() + ' is ' + I.M.c + ' J/(g·°C). Small differences come from rounding the final temperature.' });
+    }
+  }
+  $('calLive').innerHTML = stepsHTML(L, L.length, -1);
+}
+function calOut(){ $('cmMo').textContent = (+$('cmM').value).toFixed(1) + ' g'; $('cTMo').textContent = (+$('cTM').value).toFixed(1) + ' °C'; $('cmWo').textContent = (+$('cmW').value).toFixed(1) + ' g'; $('cTWo').textContent = (+$('cTW').value).toFixed(1) + ' °C'; }
+function calReset(){ cal.t = 0; cal.run = false; cal.done = false; $('calGo').disabled = false; drawCal(); }
+['cMetal', 'cmM', 'cTM', 'cmW', 'cTW'].forEach(function(id){ $(id).addEventListener('input', function(){ calOut(); if (id === 'cMetal' && METALS[+this.value].c === null) pickUnknown(); calReset(); }); });
+$('calGo').addEventListener('click', function(){ cal.t = 0; cal.run = true; cal.done = false; this.disabled = true; if (reduce){ cal.t = TEND; cal.run = false; cal.done = true; } drawCal(); });
+$('calReset').addEventListener('click', calReset);
+
+worked('wkCal', [
+  { title: 'Example 1 · Identifying a metal', problem: 'A <b>50.0 g</b> piece of metal at <b>115.0 °C</b> is dropped into <b>100.0 g</b> of water at <b>25.0 °C</b> in a calorimeter. The final temperature is <b>29.0 °C</b>. Find the specific heat of the metal and identify it.',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['m<sub>metal</sub> = 50.0 g, T<sub>i</sub> = 115.0 °C', 'm<sub>water</sub> = 100.0 g, T<sub>i</sub> = 25.0 °C', 'T<sub>f</sub> = 29.0 °C', 'c<sub>water</sub> = 4.184 J/(g·°C)'], ['c<sub>metal</sub> = ?', 'identity of the metal']) },
+      { tag: '2 · Heat gained by the water', math: true, html: 'q<sub>water</sub> = c × m × ΔT = (4.184)(100.0)(29.0 − 25.0)<br>= (4.184)(100.0)(4.0) = <span class="ans">1.67 × 10³ J</span>' },
+      { tag: '3 · Heat lost by the metal', math: true, html: 'q<sub>metal</sub> = q<sub>water</sub> = 1.67 × 10³ J<br>ΔT<sub>metal</sub> = 115.0 − 29.0 = 86.0 °C' },
+      { tag: '4 · Solve for c of the metal', math: true, html: 'c = ' + fr('q', 'm × ΔT') + ' = ' + fr('1674 J', '(50.0 g)(86.0 °C)') + ' = <span class="ans">0.389 J/(g·°C)</span>' },
+      { tag: '5 · Evaluate the answer', html: 'The closest table value is <b>copper</b>, 0.385 J/(g·°C). The water warmed only 4.0 °C while the metal cooled 86.0 °C, because water has a much larger specific heat.' }
+    ] },
+  { title: 'Example 2 · Finding the final temperature', problem: 'A <b>25.0 g</b> piece of aluminum (c = 0.897 J/(g·°C)) at <b>95.0 °C</b> is placed in <b>75.0 g</b> of water at <b>22.0 °C</b>. What is the final temperature?',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['m<sub>Al</sub> = 25.0 g, c<sub>Al</sub> = 0.897', 'T<sub>Al</sub> = 95.0 °C', 'm<sub>water</sub> = 75.0 g, c = 4.184', 'T<sub>water</sub> = 22.0 °C'], ['T<sub>f</sub> = ? °C']) },
+      { tag: '2 · Set heat lost = heat gained', math: true, html: 'c<sub>Al</sub> m<sub>Al</sub> (95.0 − T<sub>f</sub>) = c<sub>w</sub> m<sub>w</sub> (T<sub>f</sub> − 22.0)' },
+      { tag: '3 · Substitute', math: true, html: '(0.897)(25.0)(95.0 − T<sub>f</sub>) = (4.184)(75.0)(T<sub>f</sub> − 22.0)<br>22.4 (95.0 − T<sub>f</sub>) = 313.8 (T<sub>f</sub> − 22.0)' },
+      { tag: '4 · Expand and collect T<sub>f</sub>', math: true, html: '2130 − 22.4 T<sub>f</sub> = 313.8 T<sub>f</sub> − 6904<br>2130 + 6904 = 313.8 T<sub>f</sub> + 22.4 T<sub>f</sub><br>9034 = 336.2 T<sub>f</sub>' },
+      { tag: '5 · Solve', math: true, html: 'T<sub>f</sub> = ' + fr('9034', '336.2') + ' = <span class="ans">26.9 °C</span>' },
+      { tag: '6 · Evaluate the answer', html: 'T<sub>f</sub> lies between 22.0 °C and 95.0 °C, and much closer to the water\'s temperature, because the water has more mass and a much larger specific heat.' }
+    ] }
+]);
+
+/* =====================================================================
+   3. THERMOCHEMICAL EQUATIONS
+   ===================================================================== */
+var PROCS = [
+  { n: 'Combustion of methane, CH₄', f: 'CH₄', eq: 'CH₄(g) + 2O₂(g) → CO₂(g) + 2H₂O(l)', M: 16.04, dH: -891, kind: 'comb' },
+  { n: 'Combustion of propane, C₃H₈', f: 'C₃H₈', eq: 'C₃H₈(g) + 5O₂(g) → 3CO₂(g) + 4H₂O(l)', M: 44.10, dH: -2219, kind: 'comb' },
+  { n: 'Combustion of glucose, C₆H₁₂O₆', f: 'C₆H₁₂O₆', eq: 'C₆H₁₂O₆(s) + 6O₂(g) → 6CO₂(g) + 6H₂O(l)', M: 180.16, dH: -2808, kind: 'comb' },
+  { n: 'Combustion of octane, C₈H₁₈', f: 'C₈H₁₈', eq: 'C₈H₁₈(l) + 25/2 O₂(g) → 8CO₂(g) + 9H₂O(l)', M: 114.23, dH: -5471, kind: 'comb' },
+  { n: 'Combustion of sucrose, C₁₂H₂₂O₁₁', f: 'C₁₂H₂₂O₁₁', eq: 'C₁₂H₂₂O₁₁(s) + 12O₂(g) → 12CO₂(g) + 11H₂O(l)', M: 342.30, dH: -5644, kind: 'comb' },
+  { n: 'Combustion of hydrogen, H₂', f: 'H₂', eq: 'H₂(g) + ½O₂(g) → H₂O(l)', M: 2.016, dH: -286, kind: 'comb' },
+  { n: 'Combustion of carbon (graphite)', f: 'C', eq: 'C(s) + O₂(g) → CO₂(g)', M: 12.01, dH: -394, kind: 'comb' },
+  { n: 'Melting ice (fusion)', f: 'H₂O', eq: 'H₂O(s) → H₂O(l)', M: 18.02, dH: 6.01, kind: 'phase' },
+  { n: 'Freezing water', f: 'H₂O', eq: 'H₂O(l) → H₂O(s)', M: 18.02, dH: -6.01, kind: 'phase' },
+  { n: 'Vaporizing water', f: 'H₂O', eq: 'H₂O(l) → H₂O(g)', M: 18.02, dH: 40.7, kind: 'phase' },
+  { n: 'Condensing steam', f: 'H₂O', eq: 'H₂O(g) → H₂O(l)', M: 18.02, dH: -40.7, kind: 'phase' }
+];
+$('tProc').innerHTML = PROCS.map(function(p, i){ return '<option value="' + i + '">' + p.n + '</option>'; }).join('');
+$('tblComb').innerHTML = '<tr><th>Substance</th><th>Formula</th><th>ΔH°<sub>comb</sub></th></tr>' +
+  PROCS.filter(function(p){ return p.kind === 'comb'; }).map(function(p){ return '<tr><td>' + p.n.replace('Combustion of ', '').replace(/, .*/, '') + '</td><td>' + p.f + '</td><td>' + sign(p.dH) + '</td></tr>'; }).join('') +
+  '<tr><td colspan="3" style="text-align:left;font-family:var(--body)" class="caption">Water: ΔH<sub>vap</sub> = 40.7 kJ/mol, ΔH<sub>fus</sub> = 6.01 kJ/mol. Condensing and freezing release the same amounts.</td></tr>';
+function drawThermo(){
+  var P = PROCS[+$('tProc').value], m = +$('tMass').value, n = m / P.M, q = n * P.dH, exo = P.dH < 0;
+  $('tMasso').textContent = m.toFixed(1) + ' g';
+  var top = 70, bot = 230, yR = exo ? top : bot, yP = exo ? bot : top, out = '';
+  out += '<line x1="40" y1="40" x2="40" y2="270" class="s-inkline" stroke-width="1.5"/><path d="M34 48 L40 36 L46 48" fill="none" class="s-inkline" stroke-width="1.5"/>';
+  out += '<text x="30" y="160" transform="rotate(-90 30 160)" text-anchor="middle" class="s-small">enthalpy, H</text>';
+  out += '<line x1="70" x2="250" y1="' + yR + '" y2="' + yR + '" class="s-inkline" stroke-width="3"/><text x="160" y="' + (yR - 10) + '" text-anchor="middle" class="s-text">reactants</text>';
+  out += '<line x1="250" x2="420" y1="' + yP + '" y2="' + yP + '" class="s-inkline" stroke-width="3"/><text x="335" y="' + (yP - 10) + '" text-anchor="middle" class="s-text">products</text>';
+  var col = exo ? 's-hot' : 's-cold', lcol = exo ? 's-hotl' : 's-coldl';
+  out += '<line x1="250" x2="250" y1="' + yR + '" y2="' + (yP + (exo ? -12 : 12)) + '" class="' + lcol + '" stroke-width="4"/>';
+  out += '<path d="M240 ' + (yP + (exo ? -14 : 14)) + ' L250 ' + yP + ' L260 ' + (yP + (exo ? -14 : 14)) + ' Z" class="' + col + '"/>';
+  out += '<text x="262" y="155" class="s-mono" font-weight="600">ΔH = ' + sign(P.dH, P.kind === 'phase' ? (Math.abs(P.dH) < 10 ? 2 : 1) : 0) + ' kJ/mol</text>';
+  out += '<text x="235" y="296" text-anchor="middle" class="s-mono">' + esc(P.eq) + '</text>';
+  // surroundings box with heat flow
+  out += '<rect x="460" y="70" width="150" height="160" rx="12" class="s-sunk s-inkline" stroke-width="1.5"/><text x="535" y="62" text-anchor="middle" class="s-small">surroundings</text>';
+  out += '<rect x="495" y="115" width="80" height="70" rx="8" class="s-surface s-inkline" stroke-width="1.5"/><text x="535" y="155" text-anchor="middle" class="s-text">system</text>';
+  for (var k = 0; k < 4; k++){ var ang = k * Math.PI / 2 + Math.PI / 4, x1 = 535 + Math.cos(ang) * 50, y1 = 150 + Math.sin(ang) * 42, x2 = 535 + Math.cos(ang) * 82, y2 = 150 + Math.sin(ang) * 72;
+    out += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" class="' + lcol + ' flow' + (exo ? '' : ' in') + '" stroke-width="4" stroke-dasharray="6 6"/>'; }
+  out += '<text x="535" y="252" text-anchor="middle" class="s-text ' + (exo ? 's-hot' : 's-cold') + '" font-weight="700">' + (exo ? 'heat released: exothermic' : 'heat absorbed: endothermic') + '</text>';
+  out += '<text x="535" y="270" text-anchor="middle" class="s-small">' + (exo ? 'surroundings get warmer' : 'surroundings get colder') + '</text>';
+  $('svgThermo').innerHTML = out;
+  var L = [
+    { tag: '1 · Analyze', html: knownHTML(['mass = ' + m.toFixed(1) + ' g', 'molar mass of ' + P.f + ' = ' + P.M + ' g/mol', 'ΔH = ' + sign(P.dH, Math.abs(P.dH) < 10 ? 2 : (P.kind === 'phase' ? 1 : 0)) + ' kJ/mol'], ['q = ? kJ']) },
+    { tag: '2 · Moles', math: true, html: 'n = ' + fr(m.toFixed(1) + ' g', P.M + ' g/mol') + ' = ' + sf(n) + ' mol' },
+    { tag: '3 · Heat', math: true, html: 'q = n × ΔH = ' + sf(n) + ' mol × (' + sign(P.dH, Math.abs(P.dH) < 10 ? 2 : (P.kind === 'phase' ? 1 : 0)) + ' kJ/mol) = <span class="ans">' + sf(q) + ' kJ</span>' },
+    { tag: '4 · Evaluate', html: exo ? sf(Math.abs(q)) + ' kJ of heat is <b class="hot">released</b> to the surroundings. The negative sign means exothermic.' : sf(Math.abs(q)) + ' kJ of heat is <b class="cold">absorbed</b> from the surroundings. The positive sign means endothermic.' }
+  ];
+  $('thermoLive').innerHTML = stepsHTML(L, L.length, -1);
+}
+['tProc', 'tMass'].forEach(function(id){ $(id).addEventListener('input', drawThermo); });
+
+worked('wkThermo', [
+  { title: 'Example 1 · Heat released by burning glucose', problem: 'How much heat is released when <b>54.0 g</b> of glucose (C₆H₁₂O₆) burns completely?<br>C₆H₁₂O₆(s) + 6O₂(g) → 6CO₂(g) + 6H₂O(l) &nbsp; ΔH<sub>comb</sub> = −2808 kJ',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['mass = 54.0 g', 'ΔH<sub>comb</sub> = −2808 kJ/mol'], ['q = ? kJ']) },
+      { tag: '2 · Molar mass of glucose', math: true, html: '6(12.01) + 12(1.008) + 6(16.00) = 180.16 g/mol' },
+      { tag: '3 · Convert grams to moles', math: true, html: 'n = ' + fr('54.0 g', '180.16 g/mol') + ' = 0.300 mol' },
+      { tag: '4 · Multiply by ΔH', math: true, html: 'q = 0.300 mol × (−2808 kJ/mol) = <span class="ans">−842 kJ</span>' },
+      { tag: '5 · Evaluate the answer', html: 'The negative sign shows heat is released (exothermic): <b>842 kJ</b>. Less than one mole burned, so the heat is less than 2808 kJ.' }
+    ] },
+  { title: 'Example 2 · Heat to vaporize water', problem: 'How much heat is needed to vaporize <b>100.0 g</b> of liquid water at its boiling point? ΔH<sub>vap</sub> = 40.7 kJ/mol',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['mass = 100.0 g', 'molar mass H₂O = 18.02 g/mol', 'ΔH<sub>vap</sub> = +40.7 kJ/mol'], ['q = ? kJ']) },
+      { tag: '2 · Convert grams to moles', math: true, html: 'n = ' + fr('100.0 g', '18.02 g/mol') + ' = 5.549 mol' },
+      { tag: '3 · Multiply by ΔH<sub>vap</sub>', math: true, html: 'q = 5.549 mol × 40.7 kJ/mol = <span class="ans">226 kJ</span>' },
+      { tag: '4 · Evaluate the answer', html: 'Vaporizing is endothermic, so q is positive: 226 kJ is absorbed. About 5.5 mol × 40.7 kJ ≈ 220 kJ, so the answer is reasonable.' }
+    ] },
+  { title: 'Example 3 · Heat released when water freezes', problem: 'How much heat is released when <b>36.0 g</b> of water freezes? ΔH<sub>fus</sub> = 6.01 kJ/mol',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['mass = 36.0 g', 'molar mass H₂O = 18.02 g/mol', 'ΔH<sub>fus</sub> = 6.01 kJ/mol'], ['q = ? kJ']) },
+      { tag: '2 · Freezing is the reverse of melting', math: true, html: 'H₂O(l) → H₂O(s) &nbsp; ΔH = −6.01 kJ/mol' },
+      { tag: '3 · Convert grams to moles', math: true, html: 'n = ' + fr('36.0 g', '18.02 g/mol') + ' = 2.00 mol' },
+      { tag: '4 · Multiply by ΔH', math: true, html: 'q = 2.00 mol × (−6.01 kJ/mol) = <span class="ans">−12.0 kJ</span>' },
+      { tag: '5 · Evaluate the answer', html: '12.0 kJ is released to the surroundings. Reversing a process changes the sign of ΔH but not its size.' }
+    ] }
+]);
+
+/* =====================================================================
+   4. HESS'S LAW
+   ===================================================================== */
+var HESS = [
+  { name: 'Sulfur trioxide', target: { re: [[2, 'S(s)'], [3, 'O₂(g)']], pr: [[2, 'SO₃(g)']] },
+    eqs: [ { re: [[1, 'S(s)'], [1, 'O₂(g)']], pr: [[1, 'SO₂(g)']], dH: -297 }, { re: [[2, 'SO₃(g)']], pr: [[2, 'SO₂(g)'], [1, 'O₂(g)']], dH: 198 } ] },
+  { name: 'Carbon monoxide', target: { re: [[2, 'C(s)'], [1, 'O₂(g)']], pr: [[2, 'CO(g)']] },
+    eqs: [ { re: [[1, 'C(s)'], [1, 'O₂(g)']], pr: [[1, 'CO₂(g)']], dH: -394 }, { re: [[2, 'CO(g)'], [1, 'O₂(g)']], pr: [[2, 'CO₂(g)']], dH: -566 } ] },
+  { name: 'Nitrogen dioxide', target: { re: [[1, 'N₂(g)'], [2, 'O₂(g)']], pr: [[2, 'NO₂(g)']] },
+    eqs: [ { re: [[1, 'N₂(g)'], [1, 'O₂(g)']], pr: [[2, 'NO(g)']], dH: 181 }, { re: [[2, 'NO(g)'], [1, 'O₂(g)']], pr: [[2, 'NO₂(g)']], dH: -113 } ] },
+  { name: 'Methane from its elements', target: { re: [[1, 'C(s)'], [2, 'H₂(g)']], pr: [[1, 'CH₄(g)']] },
+    eqs: [ { re: [[1, 'C(s)'], [1, 'O₂(g)']], pr: [[1, 'CO₂(g)']], dH: -394 }, { re: [[1, 'H₂(g)'], [0.5, 'O₂(g)']], pr: [[1, 'H₂O(l)']], dH: -286 },
+           { re: [[1, 'CH₄(g)'], [2, 'O₂(g)']], pr: [[1, 'CO₂(g)'], [2, 'H₂O(l)']], dH: -891 } ] }
+];
+var MULTS = [0.5, 1, 2, 3];
+function coef(x){ if (Math.abs(x - 1) < 1e-9) return ''; if (Math.abs(x - 0.5) < 1e-9) return '½'; if (Math.abs(x * 2 - Math.round(x * 2)) < 1e-9 && Math.round(x * 2) % 2) return Math.round(x * 2) + '/2 '; return String(+x.toFixed(3)); }
+function side(list, strike){ return list.map(function(t){ var s = coef(t[0]) + t[1]; return strike && strike[t[1]] ? '<span class="x">' + s + '</span>' : s; }).join(' + '); }
+function eqStr(re, pr, strike){ return side(re, strike) + ' → ' + side(pr, strike); }
+var hess = { p: 0, st: [] };
+function hessReset(){ var P = HESS[hess.p]; hess.st = P.eqs.map(function(){ return { rev: false, mult: 1 }; }); }
+function manip(e, s){
+  var re = (s.rev ? e.pr : e.re).map(function(t){ return [t[0] * s.mult, t[1]]; }), pr = (s.rev ? e.re : e.pr).map(function(t){ return [t[0] * s.mult, t[1]]; });
+  return { re: re, pr: pr, dH: e.dH * s.mult * (s.rev ? -1 : 1) };
+}
+function netMap(eqList){ var m = {}; eqList.forEach(function(e){ e.re.forEach(function(t){ m[t[1]] = (m[t[1]] || 0) - t[0]; }); e.pr.forEach(function(t){ m[t[1]] = (m[t[1]] || 0) + t[0]; }); }); return m; }
+function drawHess(){
+  var P = HESS[hess.p], ms = P.eqs.map(function(e, i){ return manip(e, hess.st[i]); });
+  $('hTarget').innerHTML = '<span class="caption" style="font-family:var(--body)">Target: </span>' + eqStr(P.target.re, P.target.pr) + ' &nbsp; ΔH = ?';
+  $('hEqs').innerHTML = P.eqs.map(function(e, i){
+    var s = hess.st[i], m = ms[i];
+    return '<div class="eq"><div class="orig">Given (' + 'abc'[i] + '): ' + eqStr(e.re, e.pr) + ' &nbsp; ΔH = ' + sign(e.dH) + ' kJ</div>' +
+      '<div class="now">' + eqStr(m.re, m.pr) + ' &nbsp; <span class="dh ' + (m.dH < 0 ? 'hot' : 'cold') + '">ΔH = ' + sign(m.dH) + ' kJ</span></div>' +
+      '<div class="row"><button class="btn small" data-rev="' + i + '" aria-pressed="' + s.rev + '">Reverse</button><span class="caption">Multiply by</span>' +
+      MULTS.map(function(k){ return '<button class="btn small" data-mult="' + i + '" data-k="' + k + '" aria-pressed="' + (s.mult === k) + '">' + (k === 0.5 ? '½' : '×' + k) + '</button>'; }).join('') + '</div></div>';
+  }).join('');
+  // sum with cancellation
+  var allRe = [], allPr = []; ms.forEach(function(m){ allRe = allRe.concat(m.re); allPr = allPr.concat(m.pr); });
+  var onRe = {}, onPr = {}; allRe.forEach(function(t){ onRe[t[1]] = 1; }); allPr.forEach(function(t){ onPr[t[1]] = 1; });
+  var strike = {}; Object.keys(onRe).forEach(function(k){ if (onPr[k]) strike[k] = 1; });
+  var net = netMap(ms), nre = [], npr = [];
+  Object.keys(net).forEach(function(k){ var v = Math.round(net[k] * 1000) / 1000; if (v < 0) nre.push([-v, k]); else if (v > 0) npr.push([v, k]); });
+  var sumH = ms.reduce(function(a, m){ return a + m.dH; }, 0);
+  $('hSum').innerHTML = 'Add: ' + eqStr(allRe, allPr, strike) + '<br>Net: ' + (nre.length || npr.length ? eqStr(nre, npr) : '(everything cancels)') + '<br>ΔH = ' + ms.map(function(m){ return '(' + sign(m.dH) + ')'; }).join(' + ') + ' = <b>' + sign(sumH) + ' kJ</b>';
+  var tgt = netMap([P.target]), keys = {}, ok = true, hints = [];
+  Object.keys(tgt).concat(Object.keys(net)).forEach(function(k){ keys[k] = 1; });
+  Object.keys(keys).forEach(function(k){
+    var want = Math.round((tgt[k] || 0) * 1000) / 1000, have = Math.round((net[k] || 0) * 1000) / 1000;
+    if (Math.abs(want - have) > 1e-6){ ok = false;
+      var wdesc = want === 0 ? 'none left over' : coef(Math.abs(want)).trim() + (coef(Math.abs(want)) ? ' ' : '1 ') + k + ' on the ' + (want < 0 ? 'left' : 'right');
+      var hdesc = have === 0 ? 'none' : (coef(Math.abs(have)).trim() || '1') + ' ' + k + ' on the ' + (have < 0 ? 'left' : 'right');
+      hints.push('<b>' + k + '</b>: the target needs ' + wdesc + '; you have ' + hdesc + '.'); }
+  });
+  var v = $('hVerdict');
+  if (ok){ v.className = 'verdict good'; v.innerHTML = 'It matches the target. ΔH = ' + sign(sumH) + ' kJ (' + (sumH < 0 ? 'exothermic' : 'endothermic') + ').'; }
+  else { v.className = 'verdict wait'; v.textContent = 'Not the target yet. Reverse or multiply the equations.'; }
+  $('hHints').innerHTML = ok ? '' : hints.map(function(h){ return '<li>' + h + '</li>'; }).join('');
+}
+$('hProb').innerHTML = HESS.map(function(h, i){ return '<option value="' + i + '">' + h.name + '</option>'; }).join('');
+$('hProb').addEventListener('change', function(){ hess.p = +this.value; hessReset(); drawHess(); });
+$('hEqs').addEventListener('click', function(ev){
+  var b = ev.target.closest('button'); if (!b) return;
+  if (b.dataset.rev !== undefined){ var s = hess.st[+b.dataset.rev]; s.rev = !s.rev; }
+  else if (b.dataset.mult !== undefined){ hess.st[+b.dataset.mult].mult = +b.dataset.k; }
+  drawHess();
+});
+hessReset();
+
+worked('wkHess', [
+  { title: 'Example 1 · Sulfur trioxide', problem: 'Use the equations to find ΔH for 2S(s) + 3O₂(g) → 2SO₃(g).<br>(a) S(s) + O₂(g) → SO₂(g) &nbsp; ΔH = −297 kJ<br>(b) 2SO₃(g) → 2SO₂(g) + O₂(g) &nbsp; ΔH = +198 kJ',
+    steps: [
+      { tag: '1 · Analyze the problem', html: 'The target has <b>2 S</b> on the left and <b>2 SO₃</b> on the right. SO₂ is not in the target, so it must cancel.' },
+      { tag: '2 · Fix equation (a)', math: true, html: 'Multiply (a) by 2 to get 2 S:<br>2S(s) + 2O₂(g) → 2SO₂(g) &nbsp; ΔH = 2(−297) = −594 kJ' },
+      { tag: '3 · Fix equation (b)', math: true, html: 'Reverse (b) so SO₃ is a product (the sign flips):<br>2SO₂(g) + O₂(g) → 2SO₃(g) &nbsp; ΔH = −198 kJ' },
+      { tag: '4 · Add the equations', math: true, html: '2S + 2O₂ + <span class="x">2SO₂</span> → <span class="x">2SO₂</span> + 2SO₃ &nbsp;(+ O₂ on the left)<br>2S(s) + 3O₂(g) → 2SO₃(g)' },
+      { tag: '5 · Add the ΔH values', math: true, html: 'ΔH = (−594 kJ) + (−198 kJ) = <span class="ans">−792 kJ</span>' },
+      { tag: '6 · Evaluate the answer', html: 'The equations add up exactly to the target, so their ΔH values add up too. The reaction is exothermic.' }
+    ] },
+  { title: 'Example 2 · Methane from its elements', problem: 'Find ΔH for C(s) + 2H₂(g) → CH₄(g).<br>(a) C(s) + O₂(g) → CO₂(g) &nbsp; ΔH = −394 kJ<br>(b) H₂(g) + ½O₂(g) → H₂O(l) &nbsp; ΔH = −286 kJ<br>(c) CH₄(g) + 2O₂(g) → CO₂(g) + 2H₂O(l) &nbsp; ΔH = −891 kJ',
+    steps: [
+      { tag: '1 · Analyze the problem', html: 'Target: 1 C and 2 H₂ on the left, 1 CH₄ on the right. CO₂, H₂O and O₂ must cancel.' },
+      { tag: '2 · Keep (a)', math: true, html: 'C(s) + O₂(g) → CO₂(g) &nbsp; ΔH = −394 kJ' },
+      { tag: '3 · Multiply (b) by 2', math: true, html: '2H₂(g) + O₂(g) → 2H₂O(l) &nbsp; ΔH = 2(−286) = −572 kJ' },
+      { tag: '4 · Reverse (c)', math: true, html: 'CO₂(g) + 2H₂O(l) → CH₄(g) + 2O₂(g) &nbsp; ΔH = +891 kJ' },
+      { tag: '5 · Add and cancel', math: true, html: 'C + 2H₂ + <span class="x">2O₂</span> + <span class="x">CO₂</span> + <span class="x">2H₂O</span> → <span class="x">CO₂</span> + <span class="x">2H₂O</span> + CH₄ + <span class="x">2O₂</span><br>C(s) + 2H₂(g) → CH₄(g)' },
+      { tag: '6 · Add the ΔH values', math: true, html: 'ΔH = (−394) + (−572) + (+891) = <span class="ans">−75 kJ</span>' },
+      { tag: '7 · Evaluate the answer', html: 'This is the formation reaction of methane, and −75 kJ matches ΔH°<sub>f</sub> of CH₄ in the table.' }
+    ] },
+  { title: 'Example 3 · Ethene + hydrogen → ethane', problem: 'Find ΔH for C₂H₄(g) + H₂(g) → C₂H₆(g).<br>(a) C₂H₄(g) + 3O₂(g) → 2CO₂(g) + 2H₂O(l) &nbsp; ΔH = −1411 kJ<br>(b) H₂(g) + ½O₂(g) → H₂O(l) &nbsp; ΔH = −286 kJ<br>(c) 2C₂H₆(g) + 7O₂(g) → 4CO₂(g) + 6H₂O(l) &nbsp; ΔH = −3120 kJ',
+    steps: [
+      { tag: '1 · Analyze the problem', html: 'Target: C₂H₄ and H₂ on the left, <b>1 C₂H₆</b> on the right. CO₂, H₂O and O₂ are not in the target, so they must cancel. C₂H₆ appears in (c) on the wrong side and with 2 mol.' },
+      { tag: '2 · Keep (a) and (b)', math: true, html: '(a) C₂H₄(g) + 3O₂(g) → 2CO₂(g) + 2H₂O(l) &nbsp; ΔH = −1411 kJ<br>(b) H₂(g) + ½O₂(g) → H₂O(l) &nbsp; ΔH = −286 kJ' },
+      { tag: '3 · Reverse (c) and multiply by ½', math: true, html: '2CO₂(g) + 3H₂O(l) → C₂H₆(g) + 7/2 O₂(g)<br>ΔH = −½(−3120) = +1560 kJ' },
+      { tag: '4 · Add and cancel', math: true, html: 'O₂: 3 + ½ = 7/2 on the left and 7/2 on the right → cancels.<br>CO₂: 2 and 2 → cancels. H₂O: 2 + 1 = 3 and 3 → cancels.<br>C₂H₄(g) + H₂(g) → C₂H₆(g)' },
+      { tag: '5 · Add the ΔH values', math: true, html: 'ΔH = (−1411) + (−286) + (+1560) = <span class="ans">−137 kJ</span>' },
+      { tag: '6 · Evaluate the answer', html: 'Check with the ΔH°<sub>f</sub> table: (−84) − (+52) = −136 kJ, almost the same. When you reverse an equation the sign flips; when you halve it, ΔH is halved.' }
+    ] },
+  { title: 'Example 4 · Graphite → diamond', problem: 'Find ΔH for C(s, graphite) → C(s, diamond).<br>(a) C(s, graphite) + O₂(g) → CO₂(g) &nbsp; ΔH = −393.5 kJ<br>(b) C(s, diamond) + O₂(g) → CO₂(g) &nbsp; ΔH = −395.4 kJ',
+    steps: [
+      { tag: '1 · Analyze the problem', html: 'Graphite must be on the left and diamond on the right. In (b), diamond is on the left, so (b) must be reversed.' },
+      { tag: '2 · Keep (a)', math: true, html: 'C(s, graphite) + O₂(g) → CO₂(g) &nbsp; ΔH = −393.5 kJ' },
+      { tag: '3 · Reverse (b)', math: true, html: 'CO₂(g) → C(s, diamond) + O₂(g) &nbsp; ΔH = +395.4 kJ' },
+      { tag: '4 · Add and cancel', math: true, html: 'C(graphite) + <span class="x">O₂</span> + <span class="x">CO₂</span> → <span class="x">CO₂</span> + C(diamond) + <span class="x">O₂</span><br>C(s, graphite) → C(s, diamond)' },
+      { tag: '5 · Add the ΔH values', math: true, html: 'ΔH = (−393.5) + (+395.4) = <span class="ans">+1.9 kJ</span>' },
+      { tag: '6 · Evaluate the answer', html: 'Positive: diamond has slightly more enthalpy than graphite. That is why graphite (not diamond) is the standard state of carbon with ΔH°<sub>f</sub> = 0. This change cannot be measured directly, so Hess’s law is the only way to find it.' }
+    ] },
+  { title: 'Example 5 · Evaporating water (×½)', problem: 'Find ΔH for H₂O(l) → H₂O(g).<br>(a) 2H₂(g) + O₂(g) → 2H₂O(l) &nbsp; ΔH = −572 kJ<br>(b) 2H₂(g) + O₂(g) → 2H₂O(g) &nbsp; ΔH = −484 kJ',
+    steps: [
+      { tag: '1 · Analyze the problem', html: 'The target has only <b>1 mol</b> of water, liquid on the left and gas on the right. Both given equations have 2 mol, so both must be multiplied by ½.' },
+      { tag: '2 · Reverse (a) and multiply by ½', math: true, html: 'H₂O(l) → H₂(g) + ½O₂(g) &nbsp; ΔH = −½(−572) = +286 kJ' },
+      { tag: '3 · Multiply (b) by ½', math: true, html: 'H₂(g) + ½O₂(g) → H₂O(g) &nbsp; ΔH = ½(−484) = −242 kJ' },
+      { tag: '4 · Add and cancel', math: true, html: 'H₂O(l) + <span class="x">H₂</span> + <span class="x">½O₂</span> → <span class="x">H₂</span> + <span class="x">½O₂</span> + H₂O(g)<br>H₂O(l) → H₂O(g)' },
+      { tag: '5 · Add the ΔH values', math: true, html: 'ΔH = (+286) + (−242) = <span class="ans">+44 kJ</span>' },
+      { tag: '6 · Evaluate the answer', html: 'Positive, as expected: evaporation absorbs energy. This is ΔH<sub>vap</sub> at 25 °C. At 100 °C it is 40.7 kJ/mol (the value used in Lesson 3).' }
+    ] },
+  { title: 'Example 6 · Acetylene from its elements', problem: 'Find ΔH for 2C(s) + H₂(g) → C₂H₂(g).<br>(a) C(s) + O₂(g) → CO₂(g) &nbsp; ΔH = −394 kJ<br>(b) H₂(g) + ½O₂(g) → H₂O(l) &nbsp; ΔH = −286 kJ<br>(c) 2C₂H₂(g) + 5O₂(g) → 4CO₂(g) + 2H₂O(l) &nbsp; ΔH = −2600 kJ',
+    steps: [
+      { tag: '1 · Analyze the problem', html: 'Target: <b>2 C</b> and <b>1 H₂</b> on the left, <b>1 C₂H₂</b> on the right. Each equation is used for the substance it contains: (a) for C, (b) for H₂, (c) for C₂H₂.' },
+      { tag: '2 · Multiply (a) by 2', math: true, html: '2C(s) + 2O₂(g) → 2CO₂(g) &nbsp; ΔH = 2(−394) = −788 kJ' },
+      { tag: '3 · Keep (b)', math: true, html: 'H₂(g) + ½O₂(g) → H₂O(l) &nbsp; ΔH = −286 kJ' },
+      { tag: '4 · Reverse (c) and multiply by ½', math: true, html: '2CO₂(g) + H₂O(l) → C₂H₂(g) + 5/2 O₂(g) &nbsp; ΔH = −½(−2600) = +1300 kJ' },
+      { tag: '5 · Add and cancel', math: true, html: 'O₂: 2 + ½ = 5/2 on each side → cancels. CO₂: 2 and 2 → cancels. H₂O: 1 and 1 → cancels.<br>2C(s) + H₂(g) → C₂H₂(g)' },
+      { tag: '6 · Add the ΔH values', math: true, html: 'ΔH = (−788) + (−286) + (+1300) = <span class="ans">+226 kJ</span>' },
+      { tag: '7 · Evaluate the answer', html: 'This is the formation reaction of acetylene, and +226 kJ matches ΔH°<sub>f</sub> of C₂H₂ in the table. It is positive, so acetylene stores a lot of energy, which is why it is used in welding torches.' }
+    ] }
+]);
+
+/* =====================================================================
+   5. STANDARD ENTHALPIES OF FORMATION
+   ===================================================================== */
+var HF = { 'CH₄(g)': -75, 'CO₂(g)': -394, 'H₂O(l)': -286, 'H₂O(g)': -242, 'C₃H₈(g)': -104, 'C₂H₅OH(l)': -278, 'H₂S(g)': -21, 'HF(g)': -273,
+  'SF₆(g)': -1220, 'SO₂(g)': -297, 'SO₃(g)': -396, 'CaCO₃(s)': -1207, 'CaO(s)': -635, 'NH₃(g)': -46, 'NO(g)': 91, 'Fe₂O₃(s)': -824, 'Al₂O₃(s)': -1676,
+  'O₂(g)': 0, 'F₂(g)': 0, 'H₂(g)': 0, 'N₂(g)': 0, 'Fe(s)': 0, 'Al(s)': 0 };
+var RXNS = [
+  { n: 'Combustion of methane', re: [[1, 'CH₄(g)'], [2, 'O₂(g)']], pr: [[1, 'CO₂(g)'], [2, 'H₂O(l)']] },
+  { n: 'Hydrogen sulfide with fluorine', re: [[1, 'H₂S(g)'], [4, 'F₂(g)']], pr: [[2, 'HF(g)'], [1, 'SF₆(g)']] },
+  { n: 'Combustion of propane', re: [[1, 'C₃H₈(g)'], [5, 'O₂(g)']], pr: [[3, 'CO₂(g)'], [4, 'H₂O(l)']] },
+  { n: 'Combustion of ethanol', re: [[1, 'C₂H₅OH(l)'], [3, 'O₂(g)']], pr: [[2, 'CO₂(g)'], [3, 'H₂O(l)']] },
+  { n: 'Sulfur dioxide to sulfur trioxide', re: [[2, 'SO₂(g)'], [1, 'O₂(g)']], pr: [[2, 'SO₃(g)']] },
+  { n: 'Decomposition of limestone', re: [[1, 'CaCO₃(s)']], pr: [[1, 'CaO(s)'], [1, 'CO₂(g)']] },
+  { n: 'Oxidation of ammonia', re: [[4, 'NH₃(g)'], [5, 'O₂(g)']], pr: [[4, 'NO(g)'], [6, 'H₂O(g)']] },
+  { n: 'Thermite reaction', re: [[1, 'Fe₂O₃(s)'], [2, 'Al(s)']], pr: [[1, 'Al₂O₃(s)'], [2, 'Fe(s)']] },
+  { n: 'Making ammonia (Haber process)', re: [[1, 'N₂(g)'], [3, 'H₂(g)']], pr: [[2, 'NH₃(g)']] }
+];
+/* ---- full table for the student's own equations (built in: the page cannot reach the internet) ---- */
+var DB_SRC = { W: 'Wikipedia (CRC/NIST values)', C: 'CRC Handbook' };
+var DB = "AlCl3|s|-705.63|aluminum chloride|W\nAl2O3|s|-1675.5|aluminum oxide|W\nAl(OH)3|s|-1277|aluminum hydroxide|W\nAl2(SO4)3|s|-3440|aluminum sulfate|W\nBaCl2|s|-858.6|barium chloride|W\nBaCO3|s|-1216|barium carbonate|W\nBa(OH)2|s|-944.7|barium hydroxide|W\nBaO|s|-548.1|barium oxide|W\nBaSO4|s|-1473.3|barium sulfate|W\nBe(OH)2|s|-903|beryllium hydroxide|W\nBeO|s|-609.4|beryllium oxide|W\nBr|g|111.884|bromine atoms|W\nBr2|g|30.91|bromine gas|W\nBrF3|g|-255.60|bromine trifluoride|W\nHBr|g|-36.29|hydrogen bromide|W\nCdO|s|-258|cadmium oxide|W\nCd(OH)2|s|-561|cadmium hydroxide|W\nCdS|s|-162|cadmium sulfide|W\nCdSO4|s|-935|cadmium sulfate|W\nCs|g|76.50|cesium gas|W\nCsCl|s|-443.04|cesium chloride|W\nCa|g|178.2|calcium gas|W\nCaC2|s|-59.8|calcium carbide|W\nCaCO3|s|-1206.9|calcium carbonate|W\nCaCl2|s|-795.8|calcium chloride|W\nCaCl2|aq|-877.3|calcium chloride solution|W\nCa3(PO4)2|s|-4132|calcium phosphate|W\nCaF2|s|-1219.6|calcium fluoride|W\nCaH2|s|-186.2|calcium hydride|W\nCa(OH)2|s|-986.09|calcium hydroxide|W\nCa(OH)2|aq|-1002.82|calcium hydroxide solution|W\nCaO|s|-635.09|calcium oxide|W\nCaSO4|s|-1434.52|calcium sulfate|W\nCaS|s|-482.4|calcium sulfide|W\nCaSiO3|s|-1630|calcium silicate|W\nC|g|716.67|carbon atoms|W\nCO2|g|-393.509|carbon dioxide|W\nCO2|aq|-419.26|dissolved carbon dioxide|W\nCS2|l|89.41|carbon disulfide|W\nCS2|g|116.7|carbon disulfide gas|W\nCO|g|-110.525|carbon monoxide|W\nCOCl2|g|-218.8|phosgene|W\nFeCO3|s|-750.6|iron(II) carbonate|W\nHCN|g|130.5|hydrogen cyanide|W\nK2CO3|s|-1150|potassium carbonate|W\nMgCO3|s|-1095.797|magnesium carbonate|W\nNaHCO3|s|-950.8|sodium hydrogen carbonate|W\nNa2CO3|s|-1130.77|sodium carbonate|W\nCl|g|121.7|chlorine atoms|W\nBCl3|s|-402.96|boron trichloride|W\nCuCl2|s|-217.986|copper(II) chloride|W\nHCl|g|-92.30|hydrogen chloride|W\nHCl|aq|-167.2|hydrochloric acid|W\nFeCl3|s|-399.4|iron(III) chloride|W\nMgCl2|s|-641.8|magnesium chloride|W\nNH4Cl|s|-314.55|ammonium chloride|W\nPCl3|l|-319.7|phosphorus trichloride|W\nPCl3|g|-278|phosphorus trichloride gas|W\nPCl5|s|-440|phosphorus pentachloride|W\nPCl5|g|-321|phosphorus pentachloride gas|W\nKClO3|s|-391.4|potassium chlorate|W\nKCl|s|-436.68|potassium chloride|W\nKClO4|s|-430.12|potassium perchlorate|W\nNaClO3|s|-365.4|sodium chlorate|W\nNaCl|s|-411.12|sodium chloride|W\nNaCl|aq|-407.27|sodium chloride solution|W\nNaCl|l|-385.92|molten sodium chloride|W\nNaCl|g|-181.42|sodium chloride gas|W\nNaOCl|s|-347.1|sodium hypochlorite|W\nSiCl4|l|-640.1|silicon tetrachloride|W\nTiCl4|l|-804.2|titanium tetrachloride|W\nTiCl4|g|-763.2|titanium tetrachloride gas|W\nZnCl2|s|-415.1|zinc chloride|W\nAgCl|s|-127.01|silver chloride|W\nCuBr2|s|-138.490|copper(II) bromide|W\nCuO|s|-155.2|copper(II) oxide|W\nCuSO4|s|-771.4|copper(II) sulfate|C\nHF|g|-273.3|hydrogen fluoride|W\nKF|s|-562.6|potassium fluoride|W\nLiF|s|-616.93|lithium fluoride|W\nNaF|s|-569.0|sodium fluoride|W\nH|g|218|hydrogen atoms|W\nH2O|l|-285.8|water|W\nH2O|g|-241.818|water vapor|W\nH2O2|l|-187.8|hydrogen peroxide|W\nH3PO4|l|-1288|phosphoric acid|W\nHI|g|26.5|hydrogen iodide|W\nH2S|g|-20.63|hydrogen sulfide|W\nH2SO4|l|-814|sulfuric acid|W\nI2|g|62.438|iodine gas|W\nI2|aq|23|dissolved iodine|W\nFe3C|s|5.4|iron carbide|W\nFeO|s|-272|iron(II) oxide|W\nFe3O4|s|-1118.4|magnetite|W\nFe2O3|s|-824.2|iron(III) oxide|W\nFeSO4|s|-929|iron(II) sulfate|W\nFe2(SO4)3|s|-2583|iron(III) sulfate|W\nFeS|s|-102|iron(II) sulfide|W\nFeS2|s|-178|pyrite|W\nPbO2|s|-277|lead(IV) oxide|W\nPbS|s|-100|lead(II) sulfide|W\nPbSO4|s|-920|lead(II) sulfate|W\nPb(NO3)2|s|-452|lead(II) nitrate|W\nMg(OH)2|s|-924.54|magnesium hydroxide|W\nMgO|s|-601.6|magnesium oxide|W\nMgSO4|s|-1278.2|magnesium sulfate|W\nMnO|s|-384.9|manganese(II) oxide|W\nMnO2|s|-519.7|manganese(IV) oxide|W\nMn2O3|s|-971|manganese(III) oxide|W\nMn3O4|s|-1387|manganese(II,III) oxide|W\nHgO|s|-90.83|mercury(II) oxide|W\nHgS|s|-58.2|mercury(II) sulfide|W\nNH3|g|-46.1|ammonia|W\nNH3|aq|-80.8|ammonia solution|W\nNH4NO3|s|-365.6|ammonium nitrate|W\nNO2|g|33.2|nitrogen dioxide|W\nN2H4|l|50.6|hydrazine|W\nN2H4|g|95.4|hydrazine gas|W\nN2O|g|82.05|dinitrogen monoxide|W\nNO|g|90.29|nitrogen monoxide|W\nN2O4|g|9.16|dinitrogen tetroxide|W\nN2O5|s|-43.1|dinitrogen pentoxide|W\nN2O5|g|11.3|dinitrogen pentoxide gas|W\nHNO3|l|-174.1|nitric acid|C\nHNO3|aq|-207|nitric acid solution|W\nO|g|249|oxygen atoms|W\nO3|g|143|ozone|W\nP2O5|s|-1505.5|phosphorus pentoxide|W\nKBr|s|-392.2|potassium bromide|W\nK2O|s|-363|potassium oxide|W\nKNO3|s|-494.5|potassium nitrate|W\nKOH|s|-424.6|potassium hydroxide|C\nSiO2|s|-910.86|silicon dioxide (quartz)|W\nAgBr|s|-99.5|silver bromide|W\nAgI|s|-62.4|silver iodide|W\nAg2O|s|-31.1|silver oxide|W\nAg2S|s|-31.8|silver sulfide|W\nNa|g|107.5|sodium gas|W\nNaOH|s|-425.93|sodium hydroxide|W\nNaOH|aq|-469.15|sodium hydroxide solution|W\nNaNO3|s|-424.8|sodium nitrate|W\nNaNO3|aq|-446.2|sodium nitrate solution|W\nNa2O|s|-414.2|sodium oxide|W\nSO2|g|-296.84|sulfur dioxide|W\nSO3|g|-395.7|sulfur trioxide|W\nTiO2|s|-944.7|titanium dioxide|W\nZnO|s|-348.0|zinc oxide|W\nZnSO4|s|-980.14|zinc sulfate|W\nCH4|g|-74.9|methane|W\nC2H6|g|-83.7|ethane|W\nC2H4|g|52.5|ethene (ethylene)|W\nC2H2|g|226.8|ethyne (acetylene)|W\nC3H8|g|-104.6|propane|W\nC4H10|g|-125.5|butane|W\nC5H12|g|-146.9|pentane|W\nC6H14|g|-167.4|hexane|W\nC7H16|g|-187.9|heptane|W\nC8H18|g|-208.4|octane vapor|W\nC8H18|l|-250.1|octane|C\nC9H20|g|-229.3|nonane|W\nC10H22|g|-249.4|decane|W\nC3H6O|l|-248.4|acetone|W\nC6H6|l|48.95|benzene|W\nC7H6O2|s|-385.2|benzoic acid|W\nCCl4|l|-135.4|carbon tetrachloride|W\nCCl4|g|-95.98|carbon tetrachloride gas|W\nC2H5OH|l|-277.0|ethanol|W\nC2H5OH|g|-235.3|ethanol vapor|W\nC6H12O6|s|-1271|glucose|W\nC3H7OH|g|-318.1|propan-2-ol (isopropanol)|W\nCH3OH|l|-238.4|methanol|W\nCH3OH|g|-201.0|methanol vapor|W\nC12H22O11|s|-2226.1|sucrose|W\nCHCl3|l|-134.47|chloroform|W\nCHCl3|g|-103.18|chloroform gas|W\nCH3COOH|l|-484.3|acetic acid|C\nH^+|aq|0|hydrogen ion|W\nOH^-|aq|-230|hydroxide ion|W\nBr^-|aq|-121|bromide ion|W\nCl^-|aq|-167.2|chloride ion|W\nI^-|aq|-55|iodide ion|W\nCa^2+|aq|-542.7|calcium ion|W\nMg^2+|aq|-466.85|magnesium ion|W\nHCO3^-|aq|-689.93|hydrogen carbonate ion|W\nCO3^2-|aq|-675.23|carbonate ion|W\nMnO4^-|aq|-543|permanganate ion|W\nNa^+|aq|-240.1|sodium ion|C\nK^+|aq|-252.4|potassium ion|C\nLi^+|aq|-278.5|lithium ion|C\nNH4^+|aq|-132.5|ammonium ion|C\nAg^+|aq|105.6|silver ion|C\nCu^2+|aq|64.8|copper(II) ion|C\nZn^2+|aq|-153.9|zinc ion|C\nBa^2+|aq|-537.6|barium ion|C\nFe^2+|aq|-89.1|iron(II) ion|C\nFe^3+|aq|-48.5|iron(III) ion|C\nAl^3+|aq|-531|aluminum ion|C\nF^-|aq|-332.6|fluoride ion|C\nNO3^-|aq|-205.0|nitrate ion|C\nSO4^2-|aq|-909.3|sulfate ion|C\nPO4^3-|aq|-1277.4|phosphate ion|C\nCH3COO^-|aq|-486.0|acetate ion|C".split('\n').filter(Boolean).map(function(l){
+  var p = l.split('|'), m = p[0].match(/^(.*?)\^(\d*)([+-])$/), f = m ? m[1] : p[0], z = m ? (m[3] === '+' ? 1 : -1) * (m[2] ? +m[2] : 1) : 0;
+  return { f: f, z: z, st: p[1], v: +p[2], n: p[3], src: p[4] };
+});
+var ELEMS = ('H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu').split(' ');
+var SUB = '₀₁₂₃₄₅₆₇₈₉', SUP = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '+': '⁺', '-': '⁻' };
+function pretty(f, z, st){
+  var s = f.replace(/([A-Za-z)\]])(\d+)/g, function(_, a, d){ return a + d.split('').map(function(c){ return SUB[+c]; }).join(''); });
+  if (z) s += ((Math.abs(z) > 1 ? String(Math.abs(z)) : '') + (z > 0 ? '+' : '-')).split('').map(function(c){ return SUP[c]; }).join('');
+  return s + (st ? '(' + st + ')' : '');
+}
+function comp(f){
+  var parts = f.split(/[·•*]/), tot = {};
+  parts.forEach(function(part, pi){
+    var mul = 1, m = part.match(/^(\d+)(.*)$/);
+    if (pi > 0 && m){ mul = +m[1]; part = m[2]; }
+    var stack = [{}], i = 0;
+    while (i < part.length){
+      var ch = part[i];
+      if (ch === '(' || ch === '['){ stack.push({}); i++; continue; }
+      if (ch === ')' || ch === ']'){
+        if (stack.length < 2) throw 'Check the brackets in ' + f + '.';
+        var g = stack.pop(), n = part.slice(i + 1).match(/^\d+/), k = n ? +n[0] : 1; i += 1 + (n ? n[0].length : 0);
+        for (var e in g) stack[stack.length - 1][e] = (stack[stack.length - 1][e] || 0) + g[e] * k; continue;
+      }
+      var em = part.slice(i).match(/^([A-Z][a-z]?)(\d*)/);
+      if (!em){
+        var bad = part.slice(i).match(/^[a-z]+/);
+        throw bad ? '“' + bad[0] + '” in ' + f + ' is not an element symbol. Element symbols start with a capital letter (Co is cobalt, CO is carbon monoxide).' : 'I can’t read “' + part[i] + '” in ' + f + '.';
+      }
+      if (ELEMS.indexOf(em[1]) < 0) throw '“' + em[1] + '” in ' + f + ' is not an element symbol.';
+      var top = stack[stack.length - 1]; top[em[1]] = (top[em[1]] || 0) + (em[2] ? +em[2] : 1); i += em[0].length;
+    }
+    if (stack.length !== 1) throw 'Check the brackets in ' + f + '.';
+    for (var e2 in stack[0]) tot[e2] = (tot[e2] || 0) + stack[0][e2] * mul;
+  });
+  return tot;
+}
+function compKey(c, z){ return Object.keys(c).sort().map(function(e){ return e + c[e]; }).join('') + '|' + z; }
+DB.forEach(function(d){ d.ck = compKey(comp(d.f), d.z); });
+var ST_ORDER = ['s', 'l', 'g', 'aq'];
+function stdElement(c){
+  var ks = Object.keys(c); if (ks.length !== 1) return null;
+  var e = ks[0], n = c[e];
+  if (['H', 'N', 'O', 'F', 'Cl'].indexOf(e) >= 0) return n === 2 ? 'g' : null;
+  if (e === 'Br') return n === 2 ? 'l' : null;
+  if (e === 'I') return n === 2 ? 's' : null;
+  if (e === 'Hg') return n === 1 ? 'l' : null;
+  if (['He', 'Ne', 'Ar', 'Kr', 'Xe', 'Rn'].indexOf(e) >= 0) return n === 1 ? 'g' : null;
+  if (e === 'S') return n === 1 || n === 8 ? 's' : null;
+  if (e === 'P') return n === 1 || n === 4 ? 's' : null;
+  return n === 1 ? 's' : null;
+}
+function lookup(sp){
+  var c = sp.c, std = sp.z ? null : stdElement(c);
+  if (std && (!sp.st || sp.st === std)) return { v: 0, st: std, n: 'element in its standard state', src: 'rule', assumed: !sp.st };
+  var cand = DB.filter(function(d){ return d.f === sp.f && d.z === sp.z; });
+  if (!cand.length){
+    cand = DB.filter(function(d){ return d.ck === compKey(c, sp.z); });
+    var names = {}; cand.forEach(function(d){ names[d.f] = 1; });
+    if (Object.keys(names).length > 1) cand = [];
+  }
+  var states = cand.map(function(d){ return d.st; });
+  if (sp.st){
+    var hit = cand.filter(function(d){ return d.st === sp.st; })[0];
+    if (hit) return { v: hit.v, st: hit.st, n: hit.n, src: hit.src };
+    return { v: null, st: sp.st, note: states.length ? 'The table has ' + pretty(sp.f, sp.z) + ' only as ' + states.map(function(s){ return '(' + s + ')'; }).join(', ') + '.' : 'Not in the table.' };
+  }
+  if (!cand.length) return { v: null, st: '', note: 'Not in the table.' };
+  cand.sort(function(a, b){ return ST_ORDER.indexOf(a.st) - ST_ORDER.indexOf(b.st); });
+  return { v: cand[0].v, st: cand[0].st, n: cand[0].n, src: cand[0].src, assumed: true };
+}
+function normEq(s){
+  s = s.replace(/[₀-₉]/g, function(d){ return String(d.charCodeAt(0) - 0x2080); });
+  s = s.replace(/([⁰¹²³⁴⁵⁶⁷⁸⁹]*)([⁺⁻])/g, function(_, d, g){ return '^' + d.split('').map(function(c){ return '⁰¹²³⁴⁵⁶⁷⁸⁹'.indexOf(c); }).join('') + (g === '⁺' ? '+' : '-'); });
+  s = s.replace(/½/g, '1/2 ').replace(/¼/g, '1/4 ').replace(/¾/g, '3/4 ').replace(/⅓/g, '1/3 ').replace(/⅔/g, '2/3 ');
+  s = s.replace(/<=>|<->|-->|->|=>|⇌|⟶|⇒|⟹|→|=/g, '→').replace(/[−–—]/g, '-');
+  return s;
+}
+function splitSide(side){
+  var out = [], cur = '';
+  for (var i = 0; i < side.length; i++){
+    var ch = side[i];
+    if (ch === '+'){
+      var rest = side.slice(i + 1).replace(/^\s+/, ''), nx = rest[0];
+      var charge = /\^\d*$/.test(cur) || nx === undefined || nx === '+' || nx === '(';
+      if (!charge){ out.push(cur); cur = ''; continue; }
+    }
+    cur += ch;
+  }
+  out.push(cur);
+  return out.map(function(x){ return x.trim(); });
+}
+function parseCoef(s){ if (s.indexOf('/') >= 0){ var p = s.split('/'); return +p[0] / +p[1]; } return +s; }
+function parseSpecies(raw){
+  var s = raw.replace(/\s+/g, '');
+  if (!s) throw 'There is an empty term. Check for an extra “+”.';
+  var m = s.match(/^(\d+\/\d+|\d*\.\d+|\d+)?(.+)$/), k = m[1] ? parseCoef(m[1]) : 1, body = m[2];
+  if (!(k > 0)) throw 'The coefficient in “' + raw + '” must be a positive number.';
+  var st = '', sm = body.match(/\((s|l|g|aq|cr)\)$/i);
+  if (sm){ st = sm[1].toLowerCase(); if (st === 'cr') st = 's'; body = body.slice(0, -sm[0].length); }
+  var f = body, z = 0, opts = [];
+  var cm = body.match(/\^(\d*)([+-])$/);
+  if (cm){ f = body.slice(0, -cm[0].length); z = (cm[2] === '+' ? 1 : -1) * (cm[1] ? +cm[1] : 1); opts = [[f, z]]; }
+  else if ((cm = body.match(/(\d*)([+-])$/))){
+    var dg = cm[1], sg = cm[2] === '+' ? 1 : -1, base = body.slice(0, -cm[0].length);
+    if (!dg) opts = [[base, sg]];
+    else {
+      var asCharge = [base + dg.slice(0, -1), sg * +dg.slice(-1)], asSub = [base + dg, sg];
+      var single = /^[A-Z][a-z]?$/.test(base + dg.slice(0, -1));
+      opts = dg.length >= 2 || single ? [asCharge, asSub] : [asSub, asCharge];
+    }
+  } else opts = [[body, 0]];
+  var pick = opts.filter(function(o){ return DB.some(function(d){ return d.f === o[0] && d.z === o[1]; }); })[0] || opts[0];
+  f = pick[0]; z = pick[1];
+  if (!f) throw 'I can’t find a formula in “' + raw + '”.';
+  var c = comp(f);
+  return { k: k, f: f, z: z, st: st, c: c, raw: (raw.replace(/\s+/g, '').match(/^(\d+\/\d+|\d*\.\d+|\d+)?(.+)$/) || [])[2] };
+}
+function parseEq(text){
+  var s = normEq(text).trim();
+  if (!s) throw 'Type an equation first.';
+  var sides = s.split('→');
+  if (sides.length !== 2) throw sides.length < 2 ? 'Put an arrow between reactants and products (use -> or =).' : 'Use only one arrow.';
+  var re = splitSide(sides[0]).map(parseSpecies), pr = splitSide(sides[1]).map(parseSpecies);
+  if (!re.length || !pr.length) throw 'Both sides need at least one substance.';
+  return { re: re, pr: pr };
+}
+function atomCount(list){ var t = {}, q = 0; list.forEach(function(sp){ for (var e in sp.c) t[e] = (t[e] || 0) + sp.k * sp.c[e]; q += sp.k * sp.z; }); return { a: t, q: q }; }
+function balanceReport(E){
+  var L = atomCount(E.re), R = atomCount(E.pr), els = {}, bad = [];
+  Object.keys(L.a).concat(Object.keys(R.a)).forEach(function(e){ els[e] = 1; });
+  Object.keys(els).forEach(function(e){ var a = L.a[e] || 0, b = R.a[e] || 0; if (Math.abs(a - b) > 1e-9) bad.push(e + ': ' + +a.toFixed(3) + ' on the left, ' + +b.toFixed(3) + ' on the right'); });
+  if (Math.abs(L.q - R.q) > 1e-9) bad.push('charge: ' + sign(L.q) + ' on the left, ' + sign(R.q) + ' on the right');
+  return bad;
+}
+/* balance by solving A·x = 0 with exact fractions */
+function gcd(a, b){ a = Math.abs(a); b = Math.abs(b); while (b){ var t = b; b = a % b; a = t; } return a || 1; }
+function F(n, d){ d = d || 1; if (d < 0){ n = -n; d = -d; } var g = gcd(n, d); return [n / g, d / g]; }
+function fsub(a, b){ return F(a[0] * b[1] - b[0] * a[1], a[1] * b[1]); }
+function fmul(a, b){ return F(a[0] * b[0], a[1] * b[1]); }
+function fdiv(a, b){ return F(a[0] * b[1], a[1] * b[0]); }
+function autoBalance(E){
+  var sp = E.re.concat(E.pr), n = sp.length, els = {};
+  sp.forEach(function(s){ for (var e in s.c) els[e] = 1; });
+  var rows = Object.keys(els).map(function(e){ return sp.map(function(s, j){ return F((s.c[e] || 0) * (j < E.re.length ? 1 : -1)); }); });
+  if (sp.some(function(s){ return s.z; })) rows.push(sp.map(function(s, j){ return F(s.z * (j < E.re.length ? 1 : -1)); }));
+  var piv = [], r = 0;
+  for (var c = 0; c < n && r < rows.length; c++){
+    var p = -1; for (var i = r; i < rows.length; i++) if (rows[i][c][0] !== 0){ p = i; break; }
+    if (p < 0) continue;
+    var tmp = rows[r]; rows[r] = rows[p]; rows[p] = tmp;
+    var pv = rows[r][c]; rows[r] = rows[r].map(function(x){ return fdiv(x, pv); });
+    for (i = 0; i < rows.length; i++) if (i !== r && rows[i][c][0] !== 0){ var fct = rows[i][c]; rows[i] = rows[i].map(function(x, j){ return fsub(x, fmul(fct, rows[r][j])); }); }
+    piv.push(c); r++;
+  }
+  var free = []; for (c = 0; c < n; c++) if (piv.indexOf(c) < 0) free.push(c);
+  if (free.length !== 1) return null;
+  var fc = free[0], x = sp.map(function(){ return F(0); }); x[fc] = F(1);
+  piv.forEach(function(pc, ri){ x[pc] = F(-rows[ri][fc][0], rows[ri][fc][1]); });
+  var l = x.reduce(function(a, v){ return a * v[1] / gcd(a, v[1]); }, 1), ints = x.map(function(v){ return v[0] * l / v[1]; });
+  if (ints.every(function(v){ return v < 0; })) ints = ints.map(function(v){ return -v; });
+  if (ints.some(function(v){ return v <= 0; })) return null;
+  var g = ints.reduce(function(a, v){ return gcd(a, v); }, 0);
+  return ints.map(function(v){ return v / g; });
+}
+function eqText(E){
+  var t = function(s){ return (s.k === 1 ? '' : coef(s.k).trim()) + s.raw; };
+  return E.re.map(t).join(' + ') + ' -> ' + E.pr.map(t).join(' + ');
+}
+
+/* ---- shared helpers for preset and custom reactions ---- */
+var CUSTOM = null;
+function val(t){ return t.length > 2 ? t[2] : HF[t[1]]; }
+function r2(x){ return Math.round(x * 100) / 100; }
+function sgn(x){ x = r2(x); return (x > 0 ? '+' : x < 0 ? '−' : '') + String(+Math.abs(x).toFixed(2)); }
+function curR(){ return $('fRxn').value === 'custom' ? CUSTOM : RXNS[+$('fRxn').value]; }
+function complete(R){ return R.re.concat(R.pr).every(function(t){ return typeof val(t) === 'number' && !isNaN(val(t)); }); }
+function kTxt(k){ return coef(k).trim() || '1'; }
+
+$('fRxn').innerHTML = RXNS.map(function(r, i){ return '<option value="' + i + '">' + r.n + '</option>'; }).join('');
+function sums(R){ var p = R.pr.reduce(function(a, t){ return a + t[0] * val(t); }, 0), r = R.re.reduce(function(a, t){ return a + t[0] * val(t); }, 0); return { p: r2(p), r: r2(r), h: r2(p - r) }; }
+function termList(list){ return list.map(function(t){ return '(' + kTxt(t[0]) + ')(' + sgn(val(t)) + ')'; }).join(' + '); }
+function formSteps(R){
+  var S = sums(R);
+  return [
+    { tag: '1 · Analyze the problem', html: 'Equation: ' + eqStr(R.re, R.pr) + '<br>Look up ΔH°<sub>f</sub> for every substance' + (R.custom ? ' in the table below' : '') + '. Elements in their standard state have ΔH°<sub>f</sub> = 0.' },
+    { tag: '2 · Write the equation', math: true, html: 'ΔH°<sub>rxn</sub> = ΣΔH°<sub>f</sub>(products) − ΣΔH°<sub>f</sub>(reactants)' },
+    { tag: '3 · Sum the products', math: true, html: 'ΣΔH°<sub>f</sub>(products) = ' + termList(R.pr) + ' = <b>' + sgn(S.p) + ' kJ</b>' },
+    { tag: '4 · Sum the reactants', math: true, html: 'ΣΔH°<sub>f</sub>(reactants) = ' + termList(R.re) + ' = <b>' + sgn(S.r) + ' kJ</b>' },
+    { tag: '5 · Subtract', math: true, html: 'ΔH°<sub>rxn</sub> = (' + sgn(S.p) + ') − (' + sgn(S.r) + ') = <span class="ans">' + sgn(S.h) + ' kJ</span>' },
+    { tag: '6 · Evaluate the answer', html: S.h < 0 ? 'ΔH is negative: the products have less enthalpy than the reactants, so the reaction is <b class="hot">exothermic</b>.' : S.h > 0 ? 'ΔH is positive: the products have more enthalpy than the reactants, so the reaction is <b class="cold">endothermic</b>.' : 'ΔH is zero: reactants and products have the same enthalpy.' }
+  ];
+}
+var formShown = false;
+function usedRow(t, side, idx){
+  var v = val(t), info = t[3], cell;
+  if (info && info.missing) cell = '<input type="number" step="any" class="hfin" data-side="' + side + '" data-i="' + idx + '" aria-label="ΔH°f of ' + esc(t[1]) + ' in kJ/mol" placeholder="type ΔH°f"' + (typeof v === 'number' ? ' value="' + v + '"' : '') + '>';
+  else cell = R0(v);
+  var sub = '';
+  if (info) sub = '<div class="sub">' + (info.missing ? '<span class="miss">' + esc(info.note) + ' Type its ΔH°<sub>f</sub> from your book.</span>' : esc(info.n) + (info.src === 'rule' ? '' : ' · ' + (info.src === 'C' ? 'CRC' : 'Wikipedia')) + (info.assumed ? ' · state taken as (' + info.st + ')' : '')) + '</div>';
+  return '<tr><td>' + t[1] + sub + '</td><td>' + kTxt(t[0]) + '</td><td>' + cell + '</td><td>' + (side === 're' ? 'reactant' : 'product') + '</td></tr>';
+}
+function R0(v){ return sgn(v); }
+function drawUsed(R){
+  $('fUsed').innerHTML = '<tr><th>Substance</th><th>Coefficient</th><th>ΔH°<sub>f</sub> (kJ/mol)</th><th>Side</th></tr>' +
+    R.re.map(function(t, i){ return usedRow(t, 're', i); }).join('') + R.pr.map(function(t, i){ return usedRow(t, 'pr', i); }).join('');
+}
+function drawForm(skipUsed){
+  var R = curR();
+  if (!skipUsed) drawUsed(R);
+  if (!complete(R)){
+    $('svgForm').innerHTML = '<text x="320" y="170" text-anchor="middle" class="s-text">Type the missing ΔH°f value(s) in the table</text><text x="320" y="196" text-anchor="middle" class="s-small">and the diagram will appear.</text>';
+    $('formLive').innerHTML = ''; return;
+  }
+  var S = sums(R);
+  var lo = Math.min(0, S.p, S.r), hi = Math.max(0, S.p, S.r), span = (hi - lo) || 1, top = 50, bot = 300;
+  var Y = function(v){ return top + (hi - v) / span * (bot - top); }, out = '', exo = S.h < 0;
+  out += '<line x1="60" y1="30" x2="60" y2="320" class="s-inkline" stroke-width="1.5"/><path d="M54 38 L60 26 L66 38" fill="none" class="s-inkline" stroke-width="1.5"/>';
+  out += '<text x="44" y="175" transform="rotate(-90 44 175)" text-anchor="middle" class="s-small">enthalpy (kJ)</text>';
+  function level(x1, x2, v, label, cls){ out += '<line x1="' + x1 + '" x2="' + x2 + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="' + cls + '" stroke-width="3"/><text x="' + ((x1 + x2) / 2) + '" y="' + (Y(v) - 8) + '" text-anchor="middle" class="s-text">' + label + '</text><text x="' + ((x1 + x2) / 2) + '" y="' + (Y(v) + 18) + '" text-anchor="middle" class="s-mono">' + sgn(v) + ' kJ</text>'; }
+  out += '<line x1="80" x2="600" y1="' + Y(0) + '" y2="' + Y(0) + '" class="s-line" stroke-width="3"/><text x="600" y="' + (Y(0) - 8) + '" text-anchor="end" class="s-small">elements in standard state, ΔH°f = 0</text>';
+  level(110, 280, S.r, 'reactants', 's-inkline');
+  level(400, 570, S.p, 'products', 's-inkline');
+  var x = 340, y1 = Y(S.r), y2 = Y(S.p), col = exo ? 's-hot' : 's-cold', lcol = exo ? 's-hotl' : 's-coldl';
+  out += '<line x1="280" x2="400" y1="' + y1 + '" y2="' + y1 + '" class="s-inkline" stroke-width="1" stroke-dasharray="4 4"/>';
+  if (Math.abs(y2 - y1) > 16){
+    out += '<line x1="' + x + '" x2="' + x + '" y1="' + y1 + '" y2="' + (y2 + (exo ? -12 : 12)) + '" class="' + lcol + '" stroke-width="4"/>';
+    out += '<path d="M' + (x - 9) + ' ' + (y2 + (exo ? -14 : 14)) + ' L' + x + ' ' + y2 + ' L' + (x + 9) + ' ' + (y2 + (exo ? -14 : 14)) + ' Z" class="' + col + '"/>';
+  }
+  out += '<text x="' + (x + 12) + '" y="' + ((y1 + y2) / 2 + 4) + '" class="s-mono" font-weight="600">ΔH°rxn = ' + sgn(S.h) + ' kJ</text>';
+  var eqPlain = eqStr(R.re, R.pr).replace(/<[^>]+>/g, '');
+  out += '<text x="330" y="345" text-anchor="middle" class="s-mono"' + (eqPlain.length > 56 ? ' font-size="' + Math.max(8, Math.round(13 * 56 / eqPlain.length)) + '"' : '') + '>' + esc(eqPlain) + '</text>';
+  $('svgForm').innerHTML = out;
+  $('formLive').innerHTML = formShown ? stepsHTML(formSteps(R), 6, -1) : '';
+}
+function markCheck(inp, mark, want){
+  var v = parseFloat($(inp).value), el = $(mark);
+  if (isNaN(v) || isNaN(want)){ el.textContent = ''; el.className = 'mark'; return; }
+  var ok = Math.abs(v - want) <= Math.max(1, Math.abs(want) * 0.005);
+  el.textContent = ok ? '✓' : '✗'; el.className = 'mark ' + (ok ? 'ok' : 'no'); el.setAttribute('aria-label', ok ? 'correct' : 'not correct');
+}
+function resetChecks(){ ['fP', 'fR', 'fH'].forEach(function(id){ $(id).value = ''; $(id + 'm').textContent = ''; }); formShown = false; $('fShow').textContent = 'Show the steps'; }
+$('fCheck').addEventListener('click', function(){ var R = curR(); if (!complete(R)) return; var S = sums(R); markCheck('fP', 'fPm', S.p); markCheck('fR', 'fRm', S.r); markCheck('fH', 'fHm', S.h); });
+$('fShow').addEventListener('click', function(){ if (!complete(curR())) return; formShown = !formShown; this.textContent = formShown ? 'Hide the steps' : 'Show the steps'; drawForm(); });
+$('fRxn').addEventListener('change', function(){ resetChecks(); drawForm(); });
+$('fUsed').addEventListener('input', function(e){
+  var t = e.target; if (!t.classList.contains('hfin') || !CUSTOM) return;
+  var v = parseFloat(t.value); CUSTOM[t.getAttribute('data-side')][+t.getAttribute('data-i')][2] = isNaN(v) ? null : v;
+  drawForm(true);
+});
+
+/* ---- the "type any equation" box ---- */
+function eqMsg(cls, html){ $('fEqMsg').className = 'verdict ' + cls; $('fEqMsg').innerHTML = html; $('fEqMsg').hidden = false; }
+function runEq(){
+  var E;
+  try { E = parseEq($('fEq').value); }
+  catch (err){ eqMsg('bad', esc(typeof err === 'string' ? err : 'I couldn’t read that equation.')); return; }
+  var bad = balanceReport(E);
+  if (bad.length){
+    var fix = autoBalance(E);
+    eqMsg('bad', 'This equation is not balanced.<ul class="cnt">' + bad.map(function(b){ return '<li>' + esc(b) + '</li>'; }).join('') + '</ul>' +
+      (fix ? '<button class="btn small" id="fEqBal" type="button">Balance it for me</button>' : 'I can’t balance it automatically. Check the formulas.'));
+    if (fix) $('fEqBal').addEventListener('click', function(){
+      E.re.concat(E.pr).forEach(function(s, i){ s.k = fix[i]; });
+      $('fEq').value = eqText(E); runEq();
+    });
+    return;
+  }
+  var assumed = [], missing = [];
+  function mk(sp){
+    var L = lookup(sp), st = sp.st || L.st, label = pretty(sp.f, sp.z, st);
+    if (L.v === null) missing.push(label); else if (L.assumed && L.src !== 'rule') assumed.push(label);
+    return [sp.k, label, L.v, { n: L.n, src: L.src, st: L.st, assumed: L.assumed && L.src !== 'rule', missing: L.v === null, note: L.note }];
+  }
+  CUSTOM = { n: 'Your equation', custom: true, re: E.re.map(mk), pr: E.pr.map(mk) };
+  var opt = $('fRxn').querySelector('option[value="custom"]');
+  if (!opt){ opt = document.createElement('option'); opt.value = 'custom'; $('fRxn').insertBefore(opt, $('fRxn').firstChild); }
+  opt.textContent = 'Your equation: ' + eqStr(CUSTOM.re, CUSTOM.pr).replace(/<[^>]+>/g, '');
+  $('fRxn').value = 'custom';
+  resetChecks(); drawForm();
+  var msg = 'Balanced ✓';
+  if (missing.length) msg += '. ' + missing.map(esc).join(', ') + (missing.length > 1 ? ' are' : ' is') + ' not in the table: type ' + (missing.length > 1 ? 'their' : 'its') + ' ΔH°<sub>f</sub> in the table below.';
+  else msg += ' ΔH°<sub>rxn</sub> = <b>' + sgn(sums(CUSTOM).h) + ' kJ</b>. Try the sums yourself, then check.';
+  if (assumed.length) msg += '<br><span class="sub">No state typed for ' + assumed.map(esc).join(', ') + ': the state at 25 °C was used. Add (s), (l), (g) or (aq) to change it.</span>';
+  eqMsg(missing.length ? 'wait' : 'good', msg);
+}
+$('fEqGo').addEventListener('click', runEq);
+$('fEq').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); runEq(); } });
+Array.prototype.forEach.call(document.querySelectorAll('.eqchip'), function(b){ b.addEventListener('click', function(){ $('fEq').value = b.getAttribute('data-eq'); runEq(); }); });
+
+/* ---- searchable table ---- */
+/* formation equation: elements in their standard states -> 1 mol of the substance */
+var DIATOMIC = { H: 'g', N: 'g', O: 'g', F: 'g', Cl: 'g', Br: 'l', I: 's' };
+function elTerm(e, atoms){
+  var di = DIATOMIC[e], k = di ? atoms / 2 : atoms;
+  return { k: k, f: di ? e + '2' : e, st: di || (e === 'Hg' ? 'l' : 's') };
+}
+function formationEq(d){
+  if (d.f === 'H' && d.z === 1) return null;
+  var c = comp(d.f), order = [], re = [], pr = [{ k: 1, f: d.f, z: d.z, st: d.st }];
+  d.f.replace(/[A-Z][a-z]?/g, function(e){ if (order.indexOf(e) < 0) order.push(e); return e; });
+  var nH = c.H || 0, h = d.z ? (nH - d.z) / 2 : nH / 2;
+  function addH(){ if (h > 0) re.push({ k: h, f: 'H2', st: 'g' }); else if (h < 0) pr.push({ k: -h, f: 'H2', st: 'g' }); }
+  order.forEach(function(e){
+    if (e === 'H'){ addH(); return; }
+    var t = elTerm(e, c[e]); t.z = 0; re.push(t);
+  });
+  if (order.indexOf('H') < 0) addH();
+  if (d.z > 0) re.push({ k: d.z, f: 'H', z: 1, st: 'aq' });
+  if (d.z < 0) pr.push({ k: -d.z, f: 'H', z: 1, st: 'aq' });
+  if (re.length === 1 && pr.length === 1 && re[0].f === d.f && re[0].st === d.st) return null;
+  function side(list, m){ return list.map(function(t){ var k = t.k * m; return (Math.abs(k - 1) < 1e-9 ? '' : coef(k).trim()) + pretty(t.f, t.z || 0, t.st); }).join(' + '); }
+  var frac = re.concat(pr).some(function(t){ return Math.abs(t.k - Math.round(t.k)) > 1e-9; });
+  return { one: side(re, 1) + ' → ' + side(pr, 1), two: frac ? side(re, 2) + ' → ' + side(pr, 2) : null,
+    plain: re.map(function(t){ return (t.k === 1 ? '' : coef(t.k).trim()) + t.f + (t.z ? '^+' : '') + '(' + t.st + ')'; }).join(' + ') + ' -> ' + pr.map(function(t){ return (t.k === 1 ? '' : coef(t.k).trim()) + t.f + (t.z ? (t.z > 0 ? '^' + (t.z > 1 ? t.z : '') + '+' : '^' + (t.z < -1 ? -t.z : '') + '-') : '') + '(' + t.st + ')'; }).join(' + ') };
+}
+function drawTable(q){
+  q = (q || '').trim().toLowerCase();
+  var qn = normEq(q).replace(/\s+/g, '');
+  var rows = DB.filter(function(d){ return !q || d.n.toLowerCase().indexOf(q) >= 0 || (d.f + (d.z ? '^' : '')).toLowerCase().indexOf(qn) === 0 || d.f.toLowerCase() === qn; });
+  $('tblForm').innerHTML = '<tr><th>Substance and its formation equation</th><th>ΔH°<sub>f</sub> (kJ/mol)</th><th>Source</th></tr>' +
+    (rows.length ? rows.map(function(d){
+      var E = formationEq(d), eq = '';
+      if (E) eq = '<div class="feq">' + E.one + ' <span class="dh">ΔH° = ' + sgn(d.v) + ' kJ</span>' +
+        (E.two ? '<div class="x2">×2: ' + E.two + ' <span class="dh">ΔH° = ' + sgn(2 * d.v) + ' kJ</span></div>' : '') +
+        '<button class="eqchip" type="button" data-try="' + esc(E.plain).replace(/"/g, '&quot;') + '">use in calculator ↑</button></div>';
+      else if (d.f === 'H' && d.z === 1) eq = '<div class="feq">Reference ion: ΔH°<sub>f</sub> of H⁺(aq) is set to 0 by definition.</div>';
+      return '<tr><td>' + pretty(d.f, d.z, d.st) + '<div class="sub">' + esc(d.n) + '</div>' + eq + '</td><td>' + sgn(d.v) + '</td><td class="nm">' + (d.src === 'C' ? 'CRC' : 'Wikipedia') + '</td></tr>'; }).join('')
+      : '<tr><td colspan="3">No match. Elements in their standard state are 0; anything else you can type in yourself.</td></tr>');
+  $('tblCount').textContent = rows.length + ' of ' + DB.length + ' substances';
+}
+$('tblForm').addEventListener('click', function(e){
+  var b = e.target.closest('[data-try]'); if (!b) return;
+  $('fEq').value = b.getAttribute('data-try'); runEq(); $('fEq').scrollIntoView({ block: 'center', behavior: 'smooth' });
+});
+$('fSearch').addEventListener('input', function(){ drawTable(this.value); });
+drawTable('');
+
+worked('wkForm', [
+  { title: 'Example 1 · Combustion of methane', problem: 'Use standard enthalpies of formation to find ΔH°<sub>rxn</sub> for<br>CH₄(g) + 2O₂(g) → CO₂(g) + 2H₂O(l)',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['ΔH°f CH₄(g) = −75 kJ/mol', 'ΔH°f O₂(g) = 0 kJ/mol', 'ΔH°f CO₂(g) = −394 kJ/mol', 'ΔH°f H₂O(l) = −286 kJ/mol'], ['ΔH°<sub>rxn</sub> = ? kJ']) },
+      { tag: '2 · Write the equation', math: true, html: 'ΔH°<sub>rxn</sub> = ΣΔH°<sub>f</sub>(products) − ΣΔH°<sub>f</sub>(reactants)' },
+      { tag: '3 · Sum the products', math: true, html: '(1)(−394) + (2)(−286) = −394 − 572 = −966 kJ' },
+      { tag: '4 · Sum the reactants', math: true, html: '(1)(−75) + (2)(0) = −75 kJ' },
+      { tag: '5 · Subtract', math: true, html: 'ΔH°<sub>rxn</sub> = (−966 kJ) − (−75 kJ) = <span class="ans">−891 kJ</span>' },
+      { tag: '6 · Evaluate the answer', html: 'Negative, so the reaction is exothermic. The value matches ΔH°<sub>comb</sub> of methane (−891 kJ/mol). Subtracting a negative number means adding.' }
+    ] },
+  { title: 'Example 2 · Hydrogen sulfide and fluorine', problem: 'Find ΔH°<sub>rxn</sub> for H₂S(g) + 4F₂(g) → 2HF(g) + SF₆(g)',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['ΔH°f H₂S(g) = −21 kJ/mol', 'ΔH°f F₂(g) = 0 kJ/mol', 'ΔH°f HF(g) = −273 kJ/mol', 'ΔH°f SF₆(g) = −1220 kJ/mol'], ['ΔH°<sub>rxn</sub> = ? kJ']) },
+      { tag: '2 · Sum the products', math: true, html: '(2)(−273) + (1)(−1220) = −546 − 1220 = −1766 kJ' },
+      { tag: '3 · Sum the reactants', math: true, html: '(1)(−21) + (4)(0) = −21 kJ' },
+      { tag: '4 · Subtract', math: true, html: 'ΔH°<sub>rxn</sub> = (−1766 kJ) − (−21 kJ) = <span class="ans">−1745 kJ</span>' },
+      { tag: '5 · Evaluate the answer', html: 'Very negative: a strongly exothermic reaction. Remember to multiply each ΔH°<sub>f</sub> by its coefficient.' }
+    ] },
+  { title: 'Example 3 · Burning glucose', problem: 'Find ΔH°<sub>rxn</sub> for the reaction that releases energy in your cells:<br>C₆H₁₂O₆(s) + 6O₂(g) → 6CO₂(g) + 6H₂O(l)',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['ΔH°f C₆H₁₂O₆(s) = −1271 kJ/mol', 'ΔH°f O₂(g) = 0 kJ/mol', 'ΔH°f CO₂(g) = −394 kJ/mol', 'ΔH°f H₂O(l) = −286 kJ/mol'], ['ΔH°<sub>rxn</sub> = ? kJ']) },
+      { tag: '2 · Sum the products', math: true, html: '(6)(−394) + (6)(−286) = −2364 − 1716 = −4080 kJ' },
+      { tag: '3 · Sum the reactants', math: true, html: '(1)(−1271) + (6)(0) = −1271 kJ' },
+      { tag: '4 · Subtract', math: true, html: 'ΔH°<sub>rxn</sub> = (−4080 kJ) − (−1271 kJ) = <span class="ans">−2809 kJ</span>' },
+      { tag: '5 · Evaluate the answer', html: 'Exothermic, as respiration must be. Photosynthesis is the reverse reaction, so its ΔH is +2809 kJ.' }
+    ] },
+  { title: 'Example 4 · An endothermic reaction', problem: 'Find ΔH°<sub>rxn</sub> for the decomposition of limestone:<br>CaCO₃(s) → CaO(s) + CO₂(g)',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['ΔH°f CaCO₃(s) = −1207 kJ/mol', 'ΔH°f CaO(s) = −635 kJ/mol', 'ΔH°f CO₂(g) = −394 kJ/mol'], ['ΔH°<sub>rxn</sub> = ? kJ']) },
+      { tag: '2 · Sum the products', math: true, html: '(1)(−635) + (1)(−394) = −1029 kJ' },
+      { tag: '3 · Sum the reactants', math: true, html: '(1)(−1207) = −1207 kJ' },
+      { tag: '4 · Subtract', math: true, html: 'ΔH°<sub>rxn</sub> = (−1029 kJ) − (−1207 kJ) = <span class="ans">+178 kJ</span>' },
+      { tag: '5 · Evaluate the answer', html: 'Positive, so the reaction is endothermic: the products have more enthalpy than the reactant. That is why lime kilns must be heated strongly.' }
+    ] },
+  { title: 'Example 5 · Watch the state of water', problem: 'Find ΔH°<sub>rxn</sub> for the oxidation of ammonia:<br>4NH₃(g) + 5O₂(g) → 4NO(g) + 6H₂O(g)',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['ΔH°f NH₃(g) = −46 kJ/mol', 'ΔH°f O₂(g) = 0 kJ/mol', 'ΔH°f NO(g) = +91 kJ/mol', 'ΔH°f H₂O(<b>g</b>) = −242 kJ/mol'], ['ΔH°<sub>rxn</sub> = ? kJ']) + 'Water here is a <b>gas</b>, so use −242, not −286.' },
+      { tag: '2 · Sum the products', math: true, html: '(4)(+91) + (6)(−242) = +364 − 1452 = −1088 kJ' },
+      { tag: '3 · Sum the reactants', math: true, html: '(4)(−46) + (5)(0) = −184 kJ' },
+      { tag: '4 · Subtract', math: true, html: 'ΔH°<sub>rxn</sub> = (−1088 kJ) − (−184 kJ) = <span class="ans">−904 kJ</span>' },
+      { tag: '5 · Evaluate the answer', html: 'Exothermic. A positive ΔH°<sub>f</sub> (NO = +91) is fine; it just means NO has more enthalpy than its elements. With H₂O(l) the answer would be −1168 kJ, so the state matters.' }
+    ] },
+  { title: 'Example 6 · Working backwards', problem: 'The combustion of propane has ΔH°<sub>rxn</sub> = −2222 kJ:<br>C₃H₈(g) + 5O₂(g) → 3CO₂(g) + 4H₂O(l)<br>Find ΔH°<sub>f</sub> of propane.',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['ΔH°<sub>rxn</sub> = −2222 kJ', 'ΔH°f CO₂(g) = −394 kJ/mol', 'ΔH°f H₂O(l) = −286 kJ/mol', 'ΔH°f O₂(g) = 0 kJ/mol'], ['ΔH°f C₃H₈(g) = ? kJ/mol']) },
+      { tag: '2 · Sum the products', math: true, html: '(3)(−394) + (4)(−286) = −1182 − 1144 = −2326 kJ' },
+      { tag: '3 · Write the equation with the unknown', math: true, html: '−2222 = (−2326) − [ΔH°f(C₃H₈) + (5)(0)]' },
+      { tag: '4 · Solve for the unknown', math: true, html: 'ΔH°f(C₃H₈) = (−2326) − (−2222) = <span class="ans">−104 kJ/mol</span>' },
+      { tag: '5 · Evaluate the answer', html: 'This matches the table value of propane (−104 kJ/mol). Rearranging: ΣΔH°<sub>f</sub>(reactants) = ΣΔH°<sub>f</sub>(products) − ΔH°<sub>rxn</sub>.' }
+    ] },
+  { title: 'Example 7 · From ΔH°rxn to heat for a mass', problem: 'CH₄(g) + 2O₂(g) → CO₂(g) + 2H₂O(l) &nbsp; ΔH°<sub>rxn</sub> = −891 kJ (Example 1).<br>How much heat is released when 10.0 g of methane burns?',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['m(CH₄) = 10.0 g', 'M(CH₄) = 16.04 g/mol', 'ΔH = −891 kJ per 1 mol CH₄'], ['q = ? kJ']) },
+      { tag: '2 · Find moles', math: true, html: 'n = m / M = 10.0 g / 16.04 g/mol = 0.623 mol' },
+      { tag: '3 · Use q = n × ΔH', math: true, html: 'q = (0.623 mol)(−891 kJ/mol) = <span class="ans">−555 kJ</span>' },
+      { tag: '4 · Evaluate the answer', html: '555 kJ of heat is released. 10.0 g is a bit more than half a mole, so the answer is a bit more than half of 891 kJ. This links Lesson 4 to the thermochemical equations of Lesson 3.' }
+    ] }
+]);
+
+/* =====================================================================
+   tabs + loop
+   ===================================================================== */
+var TABS = ['heat', 'cal', 'thermo', 'hess', 'form'], tab = 'heat';
+function selectTab(name, focus){
+  tab = name;
+  TABS.forEach(function(t){ var b = $('t-' + t), on = t === name; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; $('p-' + t).hidden = !on; if (on && focus) b.focus(); });
+  try { history.replaceState(null, '', '#' + name); } catch (e) {}
+}
+TABS.forEach(function(t, i){ var b = $('t-' + t);
+  b.addEventListener('click', function(){ selectTab(t); });
+  b.addEventListener('keydown', function(ev){ if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft'){ ev.preventDefault(); selectTab(TABS[(i + (ev.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length], true); } });
+});
+var last = 0;
+function frame(now){
+  var dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  if (heat.on){
+    heat.q += POWER * dt;
+    if (sampleState(0).full && sampleState(1).full){ heat.on = false; $('heatGo').textContent = 'Start heating'; }
+    if (tab === 'heat') drawHeat();
+  }
+  if (cal.run){ cal.t += dt; if (cal.t >= TEND){ cal.t = TEND; cal.run = false; cal.done = true; } if (tab === 'cal' || cal.done) drawCal(); }
+  requestAnimationFrame(frame);
+}
+var h = (location.hash || '').slice(1); if (TABS.indexOf(h) >= 0) selectTab(h);
+drawHeat(); calOut(); drawCal(); drawThermo(); drawHess(); drawForm();
+requestAnimationFrame(function(t){ last = t; requestAnimationFrame(frame); });
+})();
+</script>
