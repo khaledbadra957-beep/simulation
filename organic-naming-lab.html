@@ -46,8 +46,9 @@ p{margin:0}
 .lede{max-width:70ch;color:var(--muted);font-size:1.05rem}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
-.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-@media (max-width:720px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:900px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tab{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:1px;min-width:0}
 .tab small{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .tab b{font-size:.98rem;line-height:1.25}
@@ -75,7 +76,7 @@ output{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600
 
 /* molecule drawing */
 .molwrap{overflow-x:auto;background:var(--sunk);border-radius:12px;padding:6px}
-svg.mol{display:block;width:100%;height:auto;max-height:360px}
+svg.mol{display:block;width:100%;height:auto;max-height:360px;margin-inline:auto}
 .a-c{fill:var(--c)} .a-o{fill:var(--o)} .a-n{fill:var(--n)} .a-cl{fill:var(--cl)} .a-br{fill:var(--br)} .a-f{fill:var(--f)} .a-i{fill:var(--i)}
 .lbl{font-family:var(--mono);font-size:17px;font-weight:500;text-anchor:middle;dominant-baseline:central}
 .lbl.pg{font-weight:700}
@@ -122,6 +123,17 @@ svg.mini .bnd{stroke-width:3}
 .target{font-family:var(--display);font-weight:700;font-size:1.5rem;border:2px dashed var(--accent);border-radius:12px;padding:8px 14px;overflow-wrap:anywhere}
 .score{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
 
+/* esters, ethers, amides, amines */
+.eqbox{background:var(--sunk);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;overflow-x:auto}
+.eqline{font-family:var(--mono);font-size:.95rem;line-height:2;overflow-wrap:anywhere}
+.condf{font-family:var(--mono);font-size:1.25rem;font-weight:600;overflow-wrap:anywhere}
+.box{border:2px solid var(--o);border-radius:6px;padding:0 .2em;color:var(--o);font-weight:700}
+.eqarrow{color:var(--accent);font-weight:700;padding:0 .2em}
+.part{display:flex;flex-direction:column;gap:8px}
+.part + .part{border-top:1px solid var(--line);padding-top:14px}
+.nbox{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:420px){.nbox{grid-template-columns:minmax(0,1fr)}}
+.nbox label{display:flex;flex-direction:column;gap:3px;font-weight:700;font-size:.9rem}
 /* isomer hunt */
 .found{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
 .iso{border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--surface);display:flex;flex-direction:column;gap:4px;min-width:0}
@@ -177,13 +189,14 @@ table.ref th{font-size:.72rem;color:var(--muted)}
   <header>
     <p class="eyebrow">Grade 11–12 Chemistry · Hydrocarbons and Organic Compounds</p>
     <h1>Organic Naming Lab</h1>
-    <p class="lede">Build a molecule and watch its IUPAC name appear step by step: find the longest chain, number it, then order the substituents. Practise naming, hunt for every isomer of a formula, and identify mystery compounds with the classic test-tube tests.</p>
+    <p class="lede">Build a molecule and watch its IUPAC name appear step by step: find the longest chain, number it, then order the substituents. Name esters, ethers, amides and amines from their parts, hunt for every isomer of a formula, and identify mystery compounds with the classic test-tube tests.</p>
   </header>
 
   <div class="tabs" role="tablist" aria-label="Parts of the lab">
     <button class="tab" role="tab" id="t-build" aria-controls="p-build" aria-selected="true"><small>Build</small><b>Build &amp; name</b></button>
     <button class="tab" role="tab" id="t-quiz" aria-controls="p-quiz" aria-selected="false" tabindex="-1"><small>Practise</small><b>Name challenge</b></button>
     <button class="tab" role="tab" id="t-iso" aria-controls="p-iso" aria-selected="false" tabindex="-1"><small>Isomers</small><b>Isomer hunt</b></button>
+    <button class="tab" role="tab" id="t-ester" aria-controls="p-ester" aria-selected="false" tabindex="-1"><small>O and N in the chain</small><b>Esters, ethers, amides</b></button>
     <button class="tab" role="tab" id="t-lab" aria-controls="p-lab" aria-selected="false" tabindex="-1"><small>Lab tests</small><b>Mystery compounds</b></button>
   </div>
 
@@ -287,6 +300,57 @@ table.ref th{font-size:.72rem;color:var(--muted)}
     </div>
   </section>
 
+
+  <!-- ============ ESTERS, ETHERS, AMIDES, AMINES ============ -->
+  <section class="panel" id="p-ester" role="tabpanel" aria-labelledby="t-ester" hidden>
+    <div class="card">
+      <div class="row" role="group" aria-label="Family">
+        <button class="btn small" id="xf-ester" aria-pressed="true">Ester</button>
+        <button class="btn small" id="xf-ether" aria-pressed="false">Ether</button>
+        <button class="btn small" id="xf-amide" aria-pressed="false">Amide</button>
+        <button class="btn small" id="xf-amine" aria-pressed="false">Amine (1°, 2°, 3°)</button>
+      </div>
+      <p class="caption" id="xInfo"></p>
+    </div>
+    <div class="lab">
+      <div class="card">
+        <div class="part">
+          <div class="row" style="justify-content:space-between"><h3 id="xLabA">Part A</h3><div class="row"><label class="flabel" for="xPreA">Start from</label><select id="xPreA"></select></div></div>
+          <div id="xBuilderA"></div>
+        </div>
+        <div class="part" id="xPartB">
+          <div class="row" style="justify-content:space-between"><h3 id="xLabB">Part B</h3><div class="row"><label class="flabel" for="xPreB">Start from</label><select id="xPreB"></select></div></div>
+          <div id="xBuilderB"></div>
+        </div>
+        <div class="part" id="xNbox" hidden>
+          <h3>Groups on the nitrogen</h3>
+          <div class="nbox"><label for="xN1">First group on N<select id="xN1"></select></label><label for="xN2">Second group on N<select id="xN2"></select></label></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Name</h3>
+        <div class="row"><label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="xGuess"> Hide the name so I can guess first</label></div>
+        <div id="xGuessBox" class="namebox" hidden>
+          <div class="guess"><input type="text" id="xAns" placeholder="e.g. propan-2-yl ethanoate" autocomplete="off" spellcheck="false" autocapitalize="off"><button class="btn primary" id="xCheck">Check</button><button class="btn" id="xShow">Show</button></div>
+          <div id="xGMsg" class="verdict wait" aria-live="polite">Type your answer, then check.</div>
+        </div>
+        <div id="xName" class="namebox" aria-live="polite"></div>
+        <div class="eqbox" id="xEq"></div>
+        <div id="xFacts" class="chips"></div>
+        <h3>How the name is built</h3>
+        <ol class="steps" id="xSteps"></ol>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h3>Isomer hunt for this family</h3><div class="row"><label class="flabel" for="xSet">Formula</label><select id="xSet"></select></div></div>
+      <div class="row"><button class="btn primary" id="xAdd">Add this isomer</button><span class="caption" id="xLive"></span><span class="score" id="xCount"></span></div>
+      <div class="progressbar" aria-hidden="true"><span id="xBar" style="width:0%"></span></div>
+      <div id="xMsg" class="verdict wait" aria-live="polite">Build a molecule with this formula, then add it.</div>
+      <div class="found" id="xFound"></div>
+      <div class="row"><button class="btn small" id="xReveal">Show the missing ones</button></div>
+    </div>
+  </section>
+
   <!-- ============ MYSTERY COMPOUNDS ============ -->
   <section class="panel" id="p-lab" role="tabpanel" aria-labelledby="t-lab" hidden>
     <div class="card">
@@ -323,7 +387,7 @@ table.ref th{font-size:.72rem;color:var(--muted)}
     </div>
   </section>
 
-  <p class="foot">Names follow IUPAC rules as taught in school: the parent chain is the longest chain that contains the main functional group and any C=C or C≡C, numbered so that the main group (then the multiple bond, then the substituents) gets the lowest numbers; substituents are listed in alphabetical order, ignoring di-, tri- and tetra-. Both styles are shown and accepted, for example but-2-ene (current IUPAC) and 2-butene (older style used in Inspire Chemistry). Test results follow Mr Khaled's identification table.</p>
+  <p class="foot">Names follow IUPAC rules as taught in school: the parent chain is the longest chain that contains the main functional group and any C=C or C≡C, numbered so that the main group (then the multiple bond, then the substituents) gets the lowest numbers; substituents are listed in alphabetical order, ignoring di-, tri- and tetra-. Both styles are shown and accepted, for example but-2-ene (current IUPAC) and 2-butene (older style used in Inspire Chemistry). Esters are named alkyl + alkanoate (propan-2-yl ethanoate), ethers as alkoxyalkanes (2-methoxypropane), and groups on nitrogen take the locant N (N-methylethanamide). Test results follow Mr Khaled's identification table.</p>
 </div>
 
 <script>
@@ -374,22 +438,24 @@ function classify(G){
   G.atoms.forEach(function(a){
     var deg = a.nb.length, nO = cnt(a.g, 'O'), nOH = cnt(a.g, 'OH'), nN = cnt(a.g, 'NH2');
     a.acid = nO > 0 && nOH > 0 && deg <= 1;
-    a.ald = nO > 0 && nOH === 0 && deg <= 1;
+    a.amide = nO > 0 && nOH === 0 && nN > 0 && deg <= 1;
+    a.ald = nO > 0 && nOH === 0 && nN === 0 && deg <= 1;
     a.ket = nO > 0 && deg >= 2;
     a.nOH = nOH; a.nN = nN; a.nO = nO;
   });
-  var tot = { acid: 0, ald: 0, ket: 0, alc: 0, amine: 0 };
-  G.atoms.forEach(function(a){ if (a.acid) tot.acid++; else if (a.ald) tot.ald++; else if (a.ket) tot.ket += a.nO; if (!a.acid) tot.alc += a.nOH; tot.amine += a.nN; });
-  var p = null; ['acid', 'ald', 'ket', 'alc', 'amine'].forEach(function(k){ if (!p && tot[k]) p = k; });
+  var tot = { acid: 0, amide: 0, ald: 0, ket: 0, alc: 0, amine: 0 };
+  G.atoms.forEach(function(a){ if (a.acid) tot.acid++; else if (a.amide) tot.amide++; else if (a.ald) tot.ald++; else if (a.ket) tot.ket += a.nO; if (!a.acid) tot.alc += a.nOH; if (!a.amide) tot.amine += a.nN; });
+  var p = null; ['acid', 'amide', 'ald', 'ket', 'alc', 'amine'].forEach(function(k){ if (!p && tot[k]) p = k; });
   G.pclass = p;
   G.atoms.forEach(function(a){
-    a.pc = !p ? 0 : p === 'acid' ? (a.acid ? 1 : 0) : p === 'ald' ? (a.ald ? 1 : 0) : p === 'ket' ? (a.ket ? a.nO : 0) : p === 'alc' ? (a.acid ? 0 : a.nOH) : a.nN;
+    a.pc = !p ? 0 : p === 'acid' ? (a.acid ? 1 : 0) : p === 'amide' ? (a.amide ? 1 : 0) : p === 'ald' ? (a.ald ? 1 : 0) : p === 'ket' ? (a.ket ? a.nO : 0) : p === 'alc' ? (a.acid ? 0 : a.nOH) : a.nN;
     var pre = [];
     a.g.forEach(function(g){
       if (HAL[g]) pre.push(HAL[g]);
-      else if (g === 'O'){ if (!((p === 'acid' && a.acid) || (p === 'ald' && a.ald) || (p === 'ket' && a.ket))) pre.push('oxo'); }
+      else if (g === 'O'){ if (!((p === 'acid' && a.acid) || (p === 'amide' && a.amide) || (p === 'ald' && a.ald) || (p === 'ket' && a.ket))) pre.push('oxo'); }
       else if (g === 'OH'){ if (!((p === 'acid' && a.acid) || p === 'alc')) pre.push('hydroxy'); }
-      else if (g === 'NH2'){ if (p !== 'amine') pre.push('amino'); }
+      else if (g === 'NH2'){ if (!(p === 'amine' || (p === 'amide' && a.amide))) pre.push('amino'); }
+      else if (g.indexOf('X:') === 0) pre.push(g.slice(2));
     });
     a.pre = pre;
   });
@@ -412,8 +478,8 @@ function chainItems(G, P, isBranch, parent){
   var items = [];
   P.forEach(function(a, k){
     var atom = G.atoms[a];
-    var pre = isBranch ? atom.g.map(function(g){ return HAL[g] || (g === 'O' ? 'oxo' : g === 'OH' ? 'hydroxy' : 'amino'); }) : atom.pre;
-    pre.forEach(function(nm){ items.push({ name: nm, loc: k + 1, complex: false, key: nm }); });
+    var pre = isBranch ? atom.g.map(function(g){ return HAL[g] || (g === 'O' ? 'oxo' : g === 'OH' ? 'hydroxy' : g === 'NH2' ? 'amino' : g.slice(2)); }) : atom.pre;
+    pre.forEach(function(nm){ var cx = /\d/.test(nm); items.push({ name: nm, loc: k + 1, complex: cx, key: cx ? nm.replace(/[^a-z]/g, '') : nm }); });
     atom.nb.forEach(function(e){ if (!inP[e.to]){ var b = branchName(G, e.to, a); items.push({ name: b.name, loc: k + 1, complex: b.complex, key: b.key, atoms: b.atoms }); } });
   });
   return items;
@@ -476,7 +542,7 @@ function assemble(items, showLoc){
     return (showLoc ? g.locs.join(',') + '-' : '') + body;
   }).join(showLoc ? '-' : '');
 }
-var SUFFIX = { acid: 'oic acid', ald: 'al', ket: 'one', alc: 'ol', amine: 'amine' };
+var SUFFIX = { acid: 'oic acid', amide: 'amide', ald: 'al', ket: 'one', alc: 'ol', amine: 'amine' };
 function nameMolecule(st, forceLoc){
   var G = toGraph(st); classify(G);
   var N = G.atoms.length, best = null;
@@ -489,10 +555,10 @@ function nameMolecule(st, forceLoc){
   for (var k = 0; k < L - 1; k++){ var o = order(G, P[k], P[k + 1]); if (o === 2) D.push(k + 1); if (o === 3) T.push(k + 1); }
   var sLocs = d.pLoc, nS = sLocs.length, nPre = d.items.length;
   // locant omission (only when there is no ambiguity)
-  var showPre = true, showUns = true, showSuf = !(p === 'acid' || p === 'ald');
+  var showPre = true, showUns = true, showSuf = !(p === 'acid' || p === 'amide' || p === 'ald');
   if (forceLoc){ }
   else if (L === 1){ showPre = showUns = showSuf = false; }
-  else if (L === 2 && nPre + (p === 'acid' || p === 'ald' ? 0 : nS) <= 1 && !(nPre && nS)){ showPre = showUns = showSuf = false; }
+  else if (L === 2 && nPre + (p === 'acid' || p === 'amide' || p === 'ald' ? 0 : nS) <= 1 && !(nPre && nS)){ showPre = showUns = showSuf = false; }
   else if (L === 3 && !nPre){
     if (!p && D.length + T.length === 1) showUns = false;
     if (p === 'ket' && nS === 1 && !D.length && !T.length) showSuf = false;
@@ -541,6 +607,7 @@ function family(R){
   var nD = 0, nT = 0; G.links.forEach(function(l){ if (l[2] === 2) nD++; if (l[2] === 3) nT++; });
   var info = { key: '', label: '', general: '', degree: '' };
   if (p === 'acid'){ info.key = 'acid'; info.label = G.atoms.some(function(a){ return a.nN; }) ? 'Amino acid' : 'Carboxylic acid'; info.general = info.label === 'Amino acid' ? 'CₙH₂ₙ₊₁NO₂' : 'CₙH₂ₙO₂'; if (info.label === 'Amino acid') info.key = 'aa'; }
+  else if (p === 'amide'){ info.key = 'amide'; info.label = 'Amide'; info.general = 'CₙH₂ₙ₊₁NO'; info.degree = 'primary (–CONH₂)'; }
   else if (p === 'ald'){ info.key = 'carbonyl'; info.label = 'Aldehyde'; info.general = 'CₙH₂ₙO'; }
   else if (p === 'ket'){ info.key = 'carbonyl'; info.label = 'Ketone'; info.general = 'CₙH₂ₙO'; }
   else if (p === 'alc'){ info.key = 'alcohol'; info.label = 'Alcohol'; info.general = 'CₙH₂ₙ₊₂O';
@@ -607,7 +674,7 @@ function drawMol(svg, st, opt){
   minX -= pad + 10; maxX += pad + 10; minY -= pad + (opt.R && opt.highlight ? 8 : 0); maxY += pad;
   var W = maxX - minX, H = maxY - minY;
   svg.setAttribute('viewBox', minX + ' ' + minY + ' ' + W + ' ' + H);
-  svg.style.minWidth = opt.mini ? '0' : Math.min(W * 0.62, 760) + 'px'; svg.classList.toggle('mini', !!opt.mini);
+  svg.style.minWidth = opt.mini ? '0' : Math.min(W * 0.62, 760) + 'px'; svg.style.maxWidth = opt.mini ? '' : Math.max(W * 1.05, 320) + 'px'; svg.classList.toggle('mini', !!opt.mini);
   var out = '';
   function line(x1, y1, x2, y2, cls){ return '<line class="' + (cls || 'bnd') + '" x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '"/>'; }
   function bondLines(p, q, o, cls, trimA, trimB){
@@ -717,7 +784,7 @@ Builder.prototype.render = function(focusSel){
 };
 
 /* ---------- explanation steps ---------- */
-var PINFO = { acid: ['–COOH', 'carboxylic acid', '-oic acid'], ald: ['–CHO', 'aldehyde', '-al'], ket: ['C=O', 'ketone', '-one'], alc: ['–OH', 'alcohol', '-ol'], amine: ['–NH₂', 'amine', '-amine'] };
+var PINFO = { acid: ['–COOH', 'carboxylic acid', '-oic acid'], amide: ['–CONH₂', 'amide', '-amide'], ald: ['–CHO', 'aldehyde', '-al'], ket: ['C=O', 'ketone', '-one'], alc: ['–OH', 'alcohol', '-ol'], amine: ['–NH₂', 'amine', '-amine'] };
 var REASON = ['the main functional group', 'the C=C or C≡C bond', 'the double bond', 'the substituents', 'the substituent that comes first in the alphabet'];
 function locList(a){ return a.length ? a.join(',') : '–'; }
 function steps(R){
@@ -1056,8 +1123,308 @@ function drawTube(t, r){
 }
 labNew();
 
+/* =========== TAB 5: esters, ethers, amides, amines (O or N inside the chain) =========== */
+var X = {};
+X.alc = [['methanol', M(1, '', '1r:OH')], ['ethanol', M(2, '-', '2r:OH')], ['propan-1-ol', M(3, '--', '3r:OH')], ['propan-2-ol', M(3, '--', '2u:OH')],
+  ['butan-1-ol', M(4, '---', '4r:OH')], ['butan-2-ol', M(4, '---', '2u:OH')], ['2-methylpropan-1-ol', M(3, '--', '3r:OH', '2u:CH3')], ['2-methylpropan-2-ol', M(3, '--', '2u:OH', '2d:CH3')],
+  ['pentan-1-ol', M(5, '----', '5r:OH')], ['2-methylbutan-1-ol', M(4, '---', '1l:OH', '2d:CH3')], ['3-methylbutan-1-ol', M(4, '---', '4r:OH', '2d:CH3')], ['3-methylpentan-2-ol', M(5, '----', '2d:OH', '3u:CH3')]];
+X.acid = [['methanoic acid', M(1, '', '1u:O', '1r:OH')], ['ethanoic acid', M(2, '-', '2u:O', '2r:OH')], ['propanoic acid', M(3, '--', '3u:O', '3r:OH')], ['butanoic acid', M(4, '---', '4u:O', '4r:OH')],
+  ['2-methylpropanoic acid', M(3, '--', '3u:O', '3r:OH', '2d:CH3')], ['pentanoic acid', M(5, '----', '5u:O', '5r:OH')], ['3-methylbutanoic acid', M(4, '---', '4u:O', '4r:OH', '2d:CH3')]];
+X.amine = [['methanamine', M(1, '', '1r:NH2')], ['ethanamine', M(2, '-', '2r:NH2')], ['propan-1-amine', M(3, '--', '3r:NH2')], ['propan-2-amine', M(3, '--', '2u:NH2')],
+  ['butan-1-amine', M(4, '---', '4r:NH2')], ['2-methylpropan-1-amine', M(3, '--', '3r:NH2', '2u:CH3')]];
+var NSUB = { methyl: { n: 1, c: 'CH₃', st: M(1, '', '1r:NH2') }, ethyl: { n: 2, c: 'CH₂–CH₃', st: M(2, '-', '2r:NH2') }, propyl: { n: 3, c: 'CH₂–CH₂–CH₃', st: M(3, '--', '3r:NH2') },
+  'propan-2-yl': { n: 3, c: 'CH(CH₃)₂', st: M(3, '--', '2u:NH2') }, butyl: { n: 4, c: 'CH₂–CH₂–CH₂–CH₃', st: M(4, '---', '4r:NH2') } };
+var COMMON_ALKYL = { 'propan-2-yl': ['isopropyl', '1-methylethyl'], 'butan-2-yl': ['sec-butyl', '1-methylpropyl'], '2-methylpropyl': ['isobutyl'], '2-methylpropan-2-yl': ['tert-butyl', '1,1-dimethylethyl'] };
+var COMMON_ACID = { methanoate: 'formate', ethanoate: 'acetate' };
+
+/* attachment group (OH or NH2) -> alkyl group name */
+function alkylName(st, grp){
+  var n = nameMolecule(st).iupac, suf = grp === 'OH' ? 'ol' : 'amine';
+  var re1 = new RegExp('an' + suf + '$'), re2 = new RegExp('an-1-' + suf + '$'), re3 = new RegExp('-' + suf + '$');
+  if (re1.test(n)) return n.replace(re1, 'yl');
+  if (re2.test(n)) return n.replace(re2, 'yl');
+  return n.replace(re3, '-yl');
+}
+function alkoxy(alk){ return /\d/.test(alk) ? alk + 'oxy' : alk.replace(/yl$/, 'oxy'); }
+function attachAtom(st, grp){ for (var i = 0; i < st.n; i++) for (var k in st.slots[i]) if (st.slots[i][k] === grp) return { i: i, slot: k }; return null; }
+function countG(st, grp){ var c = 0; st.slots.forEach(function(s){ for (var k in s) if (s[k] === grp) c++; }); return c; }
+function fmtCounts(c){ var t = '', key = '', M_ = 0; ['C', 'H', 'Br', 'Cl', 'F', 'I', 'N', 'O'].forEach(function(e){ if (c[e]){ t += e + (c[e] > 1 ? sub(c[e]) : ''); key += e + (c[e] > 1 ? c[e] : ''); M_ += c[e] * MASS[e]; } }); return { text: t, key: key, M: M_ }; }
+function cnts(st){ var f = formula(toGraph(st)).count, o = {}; for (var k in f) o[k] = f[k]; return o; }
+function addC(a, b, sgn){ var o = {}; for (var k in a) o[k] = a[k]; for (var j in b) o[j] = (o[j] || 0) + sgn * b[j]; return o; }
+
+/* condensed formula written outward from atom a */
+function depth(G, a, from){ var d = 0; G.atoms[a].nb.forEach(function(e){ if (e.to !== from) d = Math.max(d, depth(G, e.to, a)); }); return d + 1; }
+var GTXT = { F: '(F)', Cl: '(Cl)', Br: '(Br)', I: '(I)', OH: '(OH)', NH2: '(NH₂)', O: '(=O)' };
+function walk(G, a, from, skip){
+  var at = G.atoms[a], h = hCount(at), label = cLabel(h), extra = '';
+  var gs = at.g.slice(); if (skip){ var ix = gs.indexOf(skip); if (ix >= 0) gs.splice(ix, 1); }
+  gs.forEach(function(g){ extra += GTXT[g] || ''; });
+  var kids = at.nb.filter(function(e){ return e.to !== from; });
+  if (!kids.length) return [{ t: label + extra }];
+  var allMe = kids.every(function(e){ return e.o === 1 && G.atoms[e.to].nb.length === 1 && !G.atoms[e.to].g.length; });
+  if (allMe && kids.length > 1) return [{ t: label + extra + '(CH₃)' + sub(kids.length), merged: '(CH₃)' + sub(kids.length) + label + extra }];
+  var main = kids[0]; kids.forEach(function(e){ if (depth(G, e.to, a) > depth(G, main.to, a)) main = e; });
+  var br = {}, order_ = [];
+  kids.forEach(function(e){ if (e === main) return; var s = walk(G, e.to, a).map(function(x){ return x.t; }).join(''); if (!br[s]){ br[s] = 0; order_.push(s); } br[s]++; });
+  var brs = order_.map(function(s){ return '(' + s + ')' + (br[s] > 1 ? sub(br[s]) : ''); }).join('');
+  var rest = walk(G, main.to, a);
+  rest[0].sep = main.o === 2 ? '=' : main.o === 3 ? '≡' : '–';
+  return [{ t: label + extra + brs }].concat(rest);
+}
+function joinFwd(tk){ return tk.map(function(x, i){ return (i ? x.sep : '') + x.t; }).join(''); }
+function joinRev(tk){ var r = tk.slice().reverse(), s = '';
+  for (var i = 0; i < r.length; i++){ s += (i === 0 && r[i].merged ? r[i].merged : r[i].t); if (i < r.length - 1) s += tk[tk.length - 1 - i].sep || '–'; }
+  return s; }
+/* alkyl text written up to the attachment carbon (R–) and from it (–R) */
+function rLeft(st, grp){ var G = toGraph(st), a = attachAtom(st, grp).i, tk = walk(G, a, -1, grp); return { tk: tk, txt: joinRev(tk) }; }
+function rRight(st, grp){ var G = toGraph(st), a = attachAtom(st, grp).i, tk = walk(G, a, -1, grp); return joinFwd(tk); }
+/* acid: everything before the C of COOH */
+function acylLeft(st){
+  var G = toGraph(st), a = -1; classify(G); G.atoms.forEach(function(x, i){ if (x.acid) a = i; });
+  var at = G.atoms[a], nb = at.nb[0];
+  if (!nb) return hCount(at) === 1 ? 'H–' : '';
+  var tk = walk(G, nb.to, a); return joinRev(tk) + '–';
+}
+
+/* validation of the parts */
+function checkPart(st, kind){
+  var R = nameMolecule(st), f = family(R), all = st.slots.reduce(function(acc, s){ for (var k in s) acc.push(s[k]); return acc; }, []);
+  var nO = all.filter(function(g){ return g === 'O'; }).length, nOH = all.filter(function(g){ return g === 'OH'; }).length, nN = all.filter(function(g){ return g === 'NH2'; }).length;
+  if (kind === 'acid') return R.pclass === 'acid' && f.label === 'Carboxylic acid' && nO === 1 && nOH === 1 && nN === 0 ? null : 'must be a carboxylic acid with one –COOH group and no other O or N groups (for example ethanoic acid). Put =O and –OH on an end carbon.';
+  if (kind === 'alc') return R.pclass === 'alc' && nOH === 1 && nO === 0 && nN === 0 ? null : 'must be an alcohol with exactly one –OH group and no other O or N groups (for example ethanol). The –OH marks where the oxygen joins.';
+  if (kind === 'amine') return R.pclass === 'amine' && nN === 1 && nO === 0 && nOH === 0 ? null : 'must be a primary amine with exactly one –NH₂ group and no O groups (for example ethanamine).';
+  return null;
+}
+function nameWithN(st, nprefs){
+  var R = nameMolecule(st), parent = R.iupac.slice(R.prefix.length).replace(/^-/, ''), showLoc = !R.prefix || /\d/.test(R.prefix);
+  var items = R.items.map(function(i){ return { name: i.name, loc: i.loc, complex: i.complex, key: i.key }; });
+  nprefs.forEach(function(n){ var cx = /\d/.test(n); items.push({ name: n, loc: 'N', complex: cx, key: cx ? n.replace(/[^a-z]/g, '') : n }); });
+  var groups = {}, order_ = [];
+  items.forEach(function(i){ if (!groups[i.name]){ groups[i.name] = { name: i.name, locs: [], complex: i.complex, key: i.key }; order_.push(i.name); } groups[i.name].locs.push(i.loc); });
+  var gs = order_.map(function(n){ return groups[n]; }).sort(function(a, b){ return a.key < b.key ? -1 : a.key > b.key ? 1 : 0; });
+  var pre = gs.map(function(g){
+    g.locs.sort(function(a, b){ return a === 'N' ? (b === 'N' ? 0 : -1) : b === 'N' ? 1 : a - b; });
+    var m = g.locs.length > 1 ? (g.complex ? MULTC : MULT)[g.locs.length] : '';
+    var locs = g.locs.filter(function(l){ return l === 'N' || showLoc; });
+    return (locs.length ? locs.join(',') + '-' : '') + m + (g.complex ? '(' + g.name + ')' : g.name);
+  }).join('-');
+  return pre + (pre && /^\d/.test(parent) ? '-' : '') + parent;
+}
+function variants(name, map){ var out = [name]; Object.keys(map).forEach(function(k){ out.slice().forEach(function(n){ if (n.indexOf(k) >= 0) [].concat(map[k]).forEach(function(v){ out.push(n.split(k).join(v)); }); }); }); return out; }
+
+/* analyse a composite molecule */
+function analyzeComp(c){
+  var r = { fam: c.fam };
+  if (c.fam === 'ester'){
+    var ea = checkPart(c.A, 'acid'), eb = checkPart(c.B, 'alc');
+    if (ea || eb) return { err: (ea ? 'The acid ' + ea : 'The alcohol ' + eb) };
+    var acidN = nameMolecule(c.A).iupac, alcR = nameMolecule(c.B), alk = alkylName(c.B, 'OH'), oate = acidN.replace(/oic acid$/, 'oate');
+    r.name = alk + ' ' + oate;
+    var alkV = [alk].concat(COMMON_ALKYL[alk] || []), oateV = [oate].concat(COMMON_ACID[oate] ? [COMMON_ACID[oate]] : []);
+    r.alts = []; alkV.forEach(function(x){ oateV.forEach(function(y){ r.alts.push(x + ' ' + y); }); });
+    r.common = (COMMON_ALKYL[alk] || COMMON_ACID[oate]) ? (COMMON_ALKYL[alk] ? COMMON_ALKYL[alk][0] : alk) + ' ' + (COMMON_ACID[oate] || oate) : null;
+    var lA = acylLeft(c.A), rB = rRight(c.B, 'OH');
+    r.cond = lA + 'COO–' + rB;
+    r.eq = lA + 'CO–<span class="box">OH</span> + <span class="box">H</span>–O–' + rB + ' <span class="eqarrow">⇌</span> ' + r.cond + ' + H₂O';
+    r.f = fmtCounts(addC(addC(cnts(c.A), cnts(c.B), 1), { H: 2, O: 1 }, -1));
+    var deg = family(alcR).degree, y = /primary/.test(deg) ? '67 %' : /secondary/.test(deg) ? '60 %' : 'about 5 %';
+    r.chips = ['Ester', 'R–COO–R′', 'yield ' + y + ' (' + deg.split(' ')[0] + ' alcohol)'];
+    r.steps = [
+      ['Esterification', 'Acid + alcohol ⇌ ester + water. The <b>–OH</b> leaves from the acid and the <b>H</b> from the alcohol (boxed), so the acid\'s C=O joins the alcohol\'s O.'],
+      ['Alcohol part → alkyl', esc(alcR.iupac) + ' → <b>' + esc(alk) + '</b>' + (COMMON_ALKYL[alk] ? ' (also called ' + COMMON_ALKYL[alk][0] + ')' : '') + '. It is written first, as a separate word.'],
+      ['Acid part → -oate', esc(acidN) + ' → <b>' + esc(oate) + '</b>' + (COMMON_ACID[oate] ? ' (common name ' + COMMON_ACID[oate] + ')' : '') + '. Replace -oic acid with -oate.'],
+      ['Name', '<b>' + esc(alk) + '</b> + <b>' + esc(oate) + '</b> → <b>' + esc(r.name) + '</b>.'],
+      ['Yield at equilibrium', 'With equal moles of acid and alcohol: about 67 % for a primary alcohol, 60 % for a secondary and about 5 % for a tertiary alcohol. This one is ' + deg + ', so about ' + y + '. Excess of one reactant or removing water raises the yield.']];
+    r.iso = 'This ester is a function isomer of the carboxylic acids ' + r.f.text + '.';
+  }
+  else if (c.fam === 'ether'){
+    var e1 = checkPart(c.A, 'alc'), e2 = checkPart(c.B, 'alc');
+    if (e1 || e2) return { err: (e1 ? 'Side 1 ' + e1 : 'Side 2 ' + e2) };
+    var R1 = nameMolecule(c.A), R2 = nameMolecule(c.B), f1 = cnts(c.A).C, f2 = cnts(c.B).C;
+    var big = (R1.L > R2.L || (R1.L === R2.L && f1 >= f2)) ? 'A' : 'B', P = c[big], S = c[big === 'A' ? 'B' : 'A'];
+    var alkS = alkylName(S, 'OH'), ox = alkoxy(alkS), pst = clone(P), at = attachAtom(pst, 'OH');
+    pst.slots[at.i][at.slot] = 'X:' + ox;
+    var PR = nameMolecule(pst);
+    r.name = PR.iupac;
+    var a1 = alkylName(c.A, 'OH'), a2 = alkylName(c.B, 'OH');
+    var cn = function(a){ return (COMMON_ALKYL[a] || [a])[0]; };
+    var c1 = cn(a1), c2 = cn(a2), comm = c1 === c2 ? 'di' + c1 + ' ether' : [c1, c2].sort().join(' ') + ' ether';
+    r.common = /\d/.test(comm) ? null : comm;
+    r.alts = variants(r.name, { '(propan-2-yloxy)': ['isopropoxy', '(1-methylethoxy)'] }).concat(r.common ? [r.common, r.common.replace(/^(\w+) (\w+) ether$/, '$2 $1 ether')] : []);
+    r.cond = rLeft(c.A, 'OH').txt + '–O–' + rRight(c.B, 'OH');
+    r.eq = rLeft(c.A, 'OH').txt + '–O–<span class="box">H</span> + <span class="box">HO</span>–' + rRight(c.B, 'OH') + ' <span class="eqarrow">→</span> ' + r.cond + ' + H₂O';
+    r.f = fmtCounts(addC(addC(cnts(c.A), cnts(c.B), 1), { H: 2, O: 1 }, -1));
+    r.chips = ['Ether', 'R–O–R′', 'CₙH₂ₙ₊₂O'];
+    r.steps = [
+      ['Ether', 'Two alcohols lose one water molecule (dehydration, acid catalyst) to give R–O–R′.'],
+      ['Parent alkane', 'The larger group gives the parent: ' + esc(nameMolecule(P).iupac) + ' → <b>' + esc(STEM[nameMolecule(P).L]) + 'ane</b> chain.'],
+      ['Alkoxy prefix', 'The smaller group plus the O becomes the prefix: ' + esc(alkS) + ' → <b>' + esc(ox) + '</b>.'],
+      ['Numbering', 'Number the parent chain so the alkoxy group gets the lowest number, then list prefixes in alphabetical order.'],
+      ['Name', '<b>' + esc(r.name) + '</b>' + (r.common ? ' (common name: ' + esc(r.common) + ')' : '') + '.']];
+    r.iso = 'Ethers are function isomers of alcohols: both are ' + r.f.text + '.';
+  }
+  else if (c.fam === 'amide'){
+    var ac = checkPart(c.A, 'acid'); if (ac) return { err: 'The acid ' + ac };
+    var ast = clone(c.A), G = toGraph(ast); classify(G); var ai = -1; G.atoms.forEach(function(x, i){ if (x.acid) ai = i; });
+    for (var k in ast.slots[ai]) if (ast.slots[ai][k] === 'OH') ast.slots[ai][k] = 'NH2';
+    var subs = c.N.filter(Boolean);
+    r.name = nameWithN(ast, subs);
+    r.alts = variants(r.name, { '(propan-2-yl)': ['isopropyl', '(1-methylethyl)'] });
+    var nTxt = subs.length === 0 ? 'NH₂' : subs.length === 1 ? 'NH–' + NSUB[subs[0]].c : subs[0] === subs[1] ? 'N(' + NSUB[subs[0]].c + ')₂' : 'N(' + NSUB[subs[0]].c + ')–' + NSUB[subs[1]].c;
+    var lA2 = acylLeft(c.A);
+    r.cond = lA2 + 'CO–' + nTxt;
+    var hN = subs.length === 0 ? 'NH₂' : subs.length === 1 ? 'NH–' + NSUB[subs[0]].c : subs[0] === subs[1] ? 'N(' + NSUB[subs[0]].c + ')₂' : 'N(' + NSUB[subs[0]].c + ')–' + NSUB[subs[1]].c;
+    r.eq = lA2 + 'CO–<span class="box">OH</span> + <span class="box">H</span>–' + hN + ' <span class="eqarrow">→</span> ' + r.cond + ' + H₂O';
+    var add = { C: 0, H: 0 }; subs.forEach(function(s){ add.C += NSUB[s].n; add.H += 2 * NSUB[s].n; });
+    r.f = fmtCounts(addC(cnts(ast), add, 1));
+    var cls = ['primary', 'secondary', 'tertiary'][subs.length];
+    r.chips = ['Amide · ' + cls, subs.length === 0 ? 'R–CONH₂' : subs.length === 1 ? 'R–CONH–R′' : 'R–CON(R′)–R″'];
+    r.steps = [
+      ['Amide', 'Acid + ammonia or an amine → amide + water. The –OH of the acid is replaced by –NH₂, –NH–R or –NR₂. (In the lab this is done by heating the ammonium salt or with an acyl chloride.)'],
+      ['Parent name', esc(nameMolecule(c.A).iupac) + ' → replace -oic acid with <b>-amide</b>: <b>' + esc(nameMolecule(ast).iupac) + '</b>.'],
+      ['Groups on N', subs.length ? 'Each group on the nitrogen gets the locant <b>N</b>: ' + subs.map(function(s){ return '<b>N-' + esc(s) + '</b>'; }).join(', ') + ', in alphabetical order.' : 'No groups on the nitrogen: a primary amide.'],
+      ['Class', 'Number of carbon groups on N: ' + subs.length + ' → <b>' + cls + ' amide</b>.'],
+      ['Name', '<b>' + esc(r.name) + '</b>.']];
+    r.iso = 'Amide formula: ' + r.f.text + '.';
+  }
+  else if (c.fam === 'amine'){
+    var am = checkPart(c.A, 'amine'); if (am) return { err: 'The amine ' + am };
+    var subs2 = c.N.filter(Boolean);
+    var cands = [{ st: c.A, L: nameMolecule(c.A).L, C: cnts(c.A).C, user: true }].concat(subs2.map(function(s){ return { st: NSUB[s].st, L: nameMolecule(NSUB[s].st).L, C: NSUB[s].n, sub: s }; }));
+    var best = cands[0]; cands.forEach(function(x){ if (x.L > best.L || (x.L === best.L && x.C > best.C)) best = x; });
+    var nps = cands.filter(function(x){ return x !== best; }).map(function(x){ return x.user ? alkylName(x.st, 'NH2') : x.sub; });
+    r.name = nameWithN(best.st, nps);
+    r.alts = variants(r.name, { '(propan-2-yl)': ['isopropyl', '(1-methylethyl)'] });
+    var alks = [alkylName(c.A, 'NH2')].concat(subs2), simple = alks.every(function(a){ return !/\d/.test(a) || COMMON_ALKYL[a]; });
+    if (subs2.length && simple){
+      var cnm = {}; alks.forEach(function(a){ var k = (COMMON_ALKYL[a] || [a])[0]; cnm[k] = (cnm[k] || 0) + 1; });
+      r.common = Object.keys(cnm).sort().map(function(k){ return (cnm[k] > 1 ? MULT[cnm[k]] : '') + k; }).join('') + 'amine';
+      r.alts.push(r.common);
+    }
+    var rA = rLeft(c.A, 'NH2').txt;
+    r.cond = rA + '–' + (subs2.length === 0 ? 'NH₂' : subs2.length === 1 ? 'NH–' + NSUB[subs2[0]].c : subs2[0] === subs2[1] ? 'N(' + NSUB[subs2[0]].c + ')₂' : 'N(' + NSUB[subs2[0]].c + ')–' + NSUB[subs2[1]].c);
+    if (!subs2.length) r.eq = rA + '–NH₂ is a primary amine. Add groups on N to make a secondary or tertiary amine (alkylation with a chloroalkane).';
+    else if (subs2.length === 1) r.eq = rA + '–NH–<span class="box">H</span> + <span class="box">Cl</span>–' + NSUB[subs2[0]].c + ' <span class="eqarrow">→</span> ' + r.cond + ' + HCl';
+    else r.eq = rA + '–NH₂ + ' + (subs2[0] === subs2[1] ? '2 ' + NSUB[subs2[0]].c + '–Cl' : NSUB[subs2[0]].c + '–Cl + ' + NSUB[subs2[1]].c + '–Cl') + ' <span class="eqarrow">→</span> ' + r.cond + ' + 2 HCl';
+    var add2 = { C: 0, H: 0 }; subs2.forEach(function(s){ add2.C += NSUB[s].n; add2.H += 2 * NSUB[s].n; });
+    r.f = fmtCounts(addC(cnts(c.A), add2, 1));
+    var cls2 = ['primary', 'secondary', 'tertiary'][subs2.length];
+    r.chips = ['Amine · ' + cls2, ['R–NH₂', 'R–NH–R′', 'R–N(R′)–R″'][subs2.length], 'CₙH₂ₙ₊₃N'];
+    r.steps = [
+      ['Class', 'Count the carbon groups on N: ' + (subs2.length + 1) + ' → <b>' + cls2 + ' amine</b>.'],
+      ['Parent amine', 'The largest carbon group gives the parent: <b>' + esc(nameMolecule(best.st).iupac) + '</b>.' + (best.user ? '' : ' (One of the groups you put on N is larger than your chain, so it becomes the parent.)')],
+      ['Groups on N', nps.length ? 'The other groups get the locant <b>N</b>: ' + nps.map(function(s){ return '<b>N-' + esc(s) + '</b>'; }).join(', ') + ', in alphabetical order.' : 'No other groups on N.'],
+      ['Name', '<b>' + esc(r.name) + '</b>' + (r.common ? ' (common name: ' + esc(r.common) + ')' : '') + '.']];
+    r.iso = 'Amines are ' + r.f.text + '. Primary, secondary and tertiary amines with the same formula are isomers.';
+  }
+  r.alts = r.alts.map(normName);
+  return r;
+}
+
+/* isomer sets for these families */
+function A_(n){ return X.alc.filter(function(x){ return x[0] === n; })[0][1]; }
+function C_(n){ return X.acid.filter(function(x){ return x[0] === n; })[0][1]; }
+function N_(n){ return X.amine.filter(function(x){ return x[0] === n; })[0][1]; }
+var XSETS = {
+  ester: [{ f: 'C3H6O2', m: [[C_('ethanoic acid'), A_('methanol')], [C_('methanoic acid'), A_('ethanol')]] },
+    { f: 'C4H8O2', m: [[C_('propanoic acid'), A_('methanol')], [C_('ethanoic acid'), A_('ethanol')], [C_('methanoic acid'), A_('propan-1-ol')], [C_('methanoic acid'), A_('propan-2-ol')]] },
+    { f: 'C5H10O2', m: [[C_('butanoic acid'), A_('methanol')], [C_('2-methylpropanoic acid'), A_('methanol')], [C_('propanoic acid'), A_('ethanol')], [C_('ethanoic acid'), A_('propan-1-ol')], [C_('ethanoic acid'), A_('propan-2-ol')],
+      [C_('methanoic acid'), A_('butan-1-ol')], [C_('methanoic acid'), A_('butan-2-ol')], [C_('methanoic acid'), A_('2-methylpropan-1-ol')], [C_('methanoic acid'), A_('2-methylpropan-2-ol')]] }],
+  ether: [{ f: 'C3H8O', m: [[A_('methanol'), A_('ethanol')]] },
+    { f: 'C4H10O', m: [[A_('methanol'), A_('propan-1-ol')], [A_('methanol'), A_('propan-2-ol')], [A_('ethanol'), A_('ethanol')]] },
+    { f: 'C5H12O', m: [[A_('methanol'), A_('butan-1-ol')], [A_('methanol'), A_('butan-2-ol')], [A_('methanol'), A_('2-methylpropan-1-ol')], [A_('methanol'), A_('2-methylpropan-2-ol')], [A_('ethanol'), A_('propan-1-ol')], [A_('ethanol'), A_('propan-2-ol')]] }],
+  amide: [{ f: 'C3H7NO', m: [[C_('propanoic acid'), []], [C_('ethanoic acid'), ['methyl']], [C_('methanoic acid'), ['ethyl']], [C_('methanoic acid'), ['methyl', 'methyl']]] },
+    { f: 'C4H9NO', m: [[C_('butanoic acid'), []], [C_('2-methylpropanoic acid'), []], [C_('propanoic acid'), ['methyl']], [C_('ethanoic acid'), ['ethyl']], [C_('methanoic acid'), ['propyl']], [C_('methanoic acid'), ['propan-2-yl']], [C_('ethanoic acid'), ['methyl', 'methyl']], [C_('methanoic acid'), ['ethyl', 'methyl']]] }],
+  amine: [{ f: 'C3H9N', m: [[N_('propan-1-amine'), []], [N_('propan-2-amine'), []], [N_('ethanamine'), ['methyl']], [N_('methanamine'), ['methyl', 'methyl']]] },
+    { f: 'C4H11N', m: [[N_('butan-1-amine'), []], [M(4, '---', '2u:NH2'), []], [N_('2-methylpropan-1-amine'), []], [M(3, '--', '2u:NH2', '2d:CH3'), []], [N_('propan-1-amine'), ['methyl']], [N_('propan-2-amine'), ['methyl']], [N_('ethanamine'), ['ethyl']], [N_('ethanamine'), ['methyl', 'methyl']]] }]
+};
+Object.keys(XSETS).forEach(function(fam){ XSETS[fam].forEach(function(s){ s.items = s.m.map(function(p){ var c = fam === 'ester' || fam === 'ether' ? { fam: fam, A: p[0], B: p[1] } : { fam: fam, A: p[0], N: p[1] }; return analyzeComp(c); }); s.names = s.items.map(function(x){ return x.name; }); }); });
+
+/* ---------- UI ---------- */
+var XF = {
+  ester: { a: 'Carboxylic acid', ap: 'acid', b: 'Alcohol', bp: 'alc', A: C_('ethanoic acid'), B: A_('ethanol'), info: 'Ester R–COO–R′: build the acid and the alcohol it comes from.' },
+  ether: { a: 'Side 1 (alcohol)', ap: 'alc', b: 'Side 2 (alcohol)', bp: 'alc', A: A_('methanol'), B: A_('propan-2-ol'), info: 'Ether R–O–R′: build the two alcohols. The –OH marks the carbon joined to the O.' },
+  amide: { a: 'Carboxylic acid', ap: 'acid', A: C_('ethanoic acid'), N: ['methyl', ''], info: 'Amide R–CO–N: build the acid, then choose the groups on the nitrogen.' },
+  amine: { a: 'Primary amine (–NH₂)', ap: 'amine', A: N_('propan-1-amine'), N: ['methyl', ''], info: 'Amine: build a primary amine, then add groups on N to make it secondary or tertiary.' }
+};
+var xs = { fam: 'ester', solved: false, found: {}, set: 1, revealed: false };
+var xA = new Builder($('xBuilderA'), { state: XF.ester.A, highlight: function(){ return false; }, onChange: function(){ XF[xs.fam].A = clone(xA.st); xUpdate(true); } });
+var xB = new Builder($('xBuilderB'), { state: XF.ester.B, highlight: function(){ return false; }, onChange: function(){ if (XF[xs.fam].bp) XF[xs.fam].B = clone(xB.st); xUpdate(true); } });
+function presetOpts(kind){ return '<option value="">Choose…</option>' + X[kind].map(function(x, i){ return '<option value="' + i + '">' + esc(x[0]) + '</option>'; }).join(''); }
+var NOPTS = '<option value="">— none (H)</option>' + Object.keys(NSUB).map(function(k){ return '<option value="' + k + '">' + k + (COMMON_ALKYL[k] ? ' (' + COMMON_ALKYL[k][0] + ')' : '') + '</option>'; }).join('');
+$('xN1').innerHTML = NOPTS; $('xN2').innerHTML = NOPTS;
+function xComp(){ var F = XF[xs.fam]; return F.bp ? { fam: xs.fam, A: xA.st, B: xB.st } : { fam: xs.fam, A: xA.st, N: [$('xN1').value, $('xN2').value] }; }
+function xSetFam(f){
+  xs.fam = f; xs.solved = false; xs.found = {}; xs.set = Math.min(1, XSETS[f].length - 1); xs.revealed = false;
+  ['ester', 'ether', 'amide', 'amine'].forEach(function(k){ $('xf-' + k).setAttribute('aria-pressed', k === f); });
+  var F = XF[f];
+  $('xInfo').textContent = F.info; $('xLabA').textContent = F.a; $('xPreA').innerHTML = presetOpts(F.ap);
+  $('xPartB').hidden = !F.bp; $('xNbox').hidden = !!F.bp;
+  if (F.bp){ $('xLabB').textContent = F.b; $('xPreB').innerHTML = presetOpts(F.bp); xB.st = clone(F.B); xB.sel = 0; xB.render(); }
+  else { $('xN1').value = F.N[0]; $('xN2').value = F.N[1]; }
+  xA.st = clone(F.A); xA.sel = 0; xA.render();
+  $('xSet').innerHTML = XSETS[f].map(function(s, i){ return '<option value="' + i + '">' + fmtF(s.f) + ' · ' + s.names.length + ' ' + (f === 'amine' ? 'amines' : f + 's') + '</option>'; }).join('');
+  $('xSet').value = xs.set; $('xReveal').textContent = 'Show the missing ones';
+  $('xMsg').className = 'verdict wait'; $('xMsg').textContent = 'Build a molecule with this formula, then add it.';
+  xUpdate(true); xIsoRender();
+}
+function xUpdate(reset){
+  if (reset) xs.solved = false;
+  var r = analyzeComp(xComp()), hide = $('xGuess').checked && !xs.solved;
+  $('xGuessBox').hidden = !$('xGuess').checked;
+  if (r.err){ $('xName').innerHTML = '<p class="warn">' + esc(r.err) + '</p>'; $('xEq').innerHTML = ''; $('xFacts').innerHTML = ''; $('xSteps').innerHTML = ''; return; }
+  $('xName').innerHTML = hide ? '<div class="bigname" style="color:var(--muted)">? ? ?</div><p class="alt">The name is hidden until you check your answer.</p>' :
+    '<div class="bigname">' + esc(r.name) + '</div>' + (r.common ? '<p class="alt">Common name: <b>' + esc(r.common) + '</b></p>' : '');
+  var nb = function(t){ return t.replace(/–/g, '\u2060–\u2060').replace(/=/g, '\u2060=\u2060'); };
+  $('xEq').innerHTML = '<div class="eqline">' + nb(r.eq).replace(/class\u2060=\u2060/g, 'class=') + '</div><div class="condf">' + nb(r.cond) + '</div>';
+  $('xFacts').innerHTML = r.chips.map(function(c, i){ return '<span class="chip' + (i ? '' : ' fam') + '">' + c + '</span>'; }).join('') + '<span class="chip">Formula <b>' + r.f.text + '</b></span><span class="chip">M = <b>' + (Math.round(r.f.M * 10) / 10) + '</b> g/mol</span>';
+  $('xSteps').innerHTML = hide ? '<li><b class="t">Your turn</b>Name the molecule, then check.</li>' : r.steps.map(function(s){ return '<li><b class="t">' + s[0] + '</b>' + s[1] + '</li>'; }).join('') + '<li><b class="t">Isomers</b>' + r.iso + '</li>';
+  var S = XSETS[xs.fam][xs.set];
+  $('xLive').innerHTML = 'Your molecule: <b class="mono">' + r.f.text + '</b> ' + (r.f.key === S.f ? '✓ matches' : '(target ' + fmtF(S.f) + ')');
+}
+['ester', 'ether', 'amide', 'amine'].forEach(function(k){ $('xf-' + k).addEventListener('click', function(){ xSetFam(k); }); });
+$('xPreA').addEventListener('change', function(){ if (this.value === '') return; xA.set(X[XF[xs.fam].ap][+this.value][1]); this.value = ''; });
+$('xPreB').addEventListener('change', function(){ if (this.value === '') return; xB.set(X[XF[xs.fam].bp][+this.value][1]); this.value = ''; });
+['xN1', 'xN2'].forEach(function(id, k){ $(id).addEventListener('change', function(){
+  if (k === 1 && this.value && !$('xN1').value){ $('xN1').value = this.value; this.value = ''; }
+  XF[xs.fam].N = [$('xN1').value, $('xN2').value]; xUpdate(true); }); });
+$('xGuess').addEventListener('change', function(){ xs.solved = false; $('xAns').value = ''; $('xGMsg').className = 'verdict wait'; $('xGMsg').textContent = 'Type your answer, then check.'; xUpdate(); });
+$('xCheck').addEventListener('click', function(){
+  var r = analyzeComp(xComp()); if (r.err) return;
+  var a = normAnswer($('xAns').value), ok = !!a && r.alts.indexOf(a) >= 0;
+  var tip = !a ? 'Type a name first.' : xs.fam === 'ester' && !/\s|ate$/.test($('xAns').value.trim()) ? 'An ester name has two words: alkyl + alkanoate.' : xs.fam === 'ether' && !/oxy/.test(a) && !/ether/.test(a) ? 'Name the smaller group as an alkoxy prefix (methoxy, ethoxy…).' : /amide|amine/.test(a) && (xs.fam === 'amide' || xs.fam === 'amine') && XF[xs.fam].N.filter(Boolean).length && a.indexOf('n-') < 0 ? 'Groups on the nitrogen need the locant N-.' : 'Check each part again.';
+  $('xGMsg').className = 'verdict ' + (ok ? 'good' : 'bad');
+  $('xGMsg').innerHTML = ok ? 'Correct: ' + esc(r.name) + '.' : 'Not yet. <span>' + tip + '</span>';
+  if (ok){ xs.solved = true; xUpdate(); }
+});
+$('xAns').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('xCheck').click(); });
+$('xShow').addEventListener('click', function(){ xs.solved = true; xUpdate(); });
+/* isomer hunt */
+function xIsoRender(){
+  var S = XSETS[xs.fam][xs.set], n = S.names.length, k = Object.keys(xs.found).length;
+  $('xCount').textContent = k + ' of ' + n + ' found';
+  $('xBar').style.width = (100 * k / n) + '%';
+  var html = Object.keys(xs.found).map(function(nm){ return '<div class="iso"><span class="nm">' + esc(nm) + '</span><span class="ty mono">' + xs.found[nm] + '</span></div>'; }).join('');
+  if (xs.revealed) S.items.forEach(function(it){ if (!xs.found[it.name]) html += '<div class="iso missing"><span class="nm">' + esc(it.name) + '</span><span class="ty mono">' + it.cond + '</span></div>'; });
+  $('xFound').innerHTML = html || '<p class="caption">Nothing yet. Build an isomer and press "Add this isomer".</p>';
+  xUpdate();
+}
+$('xSet').addEventListener('change', function(){ xs.set = +this.value; xs.found = {}; xs.revealed = false; $('xReveal').textContent = 'Show the missing ones'; xIsoRender(); });
+$('xReveal').addEventListener('click', function(){ xs.revealed = !xs.revealed; this.textContent = xs.revealed ? 'Hide the missing ones' : 'Show the missing ones'; xIsoRender(); });
+$('xAdd').addEventListener('click', function(){
+  var S = XSETS[xs.fam][xs.set], r = analyzeComp(xComp()), msg = $('xMsg');
+  if (r.err){ msg.className = 'verdict bad'; msg.textContent = r.err; return; }
+  if (r.f.key !== S.f){ msg.className = 'verdict bad'; msg.innerHTML = 'Not this formula. <span>Your molecule is ' + r.f.text + ', the target is ' + fmtF(S.f) + '.</span>'; return; }
+  if (xs.found[r.name]){ msg.className = 'verdict wait'; msg.textContent = 'You already found ' + r.name + '.'; return; }
+  if (S.names.indexOf(r.name) < 0){ msg.className = 'verdict bad'; msg.textContent = r.name + ' has the right formula but is not in the list. Check the parts.'; return; }
+  xs.found[r.name] = r.cond; var k = Object.keys(xs.found).length, n = S.names.length;
+  msg.className = 'verdict good'; msg.innerHTML = 'New isomer: ' + esc(r.name) + '. <span>' + (k === n ? 'You found all ' + n + '!' : (n - k) + ' to go.') + '</span>';
+  xIsoRender();
+});
+xSetFam('ester');
+
 /* =========== tabs =========== */
-var TABS = ['build', 'quiz', 'iso', 'lab'];
+var TABS = ['build', 'quiz', 'iso', 'ester', 'lab'];
 function selectTab(name, focus){
   TABS.forEach(function(t){ var b = $('t-' + t), on = t === name; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; $('p-' + t).hidden = !on; if (on && focus) b.focus(); });
   try { history.replaceState(null, '', '#' + name); } catch (e) {}
