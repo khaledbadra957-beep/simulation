@@ -1,0 +1,1072 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Organic Naming Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<style>
+/* Layout: title, four tabs (Build & name · Name challenge · Isomer hunt · Mystery compounds).
+   The molecule is drawn as a condensed structure; the parent chain is marked like a highlighter
+   on a worksheet (amber) and numbered. Atom colours follow the CPK convention (O red, N blue,
+   Cl green, Br brown, F yellow-green, I violet). Same type family as the other labs in the collection. */
+:root{
+  --bg:#F4F4F1; --surface:#FFFFFF; --sunk:#EEEEE9; --ink:#1D2125; --muted:#5B6168; --line:#D9D9D2;
+  --accent:#9A4A06; --on-accent:#FFFFFF; --mark:#FCE3B0; --mark-ink:#7A3B05;
+  --ok:#11743A; --ok-soft:#DCF2E3; --bad:#B42318; --bad-soft:#FBE3E0;
+  --o:#C8231C; --n:#2350C4; --cl:#1E8A3A; --br:#8B2E16; --f:#5E8F12; --i:#7A2E9E; --c:#1D2125;
+  --glass:#EEF4F7; --glass-line:#9AA9B2;
+  --display:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121417; --surface:#1B1E23; --sunk:#16191D; --ink:#ECEDEE; --muted:#A5ABB3; --line:#30353C;
+    --accent:#F2A23A; --on-accent:#1C1203; --mark:#4A3410; --mark-ink:#FFD28A;
+    --ok:#4ADE80; --ok-soft:#123A22; --bad:#FF8A80; --bad-soft:#3E1714;
+    --o:#FF6B60; --n:#7EA2FF; --cl:#5FD07A; --br:#E28A6B; --f:#B4DA5A; --i:#C990EE; --c:#ECEDEE;
+    --glass:#1F2A31; --glass-line:#6C7F8A; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121417; --surface:#1B1E23; --sunk:#16191D; --ink:#ECEDEE; --muted:#A5ABB3; --line:#30353C;
+  --accent:#F2A23A; --on-accent:#1C1203; --mark:#4A3410; --mark-ink:#FFD28A;
+  --ok:#4ADE80; --ok-soft:#123A22; --bad:#FF8A80; --bad-soft:#3E1714;
+  --o:#FF6B60; --n:#7EA2FF; --cl:#5FD07A; --br:#E28A6B; --f:#B4DA5A; --i:#C990EE; --c:#ECEDEE;
+  --glass:#1F2A31; --glass-line:#6C7F8A; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1200px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px;display:flex;flex-direction:column;gap:18px}
+.eyebrow{margin:0;font-family:var(--mono);font-size:.74rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:700;font-size:clamp(2rem,5vw,3rem);line-height:1.05;text-wrap:balance}
+h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+.lede{max-width:70ch;color:var(--muted);font-size:1.05rem}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:720px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tab{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:1px;min-width:0}
+.tab small{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tab b{font-size:.98rem;line-height:1.25}
+.tab:hover{border-color:var(--ink)}
+.tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 -4px 0 var(--accent)}
+
+.panel{display:flex;flex-direction:column;gap:16px}
+.lab{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.lab{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h3{font-family:var(--mono);font-size:.74rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.caption{font-size:.87rem;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.flabel{font-weight:700;font-size:.9rem}
+select,input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:.35em .5em;min-width:0}
+input[type=text]{font-family:var(--mono);width:100%}
+.btn{font:inherit;font-weight:700;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:.45em 1em;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.small{font-size:.85rem;padding:.3em .7em}
+.btn.icon{width:2.2em;padding:.3em 0;text-align:center}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:default}
+output{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600;min-width:1.6em;text-align:center}
+
+/* molecule drawing */
+.molwrap{overflow-x:auto;background:var(--sunk);border-radius:12px;padding:6px}
+svg.mol{display:block;width:100%;height:auto;max-height:360px}
+.a-c{fill:var(--c)} .a-o{fill:var(--o)} .a-n{fill:var(--n)} .a-cl{fill:var(--cl)} .a-br{fill:var(--br)} .a-f{fill:var(--f)} .a-i{fill:var(--i)}
+.lbl{font-family:var(--mono);font-size:17px;font-weight:500;text-anchor:middle;dominant-baseline:central}
+.lbl.pg{font-weight:700}
+svg.mini .lbl{font-size:25px;font-weight:600}
+svg.mini .bnd{stroke-width:3}
+.bnd{stroke:var(--ink);stroke-width:2;stroke-linecap:round}
+.bnd.o{stroke:var(--o)}
+.hit{fill:transparent;cursor:pointer}
+.hitb{fill:var(--mark);opacity:0;cursor:pointer}
+.hitb:hover,.hitb:focus-visible{opacity:.55}
+.markc{fill:var(--mark);stroke:var(--accent);stroke-width:1.5}
+.locb{fill:var(--accent)} .loct{fill:var(--on-accent);font-family:var(--mono);font-size:11px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.selc{fill:none;stroke:var(--ink);stroke-width:2;stroke-dasharray:4 3}
+.cbtn:focus-visible{outline:none}
+.cbtn:focus-visible .selr{stroke:var(--accent);stroke-width:3}
+.editor{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 12px;background:var(--sunk);border-radius:12px;padding:10px 12px}
+.editor .head{grid-column:1/-1;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}
+.editor .head b{font-family:var(--mono)}
+.editor label{display:flex;flex-direction:column;gap:2px;font-size:.82rem;color:var(--muted);font-weight:700}
+.editor select{width:100%}
+
+/* name card */
+.namebox{display:flex;flex-direction:column;gap:6px}
+.bigname{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.2vw,2.2rem);line-height:1.15;overflow-wrap:anywhere}
+.alt{font-size:.92rem;color:var(--muted)}
+.alt b{font-family:var(--display);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.84rem;border:1px solid var(--line);border-radius:999px;padding:.1em .7em;background:var(--sunk)}
+.chip b{font-family:var(--mono)}
+.chip.fam{background:var(--mark);border-color:var(--accent);color:var(--mark-ink);font-weight:700}
+.warn{background:var(--mark);color:var(--mark-ink);border-radius:10px;padding:8px 12px;font-size:.92rem}
+.steps{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none;counter-reset:st}
+.steps li{border:1px solid var(--line);border-radius:10px;padding:9px 12px 9px 40px;background:var(--sunk);position:relative;font-size:.95rem}
+.steps li::before{counter-increment:st;content:counter(st);position:absolute;left:10px;top:9px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-family:var(--mono);font-size:.75rem;font-weight:700;display:grid;place-items:center}
+.steps li b.t{display:block;font-size:.72rem;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.mono{font-family:var(--mono)}
+.guess{display:flex;gap:8px;flex-wrap:wrap}
+.guess input{flex:1 1 220px}
+.verdict{font-weight:700;padding:.5em .8em;border-radius:10px}
+.verdict.good{background:var(--ok-soft);color:var(--ok)}
+.verdict.bad{background:var(--bad-soft);color:var(--bad)}
+.verdict.wait{background:var(--sunk);color:var(--muted)}
+.verdict span{font-weight:400}
+.target{font-family:var(--display);font-weight:700;font-size:1.5rem;border:2px dashed var(--accent);border-radius:12px;padding:8px 14px;overflow-wrap:anywhere}
+.score{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+
+/* isomer hunt */
+.found{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.iso{border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--surface);display:flex;flex-direction:column;gap:4px;min-width:0}
+.iso.missing{border-style:dashed;background:var(--sunk)}
+.iso .nm{font-family:var(--display);font-weight:700;font-size:1rem;overflow-wrap:anywhere}
+.iso .ty{font-size:.78rem;color:var(--muted)}
+.iso svg{width:100%;height:auto;max-height:110px}
+.progressbar{height:10px;border-radius:999px;background:var(--sunk);overflow:hidden;border:1px solid var(--line)}
+.progressbar span{display:block;height:100%;background:var(--accent);transition:width .4s}
+.slots{display:flex;gap:6px;flex-wrap:wrap}
+.slot{width:28px;height:28px;border-radius:8px;border:1.5px dashed var(--line);display:grid;place-items:center;font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.slot.on{border-style:solid;border-color:var(--accent);background:var(--mark);color:var(--mark-ink);font-weight:700}
+
+/* mystery lab */
+.bottles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+@media (max-width:560px){.bottles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.bottle{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bottle svg{width:34px;height:46px}
+.bottle b{font-family:var(--display);font-size:1.3rem;line-height:1}
+.bottle small{font-size:.72rem;color:var(--muted)}
+.bottle[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 -4px 0 var(--accent)}
+.tests{display:flex;flex-direction:column;gap:10px}
+.tgroup{display:flex;flex-direction:column;gap:6px}
+.tgroup small{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bench{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:center}
+@media (max-width:480px){.bench{grid-template-columns:110px minmax(0,1fr)}}
+.bench svg{width:100%;height:auto}
+.obs{font-size:1rem}
+.obs b{display:block;font-family:var(--display);font-size:1.15rem}
+.tablewrap{overflow-x:auto}
+table.res{border-collapse:collapse;font-size:.82rem;min-width:620px;width:100%}
+table.res th,table.res td{border:1px solid var(--line);padding:4px 5px;text-align:center;vertical-align:middle}
+table.res th{font-size:.7rem;color:var(--muted);font-weight:700;background:var(--sunk)}
+table.res td:first-child{font-family:var(--display);font-weight:700;font-size:1.05rem}
+table.res td.pos{background:var(--mark);color:var(--mark-ink);font-weight:700}
+table.res td.neg{color:var(--muted)}
+table.res select{font-size:.82rem;max-width:180px}
+.idmark{font-weight:700}
+.idmark.ok{color:var(--ok)} .idmark.no{color:var(--bad)}
+table.ref{border-collapse:collapse;font-size:.85rem;width:100%;min-width:560px}
+table.ref th,table.ref td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+table.ref th{font-size:.72rem;color:var(--muted)}
+.bub{animation:rise 1.4s linear infinite}
+@keyframes rise{from{transform:translateY(0);opacity:1}to{transform:translateY(-70px);opacity:0}}
+.wisp{animation:wisp 2s ease-in-out infinite}
+@keyframes wisp{0%{opacity:0;transform:translateY(6px)}50%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+.liq{transition:fill 1.4s ease}
+@media (prefers-reduced-motion: reduce){.bub,.wisp{animation:none}.liq{transition:none}}
+.foot{font-size:.84rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;max-width:92ch}
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Grade 11–12 Chemistry · Hydrocarbons and Organic Compounds</p>
+    <h1>Organic Naming Lab</h1>
+    <p class="lede">Build a molecule and watch its IUPAC name appear step by step: find the longest chain, number it, then order the substituents. Practise naming, hunt for every isomer of a formula, and identify mystery compounds with the classic test-tube tests.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Parts of the lab">
+    <button class="tab" role="tab" id="t-build" aria-controls="p-build" aria-selected="true"><small>Build</small><b>Build &amp; name</b></button>
+    <button class="tab" role="tab" id="t-quiz" aria-controls="p-quiz" aria-selected="false" tabindex="-1"><small>Practise</small><b>Name challenge</b></button>
+    <button class="tab" role="tab" id="t-iso" aria-controls="p-iso" aria-selected="false" tabindex="-1"><small>Isomers</small><b>Isomer hunt</b></button>
+    <button class="tab" role="tab" id="t-lab" aria-controls="p-lab" aria-selected="false" tabindex="-1"><small>Lab tests</small><b>Mystery compounds</b></button>
+  </div>
+
+  <!-- ============ BUILD & NAME ============ -->
+  <section class="panel" id="p-build" role="tabpanel" aria-labelledby="t-build">
+    <div class="lab">
+      <div class="card">
+        <h3>Molecule builder</h3>
+        <div class="row">
+          <label class="flabel" for="bPreset">Start from</label>
+          <select id="bPreset"></select>
+        </div>
+        <div id="bBuilder"></div>
+      </div>
+      <div class="card">
+        <h3>Name</h3>
+        <div class="row"><label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="bGuess"> Hide the name so I can guess first</label></div>
+        <div id="bGuessBox" class="namebox" hidden>
+          <div class="guess"><input type="text" id="bAns" placeholder="Type the name, e.g. 2-methylbutane" autocomplete="off" spellcheck="false" autocapitalize="off"><button class="btn primary" id="bCheck">Check</button><button class="btn" id="bReveal">Show</button></div>
+          <div id="bMsg" class="verdict wait" aria-live="polite">Type your answer, then check.</div>
+        </div>
+        <div id="bNameBox" class="namebox" aria-live="polite"></div>
+        <div id="bFacts" class="chips"></div>
+        <div id="bWarn"></div>
+        <h3>How the name is built</h3>
+        <ol class="steps" id="bSteps"></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NAME CHALLENGE ============ -->
+  <section class="panel" id="p-quiz" role="tabpanel" aria-labelledby="t-quiz" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div class="row" role="group" aria-label="Challenge type">
+          <button class="btn small" id="qModeName" aria-pressed="true">Name the structure</button>
+          <button class="btn small" id="qModeBuild" aria-pressed="false">Build from the name</button>
+        </div>
+        <div class="row">
+          <label class="flabel" for="qCat">Topic</label>
+          <select id="qCat"></select>
+          <span class="score" id="qScore">0 / 0 correct</span>
+        </div>
+      </div>
+    </div>
+    <div class="lab" id="qNameMode">
+      <div class="card">
+        <h3>Name this compound</h3>
+        <div class="molwrap"><svg class="mol" id="qSvg" role="img" aria-label="Structure to name"></svg></div>
+        <p class="caption">Condensed structural formula. The straight row you see is not always the longest chain.</p>
+      </div>
+      <div class="card">
+        <h3>Your answer</h3>
+        <div class="guess"><input type="text" id="qAns" placeholder="e.g. 3-methylpent-1-ene or 3-methyl-1-pentene" autocomplete="off" spellcheck="false" autocapitalize="off"><button class="btn primary" id="qCheck">Check</button></div>
+        <div id="qMsg" class="verdict wait" aria-live="polite">Both styles are accepted: but-2-ene or 2-butene.</div>
+        <div class="row"><button class="btn small" id="qHint">Hint</button><button class="btn small" id="qShow">Show the answer</button><button class="btn small primary" id="qNext">Next compound →</button></div>
+        <ol class="steps" id="qSteps"></ol>
+      </div>
+    </div>
+    <div class="lab" id="qBuildMode" hidden>
+      <div class="card">
+        <h3>Build this compound</h3>
+        <div class="target" id="qTarget"></div>
+        <div id="qBuilder"></div>
+      </div>
+      <div class="card">
+        <h3>Check</h3>
+        <div class="row"><button class="btn primary" id="qBCheck">Check my structure</button><button class="btn small" id="qBShow">Show a correct structure</button><button class="btn small primary" id="qBNext">Next name →</button></div>
+        <div id="qBMsg" class="verdict wait" aria-live="polite">Build the molecule on the left, then check.</div>
+        <ol class="steps"><li><b class="t">Tip</b>Read the name from the end: the last part gives the chain length and the family (-ane, -ene, -yne, -ol, -al, -one, -oic acid, -amine). Then add the groups in front at their numbers.</li></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ISOMER HUNT ============ -->
+  <section class="panel" id="p-iso" role="tabpanel" aria-labelledby="t-iso" hidden>
+    <div class="lab">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <h3>Build an isomer</h3>
+          <div class="row"><label class="flabel" for="iSet">Formula</label><select id="iSet"></select></div>
+        </div>
+        <div class="target" id="iTarget"></div>
+        <div id="iBuilder"></div>
+        <div class="row"><button class="btn primary" id="iAdd">Add this isomer</button><span class="caption" id="iLive"></span></div>
+        <div id="iMsg" class="verdict wait" aria-live="polite">Build a molecule with this formula, then add it.</div>
+      </div>
+      <div class="card">
+        <h3>Isomers found</h3>
+        <div class="row"><div class="slots" id="iSlots"></div><span class="score" id="iCount"></span></div>
+        <div class="progressbar" aria-hidden="true"><span id="iBar" style="width:0%"></span></div>
+        <div class="found" id="iFound"></div>
+        <div class="row"><button class="btn small" id="iReveal">Show the missing ones</button><button class="btn small" id="iReset">Start this formula again</button></div>
+        <ol class="steps">
+          <li><b class="t">Isomers</b>Same molecular formula, different structure.</li>
+          <li><b class="t">Chain isomers</b>Different carbon skeleton: butane and 2-methylpropane.</li>
+          <li><b class="t">Position isomers</b>Same skeleton, the group moves: butan-1-ol and butan-2-ol.</li>
+          <li><b class="t">Function isomers</b>Different family, same formula: butanal and butanone (C₄H₈O), acids and esters (C₄H₈O₂).</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MYSTERY COMPOUNDS ============ -->
+  <section class="panel" id="p-lab" role="tabpanel" aria-labelledby="t-lab" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h3>Six unknown bottles: choose one, then run a test</h3>
+        <button class="btn small" id="lNew">New set of bottles</button>
+      </div>
+      <div class="bottles" id="lBottles" role="group" aria-label="Unknown bottles"></div>
+    </div>
+    <div class="lab">
+      <div class="card">
+        <h3>Tests</h3>
+        <div class="tests" id="lTests"></div>
+      </div>
+      <div class="card">
+        <h3>Test tube</h3>
+        <div class="bench">
+          <svg id="lTube" viewBox="0 0 120 230" role="img" aria-label="Test tube"></svg>
+          <div class="obs" id="lObs" aria-live="polite"><b>Choose a bottle and a test.</b>Each test uses a fresh sample, so you can repeat tests as often as you like.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h3>Results and identification</h3>
+        <button class="btn primary small" id="lCheck">Check my identifications</button>
+      </div>
+      <div class="tablewrap"><table class="res" id="lTable"></table></div>
+      <div id="lMsg" class="verdict wait" aria-live="polite">Highlighted cells are positive results. When you are sure, choose a name for each bottle.</div>
+      <details>
+        <summary class="flabel" style="cursor:pointer">Reference table: what each test shows</summary>
+        <div class="tablewrap"><table class="ref" id="lRef"></table></div>
+      </details>
+    </div>
+  </section>
+
+  <p class="foot">Names follow IUPAC rules as taught in school: the parent chain is the longest chain that contains the main functional group and any C=C or C≡C, numbered so that the main group (then the multiple bond, then the substituents) gets the lowest numbers; substituents are listed in alphabetical order, ignoring di-, tri- and tetra-. Both styles are shown and accepted, for example but-2-ene (current IUPAC) and 2-butene (older style used in Inspire Chemistry). Test results follow Mr Khaled's identification table.</p>
+</div>
+
+<script>
+/* ===================== ORGANIC NAMING ENGINE ===================== */
+var STEM = ['', 'meth', 'eth', 'prop', 'but', 'pent', 'hex', 'hept', 'oct', 'non', 'dec', 'undec', 'dodec', 'tridec', 'tetradec', 'pentadec', 'hexadec', 'heptadec', 'octadec', 'nonadec', 'icos'];
+var MULT = ['', '', 'di', 'tri', 'tetra', 'penta', 'hexa', 'hepta', 'octa'];
+var MULTC = ['', '', 'bis', 'tris', 'tetrakis', 'pentakis'];
+var HAL = { F: 'fluoro', Cl: 'chloro', Br: 'bromo', I: 'iodo' };
+var GVAL = { O: 2 };
+var ALKYL = { CH3: 1, C2H5: 2, C3H7: 3, iPr: 3 };
+var PCLASS = { acid: 5, ald: 4, ket: 3, alc: 2, amine: 1 };
+
+/* builder state -> graph with drawing coordinates */
+function emptyState(n){ var s = { n: n, bonds: [], slots: [] }; for (var i = 0; i < n; i++){ s.slots.push({}); if (i) s.bonds.push(1); } return s; }
+function slotsFor(i, n){ var a = ['u', 'd']; if (i === 0) a.push('l'); if (i === n - 1) a.push('r'); return a; }
+var DIR = { u: [0, -1], d: [0, 1], l: [-1, 0], r: [1, 0] };
+function toGraph(st){
+  var atoms = [], links = [];
+  function add(x, y, origin){ atoms.push({ nb: [], g: [], x: x, y: y, origin: origin }); return atoms.length - 1; }
+  function bond(a, b, o){ atoms[a].nb.push({ to: b, o: o }); atoms[b].nb.push({ to: a, o: o }); links.push([a, b, o]); }
+  var SX = 1, i;
+  for (i = 0; i < st.n; i++) add(i * SX, 0, { c: i });
+  for (i = 0; i < st.n - 1; i++) bond(i, i + 1, st.bonds[i]);
+  var hets = [];
+  for (i = 0; i < st.n; i++){
+    var sl = st.slots[i];
+    for (var k in sl){
+      var g = sl[k]; if (!g) continue;
+      var d = DIR[k], px = -d[1], py = d[0];
+      if (ALKYL[g]){
+        var r = add(i + d[0] * 0.8, d[1] * 0.8, { c: i, slot: k, part: 0 }); bond(i, r, 1);
+        if (g === 'C2H5' || g === 'C3H7'){ var b2 = add(i + d[0] * 1.6, d[1] * 1.6, { c: i, slot: k, part: 1 }); bond(r, b2, 1);
+          if (g === 'C3H7'){ var b3 = add(i + d[0] * 2.4, d[1] * 2.4, { c: i, slot: k, part: 2 }); bond(b2, b3, 1); } }
+        if (g === 'iPr'){
+          var c1 = add(i + d[0] * 1.45 + px * 0.55, d[1] * 1.45 + py * 0.55, { c: i, slot: k, part: 1 }); bond(r, c1, 1);
+          var c2 = add(i + d[0] * 1.45 - px * 0.55, d[1] * 1.45 - py * 0.55, { c: i, slot: k, part: 2 }); bond(r, c2, 1);
+        }
+      } else { atoms[i].g.push(g); hets.push({ atom: i, g: g, x: i + d[0] * 0.8, y: d[1] * 0.8, slot: k }); }
+    }
+  }
+  return { atoms: atoms, links: links, hets: hets };
+}
+function hCount(a){ var u = 0; a.nb.forEach(function(e){ u += e.o; }); a.g.forEach(function(g){ u += GVAL[g] || 1; }); return 4 - u; }
+function stateValid(st){ var G = toGraph(st); return G.atoms.every(function(a){ return hCount(a) >= 0; }); }
+
+/* classify functional groups on each carbon */
+function classify(G){
+  G.atoms.forEach(function(a){
+    var deg = a.nb.length, nO = cnt(a.g, 'O'), nOH = cnt(a.g, 'OH'), nN = cnt(a.g, 'NH2');
+    a.acid = nO > 0 && nOH > 0 && deg <= 1;
+    a.ald = nO > 0 && nOH === 0 && deg <= 1;
+    a.ket = nO > 0 && deg >= 2;
+    a.nOH = nOH; a.nN = nN; a.nO = nO;
+  });
+  var tot = { acid: 0, ald: 0, ket: 0, alc: 0, amine: 0 };
+  G.atoms.forEach(function(a){ if (a.acid) tot.acid++; else if (a.ald) tot.ald++; else if (a.ket) tot.ket += a.nO; if (!a.acid) tot.alc += a.nOH; tot.amine += a.nN; });
+  var p = null; ['acid', 'ald', 'ket', 'alc', 'amine'].forEach(function(k){ if (!p && tot[k]) p = k; });
+  G.pclass = p;
+  G.atoms.forEach(function(a){
+    a.pc = !p ? 0 : p === 'acid' ? (a.acid ? 1 : 0) : p === 'ald' ? (a.ald ? 1 : 0) : p === 'ket' ? (a.ket ? a.nO : 0) : p === 'alc' ? (a.acid ? 0 : a.nOH) : a.nN;
+    var pre = [];
+    a.g.forEach(function(g){
+      if (HAL[g]) pre.push(HAL[g]);
+      else if (g === 'O'){ if (!((p === 'acid' && a.acid) || (p === 'ald' && a.ald) || (p === 'ket' && a.ket))) pre.push('oxo'); }
+      else if (g === 'OH'){ if (!((p === 'acid' && a.acid) || p === 'alc')) pre.push('hydroxy'); }
+      else if (g === 'NH2'){ if (p !== 'amine') pre.push('amino'); }
+    });
+    a.pre = pre;
+  });
+}
+function cnt(arr, v){ var c = 0; arr.forEach(function(x){ if (x === v) c++; }); return c; }
+function order(G, a, b){ var e = G.atoms[a].nb.filter(function(x){ return x.to === b; })[0]; return e ? e.o : 0; }
+function cmpArr(a, b){ for (var i = 0; i < Math.min(a.length, b.length); i++){ if (a[i] < b[i]) return -1; if (a[i] > b[i]) return 1; } return a.length - b.length; }
+function cmpList(A, B){ for (var i = 0; i < A.length; i++){ var c = Array.isArray(A[i]) ? cmpArr(A[i], B[i]) : (A[i] < B[i] ? -1 : A[i] > B[i] ? 1 : 0); if (c) return c; } return 0; }
+function pathTo(G, s, t){
+  var prev = {}; prev[s] = -1; var q = [s];
+  while (q.length){ var x = q.shift(); if (x === t) break; G.atoms[x].nb.forEach(function(e){ if (!(e.to in prev)){ prev[e.to] = x; q.push(e.to); } }); }
+  var p = [], c = t; while (c !== -1){ p.push(c); c = prev[c]; } return p.reverse();
+}
+function subtree(G, root, parent){ var seen = {}; seen[parent] = 1; seen[root] = 1; var out = [root], q = [root];
+  while (q.length){ var x = q.shift(); G.atoms[x].nb.forEach(function(e){ if (!seen[e.to]){ seen[e.to] = 1; out.push(e.to); q.push(e.to); } }); } return out; }
+
+/* substituent items on a numbered chain */
+function chainItems(G, P, isBranch, parent){
+  var inP = {}; P.forEach(function(a){ inP[a] = 1; }); if (parent !== undefined) inP[parent] = 1;
+  var items = [];
+  P.forEach(function(a, k){
+    var atom = G.atoms[a];
+    var pre = isBranch ? atom.g.map(function(g){ return HAL[g] || (g === 'O' ? 'oxo' : g === 'OH' ? 'hydroxy' : 'amino'); }) : atom.pre;
+    pre.forEach(function(nm){ items.push({ name: nm, loc: k + 1, complex: false, key: nm }); });
+    atom.nb.forEach(function(e){ if (!inP[e.to]){ var b = branchName(G, e.to, a); items.push({ name: b.name, loc: k + 1, complex: b.complex, key: b.key, atoms: b.atoms }); } });
+  });
+  return items;
+}
+function descriptor(G, P, isBranch, parent){
+  var d = { pLoc: [], mbLoc: [], dbLoc: [], preLoc: [], alpha: [] };
+  P.forEach(function(a, k){ for (var j = 0; j < (isBranch ? 0 : G.atoms[a].pc); j++) d.pLoc.push(k + 1); });
+  for (var k = 0; k < P.length - 1; k++){ var o = order(G, P[k], P[k + 1]); if (o > 1){ d.mbLoc.push(k + 1); if (o === 2) d.dbLoc.push(k + 1); } }
+  var items = chainItems(G, P, isBranch, parent);
+  d.items = items;
+  d.preLoc = items.map(function(i){ return i.loc; }).sort(function(a, b){ return a - b; });
+  d.alpha = items.slice().sort(function(a, b){ return a.key < b.key ? -1 : a.key > b.key ? 1 : a.loc - b.loc; }).map(function(i){ return i.loc; });
+  d.vec = [d.pLoc, d.mbLoc, d.dbLoc, d.preLoc, d.alpha];
+  return d;
+}
+function bestDirection(G, P, isBranch, parent){
+  var A = descriptor(G, P, isBranch, parent);
+  if (isBranch || P.length === 1) return { P: P, d: A };
+  var R = P.slice().reverse(), B = descriptor(G, R, isBranch);
+  return cmpList(A.vec, B.vec) <= 0 ? { P: P, d: A, other: B } : { P: R, d: B, other: A };
+}
+function chainScore(G, P, isBranch, parent){
+  var pc = 0, mb = 0, db = 0, nsub = 0, inP = {};
+  P.forEach(function(a){ inP[a] = 1; }); if (parent !== undefined) inP[parent] = 1;
+  P.forEach(function(a){ if (!isBranch) pc += G.atoms[a].pc; nsub += isBranch ? G.atoms[a].g.length : G.atoms[a].pre.length;
+    G.atoms[a].nb.forEach(function(e){ if (!inP[e.to]) nsub++; }); });
+  for (var k = 0; k < P.length - 1; k++){ var o = order(G, P[k], P[k + 1]); if (o > 1) mb++; if (o === 2) db++; }
+  return [-pc, -mb, -P.length, -db, -nsub];
+}
+function branchName(G, root, parent){
+  var sub = subtree(G, root, parent), best = null;
+  sub.forEach(function(t){
+    var P = pathTo(G, root, t); if (P.some(function(x){ return x === parent; })) return;
+    var bd = bestDirection(G, P, true, parent), sc = chainScore(G, P, true, parent);
+    var key = sc.concat(bd.d.vec);
+    if (!best || cmpList(key, best.key) < 0) best = { key: key, P: P, d: bd.d };
+  });
+  var P = best.P, L = P.length, D = [], T = [];
+  for (var k = 0; k < L - 1; k++){ var o = order(G, P[k], P[k + 1]); if (o === 2) D.push(k + 1); if (o === 3) T.push(k + 1); }
+  var stem = STEM[L], core;
+  if (!D.length && !T.length) core = stem + 'yl';
+  else if (L === 2) core = 'eth' + (D.length ? 'en' : 'yn') + 'yl';
+  else core = stem + (D.length ? '-' + D.join(',') + '-' + MULT[D.length] + 'en' : '') + (T.length ? '-' + T.join(',') + '-' + MULT[T.length] + 'yn' : '') + 'yl';
+  var pre = assemble(best.d.items, true), name = pre + core;
+  if (name === '1-methylethyl') return { name: 'isopropyl', complex: false, key: 'isopropyl', atoms: sub };
+  if (name === '1,1-dimethylethyl') return { name: 'tert-butyl', complex: false, key: 'butyl', atoms: sub };
+  var complex = best.d.items.length > 0 || D.length + T.length > 0 && L > 2;
+  return { name: name, complex: complex, key: complex ? name.replace(/[^a-z]/g, '') : name, atoms: sub };
+}
+/* prefix string, e.g. 3-ethyl-2,2-dimethyl */
+function assemble(items, showLoc){
+  var groups = {}, order_ = [];
+  items.forEach(function(i){ if (!groups[i.name]){ groups[i.name] = { name: i.name, locs: [], complex: i.complex, key: i.key }; order_.push(i.name); } groups[i.name].locs.push(i.loc); });
+  var gs = order_.map(function(n){ return groups[n]; });
+  gs.sort(function(a, b){ return a.key < b.key ? -1 : a.key > b.key ? 1 : 0; });
+  return gs.map(function(g){
+    g.locs.sort(function(a, b){ return a - b; });
+    var m = g.locs.length > 1 ? (g.complex ? MULTC : MULT)[g.locs.length] : '';
+    var body = m + (g.complex ? '(' + g.name + ')' : g.name);
+    return (showLoc ? g.locs.join(',') + '-' : '') + body;
+  }).join(showLoc ? '-' : '');
+}
+var SUFFIX = { acid: 'oic acid', ald: 'al', ket: 'one', alc: 'ol', amine: 'amine' };
+function nameMolecule(st, forceLoc){
+  var G = toGraph(st); classify(G);
+  var N = G.atoms.length, best = null;
+  for (var s = 0; s < N; s++) for (var t = s; t < N; t++){
+    var P = pathTo(G, s, t), bd = bestDirection(G, P, false), key = chainScore(G, P, false).concat(bd.d.vec);
+    if (!best || cmpList(key, best.key) < 0) best = { key: key, P: bd.P, d: bd.d, other: bd.other };
+  }
+  var P = best.P, L = P.length, d = best.d, p = G.pclass;
+  var D = [], T = [];
+  for (var k = 0; k < L - 1; k++){ var o = order(G, P[k], P[k + 1]); if (o === 2) D.push(k + 1); if (o === 3) T.push(k + 1); }
+  var sLocs = d.pLoc, nS = sLocs.length, nPre = d.items.length;
+  // locant omission (only when there is no ambiguity)
+  var showPre = true, showUns = true, showSuf = !(p === 'acid' || p === 'ald');
+  if (forceLoc){ }
+  else if (L === 1){ showPre = showUns = showSuf = false; }
+  else if (L === 2 && nPre + (p === 'acid' || p === 'ald' ? 0 : nS) <= 1 && !(nPre && nS)){ showPre = showUns = showSuf = false; }
+  else if (L === 3 && !nPre){
+    if (!p && D.length + T.length === 1) showUns = false;
+    if (p === 'ket' && nS === 1 && !D.length && !T.length) showSuf = false;
+  }
+  var prefix = assemble(d.items, showPre);
+  var stem = STEM[L] || ('C' + L), hasU = D.length + T.length > 0;
+  var parts = [];
+  if (D.length) parts.push([D, 'en']); if (T.length) parts.push([T, 'yn']);
+  var core = !hasU ? stem + 'an' : stem + (parts[0][0].length > 1 ? 'a' : '') + parts.map(function(x){ return (showUns ? '-' + x[0].join(',') + '-' : '') + MULT[x[0].length] + x[1]; }).join('');
+  var parent;
+  if (!p) parent = core + 'e';
+  else {
+    var sfx = (nS > 1 ? MULT[nS] : '') + SUFFIX[p], locs = showSuf ? sLocs.join(',') : '';
+    if (/^[aeiou]/.test(sfx)) parent = core + (locs ? '-' + locs + '-' : '') + sfx;
+    else parent = core + 'e' + (locs ? '-' + locs + '-' : '') + sfx;
+  }
+  var iupac = (prefix ? prefix + (showPre && /^\d/.test(parent) ? '-' : '') : '') + parent;
+  iupac = iupac.replace(/^(\d[\d,]*-)?/, function(m){ return m; });
+  // Inspire (older) style: locants in front of the parent name
+  var inspire = null;
+  if (hasU || (p && showSuf)){
+    if (!(hasU && p && showSuf)){
+      var lead = hasU ? (showUns ? parts.map(function(x){ return x[0].join(','); }).join(',') : '') : (showSuf ? sLocs.join(',') : '');
+      var word = hasU ? stem + (parts[0][0].length > 1 ? 'a' : '') + parts.map(function(x){ return MULT[x[0].length] + x[1]; }).join('') : stem + 'an';
+      if (!p) word += 'e'; else { var sf = (nS > 1 ? MULT[nS] : '') + SUFFIX[p]; word += (/^[aeiou]/.test(sf) ? '' : 'e') + sf; }
+      inspire = (prefix ? prefix + (lead ? '-' : '') : '') + (lead ? lead + '-' : '') + word;
+      if (inspire === iupac) inspire = null;
+    }
+  }
+  var loc = {}; P.forEach(function(a, i){ loc[a] = i + 1; });
+  if (forceLoc) return { iupac: iupac, inspire: inspire };
+  return { G: G, iupac: iupac, inspire: inspire, chain: P, loc: loc, L: L, D: D, T: T, pclass: p, items: d.items, other: best.other, d: d, prefix: prefix };
+}
+/* molecular formula and family */
+var MASS = { C: 12, H: 1, O: 16, N: 14, F: 19, Cl: 35.5, Br: 80, I: 127 };
+function formula(G){
+  var c = { C: G.atoms.length, H: 0, O: 0, N: 0, F: 0, Cl: 0, Br: 0, I: 0 };
+  G.atoms.forEach(function(a){ c.H += hCount(a); a.g.forEach(function(g){ if (g === 'O') c.O++; else if (g === 'OH'){ c.O++; c.H++; } else if (g === 'NH2'){ c.N++; c.H += 2; } else c[g]++; }); });
+  var order_ = ['C', 'H', 'Br', 'Cl', 'F', 'I', 'N', 'O'], txt = '', key = '', M = 0;
+  order_.forEach(function(e){ if (c[e]){ txt += e + (c[e] > 1 ? sub(c[e]) : ''); key += e + (c[e] > 1 ? c[e] : ''); M += c[e] * MASS[e]; } });
+  return { count: c, text: txt, key: key, M: M };
+}
+function sub(n){ return String(n).replace(/\d/g, function(d){ return '₀₁₂₃₄₅₆₇₈₉'[d]; }); }
+function family(R){
+  var G = R.G, p = R.pclass, hasHal = G.atoms.some(function(a){ return a.g.some(function(g){ return HAL[g]; }); });
+  var nD = 0, nT = 0; G.links.forEach(function(l){ if (l[2] === 2) nD++; if (l[2] === 3) nT++; });
+  var info = { key: '', label: '', general: '', degree: '' };
+  if (p === 'acid'){ info.key = 'acid'; info.label = G.atoms.some(function(a){ return a.nN; }) ? 'Amino acid' : 'Carboxylic acid'; info.general = info.label === 'Amino acid' ? 'CₙH₂ₙ₊₁NO₂' : 'CₙH₂ₙO₂'; if (info.label === 'Amino acid') info.key = 'aa'; }
+  else if (p === 'ald'){ info.key = 'carbonyl'; info.label = 'Aldehyde'; info.general = 'CₙH₂ₙO'; }
+  else if (p === 'ket'){ info.key = 'carbonyl'; info.label = 'Ketone'; info.general = 'CₙH₂ₙO'; }
+  else if (p === 'alc'){ info.key = 'alcohol'; info.label = 'Alcohol'; info.general = 'CₙH₂ₙ₊₂O';
+    var oc = G.atoms.filter(function(a){ return a.nOH; }); if (oc.length === 1){ var dg = oc[0].nb.length; info.degree = dg <= 1 ? 'primary (1°)' : dg === 2 ? 'secondary (2°)' : 'tertiary (3°)'; } }
+  else if (p === 'amine'){ info.key = 'amine'; info.label = 'Amine'; info.general = 'CₙH₂ₙ₊₃N'; info.degree = 'primary (–NH₂)'; }
+  else if (hasHal){ info.key = 'haloalkane'; info.label = nD || nT ? 'Halogenated hydrocarbon' : 'Haloalkane'; }
+  else if (nT){ info.key = 'alkyne'; info.label = 'Alkyne'; info.general = nT === 1 && !nD ? 'CₙH₂ₙ₋₂' : ''; }
+  else if (nD){ info.key = 'alkene'; info.label = nD > 1 ? 'Alkene (diene)' : 'Alkene'; info.general = nD === 1 ? 'CₙH₂ₙ' : ''; }
+  else { info.key = 'alkane'; info.label = 'Alkane'; info.general = 'CₙH₂ₙ₊₂'; }
+  if ((nD || nT) && p) { info.general = ''; info.label += ' with C' + (nT ? '≡' : '=') + 'C'; info.unsat = true; }
+  if (hasHal && p) info.general = '';
+  return info;
+}
+/* E/Z possible? */
+function sig(G, a, from){ var at = G.atoms[a]; var parts = at.g.slice().sort(); at.nb.forEach(function(e){ if (e.to !== from) parts.push('(' + e.o + sig(G, e.to, a) + ')'); }); parts.sort(); return 'C' + hCount(at) + parts.join(''); }
+function ezPossible(G){
+  var out = [];
+  G.links.forEach(function(l){ if (l[2] !== 2) return;
+    var ok = [l[0], l[1]].every(function(a, i){ var other = i ? l[0] : l[1], at = G.atoms[a], subs = [];
+      at.nb.forEach(function(e){ if (e.to !== other) subs.push(sig(G, e.to, a)); }); at.g.forEach(function(g){ subs.push(g); });
+      for (var h = 0; h < hCount(at); h++) subs.push('H');
+      return subs.length === 2 && subs[0] !== subs[1]; });
+    if (ok) out.push(l); });
+  return out;
+}
+/* compact spec: mk(n, '-=-', '2u:CH3', ...) */
+function mk(n, bonds, groups){
+  var s = emptyState(n);
+  for (var i = 0; i < n - 1; i++) s.bonds[i] = bonds[i] === '=' ? 2 : bonds[i] === '#' ? 3 : 1;
+  (groups || []).forEach(function(g){ var m = g.match(/^(\d+)([udlr]):(.+)$/); s.slots[+m[1] - 1][m[2]] = m[3]; });
+  return s;
+}
+function acceptedNames(st, R){
+  var F = nameMolecule(st, true), set = [R.iupac, R.inspire, F.iupac, F.inspire];
+  if (R.L <= 2 || (R.L === 3 && !R.pclass)) set.push(F.iupac.replace(/-1-(?=[a-z])/g, ''));
+  if (R.pclass === 'ket' && R.L === 4 && !R.items.length && R.d.pLoc.length === 1) set.push(R.iupac.replace('-2-', ''));
+  return set.filter(Boolean).map(normName);
+}
+function normAnswer(s){ return normName(String(s).replace(/\((?:1-methylethyl|propan-2-yl)\)/gi, 'isopropyl').replace(/\(1,1-dimethylethyl\)/gi, 'tert-butyl')); }
+function normName(s){ return String(s).toLowerCase().replace(/[‐-―−]/g, '-').replace(/\s+/g, '').replace(/[()]/g, ''); }
+
+/* ===================== APP ===================== */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function shuffle(a){ for (var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function clone(st){ return JSON.parse(JSON.stringify(st)); }
+function M(n, b){ return mk(n, b, Array.prototype.slice.call(arguments, 2)); }
+var SVGNS = 'http://www.w3.org/2000/svg';
+
+var HLBL = { O: 'O', OH: 'OH', NH2: 'NH₂', F: 'F', Cl: 'Cl', Br: 'Br', I: 'I' };
+var HLBL_L = { OH: 'HO', NH2: 'H₂N' };
+var HCLS = { O: 'a-o', OH: 'a-o', NH2: 'a-n', F: 'a-f', Cl: 'a-cl', Br: 'a-br', I: 'a-i' };
+function cLabel(h){ return 'C' + (h === 0 ? '' : h === 1 ? 'H' : 'H' + sub(h)); }
+
+/* ---------- draw a molecule ---------- */
+function drawMol(svg, st, opt){
+  opt = opt || {};
+  var R = opt.R, G = R ? R.G : toGraph(st);
+  var S = 78, pad = 34;
+  var pts = G.atoms.map(function(a){ return [a.x * S, a.y * S]; });
+  var hp = G.hets.map(function(h){ return [h.x * S, h.y * S]; });
+  var all = pts.concat(hp), minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  all.forEach(function(p){ minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]); minY = Math.min(minY, p[1]); maxY = Math.max(maxY, p[1]); });
+  minX -= pad + 10; maxX += pad + 10; minY -= pad + (opt.R && opt.highlight ? 8 : 0); maxY += pad;
+  var W = maxX - minX, H = maxY - minY;
+  svg.setAttribute('viewBox', minX + ' ' + minY + ' ' + W + ' ' + H);
+  svg.style.minWidth = opt.mini ? '0' : Math.min(W * 0.62, 760) + 'px'; svg.classList.toggle('mini', !!opt.mini);
+  var out = '';
+  function line(x1, y1, x2, y2, cls){ return '<line class="' + (cls || 'bnd') + '" x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '"/>'; }
+  function bondLines(p, q, o, cls, trimA, trimB){
+    var dx = q[0] - p[0], dy = q[1] - p[1], len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len;
+    var K = opt.mini ? 1.45 : 1, ta = (trimA == null ? 12 + 10 * Math.abs(ux) : trimA) * K, tb = (trimB == null ? 12 + 10 * Math.abs(ux) : trimB) * K;
+    var x1 = p[0] + ux * ta, y1 = p[1] + uy * ta, x2 = q[0] - ux * tb, y2 = q[1] - uy * tb, nx = -uy, ny = ux, s = '';
+    var offs = o === 1 ? [0] : o === 2 ? [-3.5, 3.5] : [-5, 0, 5];
+    offs.forEach(function(k){ s += line(x1 + nx * k, y1 + ny * k, x2 + nx * k, y2 + ny * k, cls); });
+    return s;
+  }
+  // highlight marks
+  var inChain = {};
+  if (R && opt.highlight){
+    R.chain.forEach(function(a){ inChain[a] = 1; var p = pts[a]; out += '<circle class="markc" cx="' + p[0] + '" cy="' + p[1] + '" r="21"/>'; });
+  }
+  G.links.forEach(function(l){ out += bondLines(pts[l[0]], pts[l[1]], l[2]); });
+  G.hets.forEach(function(h, k){ var p = pts[h.atom], q = hp[k]; out += bondLines(p, q, h.g === 'O' ? 2 : 1, null, null, h.slot === 'l' || h.slot === 'r' ? 20 : 12); });
+  G.atoms.forEach(function(a, i){ var p = pts[i];
+    out += '<text class="lbl a-c" x="' + p[0] + '" y="' + p[1] + '">' + cLabel(hCount(a)) + '</text>'; });
+  G.hets.forEach(function(h, k){ var q = hp[k], t = (h.slot === 'l' && HLBL_L[h.g]) || HLBL[h.g];
+    var pg = R && opt.highlight && R.G.atoms[h.atom].pc && !(/^(F|Cl|Br|I)$/.test(h.g));
+    out += '<text class="lbl ' + HCLS[h.g] + (pg ? ' pg' : '') + '" x="' + q[0] + '" y="' + q[1] + '">' + t + '</text>'; });
+  if (R && opt.highlight){
+    R.chain.forEach(function(a){ var p = pts[a]; out += '<circle class="locb" cx="' + (p[0] + 21) + '" cy="' + (p[1] - 23) + '" r="9"/><text class="loct" x="' + (p[0] + 21) + '" y="' + (p[1] - 22.5) + '">' + R.loc[a] + '</text>'; });
+  }
+  if (opt.interactive){
+    for (var i = 0; i < st.n - 1; i++){ var p = pts[i], q = pts[i + 1];
+      out += '<rect class="hitb" data-bond="' + i + '" tabindex="0" role="button" aria-label="Bond between carbon ' + (i + 1) + ' and carbon ' + (i + 2) + ': ' + ['', 'single', 'double', 'triple'][st.bonds[i]] + '. Press to change." x="' + (p[0] + 22) + '" y="' + (p[1] - 12) + '" width="' + (q[0] - p[0] - 44) + '" height="24" rx="6"/>'; }
+    G.atoms.forEach(function(a, i){ var p = pts[i], c = a.origin.c, isMain = a.origin.slot === undefined;
+      if (isMain){
+        out += '<g class="cbtn" data-atom="' + c + '" tabindex="0" role="button" aria-label="Carbon ' + (c + 1) + ' of the row, ' + cLabel(hCount(a)) + '. Press to edit."><circle class="hit" cx="' + p[0] + '" cy="' + p[1] + '" r="25"/>' +
+          (opt.selected === c ? '<circle class="selc selr" cx="' + p[0] + '" cy="' + p[1] + '" r="25"/>' : '<circle class="selr" fill="none" stroke="none" cx="' + p[0] + '" cy="' + p[1] + '" r="25"/>') + '</g>';
+      } else out += '<circle class="hit" data-atom="' + c + '" cx="' + p[0] + '" cy="' + p[1] + '" r="20"/>';
+    });
+  }
+  svg.innerHTML = out;
+}
+
+/* ---------- reusable builder ---------- */
+var GROUPS = [['', '— none'], ['CH3', '–CH₃ methyl'], ['C2H5', '–C₂H₅ ethyl'], ['C3H7', '–C₃H₇ propyl'], ['iPr', '–CH(CH₃)₂ isopropyl'],
+  ['F', '–F'], ['Cl', '–Cl'], ['Br', '–Br'], ['I', '–I'], ['OH', '–OH'], ['NH2', '–NH₂'], ['O', '=O']];
+var SLOTNAME = { u: 'Above', d: 'Below', l: 'Left end', r: 'Right end' };
+var uid = 0;
+function Builder(host, opt){
+  var self = this; this.opt = opt || {}; this.st = clone(this.opt.state || M(4, '---')); this.sel = 1; this.id = 'b' + (++uid);
+  host.innerHTML = '<div class="row" style="margin-bottom:8px"><span class="flabel">Carbons in the row</span><button class="btn icon" data-act="minus" aria-label="Remove a carbon">−</button><output>' + this.st.n + '</output><button class="btn icon" data-act="plus" aria-label="Add a carbon">+</button><button class="btn small" data-act="clear">Clear groups and bonds</button></div>' +
+    '<div class="molwrap"><svg class="mol" role="group" aria-label="Molecule. Carbons and bonds are buttons."></svg></div>' +
+    '<p class="caption" style="margin:6px 0">Tap a carbon to add a group. Tap a bond to change it: single → double → triple.</p><div class="editor"></div>';
+  this.host = host; this.svg = host.querySelector('svg'); this.ed = host.querySelector('.editor'); this.out = host.querySelector('output');
+  host.addEventListener('click', function(e){
+    var a = e.target.closest('[data-act]'); if (a){ self.act(a.getAttribute('data-act')); return; }
+    var b = e.target.closest('[data-bond]'); if (b){ self.cycleBond(+b.getAttribute('data-bond')); return; }
+    var c = e.target.closest('[data-atom]'); if (c){ self.sel = +c.getAttribute('data-atom'); self.render(); }
+  });
+  host.addEventListener('keydown', function(e){
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var b = e.target.closest('[data-bond]'), c = e.target.closest('[data-atom]');
+    if (b){ e.preventDefault(); self.cycleBond(+b.getAttribute('data-bond'), true); }
+    else if (c){ e.preventDefault(); self.sel = +c.getAttribute('data-atom'); self.render('[data-atom="' + self.sel + '"]'); }
+  });
+  host.addEventListener('change', function(e){
+    var s = e.target.getAttribute('data-slot'); if (!s) return;
+    var v = e.target.value; if (v) self.st.slots[self.sel][s] = v; else delete self.st.slots[self.sel][s];
+    self.changed();
+  });
+  this.render();
+}
+Builder.prototype.set = function(st){ this.st = clone(st); this.sel = Math.min(this.sel, this.st.n - 1); this.changed(); };
+Builder.prototype.act = function(a){
+  var st = this.st;
+  if (a === 'plus' && st.n < 10){
+    var rg = st.slots[st.n - 1].r; delete st.slots[st.n - 1].r; st.slots.push(rg ? { r: rg } : {}); st.bonds.push(1); st.n++;
+    if (!stateValid(st)) st.slots[st.n - 1] = {};
+  } else if (a === 'minus' && st.n > 1){
+    var last = st.slots.pop(); st.bonds.pop(); st.n--;
+    if (last.r){ st.slots[st.n - 1].r = last.r; if (!stateValid(st)) delete st.slots[st.n - 1].r; }
+    if (st.n === 1 && st.slots[0].r === undefined){}
+  } else if (a === 'clear'){ this.st = emptyState(st.n); }
+  this.sel = Math.min(this.sel, this.st.n - 1);
+  this.changed();
+};
+Builder.prototype.cycleBond = function(i, keepFocus){
+  var st = this.st, cur = st.bonds[i];
+  for (var k = 1; k <= 3; k++){ var o = (cur + k - 1) % 3 + 1; st.bonds[i] = o; if (stateValid(st)) break; }
+  if (!stateValid(st)) st.bonds[i] = 1;
+  this.changed(keepFocus ? '[data-bond="' + i + '"]' : null);
+};
+Builder.prototype.changed = function(focusSel){ this.render(focusSel === true ? null : focusSel); if (this.opt.onChange) this.opt.onChange(this.st); };
+Builder.prototype.render = function(focusSel){
+  var st = this.st, self = this;
+  this.out.textContent = st.n;
+  var R = this.opt.highlight && this.opt.highlight() ? nameMolecule(st) : null;
+  drawMol(this.svg, st, { interactive: true, selected: this.sel, R: R, highlight: !!R });
+  var i = this.sel, G = toGraph(st), h = hCount(G.atoms[i]);
+  var html = '<div class="head"><b>Carbon ' + (i + 1) + ' of the row</b><span class="caption">' + cLabel(h) + ' · ' + h + ' H left to replace</span></div>';
+  slotsFor(i, st.n).forEach(function(s){
+    var cur = st.slots[i][s] || '';
+    html += '<label>' + SLOTNAME[s] + '<select data-slot="' + s + '" id="' + self.id + '-' + s + '">' + GROUPS.map(function(g){
+      var test = clone(st); if (g[0]) test.slots[i][s] = g[0]; else delete test.slots[i][s];
+      var ok = g[0] === cur || stateValid(test);
+      return '<option value="' + g[0] + '"' + (g[0] === cur ? ' selected' : '') + (ok ? '' : ' disabled') + '>' + g[1] + '</option>';
+    }).join('') + '</select></label>';
+  });
+  this.ed.innerHTML = html;
+  if (focusSel){ var f = this.svg.querySelector(focusSel); if (f) f.focus(); }
+  else if (focusSel === undefined){}
+};
+
+/* ---------- explanation steps ---------- */
+var PINFO = { acid: ['–COOH', 'carboxylic acid', '-oic acid'], ald: ['–CHO', 'aldehyde', '-al'], ket: ['C=O', 'ketone', '-one'], alc: ['–OH', 'alcohol', '-ol'], amine: ['–NH₂', 'amine', '-amine'] };
+var REASON = ['the main functional group', 'the C=C or C≡C bond', 'the double bond', 'the substituents', 'the substituent that comes first in the alphabet'];
+function locList(a){ return a.length ? a.join(',') : '–'; }
+function steps(R){
+  var p = R.pclass, out = [], hasU = R.D.length + R.T.length > 0;
+  var nm = R.items.map(function(i){ return i.name; });
+  var extra = ['hydroxy', 'amino', 'oxo'].filter(function(x){ return nm.indexOf(x) >= 0; });
+  var hal = ['fluoro', 'chloro', 'bromo', 'iodo'].filter(function(x){ return nm.indexOf(x) >= 0; });
+  if (p) out.push(['Family', 'Main functional group: <b>' + PINFO[p][0] + '</b> (' + PINFO[p][1] + '), so the name ends in <b>' + PINFO[p][2] + '</b>.' + (extra.length ? ' The other groups become prefixes: ' + extra.map(function(x){ return '<b>' + x + '-</b>'; }).join(', ') + '.' : '') + (hasU ? ' The C' + (R.T.length ? '≡' : '=') + 'C bond adds <b>-' + (R.T.length ? 'yn' : 'en') + '-</b> to the chain name.' : '')]);
+  else if (hasU) out.push(['Family', 'No group with a suffix. The ' + (R.T.length ? 'C≡C triple' : 'C=C double') + ' bond gives the ending <b>' + (R.D.length && R.T.length ? '-enyne' : R.T.length ? '-yne' : '-ene') + '</b>.']);
+  else out.push(['Family', 'Only single C–C bonds and no group with a suffix: an alkane, ending <b>-ane</b>.']);
+  if (hal.length) out[0][1] += ' Halogens are always prefixes: ' + hal.map(function(x){ return '<b>' + x + '-</b>'; }).join(', ') + '.';
+  var must = [p ? 'the ' + PINFO[p][0] + ' carbon' : '', hasU ? 'the multiple bond' : ''].filter(Boolean).join(' and ');
+  out.push(['Parent chain', 'The longest chain' + (must ? ' that contains ' + must : '') + ' has <b>' + R.L + '</b> carbon' + (R.L > 1 ? 's' : '') + ', so the stem is <b>' + STEM[R.L] + '-</b>. It is highlighted in the drawing.']);
+  if (R.L === 1) out.push(['Numbering', 'Only one carbon, so no numbers are needed.']);
+  else {
+    var a = R.d.vec, b = R.other ? R.other.vec : null, idx = -1;
+    if (b) for (var k = 0; k < a.length; k++){ if (cmpArr(a[k], b[k]) !== 0){ idx = k; break; } }
+    if (idx < 0) out.push(['Numbering', 'Numbering from either end gives the same numbers, so either end works.']);
+    else out.push(['Numbering', 'Number from the end that gives ' + REASON[idx] + ' the lowest number: <span class="mono">' + locList(a[idx]) + '</span> this way, <span class="mono">' + locList(b[idx]) + '</span> the other way.']);
+  }
+  if (!R.items.length) out.push(['Substituents', 'No branches or halogens on the parent chain.']);
+  else {
+    var groups = {}, order_ = [];
+    R.items.forEach(function(i){ if (!groups[i.name]){ groups[i.name] = []; order_.push(i.name); } groups[i.name].push(i.loc); });
+    var parts = order_.map(function(n){ var l = groups[n].sort(function(x, y){ return x - y; }); return n + ' on C' + l.join(' and C') + (l.length > 1 ? ' → <b>' + l.join(',') + '-' + MULT[l.length] + n + '</b>' : ''); });
+    var s = parts.join('; ') + '.';
+    if (order_.length > 1) s += ' Alphabetical order (ignore di-, tri-): <b>' + order_.slice().sort(function(x, y){ var kx = x.replace(/^tert-/, ''), ky = y.replace(/^tert-/, ''); return kx < ky ? -1 : 1; }).join(', ') + '</b>.';
+    out.push(['Substituents', s]);
+  }
+  out.push(['Put it together', (R.prefix ? '<span class="mono">' + esc(R.prefix) + '</span> + ' : '') + 'parent → <b>' + esc(R.iupac) + '</b>' + (R.inspire ? ' (older style: ' + esc(R.inspire) + ')' : '')]);
+  return out.map(function(s){ return '<li><b class="t">' + s[0] + '</b>' + s[1] + '</li>'; }).join('');
+}
+function facts(R){
+  var f = formula(R.G), fam = family(R), ez = ezPossible(R.G);
+  var out = '<span class="chip fam">' + fam.label + (fam.degree ? ' · ' + fam.degree : '') + '</span>' +
+    '<span class="chip">Formula <b>' + f.text + '</b></span><span class="chip">M = <b>' + (Math.round(f.M * 10) / 10) + '</b> g/mol</span>' +
+    (fam.general ? '<span class="chip">General formula <b>' + fam.general + '</b></span>' : '') +
+    (ez.length ? '<span class="chip">Has E/Z (cis/trans) isomers</span>' : '');
+  return out;
+}
+function chainTurns(R, st){ return R.chain.some(function(a){ return a >= st.n; }); }
+
+/* ---------- curated compounds (from the class notes and the revision sheet) ---------- */
+var BANK = [
+  ['alk', M(4, '---')], ['alk', M(5, '----', '2u:CH3')], ['alk', M(6, '-----', '3u:C2H5')], ['alk', M(4, '---', '2d:C2H5')], ['alk', M(3, '--', '2u:iPr')],
+  ['alk', M(4, '---', '2u:CH3', '2d:CH3', '3u:CH3')], ['alk', M(6, '-----', '3d:C2H5', '4u:C2H5')], ['alk', M(4, '---', '2u:C3H7')], ['alk', M(5, '----', '3u:iPr')],
+  ['alk', M(7, '------', '2u:Br', '3u:Cl')], ['alk', M(1, '', '1u:Cl')], ['alk', M(3, '--', '1l:Cl', '2u:CH3')], ['alk', M(3, '--', '1l:Cl', '2u:CH3', '2d:CH3')],
+  ['alk', M(4, '---', '2u:Cl', '2d:CH3')], ['alk', M(3, '--', '1l:Br', '3r:Cl')], ['alk', M(2, '-', '1u:Cl', '2u:Cl')],
+  ['ene', M(4, '=--')], ['ene', M(4, '-=-')], ['ene', M(4, '-=-', '2d:CH3')], ['ene', M(4, '=--', '3d:CH3')], ['ene', M(5, '=---', '2d:CH3')],
+  ['ene', M(5, '-=--', '4d:CH3')], ['ene', M(3, '=-', '2d:CH3')], ['ene', M(4, '--=', '2u:C2H5')], ['ene', M(4, '=-=')],
+  ['ene', M(3, '#-')], ['ene', M(5, '#---')], ['ene', M(4, '#--', '3d:CH3')], ['ene', M(5, '-#--', '4d:CH3')], ['ene', M(4, '#--', '3u:CH3', '3d:CH3')],
+  ['ene', M(5, '-#--', '4u:CH3', '4d:CH3')], ['ene', M(6, '-#---', '5d:CH3')],
+  ['alc', M(4, '---', '4r:OH')], ['alc', M(4, '---', '2d:OH')], ['alc', M(4, '---', '2d:CH3', '1l:OH')], ['alc', M(5, '----', '2d:OH', '3u:CH3')],
+  ['alc', M(3, '--', '2u:CH3', '2d:OH')], ['alc', M(5, '----', '1l:OH', '2d:CH3', '4d:CH3')], ['alc', M(5, '----', '2d:OH', '4u:CH3', '4d:CH3')],
+  ['alc', M(4, '---', '1l:OH', '2d:CH3', '3u:C2H5')], ['alc', M(2, '-', '1u:OH', '2u:OH')], ['alc', M(4, '=--', '4r:OH')],
+  ['co', M(3, '--', '3u:O')], ['co', M(4, '---', '4u:O', '3d:CH3')], ['co', M(4, '---', '4u:O', '3d:CH3', '2d:CH3')], ['co', M(3, '--', '2u:O')],
+  ['co', M(4, '---', '2u:O', '3d:CH3')], ['co', M(5, '----', '3u:O', '2d:CH3')], ['co', M(5, '----', '2u:O', '4u:O')], ['co', M(4, '---', '4u:O', '2d:OH')],
+  ['acid', M(3, '--', '3u:O', '3r:OH')], ['acid', M(1, '', '1u:O', '1r:OH')], ['acid', M(4, '---', '4u:O', '4r:OH', '3d:CH3')],
+  ['acid', M(4, '---', '4u:O', '4r:OH', '3u:CH3', '3d:CH3')], ['acid', M(6, '-----', '1u:O', '1l:OH', '3d:CH3')], ['acid', M(3, '--', '3u:O', '3r:OH', '2d:NH2')],
+  ['acid', M(4, '---', '4u:O', '4r:OH', '3d:NH2', '2d:CH3')], ['acid', M(2, '-', '2u:O', '2r:OH', '1l:NH2')], ['acid', M(5, '----', '5u:O', '5r:OH', '4d:NH2', '2d:CH3')],
+  ['amine', M(1, '', '1u:NH2')], ['amine', M(3, '--', '3r:NH2')], ['amine', M(3, '--', '2d:NH2')], ['amine', M(3, '--', '1l:NH2', '2d:CH3')],
+  ['amine', M(4, '---', '4r:NH2')], ['amine', M(3, '--', '2u:CH3', '2d:NH2')]
+].map(function(x){ var R = nameMolecule(x[1]); return { cat: x[0], st: x[1], R: R }; });
+var CATS = [['all', 'All topics'], ['alk', 'Alkanes and haloalkanes'], ['ene', 'Alkenes and alkynes'], ['alc', 'Alcohols'], ['co', 'Aldehydes and ketones'], ['acid', 'Carboxylic acids and amino acids'], ['amine', 'Amines']];
+var PRESET_LABEL = { alk: 'Alkanes and haloalkanes', ene: 'Alkenes and alkynes', alc: 'Alcohols', co: 'Aldehydes and ketones', acid: 'Acids and amino acids', amine: 'Amines' };
+
+/* =========== TAB 1: build & name =========== */
+var bState = BANK[39].st;
+var build = new Builder($('bBuilder'), { state: bState, highlight: function(){ return !$('bGuess').checked || bSolved; }, onChange: function(){ bSolved = false; updateBuild(); } });
+var bSolved = false;
+(function(){
+  var html = '<option value="">Choose an example…</option>';
+  Object.keys(PRESET_LABEL).forEach(function(c){
+    html += '<optgroup label="' + PRESET_LABEL[c] + '">' + BANK.map(function(b, i){ return b.cat === c ? '<option value="' + i + '">' + esc(b.R.iupac) + '</option>' : ''; }).join('') + '</optgroup>';
+  });
+  $('bPreset').innerHTML = html;
+})();
+$('bPreset').addEventListener('change', function(){ if (this.value === '') return; build.set(BANK[+this.value].st); this.value = ''; });
+function updateBuild(){
+  var st = build.st, R = nameMolecule(st), hide = $('bGuess').checked && !bSolved;
+  $('bGuessBox').hidden = !$('bGuess').checked;
+  $('bNameBox').innerHTML = hide ? '<div class="bigname" style="color:var(--muted)">? ? ?</div><p class="alt">The name and the steps are hidden until you check your answer.</p>' :
+    '<div class="bigname">' + esc(R.iupac) + '</div>' + (R.inspire ? '<p class="alt">Older style (Inspire Chemistry): <b>' + esc(R.inspire) + '</b></p>' : '');
+  $('bFacts').innerHTML = facts(R);
+  $('bWarn').innerHTML = !hide && chainTurns(R, st) ? '<p class="warn">The longest chain is not the straight row you drew: it turns into a side group. Always look for the longest chain before naming.</p>' : '';
+  $('bSteps').innerHTML = hide ? '<li><b class="t">Your turn</b>Find the main group, the longest chain and the numbering, then type the name.</li>' : steps(R);
+  build.render();
+}
+$('bGuess').addEventListener('change', function(){ bSolved = false; $('bAns').value = ''; $('bMsg').className = 'verdict wait'; $('bMsg').textContent = 'Type your answer, then check.'; updateBuild(); });
+function checkAnswer(st, R, ans){
+  var a = normAnswer(ans); if (!a) return { ok: false, msg: 'Type a name first.' };
+  if (acceptedNames(st, R).indexOf(a) >= 0) return { ok: true };
+  var strip = function(s){ return s.replace(/[\d,]/g, '').replace(/-+/g, '-').replace(/^-|-(?=[a-z]*$)/g, ''); };
+  var tips = [];
+  if (acceptedNames(st, R).some(function(n){ return strip(n) === strip(a); })) tips.push('The parts are right; check the numbers.');
+  else {
+    if (/(^|-)(1|2)-ethyl|(^|-)(1|2|3)-propyl|(^|-)1-methyl/.test(a)) tips.push('A group like that on that carbon makes the chain longer. Look for the longest chain.');
+    var stem = STEM[R.L]; if (a.indexOf(stem) < 0) tips.push('Count the longest chain again.');
+    var p = R.pclass; if (p && a.indexOf(PINFO[p][2].replace(/^-/, '').split(' ')[0]) < 0) tips.push('Check the ending: the main group is ' + PINFO[p][1] + ' (' + PINFO[p][2] + ').');
+  }
+  return { ok: false, msg: tips.join(' ') || 'Check the chain, the numbering and the alphabetical order.' };
+}
+$('bCheck').addEventListener('click', function(){
+  var R = nameMolecule(build.st), r = checkAnswer(build.st, R, $('bAns').value);
+  $('bMsg').className = 'verdict ' + (r.ok ? 'good' : 'bad');
+  $('bMsg').innerHTML = r.ok ? 'Correct: ' + esc(R.iupac) + '.' : 'Not yet. <span>' + r.msg + '</span>';
+  if (r.ok){ bSolved = true; updateBuild(); }
+});
+$('bAns').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('bCheck').click(); });
+$('bReveal').addEventListener('click', function(){ bSolved = true; updateBuild(); });
+updateBuild();
+
+/* =========== TAB 2: name challenge =========== */
+var q = { mode: 'name', cat: 'all', list: [], i: 0, right: 0, tries: 0, hint: 0, answered: false };
+$('qCat').innerHTML = CATS.map(function(c){ return '<option value="' + c[0] + '">' + c[1] + '</option>'; }).join('');
+function qDeck(){ q.list = shuffle(BANK.filter(function(b){ return q.cat === 'all' || b.cat === q.cat; }).slice()); q.i = 0; }
+function qCur(){ return q.list[q.i % q.list.length]; }
+function qScore(){ $('qScore').textContent = q.right + ' / ' + q.tries + ' correct'; }
+var qBuilder = new Builder($('qBuilder'), { state: M(4, '---'), highlight: function(){ return false; } });
+function qShowItem(){
+  var it = qCur(); q.hint = 0; q.answered = false;
+  if (q.mode === 'name'){
+    drawMol($('qSvg'), it.st, {});
+    $('qAns').value = ''; $('qSteps').innerHTML = '';
+    $('qMsg').className = 'verdict wait'; $('qMsg').textContent = 'Both styles are accepted: but-2-ene or 2-butene.';
+  } else {
+    $('qTarget').innerHTML = esc(it.R.iupac) + (it.R.inspire ? '<div class="alt" style="font-size:.9rem;font-weight:400">or ' + esc(it.R.inspire) + '</div>' : '');
+    qBuilder.set(M(4, '---'));
+    $('qBMsg').className = 'verdict wait'; $('qBMsg').textContent = 'Build the molecule on the left, then check.';
+  }
+}
+function qSetMode(m){
+  q.mode = m; $('qModeName').setAttribute('aria-pressed', m === 'name'); $('qModeBuild').setAttribute('aria-pressed', m === 'build');
+  $('qNameMode').hidden = m !== 'name'; $('qBuildMode').hidden = m !== 'build'; qShowItem();
+}
+$('qModeName').addEventListener('click', function(){ qSetMode('name'); });
+$('qModeBuild').addEventListener('click', function(){ qSetMode('build'); });
+$('qCat').addEventListener('change', function(){ q.cat = this.value; qDeck(); qShowItem(); });
+$('qCheck').addEventListener('click', function(){
+  var it = qCur(), r = checkAnswer(it.st, it.R, $('qAns').value);
+  if (!$('qAns').value.trim()){ $('qMsg').className = 'verdict bad'; $('qMsg').textContent = 'Type a name first.'; return; }
+  if (!q.answered){ q.tries++; if (r.ok) q.right++; q.answered = r.ok; qScore(); }
+  $('qMsg').className = 'verdict ' + (r.ok ? 'good' : 'bad');
+  $('qMsg').innerHTML = r.ok ? 'Correct: ' + esc(it.R.iupac) + (it.R.inspire ? ' (or ' + esc(it.R.inspire) + ')' : '') + '.' : 'Not yet. <span>' + r.msg + '</span>';
+  if (r.ok){ drawMol($('qSvg'), it.st, { R: it.R, highlight: true }); $('qSteps').innerHTML = steps(it.R); }
+});
+$('qAns').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('qCheck').click(); });
+$('qHint').addEventListener('click', function(){
+  var it = qCur(), R = it.R; q.hint++;
+  var p = R.pclass, hasU = R.D.length + R.T.length > 0;
+  var fam = p ? 'The main group is ' + PINFO[p][0] + ' (' + PINFO[p][1] + '), so the name ends in ' + PINFO[p][2] + '.' : hasU ? 'There is a C' + (R.T.length ? '≡' : '=') + 'C bond, so the ending is -' + (R.T.length ? 'yne' : 'ene') + '.' : 'Only single bonds and no functional group: the ending is -ane.';
+  if (q.hint === 1){ $('qMsg').className = 'verdict wait'; $('qMsg').textContent = 'Hint 1: ' + fam; }
+  else { drawMol($('qSvg'), it.st, { R: R, highlight: true }); $('qMsg').className = 'verdict wait'; $('qMsg').textContent = 'Hint 2: the parent chain (' + R.L + ' carbons) is highlighted and numbered. Now add the groups in alphabetical order.'; }
+});
+$('qShow').addEventListener('click', function(){
+  var it = qCur(); if (!q.answered){ q.tries++; q.answered = true; qScore(); }
+  drawMol($('qSvg'), it.st, { R: it.R, highlight: true }); $('qSteps').innerHTML = steps(it.R);
+  $('qMsg').className = 'verdict wait'; $('qMsg').innerHTML = 'Answer: <b>' + esc(it.R.iupac) + '</b>' + (it.R.inspire ? ' (or ' + esc(it.R.inspire) + ')' : '');
+});
+$('qNext').addEventListener('click', function(){ q.i++; if (q.i >= q.list.length) qDeck(); qShowItem(); $('qAns').focus(); });
+$('qBCheck').addEventListener('click', function(){
+  var it = qCur(), R = nameMolecule(qBuilder.st), ok = R.iupac === it.R.iupac;
+  if (!q.answered){ q.tries++; if (ok) q.right++; q.answered = ok; qScore(); }
+  $('qBMsg').className = 'verdict ' + (ok ? 'good' : 'bad');
+  $('qBMsg').innerHTML = ok ? 'Correct. Your structure is ' + esc(R.iupac) + '.' : 'Not yet. <span>Your structure is named <b>' + esc(R.iupac) + '</b>. Compare it with the target name.</span>';
+});
+$('qBShow').addEventListener('click', function(){ var it = qCur(); if (!q.answered){ q.tries++; q.answered = true; qScore(); } qBuilder.set(it.st); $('qBMsg').className = 'verdict wait'; $('qBMsg').textContent = 'Here is one correct way to draw ' + it.R.iupac + '.'; });
+$('qBNext').addEventListener('click', function(){ q.i++; if (q.i >= q.list.length) qDeck(); qShowItem(); });
+qDeck(); qScore();
+
+/* =========== TAB 3: isomer hunt =========== */
+var ISETS = [
+  { f: 'C5H12', label: 'C₅H₁₂ · alkanes', fam: ['alkane'], m: [M(5, '----'), M(4, '---', '2u:CH3'), M(3, '--', '2u:CH3', '2d:CH3')] },
+  { f: 'C6H14', label: 'C₆H₁₄ · alkanes', fam: ['alkane'], m: [M(6, '-----'), M(5, '----', '2u:CH3'), M(5, '----', '3u:CH3'), M(4, '---', '2u:CH3', '2d:CH3'), M(4, '---', '2u:CH3', '3u:CH3')] },
+  { f: 'C4H9Cl', label: 'C₄H₉Cl · haloalkanes', fam: ['haloalkane'], m: [M(4, '---', '1l:Cl'), M(4, '---', '2u:Cl'), M(3, '--', '1l:Cl', '2u:CH3'), M(3, '--', '2u:Cl', '2d:CH3')] },
+  { f: 'C5H10', label: 'C₅H₁₀ · alkenes', fam: ['alkene'], m: [M(5, '=---'), M(5, '-=--'), M(4, '=--', '2u:CH3'), M(4, '=--', '3u:CH3'), M(4, '-=-', '2u:CH3')] },
+  { f: 'C5H8', label: 'C₅H₈ · alkynes', fam: ['alkyne'], m: [M(5, '#---'), M(5, '-#--'), M(4, '#--', '3u:CH3')] },
+  { f: 'C4H10O', label: 'C₄H₁₀O · alcohols', fam: ['alcohol'], note: 'C₄H₁₀O also has 3 ether isomers (–O– inside the chain), which this builder cannot draw.', m: [M(4, '---', '4r:OH'), M(4, '---', '2u:OH'), M(3, '--', '1l:OH', '2u:CH3'), M(3, '--', '2u:OH', '2d:CH3')] },
+  { f: 'C5H12O', label: 'C₅H₁₂O · alcohols', fam: ['alcohol'], note: 'C₅H₁₂O also has 6 ether isomers, which this builder cannot draw.', m: [M(5, '----', '5r:OH'), M(5, '----', '2u:OH'), M(5, '----', '3u:OH'), M(4, '---', '1l:OH', '2u:CH3'), M(4, '---', '1l:OH', '3u:CH3'), M(4, '---', '2u:OH', '2d:CH3'), M(4, '---', '2u:OH', '3u:CH3'), M(3, '--', '1l:OH', '2u:CH3', '2d:CH3')] },
+  { f: 'C4H8O', label: 'C₄H₈O · aldehydes and ketones', fam: ['carbonyl'], m: [M(4, '---', '4u:O'), M(3, '--', '3u:O', '2d:CH3'), M(4, '---', '2u:O')] },
+  { f: 'C5H10O', label: 'C₅H₁₀O · aldehydes and ketones', fam: ['carbonyl'], m: [M(5, '----', '5u:O'), M(4, '---', '4u:O', '3d:CH3'), M(4, '---', '4u:O', '2d:CH3'), M(3, '--', '3u:O', '2u:CH3', '2d:CH3'), M(5, '----', '2u:O'), M(5, '----', '3u:O'), M(4, '---', '2u:O', '3d:CH3')] },
+  { f: 'C4H8O2', label: 'C₄H₈O₂ · carboxylic acids', fam: ['acid'], note: 'C₄H₈O₂ also has 4 ester isomers (function isomers), such as ethyl ethanoate.', m: [M(4, '---', '4u:O', '4r:OH'), M(3, '--', '3u:O', '3r:OH', '2d:CH3')] },
+  { f: 'C5H10O2', label: 'C₅H₁₀O₂ · carboxylic acids', fam: ['acid'], m: [M(5, '----', '5u:O', '5r:OH'), M(4, '---', '4u:O', '4r:OH', '3d:CH3'), M(4, '---', '4u:O', '4r:OH', '2d:CH3'), M(3, '--', '3u:O', '3r:OH', '2u:CH3', '2d:CH3')] },
+  { f: 'C4H11N', label: 'C₄H₁₁N · primary amines', fam: ['amine'], note: 'C₄H₁₁N also has secondary and tertiary amines (N inside the chain), which this builder cannot draw.', m: [M(4, '---', '4r:NH2'), M(4, '---', '2u:NH2'), M(3, '--', '1l:NH2', '2u:CH3'), M(3, '--', '2u:NH2', '2d:CH3')] }
+];
+ISETS.forEach(function(s){ s.names = s.m.map(function(st){ return nameMolecule(st).iupac; }); });
+var iso = { set: 6, found: {}, revealed: false };
+$('iSet').innerHTML = ISETS.map(function(s, i){ return '<option value="' + i + '">' + s.label + '</option>'; }).join('');
+$('iSet').value = iso.set;
+var iBuilder = new Builder($('iBuilder'), { state: M(5, '----'), highlight: function(){ return false; }, onChange: isoLive });
+function isoLive(){ var R = nameMolecule(iBuilder.st), f = formula(R.G), S = ISETS[iso.set], ok = f.key === S.f;
+  $('iLive').innerHTML = 'Your molecule: <b class="mono">' + f.text + '</b> ' + (ok ? '✓ matches' : '(target ' + fmtF(S.f) + ')'); }
+function fmtF(k){ return k.replace(/(\d+)/g, function(d){ return sub(d); }); }
+function isoRender(){
+  var S = ISETS[iso.set], n = S.names.length, k = Object.keys(iso.found).length;
+  $('iTarget').innerHTML = fmtF(S.f) + ' <span class="alt" style="font-size:.95rem;font-weight:400">· find all ' + n + ' ' + S.label.split('· ')[1] + '</span>';
+  $('iSlots').innerHTML = S.names.map(function(_, i){ return '<span class="slot' + (i < k ? ' on' : '') + '">' + (i + 1) + '</span>'; }).join('');
+  $('iCount').textContent = k + ' of ' + n + ' found';
+  $('iBar').style.width = (100 * k / n) + '%';
+  var html = '';
+  Object.keys(iso.found).forEach(function(nm){ html += isoCard(iso.found[nm], nm, false); });
+  if (iso.revealed) S.names.forEach(function(nm, i){ if (!iso.found[nm]) html += isoCard(S.m[i], nm, true); });
+  $('iFound').innerHTML = html || '<p class="caption">Nothing yet. Build your first isomer and press "Add this isomer".</p>';
+  $('iFound').querySelectorAll('svg[data-i]').forEach(function(svg){ var nm = svg.getAttribute('data-nm'); var st = iso.found[nm] || S.m[S.names.indexOf(nm)]; drawMol(svg, st, { mini: true }); });
+  if (S.note) $('iFound').insertAdjacentHTML('beforeend', '<p class="caption" style="grid-column:1/-1">' + S.note + '</p>');
+}
+function isoCard(st, nm, missing){
+  var R = nameMolecule(st), fam = family(R), ez = ezPossible(R.G).length;
+  return '<div class="iso' + (missing ? ' missing' : '') + '"><svg class="mol" data-i="1" data-nm="' + esc(nm) + '" role="img" aria-label="' + esc(nm) + '"></svg><span class="nm">' + esc(nm) + '</span><span class="ty">' + (missing ? 'Not found yet · ' : '') + fam.label + (fam.degree ? ', ' + fam.degree : '') + (ez ? ' · has E/Z forms' : '') + '</span></div>';
+}
+$('iAdd').addEventListener('click', function(){
+  var S = ISETS[iso.set], R = nameMolecule(iBuilder.st), f = formula(R.G), fam = family(R), msg = $('iMsg');
+  if (f.key !== S.f){ msg.className = 'verdict bad'; msg.innerHTML = 'Not this formula. <span>Your molecule is ' + f.text + ', the target is ' + fmtF(S.f) + '. Count the carbons and the hydrogens again.</span>'; return; }
+  if (S.fam.indexOf(fam.key) < 0 || fam.unsat){ msg.className = 'verdict bad'; msg.innerHTML = 'Right formula, other family. <span>' + esc(R.iupac) + ' is a real isomer of ' + fmtF(S.f) + ' (' + fam.label.toLowerCase() + '), but this hunt is for ' + S.label.split('· ')[1] + '.</span>'; return; }
+  if (iso.found[R.iupac]){ msg.className = 'verdict wait'; msg.textContent = 'You already found ' + R.iupac + '. Drawing it a different way gives the same molecule.'; return; }
+  iso.found[R.iupac] = clone(iBuilder.st);
+  var k = Object.keys(iso.found).length, n = S.names.length;
+  msg.className = 'verdict good'; msg.innerHTML = 'New isomer: ' + esc(R.iupac) + '. <span>' + (k === n ? 'You found all ' + n + '!' : (n - k) + ' to go.') + '</span>';
+  isoRender();
+});
+$('iSet').addEventListener('change', function(){ iso.set = +this.value; iso.found = {}; iso.revealed = false; var S = ISETS[iso.set]; iBuilder.set(emptyState(+S.f.match(/C(\d+)/)[1])); $('iMsg').className = 'verdict wait'; $('iMsg').textContent = 'Build a molecule with this formula, then add it.'; isoRender(); });
+$('iReveal').addEventListener('click', function(){ iso.revealed = !iso.revealed; this.textContent = iso.revealed ? 'Hide the missing ones' : 'Show the missing ones'; isoRender(); });
+$('iReset').addEventListener('click', function(){ iso.found = {}; iso.revealed = false; $('iReveal').textContent = 'Show the missing ones'; isoRender(); });
+iBuilder.set(emptyState(5)); isoRender();
+
+/* =========== TAB 4: mystery compounds =========== */
+var COMP = [
+  { n: 'ethanol', f: 'CH₃CH₂OH', fam: 'alc1' }, { n: 'propan-2-ol', f: 'CH₃CH(OH)CH₃', fam: 'alc2' }, { n: '2-methylpropan-2-ol', f: '(CH₃)₃COH', fam: 'alc3' },
+  { n: 'ethanal', f: 'CH₃CHO', fam: 'ald' }, { n: 'propanone', f: 'CH₃COCH₃', fam: 'ket' }, { n: 'ethanoic acid', f: 'CH₃COOH', fam: 'acid' },
+  { n: 'ethyl ethanoate', f: 'CH₃COOCH₂CH₃', fam: 'ester' }, { n: 'hex-1-ene', f: 'CH₂=CH(CH₂)₃CH₃', fam: 'alkene' }, { n: 'hexane', f: 'CH₃(CH₂)₄CH₃', fam: 'alkane' },
+  { n: 'methanamine', f: 'CH₃NH₂ (in water)', fam: 'am1' }, { n: 'N-methylmethanamine', f: '(CH₃)₂NH (in water)', fam: 'am2' }, { n: 'N,N-dimethylmethanamine', f: '(CH₃)₃N (in water)', fam: 'am3' },
+  { n: 'ethanamide', f: 'CH₃CONH₂ (in water)', fam: 'amide' }, { n: '2-aminoethanoic acid (glycine)', f: 'NH₂CH₂COOH (in water)', fam: 'aa' }
+];
+var CLEAR = '#DCE8EE';
+var TESTS = [
+  { id: 'smell', g: 'First look', n: 'Smell (waft gently)', short: 'Smell', start: CLEAR,
+    r: function(f){ var t = { alc1: ['alcohol-like', 'A sharp, alcohol-like smell.'], alc2: ['alcohol-like', 'A sharp, alcohol-like smell.'], alc3: ['alcohol-like', 'A sharp, alcohol-like smell.'], ald: ['sharp, fruity', 'A sharp, irritating fruity smell.'], ket: ['sweet', 'A sweet smell, like nail-polish remover.'], acid: ['vinegar', 'A sharp vinegar smell.'], ester: ['fruity', 'A sweet, fruity smell (like pear drops).'], alkene: ['petrol', 'A petrol-like smell.'], alkane: ['petrol', 'A petrol-like smell.'], am1: ['fishy', 'A fishy smell.'], am2: ['fishy', 'A fishy smell.'], am3: ['fishy', 'A strong fishy smell.'], amide: ['none', 'Almost no smell (a white solid dissolved in water).'], aa: ['none', 'No smell (a white solid dissolved in water).'] }[f];
+      return { pos: false, s: t[0], o: t[1], v: { liq: CLEAR, smell: t[0] !== 'none' } }; } },
+  { id: 'dnph', g: 'Carbonyl tests', n: '2,4-DNPH (Brady\'s reagent)', short: '2,4-DNPH', start: '#E8742A',
+    r: function(f){ var p = f === 'ald' || f === 'ket'; return { pos: p, s: p ? 'yellow-orange ppt' : 'no ppt', o: p ? 'A yellow-orange precipitate forms: a C=O group (aldehyde or ketone).' : 'No precipitate.', v: { liq: '#E8742A', ppt: p ? '#F2A900' : null } }; } },
+  { id: 'tollens', g: 'Carbonyl tests', n: 'Tollens\' reagent, warm', short: 'Tollens', start: CLEAR, heat: true,
+    r: function(f){ var p = f === 'ald'; return { pos: p, s: p ? 'silver mirror' : 'no change', o: p ? 'A silver mirror coats the tube: an aldehyde.' : 'No silver mirror.', v: { liq: p ? '#B8BEC4' : CLEAR, mirror: p } }; } },
+  { id: 'fehling', g: 'Carbonyl tests', n: 'Fehling\'s solution, warm', short: 'Fehling', start: '#1F5BD6', heat: true,
+    r: function(f){ var p = f === 'ald'; return { pos: p, s: p ? 'brick-red ppt' : 'stays blue', o: p ? 'The blue solution gives a brick-red precipitate: an aldehyde.' : 'The solution stays blue.', v: { liq: p ? '#6F8FCB' : '#1F5BD6', ppt: p ? '#B5401F' : null } }; } },
+  { id: 'kmno4', g: 'Oxidation tests', n: 'Acidified KMnO₄ (purple)', short: 'KMnO₄', start: '#7A1FA2',
+    r: function(f){ var p = ['alc1', 'alc2', 'ald', 'alkene'].indexOf(f) >= 0; return { pos: p, s: p ? 'decolorized' : 'stays purple', o: p ? 'The purple colour disappears: the compound is oxidised (1° or 2° alcohol, aldehyde, or C=C).' : 'Stays purple: not oxidised (ketone, 3° alcohol, acid…).', v: { liq: p ? CLEAR : '#7A1FA2' } }; } },
+  { id: 'k2cr2o7', g: 'Oxidation tests', n: 'Acidified K₂Cr₂O₇, warm (orange)', short: 'K₂Cr₂O₇', start: '#F08A1C', heat: true,
+    r: function(f){ var p = ['alc1', 'alc2', 'ald'].indexOf(f) >= 0; return { pos: p, s: p ? 'orange → green' : 'stays orange', o: p ? 'Orange turns green: a 1° or 2° alcohol or an aldehyde is oxidised.' : 'Stays orange: no oxidation (ketone, 3° alcohol…).', v: { liq: p ? '#2E9E57' : '#F08A1C' } }; } },
+  { id: 'nahco3', g: 'Acids and C=C', n: 'NaHCO₃ solution', short: 'NaHCO₃', start: CLEAR,
+    r: function(f){ var p = f === 'acid'; return { pos: p, s: p ? 'fizzing (CO₂)' : 'no fizzing', o: p ? 'Effervescence: bubbles of CO₂ show a carboxylic acid.' : 'No bubbles.', v: { liq: CLEAR, bubbles: p } }; } },
+  { id: 'br2', g: 'Acids and C=C', n: 'Bromine water (orange-brown)', short: 'Br₂ water', start: '#D9822B',
+    r: function(f){ var p = f === 'alkene'; return { pos: p, s: p ? 'decolorized' : 'stays orange', o: p ? 'The orange-brown colour disappears quickly: a C=C double bond (addition of Br₂).' : 'Stays orange-brown.', v: { liq: p ? CLEAR : '#D9822B' } }; } },
+  { id: 'litmus', g: 'Acids and C=C', n: 'Damp red and blue litmus', short: 'Litmus', start: CLEAR,
+    r: function(f){ var b = ['am1', 'am2', 'am3'].indexOf(f) >= 0, a = f === 'acid'; return { pos: a || b, s: b ? 'red → blue' : a ? 'blue → red' : 'no change', o: b ? 'Red litmus turns blue: a base (amine).' : a ? 'Blue litmus turns red: an acid.' : 'Neither litmus changes colour: neutral.', v: { liq: CLEAR, litmus: b ? 'base' : a ? 'acid' : 'none' } }; } },
+  { id: 'hno2', g: 'Nitrogen tests', n: 'Nitrous acid (NaNO₂ + HCl, cold)', short: 'HNO₂', start: CLEAR,
+    r: function(f){ var gas = f === 'am1' || f === 'aa' || f === 'amide', oil = f === 'am2', t3 = f === 'am3';
+      return { pos: gas || oil, s: gas ? 'N₂ bubbles' : oil ? 'yellow oil' : t3 ? 'dissolves' : 'no change', o: gas ? 'Bubbles of N₂ gas: a primary –NH₂ group (1° amine, amino acid' + (f === 'amide' ? ', or amide' : '') + ').' : oil ? 'A yellow oily layer forms: a secondary amine.' : t3 ? 'It dissolves with no gas: a tertiary amine forms a salt.' : 'No visible change.', v: { liq: CLEAR, bubbles: gas, oil: oil } }; } },
+  { id: 'carbyl', g: 'Nitrogen tests', n: 'Carbylamine test (CHCl₃ + KOH, warm)', short: 'Carbylamine', start: CLEAR, heat: true,
+    r: function(f){ var p = f === 'am1' || f === 'aa'; return { pos: p, s: p ? 'foul smell' : 'no smell', o: p ? 'A foul smell (an isocyanide): a primary amine group.' : 'No foul smell: not a primary amine.', v: { liq: CLEAR, smell: p, foul: p } }; } },
+  { id: 'naoh', g: 'Nitrogen tests', n: 'NaOH, heat (damp red litmus at the mouth)', short: 'NaOH + heat', start: CLEAR, heat: true,
+    r: function(f){ var nh3 = f === 'amide', am = ['am1', 'am2', 'am3'].indexOf(f) >= 0, es = f === 'ester';
+      return { pos: nh3, s: nh3 ? 'NH₃ gas' : am ? 'fishy gas' : es ? 'smell fades' : 'no gas', o: nh3 ? 'Ammonia gas turns the damp red litmus blue: an amide is hydrolysed.' : am ? 'A fishy gas turns the litmus blue: the amine itself escapes (it was already basic before heating).' : es ? 'No gas. The fruity smell slowly fades: the ester is hydrolysed (saponification).' : 'No gas.', v: { liq: CLEAR, gas: nh3 || am } }; } },
+  { id: 'ninhydrin', g: 'Nitrogen tests', n: 'Ninhydrin, warm', short: 'Ninhydrin', start: CLEAR, heat: true,
+    r: function(f){ var p = f === 'aa', w = f === 'am1'; return { pos: p, s: p ? 'blue-purple' : w ? 'faint purple' : 'no colour', o: p ? 'A deep blue-purple colour: an amino acid.' : w ? 'Only a faint purple tint (primary amines react weakly).' : 'No colour change.', v: { liq: p ? '#5B2C9E' : w ? '#C7B6E2' : CLEAR } }; } }
+];
+var lab = { set: [], sel: 0, res: {}, guess: {}, checked: false, last: null };
+function labNew(){
+  lab.set = shuffle(COMP.map(function(_, i){ return i; })).slice(0, 6); lab.sel = 0; lab.res = {}; lab.guess = {}; lab.checked = false; lab.last = null;
+  labRender(); drawTube(null); $('lObs').innerHTML = '<b>Choose a bottle and a test.</b>Each test uses a fresh sample, so you can repeat tests as often as you like.';
+  $('lMsg').className = 'verdict wait'; $('lMsg').textContent = 'Highlighted cells are positive results. When you are sure, choose a name for each bottle.';
+}
+var LET = 'ABCDEF';
+function labRender(){
+  $('lBottles').innerHTML = lab.set.map(function(c, i){ return '<button class="bottle" data-b="' + i + '" aria-pressed="' + (i === lab.sel) + '"><svg viewBox="0 0 34 46" aria-hidden="true"><rect x="12" y="2" width="10" height="8" rx="2" fill="var(--muted)"/><path d="M8 12 h18 v28 a4 4 0 0 1 -4 4 h-10 a4 4 0 0 1 -4 -4z" fill="var(--glass)" stroke="var(--glass-line)" stroke-width="1.5"/><rect x="10" y="24" width="14" height="10" rx="1.5" fill="var(--surface)" stroke="var(--line)"/></svg><b>' + LET[i] + '</b><small>Unknown</small></button>'; }).join('');
+  var head = '<tr><th>Bottle</th>' + TESTS.map(function(t){ return '<th>' + t.short + '</th>'; }).join('') + '<th>Your identification</th></tr>';
+  var rows = lab.set.map(function(c, i){
+    return '<tr><td>' + LET[i] + '</td>' + TESTS.map(function(t){ var r = lab.res[i + ':' + t.id]; return '<td class="' + (r ? (r.pos ? 'pos' : 'neg') : '') + '">' + (r ? esc(r.s) : '') + '</td>'; }).join('') +
+      '<td><select data-g="' + i + '" id="lg' + i + '" aria-label="Identification of bottle ' + LET[i] + '"><option value="">Choose…</option>' + COMP.map(function(x, k){ return '<option value="' + k + '"' + (lab.guess[i] == k ? ' selected' : '') + '>' + esc(x.n) + '</option>'; }).join('') + '</select>' +
+      (lab.checked && lab.guess[i] !== undefined && lab.guess[i] !== '' ? ' <span class="idmark ' + (+lab.guess[i] === c ? 'ok">✓' : 'no">✗') + '</span>' : '') + '</td></tr>';
+  }).join('');
+  $('lTable').innerHTML = head + rows;
+}
+(function(){
+  var groups = {}, order_ = [];
+  TESTS.forEach(function(t, i){ if (!groups[t.g]){ groups[t.g] = []; order_.push(t.g); } groups[t.g].push('<button class="btn small" data-t="' + i + '">' + t.n + '</button>'); });
+  $('lTests').innerHTML = order_.map(function(g){ return '<div class="tgroup"><small>' + g + '</small><div class="row">' + groups[g].join('') + '</div></div>'; }).join('');
+  var REF = [['2,4-DNPH', 'Yellow-orange precipitate', 'Aldehydes and ketones'], ['Tollens\' reagent', 'Silver mirror', 'Aldehydes (not ketones)'], ['Fehling\'s solution', 'Blue → brick-red precipitate', 'Aldehydes (ketones stay blue)'],
+    ['Acidified KMnO₄', 'Purple → colourless', 'Aldehydes, 1° and 2° alcohols, alkenes (ketones and 3° alcohols stay purple)'], ['Acidified K₂Cr₂O₇', 'Orange → green', 'Aldehydes, 1° and 2° alcohols (ketones and 3° alcohols stay orange)'],
+    ['NaHCO₃', 'Effervescence (CO₂)', 'Carboxylic acids'], ['Bromine water', 'Orange-brown → colourless', 'Alkenes (C=C)'], ['Litmus', 'Red → blue / blue → red', 'Amines are basic / acids are acidic'],
+    ['Nitrous acid', 'N₂ bubbles / yellow oil / dissolves', '1° amines and amino acids / 2° amines / 3° amines'], ['Carbylamine test', 'Foul smell', '1° amines (2° and 3° do not react)'],
+    ['NaOH + heat', 'NH₃ turns damp red litmus blue', 'Amides'], ['Ninhydrin', 'Blue-purple', 'Amino acids']];
+  $('lRef').innerHTML = '<tr><th>Test</th><th>Positive result</th><th>Shows</th></tr>' + REF.map(function(r){ return '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>'; }).join('');
+})();
+$('lBottles').addEventListener('click', function(e){ var b = e.target.closest('[data-b]'); if (!b) return; lab.sel = +b.getAttribute('data-b'); labRender(); });
+$('lTests').addEventListener('click', function(e){
+  var b = e.target.closest('[data-t]'); if (!b) return;
+  var t = TESTS[+b.getAttribute('data-t')], c = COMP[lab.set[lab.sel]], r = t.r(c.fam);
+  lab.res[lab.sel + ':' + t.id] = r; labRender();
+  drawTube(t, r);
+  $('lObs').innerHTML = '<b>Bottle ' + LET[lab.sel] + ' + ' + esc(t.n) + '</b>' + esc(r.o);
+});
+$('lTable').addEventListener('change', function(e){ var g = e.target.getAttribute('data-g'); if (g === null) return; lab.guess[+g] = e.target.value; });
+$('lNew').addEventListener('click', labNew);
+var KEY = { alc1: 'oxidised by KMnO₄ and K₂Cr₂O₇, no reaction with 2,4-DNPH: a primary alcohol', alc2: 'oxidised by K₂Cr₂O₇ but not a carbonyl: a secondary alcohol (like ethanol, so compare the formulas)', alc3: 'not oxidised at all and not a carbonyl: a tertiary alcohol',
+  ald: '2,4-DNPH precipitate plus a silver mirror with Tollens: an aldehyde', ket: '2,4-DNPH precipitate but no Tollens or Fehling result: a ketone', acid: 'fizzing with NaHCO₃: a carboxylic acid', ester: 'fruity smell, no acid or carbonyl result: an ester',
+  alkene: 'decolorizes bromine water: an alkene', alkane: 'no reaction with any test: an alkane', am1: 'basic, N₂ bubbles with nitrous acid and a foul carbylamine smell: a primary amine', am2: 'basic, yellow oil with nitrous acid: a secondary amine',
+  am3: 'basic, dissolves in nitrous acid without gas: a tertiary amine', amide: 'neutral, but gives NH₃ when heated with NaOH: an amide', aa: 'blue-purple with ninhydrin: an amino acid' };
+$('lCheck').addEventListener('click', function(){
+  lab.checked = true; var right = 0, notes = [];
+  lab.set.forEach(function(c, i){ var g = lab.guess[i]; if (g !== undefined && g !== '' && +g === c) right++; else notes.push('<b>' + LET[i] + '</b> is ' + esc(COMP[c].n) + ': ' + KEY[COMP[c].fam] + '.'); });
+  labRender();
+  $('lMsg').className = 'verdict ' + (right === 6 ? 'good' : 'bad');
+  $('lMsg').innerHTML = right + ' of 6 correct.' + (notes.length ? '<span><br>' + notes.join('<br>') + '</span>' : ' <span>Excellent lab work.</span>');
+});
+function drawTube(t, r){
+  var svg = $('lTube'), v = r ? r.v : { liq: CLEAR }, start = t ? t.start : CLEAR, o = '';
+  o += '<defs><clipPath id="tubeClip"><path d="M38 24 V176 a22 22 0 0 0 44 0 V24 Z"/></clipPath>' +
+    '<linearGradient id="silver" x1="0" x2="1"><stop offset="0" stop-color="#8E979F"/><stop offset=".5" stop-color="#E7EBEE"/><stop offset="1" stop-color="#8E979F"/></linearGradient></defs>';
+  if (v.smell) o += [0, 1, 2].map(function(k){ return '<path class="wisp" style="animation-delay:' + (k * .6) + 's" d="M' + (48 + k * 12) + ' 16 q-6 -8 0 -16 q6 -8 0 -16" fill="none" stroke="' + (v.foul ? '#8A7B2E' : 'var(--muted)') + '" stroke-width="2" stroke-linecap="round"/>'; }).join('');
+  o += '<path d="M38 24 V176 a22 22 0 0 0 44 0 V24" fill="var(--glass)" stroke="var(--glass-line)" stroke-width="2.5"/>';
+  o += '<g clip-path="url(#tubeClip)"><rect class="liq" id="liq" x="30" y="104" width="60" height="100" fill="' + start + '" opacity=".9"/>';
+  if (v.oil) o += '<rect x="30" y="104" width="60" height="12" fill="#E8C547" opacity=".95"/>';
+  if (v.ppt) o += '<rect x="30" y="178" width="60" height="30" fill="' + v.ppt + '"><animate attributeName="opacity" from="0" to="1" dur="1.4s" fill="freeze"/></rect>';
+  if (v.mirror) o += '<rect x="38" y="90" width="44" height="120" fill="url(#silver)" opacity=".85"><animate attributeName="opacity" from="0" to=".85" dur="1.6s" fill="freeze"/></rect>';
+  if (v.bubbles) o += [0, 1, 2, 3, 4, 5].map(function(k){ return '<circle class="bub" style="animation-delay:' + (k * .23) + 's" cx="' + (46 + (k * 7) % 28) + '" cy="' + (190 - (k % 3) * 6) + '" r="' + (2 + k % 2) + '" fill="none" stroke="var(--ink)" stroke-width="1.2"/>'; }).join('');
+  o += '</g>';
+  if (v.litmus){
+    var redTo = v.litmus === 'base' ? '#2F5FD0' : '#D2453B', blueTo = v.litmus === 'acid' ? '#D2453B' : '#2F5FD0';
+    o += '<rect x="46" y="60" width="9" height="70" rx="2" fill="#D2453B"><animate attributeName="fill" to="' + redTo + '" begin=".3s" dur="1.2s" fill="freeze"/></rect>' +
+         '<rect x="65" y="60" width="9" height="70" rx="2" fill="#2F5FD0"><animate attributeName="fill" to="' + blueTo + '" begin=".3s" dur="1.2s" fill="freeze"/></rect>';
+  }
+  if (t && t.id === 'naoh') o += '<rect x="54" y="4" width="12" height="26" rx="2" fill="#D2453B">' + (v.gas ? '<animate attributeName="fill" to="#2F5FD0" begin=".8s" dur="1.4s" fill="freeze"/>' : '') + '</rect>';
+  if (t && t.heat) o += '<path d="M60 228 c-10 -8 -6 -18 0 -24 c6 6 10 16 0 24z" fill="#F08A1C" opacity=".9"/>';
+  svg.innerHTML = o;
+  if (r){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ var l = document.getElementById('liq'); if (l) l.setAttribute('fill', v.liq); }); }); }
+}
+labNew();
+
+/* =========== tabs =========== */
+var TABS = ['build', 'quiz', 'iso', 'lab'];
+function selectTab(name, focus){
+  TABS.forEach(function(t){ var b = $('t-' + t), on = t === name; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; $('p-' + t).hidden = !on; if (on && focus) b.focus(); });
+  try { history.replaceState(null, '', '#' + name); } catch (e) {}
+}
+TABS.forEach(function(t, i){ var b = $('t-' + t);
+  b.addEventListener('click', function(){ selectTab(t); });
+  b.addEventListener('keydown', function(ev){ if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft'){ ev.preventDefault(); selectTab(TABS[(i + (ev.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length], true); } });
+});
+qShowItem();
+var h0 = (location.hash || '').slice(1); if (TABS.indexOf(h0) >= 0) selectTab(h0);
+
+</script>
