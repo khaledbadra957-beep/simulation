@@ -387,7 +387,7 @@ table.ref th{font-size:.72rem;color:var(--muted)}
     </div>
   </section>
 
-  <p class="foot">Names follow IUPAC rules as taught in school: the parent chain is the longest chain that contains the main functional group and any C=C or C≡C, numbered so that the main group (then the multiple bond, then the substituents) gets the lowest numbers; substituents are listed in alphabetical order, ignoring di-, tri- and tetra-. Both styles are shown and accepted, for example but-2-ene (current IUPAC) and 2-butene (older style used in Inspire Chemistry). Esters are named alkyl + alkanoate (propan-2-yl ethanoate), ethers as alkoxyalkanes (2-methoxypropane), and groups on nitrogen take the locant N (N-methylethanamide). Test results follow Mr Khaled's identification table.</p>
+  <p class="foot">Names follow IUPAC rules as taught in school: the parent chain is the longest chain that contains the main functional group and any C=C or C≡C, numbered so that the main group (then the multiple bond, then the substituents) gets the lowest numbers; substituents are listed in alphabetical order, ignoring di-, tri- and tetra-. Both styles are shown and accepted, for example but-2-ene (current IUPAC) and 2-butene (older style used in Inspire Chemistry). Esters are named alkyl + alkanoate (propan-2-yl ethanoate), ethers as alkoxyalkanes (2-methoxypropane), and groups on nitrogen take the locant N (N-methylethanamide). In rings the ring is the parent (methylcyclohexane, 2-methylphenol); when a chain is longer than the ring, the older chain-as-parent name is also accepted, and benzene common names (toluene, o-, m-, p-xylene) are shown too. Test results follow Mr Khaled's identification table.</p>
 </div>
 
 <script>
@@ -397,38 +397,46 @@ var MULT = ['', '', 'di', 'tri', 'tetra', 'penta', 'hexa', 'hepta', 'octa'];
 var MULTC = ['', '', 'bis', 'tris', 'tetrakis', 'pentakis'];
 var HAL = { F: 'fluoro', Cl: 'chloro', Br: 'bromo', I: 'iodo' };
 var GVAL = { O: 2 };
-var ALKYL = { CH3: 1, C2H5: 2, C3H7: 3, iPr: 3 };
+var ALKYL = { CH3: 1, C2H5: 2, C3H7: 3, C4H9: 4, iPr: 3 };
 var PCLASS = { acid: 5, ald: 4, ket: 3, alc: 2, amine: 1 };
 
 /* builder state -> graph with drawing coordinates */
 function emptyState(n){ var s = { n: n, bonds: [], slots: [] }; for (var i = 0; i < n; i++){ s.slots.push({}); if (i) s.bonds.push(1); } return s; }
-function slotsFor(i, n){ var a = ['u', 'd']; if (i === 0) a.push('l'); if (i === n - 1) a.push('r'); return a; }
+function slotsFor(i, n, st){ if (st && st.ring) return st.arom ? ['a'] : ['a', 'b']; var a = ['u', 'd']; if (i === 0) a.push('l'); if (i === n - 1) a.push('r'); return a; }
+function emptyRing(n, arom){ var s = { ring: true, n: arom ? 6 : n, arom: !!arom, bonds: [], slots: [] }; for (var i = 0; i < s.n; i++){ s.slots.push({}); s.bonds.push(arom ? (i % 2 ? 1 : 2) : 1); } return s; }
 var DIR = { u: [0, -1], d: [0, 1], l: [-1, 0], r: [1, 0] };
 function toGraph(st){
   var atoms = [], links = [];
   function add(x, y, origin){ atoms.push({ nb: [], g: [], x: x, y: y, origin: origin }); return atoms.length - 1; }
   function bond(a, b, o){ atoms[a].nb.push({ to: b, o: o }); atoms[b].nb.push({ to: a, o: o }); links.push([a, b, o]); }
-  var SX = 1, i;
-  for (i = 0; i < st.n; i++) add(i * SX, 0, { c: i });
-  for (i = 0; i < st.n - 1; i++) bond(i, i + 1, st.bonds[i]);
-  var hets = [];
+  var SX = 1, i, ring = !!st.ring, RR = ring ? 1 / (2 * Math.sin(Math.PI / st.n)) : 0;
   for (i = 0; i < st.n; i++){
-    var sl = st.slots[i];
+    if (ring){ var th = -Math.PI / 2 + i * 2 * Math.PI / st.n; add(RR * Math.cos(th), RR * Math.sin(th), { c: i }); atoms[i].inRing = true; atoms[i].arom = !!st.arom; atoms[i].ux = Math.cos(th); atoms[i].uy = Math.sin(th); }
+    else add(i * SX, 0, { c: i });
+  }
+  for (i = 0; i < st.n - 1; i++) bond(i, i + 1, st.bonds[i]);
+  if (ring){ bond(st.n - 1, 0, st.bonds[st.n - 1]); links.forEach(function(l){ l[3] = !!st.arom; l[4] = true; }); }
+  var hets = [];
+  function dirOf(i, k){
+    if (!ring) return DIR[k];
+    var a = atoms[i], both = st.slots[i].a && st.slots[i].b, ang = Math.atan2(a.uy, a.ux) + (both ? (k === 'a' ? -0.45 : 0.45) : 0);
+    return [Math.cos(ang), Math.sin(ang)];
+  }
+  for (i = 0; i < st.n; i++){
+    var sl = st.slots[i], bx = atoms[i].x, by = atoms[i].y;
     for (var k in sl){
       var g = sl[k]; if (!g) continue;
-      var d = DIR[k], px = -d[1], py = d[0];
+      var d = dirOf(i, k), px = -d[1], py = d[0];
       if (ALKYL[g]){
-        var r = add(i + d[0] * 0.8, d[1] * 0.8, { c: i, slot: k, part: 0 }); bond(i, r, 1);
-        if (g === 'C2H5' || g === 'C3H7'){ var b2 = add(i + d[0] * 1.6, d[1] * 1.6, { c: i, slot: k, part: 1 }); bond(r, b2, 1);
-          if (g === 'C3H7'){ var b3 = add(i + d[0] * 2.4, d[1] * 2.4, { c: i, slot: k, part: 2 }); bond(b2, b3, 1); } }
+        var r = add(bx + d[0] * 0.8, by + d[1] * 0.8, { c: i, slot: k, part: 0 }); bond(i, r, 1);
         if (g === 'iPr'){
-          var c1 = add(i + d[0] * 1.45 + px * 0.55, d[1] * 1.45 + py * 0.55, { c: i, slot: k, part: 1 }); bond(r, c1, 1);
-          var c2 = add(i + d[0] * 1.45 - px * 0.55, d[1] * 1.45 - py * 0.55, { c: i, slot: k, part: 2 }); bond(r, c2, 1);
-        }
-      } else { atoms[i].g.push(g); hets.push({ atom: i, g: g, x: i + d[0] * 0.8, y: d[1] * 0.8, slot: k }); }
+          var c1 = add(bx + d[0] * 1.45 + px * 0.55, by + d[1] * 1.45 + py * 0.55, { c: i, slot: k, part: 1 }); bond(r, c1, 1);
+          var c2 = add(bx + d[0] * 1.45 - px * 0.55, by + d[1] * 1.45 - py * 0.55, { c: i, slot: k, part: 2 }); bond(r, c2, 1);
+        } else { var prev = r; for (var q = 1; q < ALKYL[g]; q++){ var nx = add(bx + d[0] * 0.8 * (q + 1), by + d[1] * 0.8 * (q + 1), { c: i, slot: k, part: q }); bond(prev, nx, 1); prev = nx; } }
+      } else { atoms[i].g.push(g); hets.push({ atom: i, g: g, x: bx + d[0] * 0.8, y: by + d[1] * 0.8, slot: k }); }
     }
   }
-  return { atoms: atoms, links: links, hets: hets };
+  return { atoms: atoms, links: links, hets: hets, ring: ring ? { n: st.n, arom: !!st.arom } : null };
 }
 function hCount(a){ var u = 0; a.nb.forEach(function(e){ u += e.o; }); a.g.forEach(function(g){ u += GVAL[g] || 1; }); return 4 - u; }
 function stateValid(st){ var G = toGraph(st); return G.atoms.every(function(a){ return hCount(a) >= 0; }); }
@@ -466,11 +474,12 @@ function cmpArr(a, b){ for (var i = 0; i < Math.min(a.length, b.length); i++){ i
 function cmpList(A, B){ for (var i = 0; i < A.length; i++){ var c = Array.isArray(A[i]) ? cmpArr(A[i], B[i]) : (A[i] < B[i] ? -1 : A[i] > B[i] ? 1 : 0); if (c) return c; } return 0; }
 function pathTo(G, s, t){
   var prev = {}; prev[s] = -1; var q = [s];
-  while (q.length){ var x = q.shift(); if (x === t) break; G.atoms[x].nb.forEach(function(e){ if (!(e.to in prev)){ prev[e.to] = x; q.push(e.to); } }); }
+  while (q.length){ var x = q.shift(); if (x === t) break; G.atoms[x].nb.forEach(function(e){ if (!(e.to in prev) && !G.atoms[e.to].inRing){ prev[e.to] = x; q.push(e.to); } }); }
+  if (!(t in prev)) return null;
   var p = [], c = t; while (c !== -1){ p.push(c); c = prev[c]; } return p.reverse();
 }
 function subtree(G, root, parent){ var seen = {}; seen[parent] = 1; seen[root] = 1; var out = [root], q = [root];
-  while (q.length){ var x = q.shift(); G.atoms[x].nb.forEach(function(e){ if (!seen[e.to]){ seen[e.to] = 1; out.push(e.to); q.push(e.to); } }); } return out; }
+  while (q.length){ var x = q.shift(); G.atoms[x].nb.forEach(function(e){ if (!seen[e.to] && !G.atoms[e.to].inRing){ seen[e.to] = 1; out.push(e.to); q.push(e.to); } }); } return out; }
 
 /* substituent items on a numbered chain */
 function chainItems(G, P, isBranch, parent){
@@ -480,7 +489,7 @@ function chainItems(G, P, isBranch, parent){
     var atom = G.atoms[a];
     var pre = isBranch ? atom.g.map(function(g){ return HAL[g] || (g === 'O' ? 'oxo' : g === 'OH' ? 'hydroxy' : g === 'NH2' ? 'amino' : g.slice(2)); }) : atom.pre;
     pre.forEach(function(nm){ var cx = /\d/.test(nm); items.push({ name: nm, loc: k + 1, complex: cx, key: cx ? nm.replace(/[^a-z]/g, '') : nm }); });
-    atom.nb.forEach(function(e){ if (!inP[e.to]){ var b = branchName(G, e.to, a); items.push({ name: b.name, loc: k + 1, complex: b.complex, key: b.key, atoms: b.atoms }); } });
+    atom.nb.forEach(function(e){ if (!inP[e.to]){ var b = G.atoms[e.to].inRing ? ringSubName(G, e.to, a) : branchName(G, e.to, a); items.push({ name: b.name, loc: k + 1, complex: b.complex, key: b.key, atoms: b.atoms }); } });
   });
   return items;
 }
@@ -512,7 +521,7 @@ function chainScore(G, P, isBranch, parent){
 function branchName(G, root, parent){
   var sub = subtree(G, root, parent), best = null;
   sub.forEach(function(t){
-    var P = pathTo(G, root, t); if (P.some(function(x){ return x === parent; })) return;
+    var P = pathTo(G, root, t); if (!P || P.some(function(x){ return x === parent; })) return;
     var bd = bestDirection(G, P, true, parent), sc = chainScore(G, P, true, parent);
     var key = sc.concat(bd.d.vec);
     if (!best || cmpList(key, best.key) < 0) best = { key: key, P: P, d: bd.d };
@@ -543,11 +552,24 @@ function assemble(items, showLoc){
   }).join(showLoc ? '-' : '');
 }
 var SUFFIX = { acid: 'oic acid', amide: 'amide', ald: 'al', ket: 'one', alc: 'ol', amine: 'amine' };
-function nameMolecule(st, forceLoc){
+function nameMolecule(st, forceLoc, forceChain){
   var G = toGraph(st); classify(G);
   var N = G.atoms.length, best = null;
+  if (G.ring && !forceChain){
+    var onRing = G.atoms.some(function(a){ return a.inRing && a.pc > 0; });
+    if (onRing || !G.pclass){
+      var RP = nameRingParent(G, st, forceLoc);
+      if (!forceLoc && !onRing){
+        var lc = 0; for (var s1 = 0; s1 < N; s1++) for (var t1 = s1; t1 < N; t1++){ if (G.atoms[s1].inRing || G.atoms[t1].inRing) continue; var pp = pathTo(G, s1, t1); if (pp) lc = Math.max(lc, pp.length); }
+        if (lc > G.ring.n){ RP.chainAlt = nameMolecule(st, false, true).iupac; RP.altNames.push(RP.chainAlt); }
+      }
+      return RP;
+    }
+  }
   for (var s = 0; s < N; s++) for (var t = s; t < N; t++){
-    var P = pathTo(G, s, t), bd = bestDirection(G, P, false), key = chainScore(G, P, false).concat(bd.d.vec);
+    if (G.atoms[s].inRing || G.atoms[t].inRing) continue;
+    var P = pathTo(G, s, t); if (!P) continue;
+    var bd = bestDirection(G, P, false), key = chainScore(G, P, false).concat(bd.d.vec);
     if (!best || cmpList(key, best.key) < 0) best = { key: key, P: bd.P, d: bd.d, other: bd.other };
   }
   var P = best.P, L = P.length, d = best.d, p = G.pclass;
@@ -592,6 +614,82 @@ function nameMolecule(st, forceLoc){
   if (forceLoc) return { iupac: iupac, inspire: inspire };
   return { G: G, iupac: iupac, inspire: inspire, chain: P, loc: loc, L: L, D: D, T: T, pclass: p, items: d.items, other: best.other, d: d, prefix: prefix };
 }
+
+/* ===== rings ===== */
+function ringOrder(n, start, dir){ var o = []; for (var k = 0; k < n; k++) o.push(((start + dir * k) % n + n) % n); return o; }
+function ringDesc(G, ord, exclude, asSub){
+  var n = ord.length, d = { pLoc: [], mbLoc: [], items: [] };
+  ord.forEach(function(a, k){
+    var at = G.atoms[a];
+    if (!asSub) for (var j = 0; j < at.pc; j++) d.pLoc.push(k + 1);
+    var pre = asSub ? at.g.map(function(g){ return HAL[g] || (g === 'O' ? 'oxo' : g === 'OH' ? 'hydroxy' : g === 'NH2' ? 'amino' : g.slice(2)); }) : at.pre;
+    pre.forEach(function(nm){ var cx = /\d/.test(nm); d.items.push({ name: nm, loc: k + 1, complex: cx, key: cx ? nm.replace(/[^a-z]/g, '') : nm }); });
+    at.nb.forEach(function(e){ if (e.to === exclude || G.atoms[e.to].inRing) return; var b = branchName(G, e.to, a); d.items.push({ name: b.name, loc: k + 1, complex: b.complex, key: b.key }); });
+  });
+  if (!G.ring.arom) for (var k = 0; k < n; k++){ if (order(G, ord[k], ord[(k + 1) % n]) === 2) d.mbLoc.push(k + 1); }
+  d.mbLoc.sort(function(a, b){ return a - b; });
+  d.preLoc = d.items.map(function(i){ return i.loc; }).sort(function(a, b){ return a - b; });
+  d.alpha = d.items.slice().sort(function(a, b){ return a.key < b.key ? -1 : a.key > b.key ? 1 : a.loc - b.loc; }).map(function(i){ return i.loc; });
+  d.vec = asSub ? [d.mbLoc, d.preLoc, d.alpha] : [d.pLoc, d.mbLoc, d.preLoc, d.alpha];
+  return d;
+}
+function ringSubName(G, r0, from){
+  var n = G.ring.n, best = null;
+  [1, -1].forEach(function(dir){ var o = ringOrder(n, r0, dir), d = ringDesc(G, o, from, true); if (!best || cmpList(d.vec, best.d.vec) < 0) best = { o: o, d: d }; });
+  var D = best.d.mbLoc, core = G.ring.arom ? 'phenyl' : 'cyclo' + STEM[n] + (D.length ? '-' + D.join(',') + '-' + MULT[D.length] + 'en-1-yl' : 'yl');
+  var pre = assemble(best.d.items, true), name = pre + core, complex = best.d.items.length > 0 || D.length > 0;
+  return { name: name, complex: complex, key: complex ? name.replace(/[^a-z]/g, '') : name };
+}
+function nameRingParent(G, st, forceLoc){
+  var n = G.ring.n, arom = G.ring.arom, p = G.pclass, cands = [];
+  for (var s0 = 0; s0 < n; s0++) [1, -1].forEach(function(dir){ var o = ringOrder(n, s0, dir); cands.push({ o: o, d: ringDesc(G, o, -1, false) }); });
+  cands.sort(function(a, b){ return cmpList(a.d.vec, b.d.vec); });
+  var best = cands[0], other = null;
+  for (var c = 1; c < cands.length; c++) if (cmpList(cands[c].d.vec, best.d.vec) !== 0){ other = cands[c]; break; }
+  var d = best.d, D = d.mbLoc, items = d.items, sLocs = d.pLoc, nS = sLocs.length, nPre = items.length;
+  var phenol = arom && p === 'alc' && nS === 1, aniline = arom && p === 'amine' && nS === 1;
+  var showPre = forceLoc || !(nPre === 1 && nS === 0 && D.length === 0) && !((phenol || aniline) && nPre === 0);
+  if (nPre === 1 && nS === 0 && D.length === 0 && !forceLoc) showPre = false;
+  var showUns = forceLoc || !(D.length === 1 && nPre === 0 && nS === 0);
+  var showSuf = forceLoc || !(nS === 1 && nPre === 0 && D.length === 0);
+  var prefix = assemble(items, showPre), parent, stem = arom ? 'benzene' : 'cyclo' + STEM[n];
+  if (phenol) parent = 'phenol';
+  else if (aniline) parent = 'aniline';
+  else {
+    var core = arom ? 'benzen' : !D.length ? stem + 'an' : stem + (D.length > 1 ? 'a' : '') + (showUns ? '-' + D.join(',') + '-' : '') + MULT[D.length] + 'en';
+    if (!p) parent = core + 'e';
+    else { var sfx = (nS > 1 ? MULT[nS] : '') + SUFFIX[p], locs = showSuf ? sLocs.join(',') : '';
+      parent = /^[aeiou]/.test(sfx) ? core + (locs ? '-' + locs + '-' : '') + sfx : core + 'e' + (locs ? '-' + locs + '-' : '') + sfx; }
+  }
+  var iupac = (prefix ? prefix + (showPre && /^\d/.test(parent) ? '-' : '') : '') + parent;
+  var loc = {}; best.o.forEach(function(a, i){ loc[a] = i + 1; });
+  var older = null, common = null, alts = [];
+  if (!arom && !forceLoc){
+    if (!p && D.length === 1 && D[0] === 1 && (nPre > 0)) older = prefix + stem + 'ene';
+    else if (p && !D.length && nS === 1 && sLocs[0] === 1 && nPre > 0 && /^[aeiou]/.test(SUFFIX[p])) older = prefix + stem + 'an' + SUFFIX[p];
+  }
+  if (arom && !p){
+    var pl = d.preLoc;
+    if (iupac === 'methylbenzene') common = 'toluene';
+    if (nPre === 2){
+      var om = pl[1] - pl[0] === 1 ? ['o', 'ortho'] : pl[1] - pl[0] === 2 ? ['m', 'meta'] : ['p', 'para'], bare = assemble(items, false);
+      om.forEach(function(x){ alts.push(x + '-' + bare + 'benzene'); });
+      if (bare === 'dimethyl') common = om[0] + '-xylene', alts.push(om[0] + '-xylene', om[1] + '-xylene');
+    }
+  }
+  if (phenol && nPre === 0) alts.push('hydroxybenzene', 'benzenol');
+  if (aniline && nPre === 0) alts.push('aminobenzene', 'benzenamine', 'phenylamine');
+  if (common) alts.push(common);
+  if (forceLoc) return { iupac: iupac, inspire: older };
+  return { G: G, iupac: iupac, inspire: older, common: common, altNames: alts, chain: best.o, loc: loc, L: n, D: D, T: [], pclass: p, items: items, d: d, other: other ? other.d : null, prefix: prefix, ringParent: true, arom: arom };
+}
+function mkR(n, arom, bonds, groups){
+  var s = emptyRing(n, arom);
+  if (!arom) for (var i = 0; i < s.n; i++) s.bonds[i] = bonds && bonds[i] === '=' ? 2 : 1;
+  (groups || []).forEach(function(g){ var m = g.match(/^(\d+)([ab]):(.+)$/); s.slots[+m[1] - 1][m[2]] = m[3]; });
+  return s;
+}
+
 /* molecular formula and family */
 var MASS = { C: 12, H: 1, O: 16, N: 14, F: 19, Cl: 35.5, Br: 80, I: 127 };
 function formula(G){
@@ -604,19 +702,25 @@ function formula(G){
 function sub(n){ return String(n).replace(/\d/g, function(d){ return '₀₁₂₃₄₅₆₇₈₉'[d]; }); }
 function family(R){
   var G = R.G, p = R.pclass, hasHal = G.atoms.some(function(a){ return a.g.some(function(g){ return HAL[g]; }); });
-  var nD = 0, nT = 0; G.links.forEach(function(l){ if (l[2] === 2) nD++; if (l[2] === 3) nT++; });
+  var nD = 0, nT = 0; G.links.forEach(function(l){ if (l[3]) return; if (l[2] === 2) nD++; if (l[2] === 3) nT++; });
+  var ringDb = G.links.filter(function(l){ return l[4] && !l[3] && l[2] === 2; }).length;
   var info = { key: '', label: '', general: '', degree: '' };
   if (p === 'acid'){ info.key = 'acid'; info.label = G.atoms.some(function(a){ return a.nN; }) ? 'Amino acid' : 'Carboxylic acid'; info.general = info.label === 'Amino acid' ? 'CₙH₂ₙ₊₁NO₂' : 'CₙH₂ₙO₂'; if (info.label === 'Amino acid') info.key = 'aa'; }
   else if (p === 'amide'){ info.key = 'amide'; info.label = 'Amide'; info.general = 'CₙH₂ₙ₊₁NO'; info.degree = 'primary (–CONH₂)'; }
   else if (p === 'ald'){ info.key = 'carbonyl'; info.label = 'Aldehyde'; info.general = 'CₙH₂ₙO'; }
-  else if (p === 'ket'){ info.key = 'carbonyl'; info.label = 'Ketone'; info.general = 'CₙH₂ₙO'; }
-  else if (p === 'alc'){ info.key = 'alcohol'; info.label = 'Alcohol'; info.general = 'CₙH₂ₙ₊₂O';
+  else if (p === 'ket'){ info.key = 'carbonyl'; info.label = 'Ketone'; info.general = G.ring ? '' : 'CₙH₂ₙO'; }
+  else if (p === 'alc' && R.ringParent && G.ring.arom){ info.key = 'phenol'; info.label = 'Phenol'; info.general = ''; }
+  else if (p === 'amine' && R.ringParent && G.ring.arom){ info.key = 'amine'; info.label = 'Aromatic amine'; info.general = ''; }
+  else if (p === 'alc'){ info.key = 'alcohol'; info.label = 'Alcohol'; info.general = G.ring ? '' : 'CₙH₂ₙ₊₂O';
     var oc = G.atoms.filter(function(a){ return a.nOH; }); if (oc.length === 1){ var dg = oc[0].nb.length; info.degree = dg <= 1 ? 'primary (1°)' : dg === 2 ? 'secondary (2°)' : 'tertiary (3°)'; } }
-  else if (p === 'amine'){ info.key = 'amine'; info.label = 'Amine'; info.general = 'CₙH₂ₙ₊₃N'; info.degree = 'primary (–NH₂)'; }
-  else if (hasHal){ info.key = 'haloalkane'; info.label = nD || nT ? 'Halogenated hydrocarbon' : 'Haloalkane'; }
+  else if (p === 'amine'){ info.key = 'amine'; info.label = 'Amine'; info.general = G.ring ? '' : 'CₙH₂ₙ₊₃N'; info.degree = 'primary (–NH₂)'; }
+  else if (G.ring && R.ringParent && G.ring.arom){ info.key = 'arene'; info.label = hasHal ? 'Halogenated arene' : 'Aromatic hydrocarbon (arene)'; info.general = hasHal || nD || nT ? '' : 'CₙH₂ₙ₋₆'; }
+  else if (G.ring && R.ringParent && !hasHal && !nT && nD === ringDb){ info.key = ringDb ? 'cycloalkene' : 'cycloalkane'; info.label = ringDb ? 'Cycloalkene' : 'Cycloalkane'; info.general = ringDb === 1 ? 'CₙH₂ₙ₋₂' : ringDb ? '' : 'CₙH₂ₙ'; }
+  else if (hasHal){ info.key = 'haloalkane'; info.label = G.ring && R.ringParent ? (G.ring.arom ? 'Halogenated arene' : 'Halocycloalkane') : nD || nT ? 'Halogenated hydrocarbon' : 'Haloalkane'; }
   else if (nT){ info.key = 'alkyne'; info.label = 'Alkyne'; info.general = nT === 1 && !nD ? 'CₙH₂ₙ₋₂' : ''; }
   else if (nD){ info.key = 'alkene'; info.label = nD > 1 ? 'Alkene (diene)' : 'Alkene'; info.general = nD === 1 ? 'CₙH₂ₙ' : ''; }
   else { info.key = 'alkane'; info.label = 'Alkane'; info.general = 'CₙH₂ₙ₊₂'; }
+  if (G.ring && !R.ringParent && !p && !hasHal){ info.general = ''; info.label += G.ring.arom ? ' with a benzene ring' : ' with a ring'; }
   if ((nD || nT) && p) { info.general = ''; info.label += ' with C' + (nT ? '≡' : '=') + 'C'; info.unsat = true; }
   if (hasHal && p) info.general = '';
   return info;
@@ -625,7 +729,7 @@ function family(R){
 function sig(G, a, from){ var at = G.atoms[a]; var parts = at.g.slice().sort(); at.nb.forEach(function(e){ if (e.to !== from) parts.push('(' + e.o + sig(G, e.to, a) + ')'); }); parts.sort(); return 'C' + hCount(at) + parts.join(''); }
 function ezPossible(G){
   var out = [];
-  G.links.forEach(function(l){ if (l[2] !== 2) return;
+  G.links.forEach(function(l){ if (l[2] !== 2 || l[4]) return;
     var ok = [l[0], l[1]].every(function(a, i){ var other = i ? l[0] : l[1], at = G.atoms[a], subs = [];
       at.nb.forEach(function(e){ if (e.to !== other) subs.push(sig(G, e.to, a)); }); at.g.forEach(function(g){ subs.push(g); });
       for (var h = 0; h < hCount(at); h++) subs.push('H');
@@ -644,6 +748,8 @@ function acceptedNames(st, R){
   var F = nameMolecule(st, true), set = [R.iupac, R.inspire, F.iupac, F.inspire];
   if (R.L <= 2 || (R.L === 3 && !R.pclass)) set.push(F.iupac.replace(/-1-(?=[a-z])/g, ''));
   if (R.pclass === 'ket' && R.L === 4 && !R.items.length && R.d.pLoc.length === 1) set.push(R.iupac.replace('-2-', ''));
+  if (R.altNames) set = set.concat(R.altNames);
+  if (R.ringParent && R.inspire) set.push(R.inspire);
   return set.filter(Boolean).map(normName);
 }
 function normAnswer(s){ return normName(String(s).replace(/\((?:1-methylethyl|propan-2-yl)\)/gi, 'isopropyl').replace(/\(1,1-dimethylethyl\)/gi, 'tert-butyl')); }
@@ -655,6 +761,9 @@ function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').r
 function shuffle(a){ for (var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
 function clone(st){ return JSON.parse(JSON.stringify(st)); }
 function M(n, b){ return mk(n, b, Array.prototype.slice.call(arguments, 2)); }
+function RG(n){ return mkR(n, false, null, Array.prototype.slice.call(arguments, 1)); }
+function RD(n, b){ return mkR(n, false, b, Array.prototype.slice.call(arguments, 2)); }
+function BZ(){ return mkR(6, true, null, Array.prototype.slice.call(arguments)); }
 var SVGNS = 'http://www.w3.org/2000/svg';
 
 var HLBL = { O: 'O', OH: 'OH', NH2: 'NH₂', F: 'F', Cl: 'Cl', Br: 'Br', I: 'I' };
@@ -690,7 +799,8 @@ function drawMol(svg, st, opt){
   if (R && opt.highlight){
     R.chain.forEach(function(a){ inChain[a] = 1; var p = pts[a]; out += '<circle class="markc" cx="' + p[0] + '" cy="' + p[1] + '" r="21"/>'; });
   }
-  G.links.forEach(function(l){ out += bondLines(pts[l[0]], pts[l[1]], l[2]); });
+  G.links.forEach(function(l){ out += bondLines(pts[l[0]], pts[l[1]], l[3] ? 1 : l[2]); });
+  if (G.ring && G.ring.arom){ var rr = S / (2 * Math.sin(Math.PI / G.ring.n)) * 0.42; out += '<circle cx="0" cy="0" r="' + rr.toFixed(1) + '" fill="none" class="bnd"/>'; }
   G.hets.forEach(function(h, k){ var p = pts[h.atom], q = hp[k]; out += bondLines(p, q, h.g === 'O' ? 2 : 1, null, null, h.slot === 'l' || h.slot === 'r' ? 20 : 12); });
   G.atoms.forEach(function(a, i){ var p = pts[i];
     out += '<text class="lbl a-c" x="' + p[0] + '" y="' + p[1] + '">' + cLabel(hCount(a)) + '</text>'; });
@@ -698,14 +808,16 @@ function drawMol(svg, st, opt){
     var pg = R && opt.highlight && R.G.atoms[h.atom].pc && !(/^(F|Cl|Br|I)$/.test(h.g));
     out += '<text class="lbl ' + HCLS[h.g] + (pg ? ' pg' : '') + '" x="' + q[0] + '" y="' + q[1] + '">' + t + '</text>'; });
   if (R && opt.highlight){
-    R.chain.forEach(function(a){ var p = pts[a]; out += '<circle class="locb" cx="' + (p[0] + 21) + '" cy="' + (p[1] - 23) + '" r="9"/><text class="loct" x="' + (p[0] + 21) + '" y="' + (p[1] - 22.5) + '">' + R.loc[a] + '</text>'; });
+    R.chain.forEach(function(a){ var p = pts[a], at = G.atoms[a], bx = at.inRing ? p[0] - at.ux * 30 : p[0] + 21, by = at.inRing ? p[1] - at.uy * 30 : p[1] - 23;
+      out += '<circle class="locb" cx="' + bx.toFixed(1) + '" cy="' + by.toFixed(1) + '" r="9"/><text class="loct" x="' + bx.toFixed(1) + '" y="' + (by + 0.5).toFixed(1) + '">' + R.loc[a] + '</text>'; });
   }
   if (opt.interactive){
-    for (var i = 0; i < st.n - 1; i++){ var p = pts[i], q = pts[i + 1];
-      out += '<rect class="hitb" data-bond="' + i + '" tabindex="0" role="button" aria-label="Bond between carbon ' + (i + 1) + ' and carbon ' + (i + 2) + ': ' + ['', 'single', 'double', 'triple'][st.bonds[i]] + '. Press to change." x="' + (p[0] + 22) + '" y="' + (p[1] - 12) + '" width="' + (q[0] - p[0] - 44) + '" height="24" rx="6"/>'; }
+    var nb_ = st.ring ? (st.arom ? 0 : st.n) : st.n - 1;
+    for (var i = 0; i < nb_; i++){ var j = (i + 1) % st.n, p = pts[i], q = pts[j], mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2, len = Math.hypot(q[0] - p[0], q[1] - p[1]), ang = Math.atan2(q[1] - p[1], q[0] - p[0]) * 180 / Math.PI, w = Math.max(10, len - 44);
+      out += '<rect class="hitb" data-bond="' + i + '" tabindex="0" role="button" aria-label="Bond between carbon ' + (i + 1) + ' and carbon ' + (j + 1) + ': ' + ['', 'single', 'double', 'triple'][st.bonds[i]] + '. Press to change." x="' + (-w / 2).toFixed(1) + '" y="-12" width="' + w.toFixed(1) + '" height="24" rx="6" transform="translate(' + mx.toFixed(1) + ' ' + my.toFixed(1) + ') rotate(' + ang.toFixed(1) + ')"/>'; }
     G.atoms.forEach(function(a, i){ var p = pts[i], c = a.origin.c, isMain = a.origin.slot === undefined;
       if (isMain){
-        out += '<g class="cbtn" data-atom="' + c + '" tabindex="0" role="button" aria-label="Carbon ' + (c + 1) + ' of the row, ' + cLabel(hCount(a)) + '. Press to edit."><circle class="hit" cx="' + p[0] + '" cy="' + p[1] + '" r="25"/>' +
+        out += '<g class="cbtn" data-atom="' + c + '" tabindex="0" role="button" aria-label="Carbon ' + (c + 1) + (st.ring ? ' of the ring, ' : ' of the row, ') + cLabel(hCount(a)) + '. Press to edit."><circle class="hit" cx="' + p[0] + '" cy="' + p[1] + '" r="25"/>' +
           (opt.selected === c ? '<circle class="selc selr" cx="' + p[0] + '" cy="' + p[1] + '" r="25"/>' : '<circle class="selr" fill="none" stroke="none" cx="' + p[0] + '" cy="' + p[1] + '" r="25"/>') + '</g>';
       } else out += '<circle class="hit" data-atom="' + c + '" cx="' + p[0] + '" cy="' + p[1] + '" r="20"/>';
     });
@@ -714,16 +826,22 @@ function drawMol(svg, st, opt){
 }
 
 /* ---------- reusable builder ---------- */
-var GROUPS = [['', '— none'], ['CH3', '–CH₃ methyl'], ['C2H5', '–C₂H₅ ethyl'], ['C3H7', '–C₃H₇ propyl'], ['iPr', '–CH(CH₃)₂ isopropyl'],
+var GROUPS = [['', '— none'], ['CH3', '–CH₃ methyl'], ['C2H5', '–C₂H₅ ethyl'], ['C3H7', '–C₃H₇ propyl'], ['iPr', '–CH(CH₃)₂ isopropyl'], ['C4H9', '–C₄H₉ butyl'],
   ['F', '–F'], ['Cl', '–Cl'], ['Br', '–Br'], ['I', '–I'], ['OH', '–OH'], ['NH2', '–NH₂'], ['O', '=O']];
-var SLOTNAME = { u: 'Above', d: 'Below', l: 'Left end', r: 'Right end' };
+var SLOTNAME = { u: 'Above', d: 'Below', l: 'Left end', r: 'Right end', a: 'Outside group', b: 'Second outside group' };
 var uid = 0;
+var RINGOPTS = [['3', 'cyclopropane (3)'], ['4', 'cyclobutane (4)'], ['5', 'cyclopentane (5)'], ['6', 'cyclohexane (6)'], ['7', 'cycloheptane (7)'], ['8', 'cyclooctane (8)'], ['b', 'benzene ring']];
 function Builder(host, opt){
-  var self = this; this.opt = opt || {}; this.st = clone(this.opt.state || M(4, '---')); this.sel = 1; this.id = 'b' + (++uid);
-  host.innerHTML = '<div class="row" style="margin-bottom:8px"><span class="flabel">Carbons in the row</span><button class="btn icon" data-act="minus" aria-label="Remove a carbon">−</button><output>' + this.st.n + '</output><button class="btn icon" data-act="plus" aria-label="Add a carbon">+</button><button class="btn small" data-act="clear">Clear groups and bonds</button></div>' +
+  var self = this; this.opt = opt || {}; this.st = clone(this.opt.state || M(4, '---')); this.sel = 0; this.id = 'b' + (++uid);
+  this.saved = { chain: this.st.ring ? M(4, '---') : clone(this.st), ring: this.st.ring ? clone(this.st) : emptyRing(6, false) };
+  var ringUI = this.opt.noRing ? '' : '<div class="row" role="group" aria-label="Shape"><button class="btn small" data-act="mode-chain">Chain</button><button class="btn small" data-act="mode-ring">Ring</button></div>';
+  host.innerHTML = '<div class="row" style="margin-bottom:8px">' + ringUI +
+    '<span class="row chainctl"><span class="flabel">Carbons in the row</span><button class="btn icon" data-act="minus" aria-label="Remove a carbon">−</button><output>' + this.st.n + '</output><button class="btn icon" data-act="plus" aria-label="Add a carbon">+</button></span>' +
+    '<span class="row ringctl"><label class="flabel" for="' + this.id + '-ring">Ring</label><select id="' + this.id + '-ring" data-ring="1">' + RINGOPTS.map(function(o){ return '<option value="' + o[0] + '">' + o[1] + '</option>'; }).join('') + '</select></span>' +
+    '<button class="btn small" data-act="clear">Clear groups and bonds</button></div>' +
     '<div class="molwrap"><svg class="mol" role="group" aria-label="Molecule. Carbons and bonds are buttons."></svg></div>' +
-    '<p class="caption" style="margin:6px 0">Tap a carbon to add a group. Tap a bond to change it: single → double → triple.</p><div class="editor"></div>';
-  this.host = host; this.svg = host.querySelector('svg'); this.ed = host.querySelector('.editor'); this.out = host.querySelector('output');
+    '<p class="caption bhelp" style="margin:6px 0"></p><div class="editor"></div>';
+  this.host = host; this.svg = host.querySelector('svg'); this.ed = host.querySelector('.editor'); this.out = host.querySelector('output'); this.rsel = host.querySelector('[data-ring]'); this.help = host.querySelector('.bhelp');
   host.addEventListener('click', function(e){
     var a = e.target.closest('[data-act]'); if (a){ self.act(a.getAttribute('data-act')); return; }
     var b = e.target.closest('[data-bond]'); if (b){ self.cycleBond(+b.getAttribute('data-bond')); return; }
@@ -736,43 +854,64 @@ function Builder(host, opt){
     else if (c){ e.preventDefault(); self.sel = +c.getAttribute('data-atom'); self.render('[data-atom="' + self.sel + '"]'); }
   });
   host.addEventListener('change', function(e){
+    if (e.target.getAttribute('data-ring')){ self.setRing(e.target.value); return; }
     var s = e.target.getAttribute('data-slot'); if (!s) return;
     var v = e.target.value; if (v) self.st.slots[self.sel][s] = v; else delete self.st.slots[self.sel][s];
     self.changed();
   });
   this.render();
 }
+Builder.prototype.setRing = function(v){
+  var old = this.st, nw = v === 'b' ? emptyRing(6, true) : emptyRing(+v, false);
+  if (old.ring) for (var i = 0; i < Math.min(old.n, nw.n); i++){ var s = {}; if (old.slots[i].a) s.a = old.slots[i].a; if (old.slots[i].b && !nw.arom) s.b = old.slots[i].b; nw.slots[i] = s; var t = clone(nw); if (!stateValid(t)) nw.slots[i] = {}; }
+  this.st = nw; this.sel = Math.min(this.sel, nw.n - 1); this.changed();
+};
 Builder.prototype.set = function(st){ this.st = clone(st); this.sel = Math.min(this.sel, this.st.n - 1); this.changed(); };
 Builder.prototype.act = function(a){
   var st = this.st;
-  if (a === 'plus' && st.n < 10){
+  if (a === 'mode-chain' || a === 'mode-ring'){
+    var want = a === 'mode-ring'; if (!!st.ring === want) return;
+    this.saved[st.ring ? 'ring' : 'chain'] = clone(st); this.st = clone(this.saved[want ? 'ring' : 'chain']); this.sel = 0; this.changed(); return;
+  }
+  if (a === 'plus' && st.n < 10 && !st.ring){
     var rg = st.slots[st.n - 1].r; delete st.slots[st.n - 1].r; st.slots.push(rg ? { r: rg } : {}); st.bonds.push(1); st.n++;
     if (!stateValid(st)) st.slots[st.n - 1] = {};
-  } else if (a === 'minus' && st.n > 1){
+  } else if (a === 'minus' && st.n > 1 && !st.ring){
     var last = st.slots.pop(); st.bonds.pop(); st.n--;
     if (last.r){ st.slots[st.n - 1].r = last.r; if (!stateValid(st)) delete st.slots[st.n - 1].r; }
-    if (st.n === 1 && st.slots[0].r === undefined){}
-  } else if (a === 'clear'){ this.st = emptyState(st.n); }
+  } else if (a === 'clear'){ this.st = st.ring ? emptyRing(st.n, st.arom) : emptyState(st.n); }
   this.sel = Math.min(this.sel, this.st.n - 1);
   this.changed();
 };
 Builder.prototype.cycleBond = function(i, keepFocus){
   var st = this.st, cur = st.bonds[i];
-  for (var k = 1; k <= 3; k++){ var o = (cur + k - 1) % 3 + 1; st.bonds[i] = o; if (stateValid(st)) break; }
-  if (!stateValid(st)) st.bonds[i] = 1;
+  if (st.ring){
+    if (st.arom) return;
+    st.bonds[i] = cur === 1 ? 2 : 1;
+    var n = st.n, prevB = st.bonds[(i - 1 + n) % n], nextB = st.bonds[(i + 1) % n];
+    if (!stateValid(st) || (st.bonds[i] === 2 && (prevB === 2 || nextB === 2))) st.bonds[i] = 1;
+  } else {
+    for (var k = 1; k <= 3; k++){ var o = (cur + k - 1) % 3 + 1; st.bonds[i] = o; if (stateValid(st)) break; }
+    if (!stateValid(st)) st.bonds[i] = 1;
+  }
   this.changed(keepFocus ? '[data-bond="' + i + '"]' : null);
 };
 Builder.prototype.changed = function(focusSel){ this.render(focusSel === true ? null : focusSel); if (this.opt.onChange) this.opt.onChange(this.st); };
 Builder.prototype.render = function(focusSel){
-  var st = this.st, self = this;
+  var st = this.st, self = this, ring = !!st.ring;
   this.out.textContent = st.n;
+  this.host.querySelector('.chainctl').hidden = ring; this.host.querySelector('.ringctl').hidden = !ring;
+  var mc = this.host.querySelector('[data-act="mode-chain"]'), mr = this.host.querySelector('[data-act="mode-ring"]');
+  if (mc){ mc.setAttribute('aria-pressed', !ring); mr.setAttribute('aria-pressed', ring); }
+  if (ring) this.rsel.value = st.arom ? 'b' : String(st.n);
+  this.help.textContent = ring ? (st.arom ? 'Tap a ring carbon to add a group. The benzene ring has fixed aromatic bonds.' : 'Tap a ring carbon to add up to two groups. Tap a ring bond to make it single or double.') : 'Tap a carbon to add a group. Tap a bond to change it: single → double → triple.';
   var R = this.opt.highlight && this.opt.highlight() ? nameMolecule(st) : null;
   drawMol(this.svg, st, { interactive: true, selected: this.sel, R: R, highlight: !!R });
   var i = this.sel, G = toGraph(st), h = hCount(G.atoms[i]);
-  var html = '<div class="head"><b>Carbon ' + (i + 1) + ' of the row</b><span class="caption">' + cLabel(h) + ' · ' + h + ' H left to replace</span></div>';
-  slotsFor(i, st.n).forEach(function(s){
+  var html = '<div class="head"><b>Carbon ' + (i + 1) + (ring ? ' of the ring' : ' of the row') + '</b><span class="caption">' + cLabel(h) + ' · ' + h + ' H left to replace</span></div>';
+  slotsFor(i, st.n, st).forEach(function(s){
     var cur = st.slots[i][s] || '';
-    html += '<label>' + SLOTNAME[s] + '<select data-slot="' + s + '" id="' + self.id + '-' + s + '">' + GROUPS.map(function(g){
+    html += '<label>' + (ring && st.arom ? 'Group' : SLOTNAME[s]) + '<select data-slot="' + s + '" id="' + self.id + '-' + s + '">' + GROUPS.map(function(g){
       var test = clone(st); if (g[0]) test.slots[i][s] = g[0]; else delete test.slots[i][s];
       var ok = g[0] === cur || stateValid(test);
       return '<option value="' + g[0] + '"' + (g[0] === cur ? ' selected' : '') + (ok ? '' : ' disabled') + '>' + g[1] + '</option>';
@@ -780,14 +919,42 @@ Builder.prototype.render = function(focusSel){
   });
   this.ed.innerHTML = html;
   if (focusSel){ var f = this.svg.querySelector(focusSel); if (f) f.focus(); }
-  else if (focusSel === undefined){}
 };
 
 /* ---------- explanation steps ---------- */
 var PINFO = { acid: ['–COOH', 'carboxylic acid', '-oic acid'], amide: ['–CONH₂', 'amide', '-amide'], ald: ['–CHO', 'aldehyde', '-al'], ket: ['C=O', 'ketone', '-one'], alc: ['–OH', 'alcohol', '-ol'], amine: ['–NH₂', 'amine', '-amine'] };
 var REASON = ['the main functional group', 'the C=C or C≡C bond', 'the double bond', 'the substituents', 'the substituent that comes first in the alphabet'];
 function locList(a){ return a.length ? a.join(',') : '–'; }
+var REASON_RING = ['the main functional group (it becomes C1)', 'the C=C bond (C1 and C2)', 'the substituents', 'the substituent that comes first in the alphabet'];
+function ringSteps(R){
+  var p = R.pclass, out = [], n = R.L, arom = R.arom, ph = arom && p === 'alc' && R.d.pLoc.length === 1, an = arom && p === 'amine' && R.d.pLoc.length === 1;
+  var nm = R.items.map(function(i){ return i.name; });
+  if (arom) out.push(['Family', 'A benzene ring: an <b>aromatic</b> compound (6 carbons, alternating bonds shown as a circle). ' + (ph ? 'With –OH on the ring the parent is <b>phenol</b>.' : an ? 'With –NH₂ on the ring the parent is <b>aniline</b>.' : p ? 'Main group: ' + PINFO[p][0] + ' → ' + PINFO[p][2] + '.' : 'The parent is <b>benzene</b>; every group is a prefix.')]);
+  else out.push(['Family', 'A ring of ' + n + ' carbons: put <b>cyclo-</b> in front of the chain name.' + (R.D.length ? ' The C=C in the ring gives <b>-ene</b>.' : ' Only single bonds: <b>-ane</b>.') + (p ? ' Main group: <b>' + PINFO[p][0] + '</b> (' + PINFO[p][1] + ') → ending <b>' + PINFO[p][2] + '</b>.' : '')]);
+  out.push(['Parent', arom ? 'Parent: <b>' + (ph ? 'phenol' : an ? 'aniline' : 'benzene') + '</b>.' : 'Ring of <b>' + n + '</b> carbons → <b>cyclo' + STEM[n] + (R.D.length ? 'ene' : 'ane') + '</b>.' + (R.chainAlt ? ' The side chain is longer than the ring, but in current IUPAC rules the ring is still the parent. The older rule (the larger part is the parent) gives <b>' + esc(R.chainAlt) + '</b>, which is also accepted.' : '')]);
+  var few = R.items.length + R.d.pLoc.length + R.D.length;
+  if (few <= 1) out.push(['Numbering', R.items.length || R.d.pLoc.length ? 'Only one group on the ring: its carbon is C1, so no number is written.' : 'Nothing to number.']);
+  else {
+    var a = R.d.vec, b = R.other ? R.other.vec : null, idx = -1;
+    if (b) for (var k = 0; k < a.length; k++){ if (cmpArr(a[k], b[k]) !== 0){ idx = k; break; } }
+    var lead = R.d.pLoc.length ? (ph ? 'The carbon with –OH is C1. ' : an ? 'The carbon with –NH₂ is C1. ' : 'The carbon with the main group is C1. ') : R.D.length ? 'The C=C must be between C1 and C2. ' : '';
+    var txt = lead + (idx < 0 ? 'Every way round the ring gives the same numbers.' : (lead ? 'Then go' : 'Start at one group and go') + ' round the ring in the direction that gives ' + REASON_RING[idx] + ' the lowest numbers: <span class="mono">' + locList(a[idx]) + '</span>, not <span class="mono">' + locList(b[idx]) + '</span>.');
+    if (arom && R.items.length === 2 && !p){ var pl = R.d.preLoc, df = pl[1] - pl[0]; txt += ' Two groups on benzene: 1,2 = <b>ortho</b> (o-), 1,3 = <b>meta</b> (m-), 1,4 = <b>para</b> (p-). Here: <b>' + (df === 1 ? 'ortho' : df === 2 ? 'meta' : 'para') + '</b>.'; }
+    out.push(['Numbering', txt]);
+  }
+  if (!R.items.length) out.push(['Substituents', 'No groups on the ring' + (p ? ' other than the main group.' : '.')]);
+  else {
+    var groups = {}, order_ = [];
+    R.items.forEach(function(i){ if (!groups[i.name]){ groups[i.name] = []; order_.push(i.name); } groups[i.name].push(i.loc); });
+    var s = order_.map(function(n2){ var l = groups[n2].sort(function(x, y){ return x - y; }); return n2 + ' on C' + l.join(' and C') + (l.length > 1 ? ' → <b>' + l.join(',') + '-' + MULT[l.length] + n2 + '</b>' : ''); }).join('; ') + '.';
+    if (order_.length > 1) s += ' Alphabetical order (ignore di-, tri-): <b>' + order_.slice().sort().join(', ') + '</b>.';
+    out.push(['Substituents', s]);
+  }
+  out.push(['Put it together', '<b>' + esc(R.iupac) + '</b>' + (R.inspire ? ' (older style: ' + esc(R.inspire) + ')' : '') + (R.common ? ' · common name: <b>' + esc(R.common) + '</b>' : '')]);
+  return out.map(function(s){ return '<li><b class="t">' + s[0] + '</b>' + s[1] + '</li>'; }).join('');
+}
 function steps(R){
+  if (R.ringParent) return ringSteps(R);
   var p = R.pclass, out = [], hasU = R.D.length + R.T.length > 0;
   var nm = R.items.map(function(i){ return i.name; });
   var extra = ['hydroxy', 'amino', 'oxo'].filter(function(x){ return nm.indexOf(x) >= 0; });
@@ -846,10 +1013,15 @@ var BANK = [
   ['acid', M(4, '---', '4u:O', '4r:OH', '3u:CH3', '3d:CH3')], ['acid', M(6, '-----', '1u:O', '1l:OH', '3d:CH3')], ['acid', M(3, '--', '3u:O', '3r:OH', '2d:NH2')],
   ['acid', M(4, '---', '4u:O', '4r:OH', '3d:NH2', '2d:CH3')], ['acid', M(2, '-', '2u:O', '2r:OH', '1l:NH2')], ['acid', M(5, '----', '5u:O', '5r:OH', '4d:NH2', '2d:CH3')],
   ['amine', M(1, '', '1u:NH2')], ['amine', M(3, '--', '3r:NH2')], ['amine', M(3, '--', '2d:NH2')], ['amine', M(3, '--', '1l:NH2', '2d:CH3')],
-  ['amine', M(4, '---', '4r:NH2')], ['amine', M(3, '--', '2u:CH3', '2d:NH2')]
+  ['amine', M(4, '---', '4r:NH2')], ['amine', M(3, '--', '2u:CH3', '2d:NH2')],
+  ['ring', RG(6)], ['ring', RG(6, '1a:CH3')], ['ring', RG(6, '1a:CH3', '2a:CH3', '3a:CH3')], ['ring', RG(6, '1a:CH3', '3a:CH3', '4a:CH3')], ['ring', RG(6, '1a:C2H5', '3a:CH3')],
+  ['ring', RG(6, '1a:C2H5', '2a:CH3')], ['ring', RG(5, '1a:C2H5')], ['ring', RG(6, '1a:C2H5')], ['ring', RD(6, '=-----', '1a:CH3')], ['ring', RD(5, '=----')], ['ring', RD(6, '=-----', '3a:CH3')],
+  ['ring', RG(6, '1a:OH')], ['ring', RG(6, '1a:OH', '2a:CH3')], ['ring', RG(6, '1a:O')], ['ring', RG(3, '1a:CH3', '1b:CH3')], ['ring', RG(4, '1a:CH3', '3a:CH3')], ['ring', RG(6, '1a:CH3', '1b:Cl')],
+  ['ring', BZ()], ['ring', BZ('1a:CH3')], ['ring', BZ('1a:C2H5')], ['ring', BZ('1a:CH3', '2a:CH3')], ['ring', BZ('1a:CH3', '3a:CH3')], ['ring', BZ('1a:CH3', '4a:CH3')], ['ring', BZ('1a:Cl')],
+  ['ring', BZ('1a:Br', '3a:Cl')], ['ring', BZ('1a:OH')], ['ring', BZ('1a:NH2')], ['ring', BZ('1a:CH3', '3a:CH3', '5a:CH3')], ['ring', BZ('1a:OH', '2a:CH3')], ['ring', BZ('1a:iPr')]
 ].map(function(x){ var R = nameMolecule(x[1]); return { cat: x[0], st: x[1], R: R }; });
-var CATS = [['all', 'All topics'], ['alk', 'Alkanes and haloalkanes'], ['ene', 'Alkenes and alkynes'], ['alc', 'Alcohols'], ['co', 'Aldehydes and ketones'], ['acid', 'Carboxylic acids and amino acids'], ['amine', 'Amines']];
-var PRESET_LABEL = { alk: 'Alkanes and haloalkanes', ene: 'Alkenes and alkynes', alc: 'Alcohols', co: 'Aldehydes and ketones', acid: 'Acids and amino acids', amine: 'Amines' };
+var CATS = [['all', 'All topics'], ['alk', 'Alkanes and haloalkanes'], ['ene', 'Alkenes and alkynes'], ['alc', 'Alcohols'], ['co', 'Aldehydes and ketones'], ['acid', 'Carboxylic acids and amino acids'], ['amine', 'Amines'], ['ring', 'Rings and benzene']];
+var PRESET_LABEL = { alk: 'Alkanes and haloalkanes', ene: 'Alkenes and alkynes', alc: 'Alcohols', co: 'Aldehydes and ketones', acid: 'Acids and amino acids', amine: 'Amines', ring: 'Rings and benzene' };
 
 /* =========== TAB 1: build & name =========== */
 var bState = BANK[39].st;
@@ -867,7 +1039,7 @@ function updateBuild(){
   var st = build.st, R = nameMolecule(st), hide = $('bGuess').checked && !bSolved;
   $('bGuessBox').hidden = !$('bGuess').checked;
   $('bNameBox').innerHTML = hide ? '<div class="bigname" style="color:var(--muted)">? ? ?</div><p class="alt">The name and the steps are hidden until you check your answer.</p>' :
-    '<div class="bigname">' + esc(R.iupac) + '</div>' + (R.inspire ? '<p class="alt">Older style (Inspire Chemistry): <b>' + esc(R.inspire) + '</b></p>' : '');
+    '<div class="bigname">' + esc(R.iupac) + '</div>' + (R.inspire ? '<p class="alt">Older style (Inspire Chemistry): <b>' + esc(R.inspire) + '</b></p>' : '') + (R.common ? '<p class="alt">Common name: <b>' + esc(R.common) + '</b></p>' : '') + (R.chainAlt ? '<p class="alt">Older rule (larger part as parent): <b>' + esc(R.chainAlt) + '</b></p>' : '');
   $('bFacts').innerHTML = facts(R);
   $('bWarn').innerHTML = !hide && chainTurns(R, st) ? '<p class="warn">The longest chain is not the straight row you drew: it turns into a side group. Always look for the longest chain before naming.</p>' : '';
   $('bSteps').innerHTML = hide ? '<li><b class="t">Your turn</b>Find the main group, the longest chain and the numbering, then type the name.</li>' : steps(R);
@@ -961,6 +1133,10 @@ var ISETS = [
   { f: 'C6H14', label: 'C₆H₁₄ · alkanes', fam: ['alkane'], m: [M(6, '-----'), M(5, '----', '2u:CH3'), M(5, '----', '3u:CH3'), M(4, '---', '2u:CH3', '2d:CH3'), M(4, '---', '2u:CH3', '3u:CH3')] },
   { f: 'C4H9Cl', label: 'C₄H₉Cl · haloalkanes', fam: ['haloalkane'], m: [M(4, '---', '1l:Cl'), M(4, '---', '2u:Cl'), M(3, '--', '1l:Cl', '2u:CH3'), M(3, '--', '2u:Cl', '2d:CH3')] },
   { f: 'C5H10', label: 'C₅H₁₀ · alkenes', fam: ['alkene'], m: [M(5, '=---'), M(5, '-=--'), M(4, '=--', '2u:CH3'), M(4, '=--', '3u:CH3'), M(4, '-=-', '2u:CH3')] },
+  { f: 'C5H10', label: 'C₅H₁₀ · alkenes and cycloalkanes', fam: ['alkene', 'cycloalkane'], note: 'Cycloalkanes (CₙH₂ₙ) are isomers of alkenes.', m: [M(5, '=---'), M(5, '-=--'), M(4, '=--', '2u:CH3'), M(4, '=--', '3u:CH3'), M(4, '-=-', '2u:CH3'), RG(5), RG(4, '1a:CH3'), RG(3, '1a:C2H5'), RG(3, '1a:CH3', '1b:CH3'), RG(3, '1a:CH3', '2a:CH3')] },
+  { f: 'C6H12', label: 'C₆H₁₂ · cycloalkanes', fam: ['cycloalkane'], start: emptyRing(6, false), m: [RG(6), RG(5, '1a:CH3'), RG(4, '1a:C2H5'), RG(4, '1a:CH3', '1b:CH3'), RG(4, '1a:CH3', '2a:CH3'), RG(4, '1a:CH3', '3a:CH3'), RG(3, '1a:C3H7'), RG(3, '1a:iPr'), RG(3, '1a:C2H5', '1b:CH3'), RG(3, '1a:C2H5', '2a:CH3'), RG(3, '1a:CH3', '1b:CH3', '2a:CH3'), RG(3, '1a:CH3', '2a:CH3', '3a:CH3')] },
+  { f: 'C8H10', label: 'C₈H₁₀ · benzene compounds', fam: ['arene'], start: emptyRing(6, true), m: [BZ('1a:C2H5'), BZ('1a:CH3', '2a:CH3'), BZ('1a:CH3', '3a:CH3'), BZ('1a:CH3', '4a:CH3')] },
+  { f: 'C9H12', label: 'C₉H₁₂ · benzene compounds', fam: ['arene'], start: emptyRing(6, true), m: [BZ('1a:C3H7'), BZ('1a:iPr'), BZ('1a:C2H5', '2a:CH3'), BZ('1a:C2H5', '3a:CH3'), BZ('1a:C2H5', '4a:CH3'), BZ('1a:CH3', '2a:CH3', '3a:CH3'), BZ('1a:CH3', '2a:CH3', '4a:CH3'), BZ('1a:CH3', '3a:CH3', '5a:CH3')] },
   { f: 'C5H8', label: 'C₅H₈ · alkynes', fam: ['alkyne'], m: [M(5, '#---'), M(5, '-#--'), M(4, '#--', '3u:CH3')] },
   { f: 'C4H10O', label: 'C₄H₁₀O · alcohols', fam: ['alcohol'], note: 'C₄H₁₀O also has 3 ether isomers (–O– inside the chain), which this builder cannot draw.', m: [M(4, '---', '4r:OH'), M(4, '---', '2u:OH'), M(3, '--', '1l:OH', '2u:CH3'), M(3, '--', '2u:OH', '2d:CH3')] },
   { f: 'C5H12O', label: 'C₅H₁₂O · alcohols', fam: ['alcohol'], note: 'C₅H₁₂O also has 6 ether isomers, which this builder cannot draw.', m: [M(5, '----', '5r:OH'), M(5, '----', '2u:OH'), M(5, '----', '3u:OH'), M(4, '---', '1l:OH', '2u:CH3'), M(4, '---', '1l:OH', '3u:CH3'), M(4, '---', '2u:OH', '2d:CH3'), M(4, '---', '2u:OH', '3u:CH3'), M(3, '--', '1l:OH', '2u:CH3', '2d:CH3')] },
@@ -1005,7 +1181,7 @@ $('iAdd').addEventListener('click', function(){
   msg.className = 'verdict good'; msg.innerHTML = 'New isomer: ' + esc(R.iupac) + '. <span>' + (k === n ? 'You found all ' + n + '!' : (n - k) + ' to go.') + '</span>';
   isoRender();
 });
-$('iSet').addEventListener('change', function(){ iso.set = +this.value; iso.found = {}; iso.revealed = false; var S = ISETS[iso.set]; iBuilder.set(emptyState(+S.f.match(/C(\d+)/)[1])); $('iMsg').className = 'verdict wait'; $('iMsg').textContent = 'Build a molecule with this formula, then add it.'; isoRender(); });
+$('iSet').addEventListener('change', function(){ iso.set = +this.value; iso.found = {}; iso.revealed = false; var S = ISETS[iso.set]; iBuilder.set(S.start || emptyState(+S.f.match(/C(\d+)/)[1])); $('iMsg').className = 'verdict wait'; $('iMsg').textContent = 'Build a molecule with this formula, then add it.'; isoRender(); });
 $('iReveal').addEventListener('click', function(){ iso.revealed = !iso.revealed; this.textContent = iso.revealed ? 'Hide the missing ones' : 'Show the missing ones'; isoRender(); });
 $('iReset').addEventListener('click', function(){ iso.found = {}; iso.revealed = false; $('iReveal').textContent = 'Show the missing ones'; isoRender(); });
 iBuilder.set(emptyState(5)); isoRender();
@@ -1348,8 +1524,8 @@ var XF = {
   amine: { a: 'Primary amine (–NH₂)', ap: 'amine', A: N_('propan-1-amine'), N: ['methyl', ''], info: 'Amine: build a primary amine, then add groups on N to make it secondary or tertiary.' }
 };
 var xs = { fam: 'ester', solved: false, found: {}, set: 1, revealed: false };
-var xA = new Builder($('xBuilderA'), { state: XF.ester.A, highlight: function(){ return false; }, onChange: function(){ XF[xs.fam].A = clone(xA.st); xUpdate(true); } });
-var xB = new Builder($('xBuilderB'), { state: XF.ester.B, highlight: function(){ return false; }, onChange: function(){ if (XF[xs.fam].bp) XF[xs.fam].B = clone(xB.st); xUpdate(true); } });
+var xA = new Builder($('xBuilderA'), { noRing: true, state: XF.ester.A, highlight: function(){ return false; }, onChange: function(){ XF[xs.fam].A = clone(xA.st); xUpdate(true); } });
+var xB = new Builder($('xBuilderB'), { noRing: true, state: XF.ester.B, highlight: function(){ return false; }, onChange: function(){ if (XF[xs.fam].bp) XF[xs.fam].B = clone(xB.st); xUpdate(true); } });
 function presetOpts(kind){ return '<option value="">Choose…</option>' + X[kind].map(function(x, i){ return '<option value="' + i + '">' + esc(x[0]) + '</option>'; }).join(''); }
 var NOPTS = '<option value="">— none (H)</option>' + Object.keys(NSUB).map(function(k){ return '<option value="' + k + '">' + k + (COMMON_ALKYL[k] ? ' (' + COMMON_ALKYL[k][0] + ')' : '') + '</option>'; }).join('');
 $('xN1').innerHTML = NOPTS; $('xN2').innerHTML = NOPTS;

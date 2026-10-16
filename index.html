@@ -3,245 +3,273 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Science Simulations</title>
+<title>Science Simulations · Mr Khaled</title>
+<meta name="description" content="Interactive physics and chemistry simulations for Grades 10–12, designed and built by Mr Khaled.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: title, grade filter, then one section per grade with a row of cards per subject. */
 :root{
-  --bg:#EDF1F0; --surface:#FFFFFF; --ink:#13232B; --muted:#52646C; --line:#C6D2D1;
-  --phys:#0A6A88; --phys-soft:#E1EEF2;
-  --chem:#8A2F86; --chem-soft:#F4E4F2;
-  --focus:#0A6A88;
-  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
-  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --bg:#F5F6F2; --grid:#E4E8E1; --surface:#FFFFFF; --ink:#13232B; --muted:#52646C; --text:#3A4B53; --line:#D3DAD4; --dash:#C6D2D1;
+  --phys:#0A6A88; --phys-soft:#E1EEF2; --chem:#8A2F86; --chem-soft:#F4E4F2; --accent:#C2410C;
+  --hero:#13232B; --hero-ink:#F5F6F2; --hero-muted:#C9D4D8; --hero-accent:#F59E5B;
+  --sans:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#0D161A; --surface:#142127; --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44;
-         --phys:#56C3DF; --phys-soft:#16323B; --chem:#E39BDD; --chem-soft:#3A1E39; --focus:#56C3DF; color-scheme:dark; }
+  :root:not([data-theme="light"]){
+    --bg:#0E171B; --grid:#16232A; --surface:#142127; --ink:#E6EEF0; --muted:#9AB0B8; --text:#C2D0D4; --line:#26383F; --dash:#2E434B;
+    --phys:#5CC0DE; --phys-soft:#12313B; --chem:#DA8FD6; --chem-soft:#36203A; --accent:#F59E5B;
+    --hero:#1D3038; --hero-ink:#F5F6F2; --hero-muted:#B8C8CE; --hero-accent:#F59E5B;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E171B; --grid:#16232A; --surface:#142127; --ink:#E6EEF0; --muted:#9AB0B8; --text:#C2D0D4; --line:#26383F; --dash:#2E434B;
+  --phys:#5CC0DE; --phys-soft:#12313B; --chem:#DA8FD6; --chem-soft:#36203A; --accent:#F59E5B;
+  --hero:#1D3038; --hero-ink:#F5F6F2; --hero-muted:#B8C8CE; --hero-accent:#F59E5B;
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
-.wrap{max-width:1040px;margin-inline:auto;padding-inline:20px;padding-block:44px 56px}
-.eyebrow{margin:0;font-family:var(--mono);font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-h1{margin:.25em 0 .3em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,3.2rem);line-height:1.02;letter-spacing:-.02em}
-.lede{margin:0 0 24px;max-width:60ch;color:var(--muted);font-size:1.06rem}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--sans);color:var(--ink);background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--phys);outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 16px 72px;display:flex;flex-direction:column;gap:48px}
+@media (min-width:640px){.wrap{padding:40px 24px 72px}}
 
-.filter{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 32px;padding:0;list-style:none}
-.filter button{font:inherit;font-weight:700;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);
-  border-radius:999px;padding:.45em 1.1em;cursor:pointer}
-.filter button:hover{border-color:var(--ink)}
-.filter button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+/* header */
+.top-bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.mono-mark{width:44px;height:44px;border-radius:12px;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;
+  font:600 17px var(--mono);border-bottom:4px solid var(--accent)}
+.brand b{display:block;font-size:18px}
+.brand small{display:block;font:500 13px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.badge{font:400 13px var(--mono);color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
 
-.grade{margin-bottom:44px}
-.empty{margin:16px 0 0;padding:20px;border:1.5px dashed var(--line);border-radius:14px;color:var(--muted)}
-.grade > h2{margin:0 0 4px;font-family:var(--display);font-weight:800;font-size:1.9rem;letter-spacing:-.01em;
-  padding-bottom:8px;border-bottom:2px solid var(--line)}
-.subject{margin-top:20px}
-.subject h3{margin:0 0 12px;font-family:var(--mono);font-weight:500;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;color:var(--muted)}
-.subject h3::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c)}
-.physics{--c:var(--phys);--c-soft:var(--phys-soft)}
-.chemistry{--c:var(--chem);--c-soft:var(--chem-soft)}
+/* hero */
+.hero{display:flex;flex-wrap:wrap;gap:40px;align-items:stretch}
+.intro{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:20px;justify-content:center}
+.eyebrow{font:500 13px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:0}
+h1{margin:0;font-size:clamp(44px,6vw,76px);line-height:.98;letter-spacing:-.02em;font-weight:700}
+.lede{margin:0;font-size:19px;line-height:1.55;color:var(--text);max-width:560px}
+.filters{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.group{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;border:0}
+.pill{font:600 15px var(--sans);min-height:44px;padding:0 18px;border-radius:999px;cursor:pointer;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink)}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.sub{font:500 14px var(--mono);border-radius:10px;padding:0 16px;--c:var(--ink);--soft:var(--surface);border-color:var(--c);background:var(--soft);color:var(--c)}
+.sub[data-sub="phys"]{--c:var(--phys);--soft:var(--phys-soft)}
+.sub[data-sub="chem"]{--c:var(--chem);--soft:var(--chem-soft)}
+.sub[aria-pressed="true"]{background:var(--c);color:var(--bg)}
+.feature{flex:1 1 340px;min-width:0;text-decoration:none;background:var(--hero);color:var(--hero-ink);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:14px;transition:transform .15s ease,box-shadow .15s ease}
+.feature .row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
+.new{font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;background:#C2410C;color:#fff;padding:5px 10px;border-radius:6px}
+.feature .meta{font:400 13px var(--mono);color:var(--hero-muted)}
+.feature svg{width:100%;height:auto}
+.feature h2{margin:0;font-size:30px;line-height:1.1}
+.feature p{margin:0;font-size:16px;line-height:1.5;color:var(--hero-muted)}
+.feature .go{font-weight:600;color:var(--hero-accent)}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:16px;list-style:none;margin:0;padding:0}
-.card{display:flex;flex-direction:column;gap:10px;height:100%;padding:20px;background:var(--surface);border:1.5px solid var(--line);
-  border-radius:14px;color:inherit;text-decoration:none;transition:border-color .15s,transform .15s}
-.card:hover{border-color:var(--c)}
-.tag{align-self:flex-start;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--c);background:var(--c-soft);padding:.25em .6em;border-radius:6px}
-.card h4{margin:0;font-family:var(--display);font-weight:700;font-size:1.35rem;line-height:1.15}
-.card p{margin:0;color:var(--muted)}
-.go{margin-top:auto;font-weight:700;color:var(--c)}
-svg.icon{width:100%;height:auto;max-height:90px;display:block}
-.icon .s{fill:none;stroke:var(--c);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.icon .g{fill:none;stroke:var(--line);stroke-width:3;stroke-linecap:round}
+/* list */
+.list-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:12px}
+.list-head h2{margin:0;font-size:26px}
+.count{font:400 14px var(--mono);color:var(--muted)}
+.grid{list-style:none;margin:20px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.item[hidden]{display:none}
+.card{height:100%;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px;transition:transform .15s ease,box-shadow .15s ease}
+.card.phys{--c:var(--phys);--soft:var(--phys-soft)}
+.card.chem{--c:var(--chem);--soft:var(--chem-soft)}
+.card:hover,.feature:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(19,35,43,.12)}
+@media (prefers-reduced-motion: reduce){.card,.feature{transition:none}.card:hover,.feature:hover{transform:none}}
+.card .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.num{font:400 12px var(--mono);color:var(--muted);letter-spacing:.06em}
+.chip{font:600 12px var(--mono);padding:4px 9px;border-radius:6px;background:var(--soft);color:var(--c)}
+.icon{width:100%;height:56px;fill:none}
+.icon .s{stroke:var(--c);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.icon .g{stroke:var(--muted);stroke-width:2.5;stroke-dasharray:5 6;stroke-linecap:round;fill:none}
 .icon .f{fill:var(--c)}
-.icon .fl{fill:var(--line)}
-footer{margin-top:8px;font-size:.88rem;color:var(--muted)}
-@media (prefers-reduced-motion:no-preference){.card:hover{transform:translateY(-2px)}}
+.icon .fl{fill:var(--c);opacity:.4}
+.card .tag{font:400 13px var(--mono);color:var(--c)}
+.card h3{margin:0;font-size:21px;line-height:1.2}
+.card p{margin:0;font-size:15px;line-height:1.5;color:var(--text);flex-grow:1}
+.card .go{font-weight:600;font-size:15px;border-top:1px dashed var(--dash);padding-top:12px}
+.empty{margin:20px 0 0;padding:24px;background:var(--surface);border:1px dashed var(--muted);border-radius:12px;color:var(--text)}
+
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:14px;color:var(--muted);border-top:1px solid var(--dash);padding-top:20px}
+footer .mono{font-family:var(--mono)}
 </style>
 </head>
 <body>
-<main class="wrap">
-  <p class="eyebrow">NASA International Schools · Science</p>
-  <h1>Science Simulations</h1>
-  <p class="lede">Interactive simulations for class and home, sorted by grade. Pick one to open it.</p>
+<div class="wrap">
 
-  <ul class="filter" aria-label="Show grade">
-    <li><button type="button" data-show="all" aria-pressed="true">All grades</button></li>
-    <li><button type="button" data-show="grade-10" aria-pressed="false">Grade 10</button></li>
-    <li><button type="button" data-show="grade-11" aria-pressed="false">Grade 11</button></li>
-    <li><button type="button" data-show="grade-12" aria-pressed="false">Grade 12</button></li>
-  </ul>
+<header class="top-bar">
+  <div class="brand">
+    <span class="mono-mark" aria-hidden="true">MK</span>
+    <span><b>Mr Khaled</b><small>Physics &amp; Chemistry</small></span>
+  </div>
+  <span class="badge">Grades 10–12 · Physics &amp; Chemistry</span>
+</header>
 
-  <section class="grade" id="grade-10" aria-labelledby="g10">
-    <h2 id="g10">Grade 10</h2>
-
-    <div class="subject physics">
-      <h3>Physics</h3>
-      <ul class="grid">
-        <li>
-          <a class="card" href="keplers-laws.html">
-            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
-              <ellipse class="s" cx="150" cy="40" rx="110" ry="32"/>
-              <circle class="f" cx="195" cy="40" r="10"/>
-              <circle class="fl" cx="40" cy="40" r="7"/>
-            </svg>
-            <span class="tag">Planetary motion</span>
-            <h4>Kepler's Laws</h4>
-            <p>Drag a planet to make your own orbit and test all three of Kepler's laws, from Mars moving backward to Jupiter's moons.</p>
-            <span class="go">Open simulation →</span>
-          </a>
-        </li>
-      </ul>
+<main class="hero">
+  <div class="intro">
+    <p class="eyebrow">Interactive labs by Mr Khaled</p>
+    <h1>Science<br>Simulations</h1>
+    <p class="lede">Try the experiment before you read about it. Change one thing, predict what happens, then check. Pick your grade to start.</p>
+    <div class="filters">
+      <div class="group" role="group" aria-label="Grade">
+        <button type="button" class="pill" data-grade="all" aria-pressed="true">All grades</button>
+        <button type="button" class="pill" data-grade="10" aria-pressed="false">Grade 10</button>
+        <button type="button" class="pill" data-grade="11" aria-pressed="false">Grade 11</button>
+        <button type="button" class="pill" data-grade="12" aria-pressed="false">Grade 12</button>
+      </div>
+      <div class="group" role="group" aria-label="Subject">
+        <button type="button" class="pill sub" data-sub="all" aria-pressed="true">All subjects</button>
+        <button type="button" class="pill sub" data-sub="phys" aria-pressed="false">Physics</button>
+        <button type="button" class="pill sub" data-sub="chem" aria-pressed="false">Chemistry</button>
+      </div>
     </div>
+  </div>
 
-    <div class="subject chemistry">
-      <h3>Chemistry</h3>
-      <ul class="grid">
-        <li>
-          <a class="card" href="five-types-of-chemical-reactions.html">
-            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
-              <circle class="f" cx="40" cy="40" r="14"/><circle class="fl" cx="78" cy="40" r="11"/><circle class="fl" cx="104" cy="40" r="11"/>
-              <path class="s" d="M135 40 H175 M165 30 L177 40 L165 50"/>
-              <path class="g" d="M220 40 H252"/><circle class="f" cx="220" cy="40" r="14"/><circle class="fl" cx="254" cy="40" r="11"/>
-            </svg>
-            <span class="tag">Chemical reactions</span>
-            <h4>5 Types of Chemical Reactions</h4>
-            <p>Build the reactants atom by atom, predict the products, then watch synthesis, decomposition, combustion, single and double replacement happen.</p>
-            <span class="go">Open simulation →</span>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="grade" id="grade-11" aria-labelledby="g11">
-    <h2 id="g11">Grade 11</h2>
-
-    <div class="subject physics">
-      <h3>Physics</h3>
-      <ul class="grid">
-        <li>
-          <a class="card" href="resonance-on-a-string.html">
-            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
-              <path class="g" d="M10 40 Q47.5 -5 85 40 T160 40 T235 40 T290 40"/>
-              <path class="s" d="M10 40 Q47.5 85 85 40 T160 40 T235 40 T290 40"/>
-            </svg>
-            <span class="tag">Standing waves</span>
-            <h4>Resonance on a String</h4>
-            <p>Shake one end of a string and find the frequencies where it swings many times wider than the driver.</p>
-            <span class="go">Open simulation →</span>
-          </a>
-        </li>
-        <li>
-          <a class="card" href="pulse-at-a-boundary.html">
-            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
-              <path class="s" d="M10 55 H60 Q80 55 85 25 Q90 55 110 55 H150"/>
-              <path class="g" d="M150 30 V70"/>
-              <path class="s" d="M150 55 H200 Q220 55 228 35 Q236 55 256 55 H290"/>
-            </svg>
-            <span class="tag">Waves at boundaries</span>
-            <h4>Pulse at a Boundary</h4>
-            <p>Send a pulse from one spring into another and see which part reflects, which part passes through, and where the energy goes.</p>
-            <span class="go">Open simulation →</span>
-          </a>
-        </li>
-      </ul>
-    </div>
-
-    <div class="subject chemistry">
-      <h3>Chemistry</h3>
-      <ul class="grid">
-        <li>
-          <a class="card" href="entropy-lab.html">
-            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
-              <circle class="fl" cx="30" cy="30" r="7"/><circle class="fl" cx="50" cy="30" r="7"/><circle class="fl" cx="70" cy="30" r="7"/>
-              <circle class="fl" cx="30" cy="50" r="7"/><circle class="fl" cx="50" cy="50" r="7"/><circle class="fl" cx="70" cy="50" r="7"/>
-              <path class="s" d="M120 40 H170 M160 30 L172 40 L160 50"/>
-              <circle class="f" cx="210" cy="18" r="7"/><circle class="f" cx="262" cy="30" r="7"/><circle class="f" cx="232" cy="60" r="7"/>
-              <circle class="f" cx="284" cy="62" r="7"/><circle class="f" cx="250" cy="10" r="7"/><circle class="f" cx="200" cy="52" r="7"/>
-            </svg>
-            <span class="tag">Entropy &amp; spontaneity</span>
-            <h4>Entropy Lab</h4>
-            <p>Compare the particles before and after a change, predict the sign of ΔS, then see how ΔH and temperature decide if it happens.</p>
-            <span class="go">Open simulation →</span>
-          </a>
-        </li>
-        <li>
-          <a class="card" href="enthalpy-lab.html">
-            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
-              <path class="s" d="M40 18 H120"/><path class="s" d="M180 64 H260"/>
-              <path class="s" d="M150 18 V58 M140 48 L150 60 L160 48"/>
-              <circle class="f" cx="62" cy="10" r="5"/><circle class="f" cx="80" cy="10" r="5"/><circle class="f" cx="98" cy="10" r="5"/>
-              <circle class="fl" cx="202" cy="56" r="5"/><circle class="fl" cx="220" cy="56" r="5"/><circle class="fl" cx="238" cy="56" r="5"/>
-            </svg>
-            <span class="tag">Energy &amp; chemical change</span>
-            <h4>Enthalpy Lab</h4>
-            <p>Heat, calorimetry, thermochemical equations, Hess's law and enthalpies of formation, with step-by-step worked examples. Type any equation to get ΔH°rxn from the table.</p>
-            <span class="go">Open simulation →</span>
-          </a>
-        </li>
-        <li>
-          <a class="card" href="organic-naming-lab.html">
-            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
-              <path class="s" d="M30 50 L75 30 L120 50 L165 30 L210 50"/>
-              <path class="s" d="M120 50 V72"/><path class="s" d="M210 50 L255 30"/>
-              <circle class="f" cx="30" cy="50" r="6"/><circle class="f" cx="75" cy="30" r="6"/><circle class="f" cx="120" cy="50" r="6"/>
-              <circle class="f" cx="165" cy="30" r="6"/><circle class="f" cx="210" cy="50" r="6"/><circle class="fl" cx="120" cy="72" r="6"/><circle class="fl" cx="258" cy="28" r="8"/>
-            </svg>
-            <span class="tag">Organic chemistry</span>
-            <h4>Organic Naming Lab</h4>
-            <p>Build a molecule and get its IUPAC name step by step, name esters, ethers, amides and amines from their parts, hunt for every isomer of a formula, and identify mystery compounds with test-tube tests.</p>
-            <span class="go">Open simulation →</span>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="grade" id="grade-12" aria-labelledby="g12">
-    <h2 id="g12">Grade 12</h2>
-    <div class="subject chemistry">
-      <h3>Chemistry</h3>
-      <ul class="grid">
-        <li>
-          <a class="card" href="organic-naming-lab.html">
-            <svg class="icon" viewBox="0 0 300 80" aria-hidden="true">
-              <path class="s" d="M30 50 L75 30 L120 50 L165 30 L210 50"/>
-              <path class="s" d="M120 50 V72"/><path class="s" d="M210 50 L255 30"/>
-              <circle class="f" cx="30" cy="50" r="6"/><circle class="f" cx="75" cy="30" r="6"/><circle class="f" cx="120" cy="50" r="6"/>
-              <circle class="f" cx="165" cy="30" r="6"/><circle class="f" cx="210" cy="50" r="6"/><circle class="fl" cx="120" cy="72" r="6"/><circle class="fl" cx="258" cy="28" r="8"/>
-            </svg>
-            <span class="tag">Organic chemistry</span>
-            <h4>Organic Naming Lab</h4>
-            <p>Build a molecule and get its IUPAC name step by step, name esters, ethers, amides and amines from their parts, hunt for every isomer of a formula, and identify mystery compounds with test-tube tests.</p>
-            <span class="go">Open simulation →</span>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <footer>New simulations are added to this page as they are made.</footer>
+  <a class="feature" href="organic-naming-lab.html">
+    <span class="row"><span class="new">Newest</span><span class="meta">Grade 11 · 12 · Chemistry</span></span>
+    <svg viewBox="0 0 320 150" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M70 35 L105 55 L105 95 L70 115 L35 95 L35 55 Z" stroke="currentColor" stroke-width="3"/>
+      <circle cx="70" cy="75" r="22" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M105 55 L140 35 L175 55 L210 35 L245 55" stroke="currentColor" stroke-width="3"/>
+      <path d="M175 55 L175 95" stroke="currentColor" stroke-width="3"/>
+      <path d="M245 55 L280 35 M249 61 L284 41" stroke="#F59E5B" stroke-width="3"/>
+      <circle cx="175" cy="105" r="9" fill="#F59E5B"/>
+      <text x="168" y="138" fill="#F59E5B" font-family="IBM Plex Mono, monospace" font-size="15">OH</text>
+    </svg>
+    <h2>Organic Naming Lab</h2>
+    <p>Build any molecule, rings and benzene too, and watch its IUPAC name appear step by step.</p>
+    <span class="go">Open the lab <span aria-hidden="true">→</span></span>
+  </a>
 </main>
+
+<section aria-labelledby="listTitle">
+  <div class="list-head">
+    <h2 id="listTitle">All grades</h2>
+    <span class="count" id="count" aria-live="polite">7 simulations</span>
+  </div>
+  <ul class="grid" id="grid">
+<li class="item" data-grades="10" data-sub="phys">
+<a class="card phys" href="keplers-laws.html">
+<span class="top"><span class="num">SIM 01</span><span class="chip">Physics · G10</span></span>
+<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <ellipse class="s" cx="150" cy="40" rx="110" ry="32"/> <circle class="f" cx="195" cy="40" r="10"/> <circle class="fl" cx="40" cy="40" r="7"/> </svg>
+<span class="tag">Planetary motion</span>
+<h3>Kepler&#x27;s Laws</h3>
+<p>Drag a planet to make your own orbit and test all three of Kepler&#x27;s laws, from Mars moving backward to Jupiter&#x27;s moons.</p>
+<span class="go">Open simulation <span aria-hidden="true">→</span></span>
+</a>
+</li>
+<li class="item" data-grades="10" data-sub="chem">
+<a class="card chem" href="five-types-of-chemical-reactions.html">
+<span class="top"><span class="num">SIM 02</span><span class="chip">Chemistry · G10</span></span>
+<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <circle class="f" cx="40" cy="40" r="14"/><circle class="fl" cx="78" cy="40" r="11"/><circle class="fl" cx="104" cy="40" r="11"/> <path class="s" d="M135 40 H175 M165 30 L177 40 L165 50"/> <path class="g" d="M220 40 H252"/><circle class="f" cx="220" cy="40" r="14"/><circle class="fl" cx="254" cy="40" r="11"/> </svg>
+<span class="tag">Chemical reactions</span>
+<h3>5 Types of Chemical Reactions</h3>
+<p>Build the reactants atom by atom, predict the products, then watch synthesis, decomposition, combustion, single and double replacement happen.</p>
+<span class="go">Open simulation <span aria-hidden="true">→</span></span>
+</a>
+</li>
+<li class="item" data-grades="11" data-sub="phys">
+<a class="card phys" href="resonance-on-a-string.html">
+<span class="top"><span class="num">SIM 03</span><span class="chip">Physics · G11</span></span>
+<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="g" d="M10 40 Q47.5 -5 85 40 T160 40 T235 40 T290 40"/> <path class="s" d="M10 40 Q47.5 85 85 40 T160 40 T235 40 T290 40"/> </svg>
+<span class="tag">Standing waves</span>
+<h3>Resonance on a String</h3>
+<p>Shake one end of a string and find the frequencies where it swings many times wider than the driver.</p>
+<span class="go">Open simulation <span aria-hidden="true">→</span></span>
+</a>
+</li>
+<li class="item" data-grades="11" data-sub="phys">
+<a class="card phys" href="pulse-at-a-boundary.html">
+<span class="top"><span class="num">SIM 04</span><span class="chip">Physics · G11</span></span>
+<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M10 55 H60 Q80 55 85 25 Q90 55 110 55 H150"/> <path class="g" d="M150 30 V70"/> <path class="s" d="M150 55 H200 Q220 55 228 35 Q236 55 256 55 H290"/> </svg>
+<span class="tag">Waves at boundaries</span>
+<h3>Pulse at a Boundary</h3>
+<p>Send a pulse from one spring into another and see which part reflects, which part passes through, and where the energy goes.</p>
+<span class="go">Open simulation <span aria-hidden="true">→</span></span>
+</a>
+</li>
+<li class="item" data-grades="11" data-sub="chem">
+<a class="card chem" href="entropy-lab.html">
+<span class="top"><span class="num">SIM 05</span><span class="chip">Chemistry · G11</span></span>
+<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <circle class="fl" cx="30" cy="30" r="7"/><circle class="fl" cx="50" cy="30" r="7"/><circle class="fl" cx="70" cy="30" r="7"/> <circle class="fl" cx="30" cy="50" r="7"/><circle class="fl" cx="50" cy="50" r="7"/><circle class="fl" cx="70" cy="50" r="7"/> <path class="s" d="M120 40 H170 M160 30 L172 40 L160 50"/> <circle class="f" cx="210" cy="18" r="7"/><circle class="f" cx="262" cy="30" r="7"/><circle class="f" cx="232" cy="60" r="7"/> <circle class="f" cx="284" cy="62" r="7"/><circle class="f" cx="250" cy="10" r="7"/><circle class="f" cx="200" cy="52" r="7"/> </svg>
+<span class="tag">Entropy and spontaneity</span>
+<h3>Entropy Lab</h3>
+<p>Compare the particles before and after a change, predict the sign of ΔS, then see how ΔH and temperature decide if it happens.</p>
+<span class="go">Open simulation <span aria-hidden="true">→</span></span>
+</a>
+</li>
+<li class="item" data-grades="11" data-sub="chem">
+<a class="card chem" href="enthalpy-lab.html">
+<span class="top"><span class="num">SIM 06</span><span class="chip">Chemistry · G11</span></span>
+<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M40 18 H120"/><path class="s" d="M180 64 H260"/> <path class="s" d="M150 18 V58 M140 48 L150 60 L160 48"/> <circle class="f" cx="62" cy="10" r="5"/><circle class="f" cx="80" cy="10" r="5"/><circle class="f" cx="98" cy="10" r="5"/> <circle class="fl" cx="202" cy="56" r="5"/><circle class="fl" cx="220" cy="56" r="5"/><circle class="fl" cx="238" cy="56" r="5"/> </svg>
+<span class="tag">Energy and chemical change</span>
+<h3>Enthalpy Lab</h3>
+<p>Heat, calorimetry, thermochemical equations, Hess&#x27;s law and enthalpies of formation, worked step by step.</p>
+<span class="go">Open simulation <span aria-hidden="true">→</span></span>
+</a>
+</li>
+<li class="item" data-grades="11 12" data-sub="chem">
+<a class="card chem" href="organic-naming-lab.html">
+<span class="top"><span class="num">SIM 07</span><span class="chip">Chemistry · G11 · G12</span></span>
+<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M30 50 L75 30 L120 50 L165 30 L210 50"/> <path class="s" d="M120 50 V72"/><path class="s" d="M210 50 L255 30"/> <circle class="f" cx="30" cy="50" r="6"/><circle class="f" cx="75" cy="30" r="6"/><circle class="f" cx="120" cy="50" r="6"/> <circle class="f" cx="165" cy="30" r="6"/><circle class="f" cx="210" cy="50" r="6"/><circle class="fl" cx="120" cy="72" r="6"/><circle class="fl" cx="258" cy="28" r="8"/> </svg>
+<span class="tag">Organic compounds</span>
+<h3>Organic Naming Lab</h3>
+<p>Build a molecule and get its IUPAC name step by step, rings and benzene included, then name esters and amides, hunt isomers and identify mystery compounds.</p>
+<span class="go">Open simulation <span aria-hidden="true">→</span></span>
+</a>
+</li>
+  </ul>
+  <p class="empty" id="empty" hidden>No simulations for this grade and subject yet. Try another subject.</p>
+</section>
+
+<footer>
+  <span>Designed and built by Mr Khaled for his physics and chemistry students.</span>
+  <span class="mono">Works on phones, tablets and the classroom screen.</span>
+</footer>
+
+</div>
 <script>
 (function(){
-  var btns = document.querySelectorAll('.filter button'), secs = document.querySelectorAll('.grade');
-  function show(id){
-    secs.forEach(function(s){ s.hidden = !(id === 'all' || s.id === id); });
-    btns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.show === id ? 'true' : 'false'); });
+  var state = { grade: 'all', sub: 'all' };
+  var items = Array.prototype.slice.call(document.querySelectorAll('#grid .item'));
+  var title = document.getElementById('listTitle'), count = document.getElementById('count'), empty = document.getElementById('empty');
+  try {
+    var q = new URLSearchParams(location.search);
+    if (/^(10|11|12)$/.test(q.get('grade') || '')) state.grade = q.get('grade');
+    if (/^(phys|chem)$/.test(q.get('subject') || '')) state.sub = q.get('subject');
+  } catch (e) {}
+  function apply(push){
+    document.querySelectorAll('[data-grade]').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-grade') === state.grade); });
+    document.querySelectorAll('.sub[data-sub]').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-sub') === state.sub); });
+    var n = 0;
+    items.forEach(function(it){
+      var ok = (state.grade === 'all' || it.getAttribute('data-grades').split(' ').indexOf(state.grade) >= 0) && (state.sub === 'all' || it.getAttribute('data-sub') === state.sub);
+      it.hidden = !ok; if (ok) n++;
+    });
+    title.textContent = (state.grade === 'all' ? 'All grades' : 'Grade ' + state.grade) + (state.sub === 'all' ? '' : state.sub === 'phys' ? ' · Physics' : ' · Chemistry');
+    count.textContent = n + (n === 1 ? ' simulation' : ' simulations');
+    empty.hidden = n > 0;
+    if (push){
+      try {
+        var p = [];
+        if (state.grade !== 'all') p.push('grade=' + state.grade);
+        if (state.sub !== 'all') p.push('subject=' + state.sub);
+        history.replaceState(null, '', location.pathname + (p.length ? '?' + p.join('&') : ''));
+      } catch (e) {}
+    }
   }
-  btns.forEach(function(b){ b.addEventListener('click', function(){
-    show(b.dataset.show);
-    try { history.replaceState(null, '', b.dataset.show === 'all' ? location.pathname : '#' + b.dataset.show); } catch(e) {}
-  }); });
-  var h = location.hash.slice(1);
-  if (h === 'grade-10' || h === 'grade-11' || h === 'grade-12') show(h);
+  document.addEventListener('click', function(e){
+    var g = e.target.closest('[data-grade]'), s = e.target.closest('.sub[data-sub]');
+    if (g){ state.grade = g.getAttribute('data-grade'); apply(true); }
+    else if (s){ state.sub = s.getAttribute('data-sub'); apply(true); }
+  });
+  apply(false);
 })();
 </script>
 </body>
