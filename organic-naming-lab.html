@@ -183,13 +183,40 @@ table.ref th{font-size:.72rem;color:var(--muted)}
 .liq{transition:fill 1.4s ease}
 @media (prefers-reduced-motion: reduce){.bub,.wisp{animation:none}.liq{transition:none}}
 .foot{font-size:.84rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;max-width:92ch}
+
+/* display controls: explanations toggle, theme toggle, full-screen builder */
+.toprow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.ico{width:18px;height:18px;flex:none}
+.explainBtn,.themeBtn{display:inline-flex;align-items:center;gap:6px}
+.fsbar .row{gap:6px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:520px){.fsbar b{display:none}.fsbar .row{justify-content:flex-start}}
+body.no-explain .explain{display:none!important}
+.fsbtn{display:inline-flex;align-items:center;gap:6px}
+.panel.fs{position:fixed;inset:0;z-index:60;background:var(--bg);overflow:auto;padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 24px max(12px,env(safe-area-inset-left,0px))}
+.panel.fs:fullscreen{padding:16px}
+.panel.fs::backdrop{background:var(--bg)}
+body.fs-on{overflow:hidden}
+.panel.fs .lab{grid-template-columns:minmax(0,2.3fr) minmax(0,1fr)}
+@media (max-width:900px){.panel.fs .lab{grid-template-columns:minmax(0,1fr)}}
+.panel.fs svg.mol{max-height:min(62vh,900px);max-width:var(--fsmax,none)!important;min-width:0!important}
+.panel.fs .molwrap{padding:10px}
+.panel.fs .bigname{font-size:clamp(1.6rem,3vw,2.6rem)}
+.fsbar{display:none}
+.panel.fs .fsbar{display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:0;z-index:2;background:var(--bg);padding-bottom:8px}
+.fsbar b{font-family:var(--display);font-size:1.25rem}
 </style>
 
 <div class="wrap">
   <header>
-    <p class="eyebrow">Grade 11–12 Chemistry · Hydrocarbons and Organic Compounds</p>
+    <div class="toprow">
+      <p class="eyebrow">Grade 11–12 Chemistry · Hydrocarbons and Organic Compounds</p>
+      <div class="row" role="group" aria-label="Display">
+        <button class="btn small explainBtn" id="explainBtn" aria-pressed="false"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h6a2 2 0 0 1 2 2v10a2 2 0 0 0-2-2H3zM17 4h-6a2 2 0 0 0-2 2v10a2 2 0 0 1 2-2h6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Explanations: off</span></button>
+        <button class="btn small themeBtn" id="themeBtn"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg><span>Dark mode</span></button>
+      </div>
+    </div>
     <h1>Organic Naming Lab</h1>
-    <p class="lede">Build a molecule and watch its IUPAC name appear step by step: find the longest chain, number it, then order the substituents. Name esters, ethers, amides and amines from their parts, hunt for every isomer of a formula, and identify mystery compounds with the classic test-tube tests.</p>
+    <p class="lede explain">Build a molecule and watch its IUPAC name appear step by step: find the longest chain, number it, then order the substituents. Name esters, ethers, amides and amines from their parts, hunt for every isomer of a formula, and identify mystery compounds with the classic test-tube tests.</p>
   </header>
 
   <div class="tabs" role="tablist" aria-label="Parts of the lab">
@@ -220,9 +247,9 @@ table.ref th{font-size:.72rem;color:var(--muted)}
         </div>
         <div id="bNameBox" class="namebox" aria-live="polite"></div>
         <div id="bFacts" class="chips"></div>
-        <div id="bWarn"></div>
-        <h3>How the name is built</h3>
-        <ol class="steps" id="bSteps"></ol>
+        <div id="bWarn" class="explain"></div>
+        <h3 class="explain">How the name is built</h3>
+        <ol class="steps explain" id="bSteps"></ol>
       </div>
     </div>
   </section>
@@ -246,14 +273,14 @@ table.ref th{font-size:.72rem;color:var(--muted)}
       <div class="card">
         <h3>Name this compound</h3>
         <div class="molwrap"><svg class="mol" id="qSvg" role="img" aria-label="Structure to name"></svg></div>
-        <p class="caption">Condensed structural formula. The straight row you see is not always the longest chain.</p>
+        <p class="caption explain">Condensed structural formula. The straight row you see is not always the longest chain.</p>
       </div>
       <div class="card">
         <h3>Your answer</h3>
         <div class="guess"><input type="text" id="qAns" placeholder="e.g. 3-methylpent-1-ene or 3-methyl-1-pentene" autocomplete="off" spellcheck="false" autocapitalize="off"><button class="btn primary" id="qCheck">Check</button></div>
         <div id="qMsg" class="verdict wait" aria-live="polite">Both styles are accepted: but-2-ene or 2-butene.</div>
         <div class="row"><button class="btn small" id="qHint">Hint</button><button class="btn small" id="qShow">Show the answer</button><button class="btn small primary" id="qNext">Next compound →</button></div>
-        <ol class="steps" id="qSteps"></ol>
+        <ol class="steps explain" id="qSteps"></ol>
       </div>
     </div>
     <div class="lab" id="qBuildMode" hidden>
@@ -266,7 +293,7 @@ table.ref th{font-size:.72rem;color:var(--muted)}
         <h3>Check</h3>
         <div class="row"><button class="btn primary" id="qBCheck">Check my structure</button><button class="btn small" id="qBShow">Show a correct structure</button><button class="btn small primary" id="qBNext">Next name →</button></div>
         <div id="qBMsg" class="verdict wait" aria-live="polite">Build the molecule on the left, then check.</div>
-        <ol class="steps"><li><b class="t">Tip</b>Read the name from the end: the last part gives the chain length and the family (-ane, -ene, -yne, -ol, -al, -one, -oic acid, -amine). Then add the groups in front at their numbers.</li></ol>
+        <ol class="steps explain"><li><b class="t">Tip</b>Read the name from the end: the last part gives the chain length and the family (-ane, -ene, -yne, -ol, -al, -one, -oic acid, -amine). Then add the groups in front at their numbers.</li></ol>
       </div>
     </div>
   </section>
@@ -290,7 +317,7 @@ table.ref th{font-size:.72rem;color:var(--muted)}
         <div class="progressbar" aria-hidden="true"><span id="iBar" style="width:0%"></span></div>
         <div class="found" id="iFound"></div>
         <div class="row"><button class="btn small" id="iReveal">Show the missing ones</button><button class="btn small" id="iReset">Start this formula again</button></div>
-        <ol class="steps">
+        <ol class="steps explain">
           <li><b class="t">Isomers</b>Same molecular formula, different structure.</li>
           <li><b class="t">Chain isomers</b>Different carbon skeleton: butane and 2-methylpropane.</li>
           <li><b class="t">Position isomers</b>Same skeleton, the group moves: butan-1-ol and butan-2-ol.</li>
@@ -310,7 +337,7 @@ table.ref th{font-size:.72rem;color:var(--muted)}
         <button class="btn small" id="xf-amide" aria-pressed="false">Amide</button>
         <button class="btn small" id="xf-amine" aria-pressed="false">Amine (1°, 2°, 3°)</button>
       </div>
-      <p class="caption" id="xInfo"></p>
+      <p class="caption explain" id="xInfo"></p>
     </div>
     <div class="lab">
       <div class="card">
@@ -337,8 +364,8 @@ table.ref th{font-size:.72rem;color:var(--muted)}
         <div id="xName" class="namebox" aria-live="polite"></div>
         <div class="eqbox" id="xEq"></div>
         <div id="xFacts" class="chips"></div>
-        <h3>How the name is built</h3>
-        <ol class="steps" id="xSteps"></ol>
+        <h3 class="explain">How the name is built</h3>
+        <ol class="steps explain" id="xSteps"></ol>
       </div>
     </div>
     <div class="card">
@@ -387,7 +414,7 @@ table.ref th{font-size:.72rem;color:var(--muted)}
     </div>
   </section>
 
-  <p class="foot">Names follow IUPAC rules as taught in school: the parent chain is the longest chain that contains the main functional group and any C=C or C≡C, numbered so that the main group (then the multiple bond, then the substituents) gets the lowest numbers; substituents are listed in alphabetical order, ignoring di-, tri- and tetra-. Both styles are shown and accepted, for example but-2-ene (current IUPAC) and 2-butene (older style used in Inspire Chemistry). Esters are named alkyl + alkanoate (propan-2-yl ethanoate), ethers as alkoxyalkanes (2-methoxypropane), and groups on nitrogen take the locant N (N-methylethanamide). In rings the ring is the parent (methylcyclohexane, 2-methylphenol); when a chain is longer than the ring, the older chain-as-parent name is also accepted, and benzene common names (toluene, o-, m-, p-xylene) are shown too. Test results follow Mr Khaled's identification table.</p>
+  <p class="foot explain">Names follow IUPAC rules as taught in school: the parent chain is the longest chain that contains the main functional group and any C=C or C≡C, numbered so that the main group (then the multiple bond, then the substituents) gets the lowest numbers; substituents are listed in alphabetical order, ignoring di-, tri- and tetra-. Both styles are shown and accepted, for example but-2-ene (current IUPAC) and 2-butene (older style used in Inspire Chemistry). Esters are named alkyl + alkanoate (propan-2-yl ethanoate), ethers as alkoxyalkanes (2-methoxypropane), and groups on nitrogen take the locant N (N-methylethanamide). In rings the ring is the parent (methylcyclohexane, 2-methylphenol); when a chain is longer than the ring, the older chain-as-parent name is also accepted, and benzene common names (toluene, o-, m-, p-xylene) are shown too. Test results follow Mr Khaled's identification table.</p>
 </div>
 
 <script>
@@ -783,7 +810,7 @@ function drawMol(svg, st, opt){
   minX -= pad + 10; maxX += pad + 10; minY -= pad + (opt.R && opt.highlight ? 8 : 0); maxY += pad;
   var W = maxX - minX, H = maxY - minY;
   svg.setAttribute('viewBox', minX + ' ' + minY + ' ' + W + ' ' + H);
-  svg.style.minWidth = opt.mini ? '0' : Math.min(W * 0.62, 760) + 'px'; svg.style.maxWidth = opt.mini ? '' : Math.max(W * 1.05, 320) + 'px'; svg.classList.toggle('mini', !!opt.mini);
+  svg.style.minWidth = opt.mini ? '0' : Math.min(W * 0.62, 760) + 'px'; svg.style.maxWidth = opt.mini ? '' : Math.max(W * 1.05, 320) + 'px'; svg.style.setProperty('--fsmax', Math.max(W * 2, 480) + 'px'); svg.classList.toggle('mini', !!opt.mini);
   var out = '';
   function line(x1, y1, x2, y2, cls){ return '<line class="' + (cls || 'bnd') + '" x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '"/>'; }
   function bondLines(p, q, o, cls, trimA, trimB){
@@ -838,10 +865,11 @@ function Builder(host, opt){
   host.innerHTML = '<div class="row" style="margin-bottom:8px">' + ringUI +
     '<span class="row chainctl"><span class="flabel">Carbons in the row</span><button class="btn icon" data-act="minus" aria-label="Remove a carbon">−</button><output>' + this.st.n + '</output><button class="btn icon" data-act="plus" aria-label="Add a carbon">+</button></span>' +
     '<span class="row ringctl"><label class="flabel" for="' + this.id + '-ring">Ring</label><select id="' + this.id + '-ring" data-ring="1">' + RINGOPTS.map(function(o){ return '<option value="' + o[0] + '">' + o[1] + '</option>'; }).join('') + '</select></span>' +
-    '<button class="btn small" data-act="clear">Clear groups and bonds</button></div>' +
+    '<button class="btn small" data-act="clear">Clear groups and bonds</button>' +
+    '<button class="btn small fsbtn" data-act="fs" aria-pressed="false"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8V3h5M12 3h5v5M17 12v5h-5M8 17H3v-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Full screen</span></button></div>' +
     '<div class="molwrap"><svg class="mol" role="group" aria-label="Molecule. Carbons and bonds are buttons."></svg></div>' +
-    '<p class="caption bhelp" style="margin:6px 0"></p><div class="editor"></div>';
-  this.host = host; this.svg = host.querySelector('svg'); this.ed = host.querySelector('.editor'); this.out = host.querySelector('output'); this.rsel = host.querySelector('[data-ring]'); this.help = host.querySelector('.bhelp');
+    '<p class="caption bhelp explain" style="margin:6px 0"></p><div class="editor"></div>';
+  this.host = host; this.svg = host.querySelector('svg.mol'); this.ed = host.querySelector('.editor'); this.out = host.querySelector('output'); this.rsel = host.querySelector('[data-ring]'); this.help = host.querySelector('.bhelp');
   host.addEventListener('click', function(e){
     var a = e.target.closest('[data-act]'); if (a){ self.act(a.getAttribute('data-act')); return; }
     var b = e.target.closest('[data-bond]'); if (b){ self.cycleBond(+b.getAttribute('data-bond')); return; }
@@ -869,6 +897,7 @@ Builder.prototype.setRing = function(v){
 Builder.prototype.set = function(st){ this.st = clone(st); this.sel = Math.min(this.sel, this.st.n - 1); this.changed(); };
 Builder.prototype.act = function(a){
   var st = this.st;
+  if (a === 'fs'){ toggleFS(this.host); return; }
   if (a === 'mode-chain' || a === 'mode-ring'){
     var want = a === 'mode-ring'; if (!!st.ring === want) return;
     this.saved[st.ring ? 'ring' : 'chain'] = clone(st); this.st = clone(this.saved[want ? 'ring' : 'chain']); this.sel = 0; this.changed(); return;
@@ -1611,5 +1640,55 @@ TABS.forEach(function(t, i){ var b = $('t-' + t);
 });
 qShowItem();
 var h0 = (location.hash || '').slice(1); if (TABS.indexOf(h0) >= 0) selectTab(h0);
+
+/* =========== display controls: full screen, explanations, theme =========== */
+var FS = { panel: null };
+function fsButtons(panel, on){
+  panel.querySelectorAll('[data-act="fs"]').forEach(function(b){ b.setAttribute('aria-pressed', on); b.querySelector('span').textContent = on ? 'Exit full screen' : 'Full screen'; });
+}
+function exitFS(){
+  var p = FS.panel; if (!p) return;
+  FS.panel = null; p.classList.remove('fs'); document.body.classList.remove('fs-on'); fsButtons(p, false);
+  try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); } catch (e) {}
+}
+function toggleFS(el){
+  var p = el.closest('.panel'); if (!p) return;
+  if (FS.panel === p){ exitFS(); return; }
+  if (FS.panel) exitFS();
+  FS.panel = p; p.classList.add('fs'); document.body.classList.add('fs-on'); fsButtons(p, true);
+  try { if (p.requestFullscreen) p.requestFullscreen().catch(function(){}); } catch (e) {}
+  p.scrollTop = 0;
+}
+document.addEventListener('fullscreenchange', function(){ if (!document.fullscreenElement && FS.panel) exitFS(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && FS.panel) exitFS(); });
+document.querySelectorAll('.panel').forEach(function(p){
+  var bar = document.createElement('div'); bar.className = 'fsbar';
+  bar.innerHTML = '<b>Organic Naming Lab</b><div class="row">' + $('explainBtn').outerHTML.replace(' id="explainBtn"', '') + $('themeBtn').outerHTML.replace(' id="themeBtn"', '') + '<button class="btn small" data-fsexit>Exit full screen</button></div>';
+  p.insertBefore(bar, p.firstChild);
+  bar.querySelector('[data-fsexit]').addEventListener('click', exitFS);
+});
+document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click', function(){ if (FS.panel) exitFS(); }); });
+
+function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+function setExplain(on){
+  document.body.classList.toggle('no-explain', !on);
+  document.querySelectorAll('.explainBtn').forEach(function(b){ b.setAttribute('aria-pressed', on); b.querySelector('span').textContent = on ? 'Explanations: on' : 'Explanations: off'; });
+  store('onl-explain', on ? '1' : '0');
+}
+setExplain(store('onl-explain') === '1');
+document.querySelectorAll('.explainBtn').forEach(function(b){ b.addEventListener('click', function(){ setExplain(document.body.classList.contains('no-explain')); }); });
+
+function isDark(){
+  var t = document.documentElement.getAttribute('data-theme');
+  if (t) return t === 'dark';
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function paintTheme(){ document.querySelectorAll('.themeBtn').forEach(function(b){ b.querySelector('span').textContent = isDark() ? 'Light mode' : 'Dark mode'; b.setAttribute('aria-label', isDark() ? 'Switch to light mode' : 'Switch to dark mode'); }); }
+(function(){ var t = store('onl-theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); paintTheme(); })();
+document.querySelectorAll('.themeBtn').forEach(function(b){ b.addEventListener('click', function(){
+  var next = isDark() ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next); store('onl-theme', next); paintTheme();
+}); });
+if (window.matchMedia) { try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paintTheme); } catch (e) {} }
 
 </script>
