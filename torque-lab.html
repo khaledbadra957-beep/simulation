@@ -1,0 +1,321 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Torque Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: header, three tabs (Turn the door · Balance the seesaw · Challenge). One framed bench per tab:
+   an SVG stage on top, controls and live readouts below. The force arrow is coral, the lever arm is a
+   dashed teal line with a right-angle mark, clockwise torque blue and counter-clockwise amber,
+   the same convention on every tab. Same type family as the other labs in the collection. */
+:root{
+  --bg:#EEF0F3; --surface:#F9FAFB; --stage:#FFFFFF; --ink:#16202A; --muted:#55606B; --line:#CDD3DA; --grid:#E5E9EE;
+  --accent:#1F5FA8; --accent-ink:#FFFFFF; --force:#D64545; --arm:#0E8C8C; --cw:#2F6FD0; --ccw:#C7811A;
+  --wood:#C9A66B; --wood-dark:#8F6E3A; --steel:#7A8794; --ok:#1E8A55;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E141A; --surface:#151E26; --stage:#101820; --ink:#E6EDF3; --muted:#97A5B2; --line:#2C3A46; --grid:#1D2833;
+  --accent:#6FA8F0; --accent-ink:#0A1A2C; --force:#FF7B7B; --arm:#4FD1C5; --cw:#7FB0FF; --ccw:#F2B45A;
+  --wood:#B8925A; --wood-dark:#7A5C2E; --steel:#9AA8B5; --ok:#4ACB8A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E141A; --surface:#151E26; --stage:#101820; --ink:#E6EDF3; --muted:#97A5B2; --line:#2C3A46; --grid:#1D2833;
+  --accent:#6FA8F0; --accent-ink:#0A1A2C; --force:#FF7B7B; --arm:#4FD1C5; --cw:#7FB0FF; --ccw:#F2B45A;
+  --wood:#B8925A; --wood-dark:#7A5C2E; --steel:#9AA8B5; --ok:#4ACB8A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1100px;margin-inline:auto;padding-inline:max(16px,env(safe-area-inset-left,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-inline:max(32px,env(safe-area-inset-left,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.1rem);line-height:1.02;letter-spacing:-.02em}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem}
+.lede{margin:0;max-width:62ch;color:var(--muted)}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer}
+.btn{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:8px 14px;font-weight:700}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+svg.stage{width:100%;height:auto;background:var(--stage);border:1.5px solid var(--line);border-radius:12px;display:block;touch-action:none}
+.grid2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+.ctrl{display:flex;flex-direction:column;gap:12px}
+.slider label{display:flex;justify-content:space-between;font-weight:700;gap:8px}
+.slider output{font-family:var(--data);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.presets{display:flex;gap:6px;flex-wrap:wrap}
+.presets .btn{font-size:.85rem;padding:6px 10px}
+.read{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cell{background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0}
+.cell .k{font-size:.78rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.cell .v{font-family:var(--data);font-size:1.25rem;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.cell.big{grid-column:1/-1;border-color:var(--accent)}
+.cell.big .v{font-size:1.6rem}
+.eq{font-family:var(--data);background:var(--stage);border:1.5px dashed var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;white-space:normal;overflow-wrap:anywhere}
+.note{color:var(--muted);font-size:.95rem}
+.status{font-weight:700;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage)}
+.status.ok{border-color:var(--ok);color:var(--ok)}
+.q{font-size:1.1rem;font-weight:700}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input{font:inherit;font-family:var(--data);width:9em;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);color:var(--ink)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto}
+footer{color:var(--muted);font-size:.85rem}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+ <header>
+  <div>
+   <p class="eyebrow">Grade 10 Physics · Module 8 · Lesson 2 · Rotational dynamics</p>
+   <h1>Torque Lab</h1>
+   <p class="lede">Push a door, pull a wrench and balance a seesaw. See how the size of the force, the distance from the pivot and the angle decide how strongly an object turns.</p>
+  </div>
+  <div class="tools">
+   <button class="btn" id="fsBtn" type="button">Full screen</button>
+   <button class="btn" id="themeBtn" type="button">Dark mode</button>
+  </div>
+ </header>
+
+ <div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-tab="door" id="tab-door">1 · Turn the door</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="see" id="tab-see">2 · Balance the seesaw</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="chal" id="tab-chal">3 · Challenge</button>
+ </div>
+
+ <!-- ===== TAB 1: DOOR ===== -->
+ <section class="bench" id="p-door">
+  <div class="benchhead"><h2>Where and how should you push?</h2><span class="note">Top view of a door. The hinge is the axis of rotation.</span></div>
+  <svg class="stage" id="doorSvg" viewBox="0 0 800 500" aria-label="Door seen from above with a force arrow"></svg>
+  <div class="grid2">
+   <div class="ctrl">
+    <div class="slider"><label for="sF">Force F <output id="oF"></output></label><input id="sF" type="range" min="0" max="100" step="1" value="40"></div>
+    <div class="slider"><label for="sR">Distance from hinge r <output id="oR"></output></label><input id="sR" type="range" min="0.05" max="0.90" step="0.01" value="0.80"></div>
+    <div class="slider"><label for="sT">Angle θ between force and door <output id="oT"></output></label><input id="sT" type="range" min="0" max="180" step="1" value="90"></div>
+    <div class="presets" aria-label="Book cases">
+     <button class="btn" type="button" data-p="0.10,90">Near the hinge</button>
+     <button class="btn" type="button" data-p="0.45,90">Middle</button>
+     <button class="btn" type="button" data-p="0.80,90">At the knob, 90°</button>
+     <button class="btn" type="button" data-p="0.80,45">At the knob, 45°</button>
+     <button class="btn" type="button" data-p="0.80,180">Toward the hinge</button>
+    </div>
+   </div>
+   <div class="ctrl">
+    <div class="read">
+     <div class="cell"><div class="k">Lever arm L = r sin θ</div><div class="v" id="rL"></div></div>
+     <div class="cell"><div class="k">Effect</div><div class="v" id="rE" style="font-family:var(--body);font-size:1.05rem"></div></div>
+     <div class="cell big"><div class="k">Torque τ = F r sin θ</div><div class="v" id="rTau"></div></div>
+    </div>
+    <div class="eq" id="doorEq"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn primary" id="pushBtn" type="button">Push the door</button><span class="note" id="pushNote"></span></div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ===== TAB 2: SEESAW ===== -->
+ <section class="bench" id="p-see" hidden>
+  <div class="benchhead"><h2>Balance the seesaw</h2><span class="note">Drag a child along the beam, or use the sliders. g = 9.8 N/kg</span></div>
+  <svg class="stage" id="seeSvg" viewBox="0 0 800 380" aria-label="Seesaw with two children"></svg>
+  <div class="grid2">
+   <div class="ctrl">
+    <div class="slider"><label for="m1">Left child mass <output id="om1"></output></label><input id="m1" type="range" min="20" max="80" step="1" value="56"></div>
+    <div class="slider"><label for="d1">Left distance from pivot <output id="od1"></output></label><input id="d1" type="range" min="0" max="1.80" step="0.01" value="1.00"></div>
+    <div class="slider"><label for="m2">Right child mass <output id="om2"></output></label><input id="m2" type="range" min="20" max="80" step="1" value="43"></div>
+    <div class="slider"><label for="d2">Right distance from pivot <output id="od2"></output></label><input id="d2" type="range" min="0" max="1.80" step="0.01" value="1.00"></div>
+   </div>
+   <div class="ctrl">
+    <div class="read">
+     <div class="cell"><div class="k">Counter-clockwise τ (left)</div><div class="v" id="tL" style="color:var(--ccw)"></div></div>
+     <div class="cell"><div class="k">Clockwise τ (right)</div><div class="v" id="tR" style="color:var(--cw)"></div></div>
+     <div class="cell big"><div class="k">Net torque</div><div class="v" id="tN"></div></div>
+    </div>
+    <div class="status" id="seeStatus"></div>
+    <p class="note">Balanced when r₁F<sub>g1</sub> − r₂F<sub>g2</sub> = 0. The heavier child must sit closer to the pivot.</p>
+   </div>
+  </div>
+ </section>
+
+ <!-- ===== TAB 3: CHALLENGE ===== -->
+ <section class="bench" id="p-chal" hidden>
+  <div class="benchhead"><h2>Challenge</h2><span class="note" id="score">Score 0 / 0</span></div>
+  <p class="q" id="cq"></p>
+  <div class="ans"><label for="cin" class="note">Your answer</label><input id="cin" inputmode="decimal" autocomplete="off"><span id="cunit" class="note"></span>
+   <button class="btn primary" id="cCheck" type="button">Check</button><button class="btn" id="cShow" type="button">Show solution</button><button class="btn" id="cNext" type="button">Next question</button></div>
+  <div class="status" id="cres" hidden></div>
+  <div class="sol" id="csol" hidden></div>
+ </section>
+
+ <footer>Designed and built by Mr Khaled for his physics and chemistry students · Values follow Inspire Physics Module 8 Lesson 2 (τ = F r sin θ, L = r sin θ, net torque = 0 when balanced).</footer>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s), NS='http://www.w3.org/2000/svg';
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const f1=(x,d=2)=>Number(x).toFixed(d);
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+// theme
+const root=document.documentElement;
+function curDark(){const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+function setThemeLabel(){$('#themeBtn').textContent=curDark()?'Light mode':'Dark mode'}
+try{const t=localStorage.getItem('tq-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+setThemeLabel();
+$('#themeBtn').onclick=()=>{const n=curDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('tq-theme',n)}catch(e){}setThemeLabel();drawDoor();drawSee()};
+// tabs
+let tab='door';
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
+ ['door','see','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if(tab==='see')drawSee();if(tab==='door')drawDoor()});
+// full screen on the active bench
+$('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');document.querySelectorAll('.bench').forEach(x=>x.classList.remove('fs'));
+ if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
+ $('#fsBtn').textContent=on?'Exit full screen':'Full screen'};
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){document.querySelectorAll('.bench').forEach(x=>x.classList.remove('fs'));$('#fsBtn').textContent='Full screen'}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.bench').forEach(x=>x.classList.remove('fs'));$('#fsBtn').textContent='Full screen'}});
+
+/* ===== DOOR ===== */
+const D={F:40,r:.8,th:90,ang:0,anim:null};
+const HX=170,HY=330,LEN=340; // hinge position, door length in px for 1.0 m (door 0.9 m wide)
+const PXM=LEN/1.0;
+function arrowHead(g,x1,y1,x2,y2,col,w){const a=Math.atan2(y2-y1,x2-x1),h=14+w;el('path',{d:`M${x2},${y2} L${x2-h*Math.cos(a-0.4)},${y2-h*Math.sin(a-0.4)} L${x2-h*Math.cos(a+0.4)},${y2-h*Math.sin(a+0.4)}Z`,fill:col},g)}
+function drawDoor(){
+ const s=$('#doorSvg');s.innerHTML='';const grid=css('--grid'),ink=css('--ink'),muted=css('--muted');
+ for(let x=0;x<=800;x+=40)el('line',{x1:x,y1:0,x2:x,y2:500,stroke:grid,'stroke-width':1},s);
+ for(let y=0;y<=500;y+=40)el('line',{x1:0,y1:y,x2:800,y2:y,stroke:grid,'stroke-width':1},s);
+ // wall
+ el('rect',{x:20,y:HY+14,width:100,height:22,fill:css('--steel'),rx:3},s);el('rect',{x:HX+0.9*PXM+20,y:HY+14,width:800-(HX+0.9*PXM+20),height:22,fill:css('--steel'),rx:3},s);
+ el('text',{x:24,y:HY+56,fill:muted,'font-family':'Atkinson Hyperlegible','font-size':14},s).textContent='wall';
+ // door swing arc
+ el('path',{d:`M${HX+0.9*PXM},${HY} A${0.9*PXM},${0.9*PXM} 0 0 0 ${HX},${HY-0.9*PXM}`,fill:'none',stroke:grid,'stroke-width':2,'stroke-dasharray':'6 6'},s);
+ const a=-D.ang*Math.PI/180; // door angle (opens upward = counter-clockwise on screen)
+ const g=el('g',{transform:`rotate(${-D.ang} ${HX} ${HY})`},s);
+ el('rect',{x:HX,y:HY-9,width:0.9*PXM,height:18,rx:4,fill:css('--wood'),stroke:css('--wood-dark'),'stroke-width':2},g);
+ el('circle',{cx:HX+0.82*PXM,cy:HY-14,r:6,fill:css('--steel')},g);
+ // tick marks
+ for(let i=1;i<=9;i++){el('line',{x1:HX+i*0.1*PXM,y1:HY+9,x2:HX+i*0.1*PXM,y2:HY+(i%5?14:20),stroke:css('--wood-dark'),'stroke-width':2},g)}
+ // hinge
+ el('circle',{cx:HX,cy:HY,r:11,fill:css('--surface'),stroke:ink,'stroke-width':3},s);el('circle',{cx:HX,cy:HY,r:3,fill:ink},s);
+ el('text',{x:HX-36,y:HY-22,fill:muted,'font-family':'Atkinson Hyperlegible','font-size':14,'font-weight':700},s).textContent='hinge (axis)';
+ // force application point in world coords
+ const px=HX+D.r*PXM*Math.cos(a),py=HY+D.r*PXM*Math.sin(a);
+ // force direction: angle th measured from the door (pointing outward along door) rotating toward "opening" side
+ const th=D.th*Math.PI/180;const dir=a-th; // screen y down: negative rotation is opening (upward)
+ const fl=20+D.F*1.6;const fx=Math.cos(dir),fy=Math.sin(dir);
+ // force arrow drawn ending at application point (pushing)
+ const sx=px-fx*fl,sy=py-fy*fl;
+ // line of action (extended) and lever arm
+ const L=D.r*Math.sin(th);
+ el('line',{x1:px-fx*900,y1:py-fy*900,x2:px+fx*900,y2:py+fy*900,stroke:css('--force'),'stroke-width':1.5,'stroke-dasharray':'4 7',opacity:.55},s);
+ if(Math.abs(L)>0.004){// foot of perpendicular from hinge to line of action
+  const t=((HX-px)*fx+(HY-py)*fy);const qx=px+fx*t,qy=py+fy*t;
+  el('line',{x1:HX,y1:HY,x2:qx,y2:qy,stroke:css('--arm'),'stroke-width':3.5,'stroke-dasharray':'9 6'},s);
+  // right-angle mark
+  const ux=(HX-qx),uy=(HY-qy),ul=Math.hypot(ux,uy)||1;const k=12;
+  el('path',{d:`M${qx+ux/ul*k},${qy+uy/ul*k} L${qx+ux/ul*k+fx*k},${qy+uy/ul*k+fy*k} L${qx+fx*k},${qy+fy*k}`,fill:'none',stroke:css('--arm'),'stroke-width':2},s);
+  const lx=(HX+qx)/2,ly=(HY+qy)/2;el('text',{x:lx+8,y:ly-8,fill:css('--arm'),'font-family':'IBM Plex Mono','font-size':15,'font-weight':600},s).textContent=`L = ${f1(Math.abs(L))} m`;
+ }
+ if(D.F>0){el('line',{x1:sx,y1:sy,x2:px,y2:py,stroke:css('--force'),'stroke-width':6,'stroke-linecap':'round'},s);arrowHead(s,sx,sy,px,py,css('--force'),3);
+  el('text',{x:sx+(sx<px?-70:8),y:sy-8,fill:css('--force'),'font-family':'IBM Plex Mono','font-size':16,'font-weight':600},s).textContent=`F = ${D.F} N`}
+ el('circle',{cx:px,cy:py,r:6,fill:css('--force')},s);
+ // r label along door
+ el('text',{x:HX+D.r*PXM/2*Math.cos(a)+26*Math.sin(a)-24,y:HY+D.r*PXM/2*Math.sin(a)-26*Math.cos(a),fill:muted,'font-family':'IBM Plex Mono','font-size':14},s).textContent=`r = ${f1(D.r)} m`;
+ // angle arc
+ if(D.F>0&&D.th>2&&D.th<178){const R=36;const a0=a,a1=a-th;el('path',{d:`M${px+R*Math.cos(a0)},${py+R*Math.sin(a0)} A${R},${R} 0 0 0 ${px+R*Math.cos(a1)},${py+R*Math.sin(a1)}`,fill:'none',stroke:ink,'stroke-width':2},s);
+  el('text',{x:px+(R+12)*Math.cos(a-th/2)-8,y:py+(R+12)*Math.sin(a-th/2)+5,fill:ink,'font-family':'IBM Plex Mono','font-size':14},s).textContent=`${D.th}°`}
+}
+function doorRead(){
+ const L=D.r*Math.sin(D.th*Math.PI/180),tau=D.F*L;
+ $('#oF').textContent=D.F+' N';$('#oR').textContent=f1(D.r)+' m';$('#oT').textContent=D.th+'°';
+ $('#rL').textContent=f1(Math.abs(L))+' m';$('#rTau').textContent=f1(Math.abs(tau),1)+' N·m';
+ const pct=Math.abs(tau)/(100*0.9);let eff=pct<0.005?'No turning':pct<0.25?'Small effect':pct<0.6?'Some effect':'Large effect';$('#rE').textContent=eff;
+ $('#doorEq').textContent=`τ = F r sin θ = (${D.F} N)(${f1(D.r)} m)(sin ${D.th}°) = ${f1(Math.abs(tau),1)} N·m`;
+ drawDoor();
+}
+['sF','sR','sT'].forEach(id=>$('#'+id).addEventListener('input',()=>{D.F=+$('#sF').value;D.r=+$('#sR').value;D.th=+$('#sT').value;D.ang=0;$('#pushNote').textContent='';doorRead()}));
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const [r,t]=b.dataset.p.split(',').map(Number);$('#sR').value=r;$('#sT').value=t;D.r=r;D.th=t;D.ang=0;$('#pushNote').textContent='';doorRead()});
+$('#pushBtn').onclick=()=>{cancelAnimationFrame(D.anim);const I=8.0,SLOW=4;const tau=Math.abs(D.F*D.r*Math.sin(D.th*Math.PI/180));D.ang=0;
+ if(tau<0.05){$('#pushNote').textContent='The door does not turn: no torque.';doorRead();return}
+ const alpha=tau/I;const tEnd=Math.sqrt(2*(Math.PI/2)/alpha);$('#pushNote').textContent=`Angular acceleration α = τ/I = ${f1(alpha)} rad/s² (door I = 8.0 kg·m²) · time to open 90°: ${f1(tEnd,1)} s (shown in slow motion)`;
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;const t0=performance.now();const speed=reduce?100:1/SLOW;
+ const step=now=>{const t=(now-t0)/1000*speed;const th=0.5*alpha*t*t;D.ang=Math.min(90,th*180/Math.PI);drawDoor();if(D.ang<90)D.anim=requestAnimationFrame(step)};D.anim=requestAnimationFrame(step)};
+doorRead();
+
+/* ===== SEESAW ===== */
+const S={m1:56,d1:1.0,m2:43,d2:1.0,drag:null};const CX=400,CY=250,PX2=180; // px per metre
+function drawSee(){
+ const s=$('#seeSvg');s.innerHTML='';const ink=css('--ink'),muted=css('--muted');
+ const g1=S.m1*9.8*S.d1,g2=S.m2*9.8*S.d2,net=g1-g2; // + = counter-clockwise (left down)
+ const tilt=Math.max(-11,Math.min(11,net/40)); // degrees, left down = negative screen rotation
+ el('rect',{x:0,y:CY+70,width:800,height:60,fill:css('--grid')},s);
+ el('path',{d:`M${CX-34},${CY+70} L${CX},${CY+8} L${CX+34},${CY+70}Z`,fill:css('--steel')},s);
+ const g=el('g',{transform:`rotate(${-tilt} ${CX} ${CY})`},s);
+ el('rect',{x:CX-1.9*PX2,y:CY-6,width:3.8*PX2,height:14,rx:6,fill:css('--wood'),stroke:css('--wood-dark'),'stroke-width':2},g);
+ for(let i=-18;i<=18;i++){if(i%2)continue;el('line',{x1:CX+i/10*PX2,y1:CY+8,x2:CX+i/10*PX2,y2:CY+(i%10?13:18),stroke:css('--wood-dark'),'stroke-width':1.5},g)}
+ const kid=(x,m,col,side)=>{const kg=el('g',{transform:`translate(${x},${CY-6})`,style:'cursor:grab','data-side':side},g);
+  const sc=0.75+m/160;el('circle',{cx:0,cy:-62*sc,r:13*sc,fill:col},kg);el('rect',{x:-12*sc,y:-48*sc,width:24*sc,height:42*sc,rx:8*sc,fill:col},kg);
+  el('text',{x:0,y:-84*sc,'text-anchor':'middle',fill:ink,'font-family':'IBM Plex Mono','font-size':14,'font-weight':600},kg).textContent=`${m} kg`;
+  el('line',{x1:0,y1:2,x2:0,y2:46+m*0.6,stroke:css('--force'),'stroke-width':4},kg);arrowHead(kg,0,2,0,46+m*0.6,css('--force'),2);
+  el('text',{x:8,y:44,fill:css('--force'),'font-family':'IBM Plex Mono','font-size':12},kg).textContent=`${Math.round(m*9.8)} N`;return kg};
+ kid(CX-S.d1*PX2,S.m1,css('--ccw'),'L');kid(CX+S.d2*PX2,S.m2,css('--cw'),'R');
+ // distance labels
+ el('text',{x:CX-S.d1*PX2/2,y:CY+52,'text-anchor':'middle',fill:css('--ccw'),'font-family':'IBM Plex Mono','font-size':14,'font-weight':600},s).textContent=`r₁ = ${f1(S.d1)} m`;
+ el('text',{x:CX+S.d2*PX2/2,y:CY+52,'text-anchor':'middle',fill:css('--cw'),'font-family':'IBM Plex Mono','font-size':14,'font-weight':600},s).textContent=`r₂ = ${f1(S.d2)} m`;
+ // rotation hint arcs
+ if(Math.abs(net)>5){const ccw=net>0;const R=70;el('path',{d:ccw?`M${CX+R},${CY-60} A${R},${R} 0 0 0 ${CX-R},${CY-60}`:`M${CX-R},${CY-60} A${R},${R} 0 0 1 ${CX+R},${CY-60}`,fill:'none',stroke:ccw?css('--ccw'):css('--cw'),'stroke-width':4},s);
+  const ex=ccw?CX-R:CX+R;arrowHead(s,ex+(ccw?6:-6),CY-72,ex,CY-60,ccw?css('--ccw'):css('--cw'),2)}
+ $('#om1').textContent=S.m1+' kg';$('#om2').textContent=S.m2+' kg';$('#od1').textContent=f1(S.d1)+' m';$('#od2').textContent=f1(S.d2)+' m';
+ $('#tL').textContent=f1(g1,0)+' N·m';$('#tR').textContent=f1(g2,0)+' N·m';$('#tN').textContent=(Math.abs(net)<0.5?'0':f1(net,0))+' N·m';
+ const st=$('#seeStatus');const bal=Math.abs(net)<=Math.max(5,0.01*Math.max(g1,g2));
+ st.className='status'+(bal?' ok':'');st.textContent=bal?'Balanced! The torques are equal and opposite.':net>0?'Turns counter-clockwise: the left side goes down.':'Turns clockwise: the right side goes down.';
+}
+[['m1','m1'],['d1','d1'],['m2','m2'],['d2','d2']].forEach(([id,k])=>$('#'+id).addEventListener('input',()=>{S[k]=+$('#'+id).value;drawSee()}));
+// dragging kids along the beam
+const seeSvg=$('#seeSvg');
+function svgX(ev){const r=seeSvg.getBoundingClientRect();return (ev.clientX-r.left)/r.width*800}
+seeSvg.addEventListener('pointerdown',ev=>{const k=ev.target.closest('[data-side]');if(!k)return;S.drag=k.dataset.side;seeSvg.setPointerCapture(ev.pointerId)});
+seeSvg.addEventListener('pointermove',ev=>{if(!S.drag)return;let d=Math.round((S.drag==='L'?(CX-svgX(ev)):(svgX(ev)-CX))/PX2*100)/100;d=Math.max(0,Math.min(1.8,d));
+ if(S.drag==='L'){S.d1=d;$('#d1').value=d}else{S.d2=d;$('#d2').value=d}drawSee()});
+seeSvg.addEventListener('pointerup',()=>S.drag=null);
+drawSee();
+
+/* ===== CHALLENGE ===== */
+let C=null,score=0,tries=0;
+const rnd=(a,b,st=1)=>Math.round((a+Math.random()*(b-a))/st)*st;
+const sind=x=>Math.sin(x*Math.PI/180);
+const sig=(x)=>{const p=Math.abs(x)>=100?0:Math.abs(x)>=10?1:2;return Number(x).toFixed(p)};
+function newQ(){
+ const type=['tau','F','L','bal'][Math.floor(Math.random()*4)];
+ if(type==='tau'){const F=rnd(20,150,5),r=rnd(0.15,0.60,0.05),th=[30,45,60,90][Math.floor(Math.random()*4)];const a=F*r*sind(th);
+  C={q:`A force of ${F} N is applied to a wrench ${r.toFixed(2)} m from the bolt, at ${th}° to the handle. What torque is produced?`,unit:'N·m',a,
+   sol:`τ = F r sin θ\n  = (${F} N)(${r.toFixed(2)} m)(sin ${th}°)\n  = ${sig(a)} N·m`}}
+ else if(type==='F'){const tau=rnd(20,80,5),r=rnd(0.20,0.50,0.05),th=[45,60,90][Math.floor(Math.random()*3)];const a=tau/(r*sind(th));
+  C={q:`A bolt needs a torque of ${tau} N·m. You pull a ${r.toFixed(2)} m wrench at ${th}° to the handle. What force do you need?`,unit:'N',a,
+   sol:`F = τ / (r sin θ)\n  = ${tau} N·m / [(${r.toFixed(2)} m)(sin ${th}°)]\n  = ${sig(a)} N`}}
+ else if(type==='L'){const r=rnd(0.20,0.90,0.05),th=[30,45,60][Math.floor(Math.random()*3)];const a=r*sind(th);
+  C={q:`You push a door ${r.toFixed(2)} m from its hinge at ${th}° to the door. How long is the lever arm?`,unit:'m',a,
+   sol:`L = r sin θ\n  = (${r.toFixed(2)} m)(sin ${th}°)\n  = ${sig(a)} m`}}
+ else{const m1=rnd(40,70),m2=rnd(25,m1-5),r2=rnd(1.0,1.6,0.1);const a=m2*r2/m1;
+  C={q:`On a seesaw, a ${m2} kg child sits ${r2.toFixed(1)} m from the pivot. How far from the pivot must a ${m1} kg child sit on the other side to balance?`,unit:'m',a,
+   sol:`Balanced: m₁g r₁ = m₂g r₂ (g cancels)\nr₁ = m₂ r₂ / m₁ = (${m2} kg)(${r2.toFixed(1)} m) / ${m1} kg\n   = ${sig(a)} m`}}
+ $('#cq').textContent=C.q;$('#cunit').textContent=C.unit;$('#cin').value='';$('#cres').hidden=true;$('#csol').hidden=true;$('#csol').textContent=C.sol;
+}
+$('#cCheck').onclick=()=>{const v=parseFloat($('#cin').value.replace(',','.'));const r=$('#cres');r.hidden=false;if(isNaN(v)){r.className='status';r.textContent='Type a number first.';return}
+ tries++;const ok=Math.abs(v-C.a)<=Math.max(0.03*Math.abs(C.a),0.01);if(ok)score++;r.className='status'+(ok?' ok':'');
+ r.textContent=ok?`Correct! ${sig(C.a)} ${C.unit}`:`Not yet. Check your sin θ and units. (Your answer: ${v})`;$('#score').textContent=`Score ${score} / ${tries}`;if(ok)$('#csol').hidden=false};
+$('#cShow').onclick=()=>{$('#csol').hidden=false};$('#cNext').onclick=newQ;
+$('#cin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#cCheck').click()});
+newQ();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{setThemeLabel();drawDoor();drawSee()});
+})();
+</script>
+
+</body></html>
