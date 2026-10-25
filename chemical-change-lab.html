@@ -1,0 +1,530 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Chemical Change Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: header, four tabs that follow the lesson (Spot the signs · Mass is conserved · Atoms rearrange · Balance it).
+   One framed bench per tab: an SVG stage with controls and readouts beside it. Atoms use the classic model-kit
+   colours on every tab (H white, O red, C charcoal, N blue, S yellow, Cl green...). Same type family as the other labs. */
+:root{
+  --bg:#EEF0F3; --surface:#F9FAFB; --stage:#FFFFFF; --ink:#16202A; --muted:#55606B; --line:#CDD3DA; --grid:#E5E9EE;
+  --accent:#1F5FA8; --accent-ink:#FFFFFF; --ok:#1E8A55; --bad:#C2413A; --warn:#B7791F;
+  --glass:#7FA6C9; --water:#CFE6F7; --flame:#F08A24; --hot:#D9482B; --steel:#7A8794;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E141A; --surface:#151E26; --stage:#101820; --ink:#E6EDF3; --muted:#97A5B2; --line:#2C3A46; --grid:#1D2833;
+  --accent:#6FA8F0; --accent-ink:#0A1A2C; --ok:#4ACB8A; --bad:#FF8A80; --warn:#F2B45A;
+  --glass:#8FB4D6; --water:#1F3A52; --flame:#F59A3C; --hot:#FF6B4A; --steel:#9AA8B5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E141A; --surface:#151E26; --stage:#101820; --ink:#E6EDF3; --muted:#97A5B2; --line:#2C3A46; --grid:#1D2833;
+  --accent:#6FA8F0; --accent-ink:#0A1A2C; --ok:#4ACB8A; --bad:#FF8A80; --warn:#F2B45A;
+  --glass:#8FB4D6; --water:#1F3A52; --flame:#F59A3C; --hot:#FF6B4A; --steel:#9AA8B5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1180px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.1rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.3rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted)}
+button{font:inherit;cursor:pointer;color:inherit}
+.btn{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:8px 14px;font-weight:700}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,.pick:focus-visible,.sub:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.benchhead p{margin:2px 0 0;color:var(--muted);max-width:70ch}
+svg.stage{width:100%;height:auto;background:var(--stage);border:1.5px solid var(--line);border-radius:12px;display:block}
+.grid2{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.picks{display:flex;gap:6px;flex-wrap:wrap}
+.pick{border:1.5px solid var(--line);background:var(--stage);border-radius:999px;padding:6px 12px;font-weight:700;font-size:.9rem}
+.pick[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pick .tick{font-family:var(--data);margin-left:4px}
+.panel{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.panel .lbl{font-family:var(--data);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+.obs{margin:0;min-height:3em}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px}
+.checks label{display:flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer}
+.checks input{width:18px;height:18px;accent-color:var(--accent)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg .pick{flex:1;text-align:center;font-size:1rem;border-radius:10px;padding:9px 12px}
+.fb{border-radius:10px;padding:10px 12px;border:1.5px solid var(--line);margin:0}
+.fb.good{border-color:var(--ok)}
+.fb.good b{color:var(--ok)}
+.fb.bad{border-color:var(--bad)}
+.fb.bad b{color:var(--bad)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.read{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cell{background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0}
+.cell .k{font-size:.78rem;color:var(--muted);font-weight:700}
+.cell .v{font-family:var(--data);font-weight:600;font-size:1.35rem;font-variant-numeric:tabular-nums}
+table.t{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}
+table.t th{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+table.t td.n{font-family:var(--data);font-weight:600}
+.scroll{overflow-x:auto}
+.ok{color:var(--ok);font-weight:700}
+.no{color:var(--bad);font-weight:700}
+.eqn{font-family:var(--data);font-weight:600;font-size:clamp(1.05rem,2.6vw,1.5rem);display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;justify-content:center;padding:6px 0}
+.step{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--stage)}
+.step button{border:0;background:none;width:34px;height:38px;font-size:1.2rem;font-weight:700}
+.step button:hover{background:var(--grid)}
+.step output{min-width:28px;text-align:center;font-size:1.3rem;color:var(--accent)}
+.sub{border:0;background:none;padding:0;font:inherit;border-bottom:1.5px dotted var(--muted)}
+.banner{border-radius:12px;padding:10px 14px;font-weight:700;text-align:center;border:1.5px solid var(--line)}
+.banner.good{border-color:var(--ok);color:var(--ok)}
+.banner.warn{border-color:var(--warn);color:var(--warn)}
+.timeline{display:flex;gap:6px;flex-wrap:wrap}
+.timeline .pick{flex:1}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.note{font-size:.9rem;color:var(--muted);margin:0}
+.kbd{font-family:var(--data);font-size:.85em}
+footer{color:var(--muted);font-size:.85rem}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+<header>
+  <div>
+    <p class="eyebrow">Grade 7 Science · Module 2 Lesson 2 · Property changes in chemical reactions</p>
+    <h1>Chemical Change Lab</h1>
+    <p class="lede">Mix substances and look for the signs of a chemical change, weigh a reaction in an open and a closed flask, watch atoms break apart and join in new ways, then balance the equations.</p>
+  </div>
+  <div class="row"><button class="btn" id="fsBtn" type="button">Full screen</button></div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-tab="signs" id="tab-signs">1 · Spot the signs</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="mass" id="tab-mass">2 · Mass is conserved</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="atoms" id="tab-atoms">3 · Atoms rearrange</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="bal" id="tab-bal">4 · Balance it</button>
+</nav>
+
+<!-- TAB 1 -->
+<section class="bench" id="p-signs" role="tabpanel" aria-labelledby="tab-signs">
+  <div class="benchhead"><div><h2>Physical or chemical change?</h2><p>Pick an experiment, run it, and record what you saw. A chemical change makes a new substance with new properties.</p></div>
+  <span class="kbd" id="score">0 / 9 done</span></div>
+  <div class="picks" id="expPicks"></div>
+  <div class="grid2">
+    <div class="col">
+      <svg class="stage" id="s1" viewBox="0 0 800 440" role="img" aria-label="Experiment bench"></svg>
+      <div class="row"><button class="btn primary" id="runBtn" type="button">Mix</button><button class="btn" id="againBtn" type="button">Reset</button><span class="note" id="safety"></span></div>
+    </div>
+    <div class="col">
+      <div class="panel"><p class="lbl">What you observe</p><p class="obs" id="obs">Press the button to start the experiment.</p>
+        <div class="read"><div class="cell"><div class="k">Temperature</div><div class="v" id="tempV">22.0 °C</div></div><div class="cell"><div class="k">Time</div><div class="v" id="timeV">0 s</div></div></div>
+      </div>
+      <div class="panel"><p class="lbl">Which signs did you see?</p>
+        <div class="checks" id="signChecks"></div>
+        <p class="lbl">So this is a…</p>
+        <div class="seg"><button class="pick" type="button" data-kind="physical" aria-pressed="false">Physical change</button><button class="pick" type="button" data-kind="chemical" aria-pressed="false">Chemical change</button></div>
+        <button class="btn primary" id="checkBtn" type="button">Check my answer</button>
+        <p class="fb" id="fb" hidden></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 2 -->
+<section class="bench" id="p-mass" role="tabpanel" aria-labelledby="tab-mass" hidden>
+  <div class="benchhead"><div><h2>Weigh it before and after</h2><p>Lavoisier weighed reactions in closed containers. Try both ways. Does the mass really change, or does something escape?</p></div></div>
+  <div class="grid2">
+    <div class="col">
+      <svg class="stage" id="s2" viewBox="0 0 800 440" role="img" aria-label="Flask on a digital balance"></svg>
+      <div class="row"><button class="btn primary" id="mixBtn2" type="button">Start the reaction</button><button class="btn" id="resetBtn2" type="button">Reset</button></div>
+    </div>
+    <div class="col">
+      <div class="panel"><p class="lbl">Reaction</p>
+        <div class="seg" id="rxPick"><button class="pick" type="button" data-rx="gas" aria-pressed="true">Vinegar + baking soda</button><button class="pick" type="button" data-rx="solid" aria-pressed="false">Magnesium sulfate + sodium carbonate</button></div>
+        <p class="lbl">Container</p>
+        <div class="seg" id="ctPick"><button class="pick" type="button" data-ct="open" aria-pressed="true">Open flask</button><button class="pick" type="button" data-ct="closed" aria-pressed="false">Closed (balloon / stopper)</button></div>
+      </div>
+      <div class="read"><div class="cell"><div class="k">Mass before</div><div class="v" id="mB">255.0 g</div></div><div class="cell"><div class="k">Mass now</div><div class="v" id="mN">255.0 g</div></div></div>
+      <div class="panel"><p class="lbl">Results table</p>
+        <div class="scroll"><table class="t"><thead><tr><th>Reaction</th><th>Container</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody id="massRows"><tr><td colspan="5" class="note">Run the reaction to add a row.</td></tr></tbody></table></div>
+        <p class="fb" id="fb2" hidden></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 3 -->
+<section class="bench" id="p-atoms" role="tabpanel" aria-labelledby="tab-atoms" hidden>
+  <div class="benchhead"><div><h2>Bonds break, atoms rearrange, bonds form</h2><p>Atoms are never destroyed and no new atoms appear. They only join in new combinations, so the mass stays the same.</p></div></div>
+  <div class="picks" id="rxAtomPicks"></div>
+  <div class="grid2">
+    <div class="col">
+      <svg class="stage" id="s3" viewBox="0 0 800 440" role="img" aria-label="Atoms rearranging"></svg>
+      <div class="row"><button class="btn primary" id="playBtn3" type="button">Play</button><input type="range" id="scrub3" min="0" max="1000" value="0" aria-label="Animation position" style="flex:1;min-width:140px"></div>
+      <div class="timeline" id="steps3"><button class="pick" type="button" data-t="0" aria-pressed="true">Reactants</button><button class="pick" type="button" data-t="0.4" aria-pressed="false">1 · Bonds break</button><button class="pick" type="button" data-t="0.66" aria-pressed="false">2 · Atoms rearrange</button><button class="pick" type="button" data-t="1" aria-pressed="false">3 · Bonds form</button></div>
+    </div>
+    <div class="col">
+      <div class="panel"><p class="lbl">Word equation</p><p class="obs" id="word3"></p><p class="lbl">Chemical equation</p><div class="eqn" id="eq3"></div></div>
+      <div class="panel"><p class="lbl">Count the atoms</p>
+        <div class="scroll"><table class="t"><thead><tr><th>Atom</th><th>Reactants</th><th>Products</th><th></th></tr></thead><tbody id="count3"></tbody></table></div>
+        <p class="note" id="mass3"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 4 -->
+<section class="bench" id="p-bal" role="tabpanel" aria-labelledby="tab-bal" hidden>
+  <div class="benchhead"><div><h2>Balance the equation</h2><p>Change the <b>coefficients</b> (the big numbers in front) until every kind of atom has the same number on both sides. Try tapping a small subscript number to see why we never change it.</p></div>
+  <span class="kbd" id="score4">0 / 7 balanced</span></div>
+  <div class="picks" id="balPicks"></div>
+  <div class="eqn" id="eq4"></div>
+  <div class="grid2">
+    <div class="col"><svg class="stage" id="s4" viewBox="0 0 800 400" role="img" aria-label="Molecules on each side of the equation"></svg></div>
+    <div class="col">
+      <div class="banner" id="ban4"></div>
+      <div class="panel"><p class="lbl">Atom count</p><div class="scroll"><table class="t"><thead><tr><th>Atom</th><th>Reactants</th><th>Products</th><th></th></tr></thead><tbody id="count4"></tbody></table></div></div>
+      <p class="fb" id="fb4" hidden></p>
+      <div class="row"><button class="btn" id="reset4" type="button">Start again</button><button class="btn" id="hint4" type="button">Hint</button></div>
+    </div>
+  </div>
+</section>
+
+<footer>Interactive lab by Mr Khaled · Inspire Science Grade 7, Module 2 Lesson 2 (pp. 133–155)</footer>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)), lerp=(a,b,t)=>a+(b-a)*t, ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function rng(seed){let s=seed>>>0||1;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296)}
+const SUBS={'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'};
+const sub=f=>f.replace(/\d/g,d=>SUBS[d]);
+
+/* ---------- tabs + full screen ---------- */
+const tabs=$$('.tab');
+function show(id){tabs.forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===id));['signs','mass','atoms','bal'].forEach(k=>$('#p-'+k).hidden=k!==id);try{localStorage.setItem('ccl-tab',id)}catch(e){}}
+tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab)));
+try{const s=localStorage.getItem('ccl-tab');if(s)show(s)}catch(e){}
+const h=location.hash.replace('#','');if(['signs','mass','atoms','bal'].includes(h))show(h);
+$('#fsBtn').addEventListener('click',()=>{
+  const b=$$('.bench').find(x=>!x.hidden);const on=!b.classList.contains('fs');
+  $$('.bench').forEach(x=>x.classList.remove('fs'));
+  if(on){b.classList.add('fs');$('#fsBtn').textContent='Exit full screen';const ex=document.createElement('button');ex.className='btn';ex.textContent='Exit full screen';ex.id='fsExit';ex.type='button';ex.onclick=()=>$('#fsBtn').click();b.querySelector('.benchhead').appendChild(ex);try{document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}}
+  else{$('#fsBtn').textContent='Full screen';const ex=$('#fsExit');ex&&ex.remove();try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}}
+});
+
+/* ---------- atoms (shared by tabs 3 and 4) ---------- */
+const AT={H:{c:'#FFFFFF',r:9,m:1,name:'Hydrogen'},O:{c:'#E5483B',r:13,m:16,name:'Oxygen'},C:{c:'#3D4450',r:14,m:12,name:'Carbon'},N:{c:'#3B6FE0',r:13,m:14,name:'Nitrogen'},
+  S:{c:'#E8C42A',r:16,m:32,name:'Sulfur'},Mg:{c:'#9DB0A6',r:15,m:24,name:'Magnesium'},Na:{c:'#9B59D0',r:15,m:23,name:'Sodium'},Cl:{c:'#3CB371',r:15,m:35.5,name:'Chlorine'},Al:{c:'#B8C2CC',r:15,m:27,name:'Aluminum'}};
+const GEO={
+ H2:{a:[['H',-11,0],['H',11,0]],b:[[0,1]]}, O2:{a:[['O',-14,0],['O',14,0]],b:[[0,1]]}, N2:{a:[['N',-14,0],['N',14,0]],b:[[0,1]]}, Cl2:{a:[['Cl',-15,0],['Cl',15,0]],b:[[0,1]]},
+ H2O:{a:[['O',0,-4],['H',-19,12],['H',19,12]],b:[[0,1],[0,2]]}, CH4:{a:[['C',0,0],['H',0,-24],['H',0,24],['H',-24,0],['H',24,0]],b:[[0,1],[0,2],[0,3],[0,4]]},
+ CO2:{a:[['O',-28,0],['C',0,0],['O',28,0]],b:[[0,1],[1,2]]}, SO2:{a:[['S',0,-4],['O',-27,12],['O',27,12]],b:[[0,1],[0,2]]}, SO3:{a:[['S',0,2],['O',0,-28],['O',-25,16],['O',25,16]],b:[[0,1],[0,2],[0,3]]},
+ NH3:{a:[['N',0,2],['H',-21,14],['H',21,14],['H',0,-22]],b:[[0,1],[0,2],[0,3]]}, C:{a:[['C',0,0]],b:[]}, Mg:{a:[['Mg',0,0]],b:[]}, Na:{a:[['Na',0,0]],b:[]}, Al:{a:[['Al',0,0]],b:[]},
+ MgO:{a:[['Mg',-14,0],['O',14,0]],b:[[0,1]]}, NaCl:{a:[['Na',-15,0],['Cl',15,0]],b:[[0,1]]},
+ Al2O3:{a:[['O',-40,12],['Al',-20,-10],['O',0,12],['Al',20,-10],['O',40,12]],b:[[0,1],[1,2],[2,3],[3,4]]}
+};
+const WID={H2:44,O2:52,N2:52,Cl2:56,H2O:60,CH4:66,CO2:84,SO2:76,SO3:74,NH3:62,C:34,Mg:36,Na:36,Al:36,MgO:60,NaCl:62,Al2O3:112};
+function atomSvg(el,x,y,op,sc){sc=sc||1;const a=AT[el],R=a.r*sc;const ink=css('--ink');const txt=(el==='C'||el==='Na'||el==='N')?'#FFFFFF':'#16202A';
+  return `<g opacity="${op==null?1:op}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${R}" fill="${a.c}" stroke="${ink}" stroke-opacity=".55" stroke-width="1.5"/><text x="${x.toFixed(1)}" y="${(y+4*sc).toFixed(1)}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="${((a.r>10?11:9)*sc).toFixed(1)}" font-weight="600" fill="${txt}">${el}</text></g>`}
+function countAtoms(f,k){const g=GEO[f],o={};g.a.forEach(a=>o[a[0]]=(o[a[0]]||0)+k);return o}
+
+/* ===================== TAB 1: SPOT THE SIGNS ===================== */
+const SIGNS=[['gas','Gas forms (bubbles)'],['solid','A new solid forms'],['colour','Colour changes'],['energy','Temperature change, heat or light'],['smell','A new smell']];
+const EXP=[
+ {id:'soda',name:'Vinegar + baking soda',scene:'beaker',a:'Vinegar',b:'Baking soda',bPowder:true,liq:'#EEF3D8',mix:'#EEF3D8',t0:22,t1:19,gas:1,kind:'chemical',need:['gas','energy'],ok:[],
+  obs:'Fizzing! Lots of gas bubbles rise and escape. The beaker gets a little colder: 22 °C → 19 °C.',why:'Bubbles of a new gas (carbon dioxide) form and the temperature drops. New substances were made, so it is a chemical change.'},
+ {id:'mgso4',name:'Magnesium sulfate + sodium carbonate',scene:'beaker',a:'Magnesium sulfate solution',b:'Sodium carbonate solution',liq:'#E3EEF7',mix:'#E3EEF7',t0:22,t1:22,ppt:'#FFFFFF',cloud:.6,kind:'chemical',need:['solid'],ok:['colour'],
+  obs:'Two clear liquids mix and the beaker turns cloudy white. A white solid slowly settles at the bottom.',why:'Two clear liquids made a white solid (a precipitate). That solid is a new substance: a chemical change. This is the textbook lab “Positive Reaction”.'},
+ {id:'pbi',name:'Potassium iodide + lead nitrate',scene:'beaker',a:'Potassium iodide solution',b:'Lead nitrate solution',liq:'#E3EEF7',mix:'#F3E7A6',t0:22,t1:22,ppt:'#F2C514',cloud:.75,kind:'chemical',need:['solid','colour'],ok:[],
+  obs:'As soon as the liquids touch, a bright yellow solid appears and swirls, then settles at the bottom.',why:'A bright yellow solid formed from two colourless liquids. A new solid and a new colour mean a new substance: a chemical change.'},
+ {id:'yeast',name:'Hydrogen peroxide + yeast',scene:'beaker',a:'Hydrogen peroxide',b:'Yeast',bPowder:true,powderC:'#C8A46A',liq:'#E3EEF7',mix:'#F1E6CF',t0:22,t1:35,gas:1.2,foam:1,kind:'chemical',need:['gas','energy'],ok:[],
+  obs:'Foam rises up the beaker as bubbles of gas form. The beaker warms up: 22 °C → 35 °C.',why:'A gas (oxygen) forms and heat is given off. Both are signs that new substances were made: a chemical change.'},
+ {id:'sugar',name:'Sugar + water',scene:'beaker',a:'Water',b:'Sugar',bPowder:true,powderC:'#FFFFFF',liq:'#D7EBF8',mix:'#D7EBF8',t0:22,t1:22,dissolve:1,kind:'physical',need:[],ok:[],
+  obs:'The sugar crystals get smaller and disappear. The water stays clear. No bubbles, no new solid, no temperature change.',why:'The sugar only dissolved. It is still sugar and water: if you boil the water away, the sugar is left. No new substance, so it is a physical change.'},
+ {id:'dye',name:'Food colouring + water',scene:'beaker',a:'Water',b:'Food colouring',liq:'#D7EBF8',dropC:'#2E7BD6',mix:'#8FBBEA',t0:22,t1:22,dye:1,kind:'physical',need:[],ok:['colour'],
+  obs:'The blue colouring spreads out until all the water is light blue. Nothing else happens.',why:'The colour changed, but no new substance formed: the dye just spread through the water. A colour change only MAY mean a chemical change. Here it is a physical change.'},
+ {id:'ice',name:'Ice on a hot plate',scene:'plate',item:'ice',kind:'physical',need:[],ok:[],
+  obs:'The ice cube melts into a puddle of liquid water.',why:'Melting changes the state, but it is still water (H₂O). Put it in the freezer and it becomes ice again. Physical change.'},
+ {id:'egg',name:'Cooking an egg',scene:'plate',item:'egg',kind:'chemical',need:['colour','smell'],ok:['solid','energy'],
+  obs:'The clear egg white turns solid white and a new cooking smell fills the room.',why:'The egg white became a new white solid with a new smell, and you cannot turn it back. New substances formed: chemical change.'},
+ {id:'mg',name:'Burning magnesium ribbon',scene:'flame',kind:'chemical',need:['energy'],ok:['colour','solid'],
+  obs:'A dazzling white light and lots of heat! The shiny grey ribbon turns into a white powder.',why:'Giving off light and heat is a strong sign of a chemical change. The grey metal became white magnesium oxide, a new substance.'}
+];
+let cur1=EXP[0], t1=0, run1=false, start1=0, done1={}, kind1=null;
+const DUR1=6000;
+function picks1(){$('#expPicks').innerHTML=EXP.map(e=>`<button class="pick" type="button" data-id="${e.id}" aria-pressed="${e===cur1}">${e.name}${done1[e.id]?'<span class="tick">✓</span>':''}</button>`).join('');
+  $$('#expPicks .pick').forEach(b=>b.onclick=()=>{cur1=EXP.find(e=>e.id===b.dataset.id);reset1();picks1()});
+  $('#score').textContent=Object.keys(done1).length+' / '+EXP.length+' done';}
+$('#signChecks').innerHTML=SIGNS.map(s=>`<label><input type="checkbox" id="sg-${s[0]}" value="${s[0]}">${s[1]}</label>`).join('');
+$$('#p-signs .seg .pick').forEach(b=>b.onclick=()=>{kind1=b.dataset.kind;$$('#p-signs .seg .pick').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+function reset1(){run1=false;t1=0;kind1=null;$$('#signChecks input').forEach(i=>i.checked=false);$$('#p-signs .seg .pick').forEach(x=>x.setAttribute('aria-pressed','false'));
+  $('#fb').hidden=true;$('#obs').textContent='Press the button to start the experiment.';
+  $('#runBtn').textContent=cur1.scene==='beaker'?'Mix':cur1.scene==='plate'?'Turn on the hot plate':'Light the ribbon';$('#runBtn').disabled=false;
+  $('#safety').textContent=cur1.scene==='flame'?'Safety: never look straight at burning magnesium.':cur1.id==='pbi'?'Safety: lead nitrate is toxic, wear gloves and goggles.':'Safety: wear goggles.';
+  draw1();}
+$('#runBtn').onclick=()=>{if(run1)return;run1=true;start1=performance.now();$('#runBtn').disabled=true;$('#obs').textContent='Watch closely…';loop1()};
+$('#againBtn').onclick=reset1;
+function loop1(){if(!run1)return;t1=clamp((performance.now()-start1)/(RM?800:DUR1),0,1);draw1();if(t1<1)requestAnimationFrame(loop1);else{run1=false;$('#obs').textContent=cur1.obs}}
+function temp1(){const e=cur1;if(e.scene!=='beaker')return null;return lerp(e.t0,e.t1,clamp((t1-.25)/.6,0,1))}
+function draw1(){
+  const e=cur1,ink=css('--ink'),muted=css('--muted'),glass=css('--glass'),line=css('--line'),r=rng(7);let s='';
+  const tm=temp1();$('#tempV').textContent=(tm==null?(e.scene==='plate'?(t1>0?'hot':'22.0 °C'):(t1>0?'very hot':'22.0 °C')):tm.toFixed(1)+' °C');$('#timeV').textContent=Math.round(t1*60)+' s';
+  s+=`<line x1="0" y1="392" x2="800" y2="392" stroke="${line}" stroke-width="2"/>`;
+  if(e.scene==='beaker'){
+    const bx=300,by=150,bw=200,bh=240,pour=clamp(t1/.22,0,1),rxt=clamp((t1-.2)/.8,0,1);
+    const lvl0=110,lvl=lvl0+(e.bPowder?10:40)*pour, ytop=by+bh-lvl;
+    const fill=pour<1&&!e.dye?e.liq:e.liq;
+    // liquid
+    let lc=e.liq; if(e.dye) lc=e.mix;
+    s+=`<rect x="${bx+4}" y="${ytop}" width="${bw-8}" height="${lvl-4}" fill="${e.dye?e.liq:e.liq}" opacity=".95"/>`;
+    if(e.dye&&t1>.15){const k=ease(clamp((t1-.15)/.75,0,1));const R=lerp(10,240,k);s+=`<defs><radialGradient id="dg" cx="50%" cy="20%" r="80%"><stop offset="0" stop-color="${e.dropC}" stop-opacity="${lerp(.9,.55,k)}"/><stop offset="${clamp(k,0.05,1)}" stop-color="${e.mix}" stop-opacity=".9"/><stop offset="1" stop-color="${e.liq}" stop-opacity="${1-k}"/></radialGradient><clipPath id="bc"><rect x="${bx+4}" y="${ytop}" width="${bw-8}" height="${lvl-4}"/></clipPath></defs><rect clip-path="url(#bc)" x="${bx+4}" y="${ytop}" width="${bw-8}" height="${lvl-4}" fill="url(#dg)"/>`}
+    if(!e.dye&&e.mix!==e.liq&&rxt>0)s+=`<rect x="${bx+4}" y="${ytop}" width="${bw-8}" height="${lvl-4}" fill="${e.mix}" opacity="${clamp(rxt*3,0,1)*.9}"/>`;
+    // precipitate cloud + settled layer
+    if(e.ppt&&rxt>0){const cloud=clamp(rxt*2.5,0,1)*(1-clamp((rxt-.55)/.45,0,1)*.7);
+      for(let i=0;i<140;i++){const x=bx+12+r()*(bw-24),y0=ytop+8+r()*(lvl-20),fall=clamp((rxt-.3)/.7,0,1);const y=lerp(y0,by+bh-14-r()*14,ease(fall)*(.5+r()*.5));s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(2+r()*2.6).toFixed(1)}" fill="${e.ppt}" stroke="${muted}" stroke-opacity=".35" opacity="${(.35+.6*clamp(rxt*3,0,1)).toFixed(2)}"/>`}
+      s+=`<rect x="${bx+4}" y="${by+bh-6-26*clamp((rxt-.5)/.5,0,1)}" width="${bw-8}" height="${26*clamp((rxt-.5)/.5,0,1)}" fill="${e.ppt}" stroke="${muted}" stroke-opacity=".3"/>`;
+      s+=`<rect x="${bx+4}" y="${ytop}" width="${bw-8}" height="${lvl-4}" fill="${e.ppt}" opacity="${(cloud*e.cloud*.55).toFixed(2)}"/>`}
+    // bubbles
+    if(e.gas&&rxt>0){const n=Math.round(70*e.gas);const act=Math.sin(Math.PI*clamp(rxt*1.1,0,1));
+      for(let i=0;i<n;i++){const ph=(r()+rxt*3*(.6+r()))%1;const x=bx+16+r()*(bw-32)+Math.sin(ph*9+i)*4;const y=by+bh-10-ph*(lvl-10);const rr=2+r()*4;if(r()<act+.05)s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rr.toFixed(1)}" fill="none" stroke="${ink}" stroke-opacity=".55" stroke-width="1.3"/>`}
+      if(!e.foam)for(let i=0;i<10;i++){const ph=(r()+rxt*2)%1;if(r()<act)s+=`<circle cx="${(bx+30+r()*(bw-60)).toFixed(1)}" cy="${(ytop-ph*70).toFixed(1)}" r="3" fill="none" stroke="${muted}" stroke-opacity="${(1-ph)*.6}"/>`}}
+    if(e.foam&&rxt>0){const fh=lerp(0,150,ease(clamp(rxt*1.6,0,1)));for(let i=0;i<90;i++){const x=bx+10+r()*(bw-20),y=ytop-r()*fh;s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(5+r()*8).toFixed(1)}" fill="#FBF7EE" stroke="${muted}" stroke-opacity=".35"/>`}}
+    // powder pile
+    if(e.bPowder){const left=1-pour;const dis=e.dissolve?clamp((t1-.25)/.6,0,1):(e.gas?clamp((t1-.25)/.4,0,1):0);const pile=pour*(1-dis);
+      if(pile>0.02){for(let i=0;i<60*pile;i++)s+=`<circle cx="${(bx+bw/2+(r()-.5)*90*pile).toFixed(1)}" cy="${(by+bh-8-r()*10*pile).toFixed(1)}" r="2.6" fill="${e.powderC||'#FFFFFF'}" stroke="${muted}" stroke-opacity=".5"/>`}}
+    // glass
+    s+=`<path d="M${bx} ${by-6} L${bx} ${by+bh} Q${bx} ${by+bh+6} ${bx+8} ${by+bh+6} L${bx+bw-8} ${by+bh+6} Q${bx+bw} ${by+bh+6} ${bx+bw} ${by+bh} L${bx+bw} ${by-6}" fill="none" stroke="${glass}" stroke-width="4" stroke-linejoin="round"/>`;
+    for(let k=1;k<5;k++)s+=`<line x1="${bx+bw-30}" y1="${by+bh-k*45}" x2="${bx+bw-6}" y2="${by+bh-k*45}" stroke="${glass}" stroke-width="2"/>`;
+    // thermometer
+    const tm2=tm==null?22:tm,th=lerp(40,150,(tm2-10)/30);s+=`<rect x="${bx+bw-58}" y="${by-60}" width="12" height="230" rx="6" fill="${css('--stage')}" stroke="${muted}" stroke-width="2"/><rect x="${bx+bw-55}" y="${by+170-th}" width="6" height="${th}" rx="3" fill="${css('--hot')}"/><circle cx="${bx+bw-52}" cy="${by+176}" r="10" fill="${css('--hot')}"/>`;
+    // second container pouring
+    const ang=lerp(0,-118,ease(pour<1?Math.min(1,pour*1.4):1-clamp((t1-.25)/.15,0,1)));
+    const cx=560,cy=120;
+    s+=`<g transform="translate(${cx} ${cy}) rotate(${ang})"><path d="M-36 -50 L-36 40 Q-36 48 -28 48 L28 48 Q36 48 36 40 L36 -50" fill="${css('--stage')}" stroke="${glass}" stroke-width="3.5"/>`;
+    if(pour<1){if(e.bPowder)s+=`<rect x="-30" y="16" width="60" height="${26*(1-pour)}" fill="${e.powderC||'#FFFFFF'}" stroke="${muted}" stroke-opacity=".6"/>`;
+      else if(e.dye)s+=`<rect x="-30" y="${38-20*(1-pour)}" width="60" height="${20*(1-pour)+6}" fill="${e.dropC}"/>`;
+      else s+=`<rect x="-30" y="${46-70*(1-pour)}" width="60" height="${70*(1-pour)}" fill="${e.liq}" opacity=".95"/>`}
+    s+=`</g>`;
+    if(pour>.15&&pour<1){const col=e.bPowder?(e.powderC||'#FFFFFF'):e.dye?e.dropC:e.liq;for(let i=0;i<26;i++){const yy=lerp(105,ytop,r());s+=`<circle cx="${(470+r()*16-8).toFixed(1)}" cy="${yy.toFixed(1)}" r="${e.bPowder?2.4:3.4}" fill="${col}" stroke="${muted}" stroke-opacity=".4"/>`}}
+    s+=`<text x="${bx+bw/2}" y="${by+bh+34}" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="17" font-weight="700" fill="${ink}">${e.a}</text>`;
+    s+=`<text x="${cx}" y="${cy+82}" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="15" fill="${muted}" opacity="${1-pour}">${e.b}</text>`;
+  } else if(e.scene==='plate'){
+    const on=t1>0,heat=clamp(t1/.2,0,1),k=ease(clamp((t1-.2)/.75,0,1));
+    s+=`<rect x="250" y="330" width="300" height="56" rx="10" fill="${css('--steel')}"/><rect x="270" y="318" width="260" height="16" rx="6" fill="${on?css('--hot'):muted}" opacity="${on?(.5+.5*heat):.6}"/><circle cx="510" cy="358" r="9" fill="${css('--stage')}" stroke="${ink}" stroke-opacity=".4"/>`;
+    s+=`<ellipse cx="400" cy="312" rx="130" ry="12" fill="${css('--stage')}" stroke="${muted}" stroke-width="2"/>`;
+    if(e.item==='ice'){const sz=lerp(70,0,k);s+=`<ellipse cx="400" cy="306" rx="${lerp(10,110,k)}" ry="${lerp(3,8,k)}" fill="${css('--water')}" stroke="${css('--glass')}"/>`;
+      if(sz>2)s+=`<rect x="${400-sz/2}" y="${304-sz*.9}" width="${sz}" height="${sz*.9}" rx="${8*sz/70}" fill="#DDEFFC" stroke="${css('--glass')}" stroke-width="2"/><path d="M${400-sz/3} ${300-sz*.6} l${sz/4} ${-sz/6}" stroke="#FFFFFF" stroke-width="3"/>`;
+      for(let i=0;i<12*k;i++)s+=`<circle cx="${(320+r()*160).toFixed(1)}" cy="${(300-r()*6).toFixed(1)}" r="1.6" fill="${css('--glass')}"/>`}
+    else{const white=k;s+=`<path d="M300 306 Q310 255 360 262 Q400 238 445 262 Q500 258 505 306 Z" fill="${white>0?`rgba(255,255,255,${(0.25+.75*white).toFixed(2)})`:'rgba(255,255,255,.25)'}" stroke="${muted}" stroke-opacity="${.4+.4*white}" stroke-width="2"/><circle cx="400" cy="284" r="26" fill="#F4B41A" stroke="#C88A0E" stroke-width="2"/>`;
+      if(white>.3)for(let i=0;i<3;i++){const ph=(t1*2+i/3)%1;s+=`<path d="M${370+i*30} ${230-ph*80} q12 -14 0 -28 q-12 -14 0 -28" fill="none" stroke="${muted}" stroke-width="3" stroke-linecap="round" opacity="${(1-ph)*white}"/>`}}
+    if(on)for(let i=0;i<5;i++){const ph=(t1*3+i/5)%1;s+=`<path d="M${290+i*55} ${316-ph*30} q6 -8 0 -16" fill="none" stroke="${css('--hot')}" stroke-width="2" opacity="${(1-ph)*.5*heat}"/>`}
+    s+=`<text x="400" y="420" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="17" font-weight="700" fill="${ink}">${e.item==='ice'?'Ice cube on a dish':'Raw egg in a pan'} · hot plate ${on?'ON':'OFF'}</text>`;
+  } else {
+    const lit=clamp((t1-.15)/.1,0,1),burn=clamp((t1-.2)/.7,0,1),glow=lit*(1-clamp((t1-.92)/.08,0,1));
+    s+=`<rect x="140" y="300" width="40" height="86" rx="6" fill="${css('--steel')}"/><rect x="120" y="380" width="80" height="12" rx="4" fill="${css('--steel')}"/>`;
+    s+=`<path d="M160 300 Q140 260 160 215 Q180 260 160 300 Z" fill="${css('--flame')}" opacity=".9"/><path d="M160 300 Q150 275 160 250 Q170 275 160 300 Z" fill="#7FB3FF" opacity=".9"/>`;
+    s+=`<line x1="560" y1="150" x2="300" y2="226" stroke="${css('--steel')}" stroke-width="6" stroke-linecap="round"/><line x1="560" y1="162" x2="300" y2="232" stroke="${css('--steel')}" stroke-width="6" stroke-linecap="round"/>`;
+    const L=lerp(140,0,burn);if(L>1)s+=`<line x1="300" y1="229" x2="${300-L*.87}" y2="${229+L*.5}" stroke="#9AA3AB" stroke-width="7" stroke-linecap="round"/>`;
+    const tipx=300-L*.87,tipy=229+L*.5;
+    s+=`<ellipse cx="230" cy="384" rx="80" ry="10" fill="${css('--stage')}" stroke="${muted}" stroke-width="2"/>`;
+    for(let i=0;i<70*burn;i++)s+=`<circle cx="${(170+r()*120).toFixed(1)}" cy="${(380-r()*8).toFixed(1)}" r="2.6" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".5"/>`;
+    if(glow>0){s+=`<defs><radialGradient id="gl"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset=".35" stop-color="#FFFFFF" stop-opacity=".85"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient></defs><circle cx="${tipx}" cy="${tipy}" r="${110+20*Math.sin(t1*60)}" fill="url(#gl)" opacity="${glow}"/><circle cx="${tipx}" cy="${tipy}" r="16" fill="#FFFFFF" opacity="${glow}"/>`}
+    s+=`<text x="400" y="420" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="17" font-weight="700" fill="${ink}">Magnesium ribbon held in tongs over a burner</text>`;
+  }
+  $('#s1').innerHTML=s;
+}
+$('#checkBtn').onclick=()=>{
+  const e=cur1,fb=$('#fb');fb.hidden=false;
+  if(t1<1){fb.className='fb bad';fb.innerHTML='<b>Run the experiment first.</b> Watch it to the end, then record what you saw.';return}
+  const got=$$('#signChecks input').filter(i=>i.checked).map(i=>i.value);
+  const missing=e.need.filter(x=>!got.includes(x)),extra=got.filter(x=>!e.need.includes(x)&&!e.ok.includes(x));
+  const nm=k=>SIGNS.find(s=>s[0]===k)[1].toLowerCase();
+  const kindOK=kind1===e.kind;let msg='';
+  if(!kind1){fb.className='fb bad';fb.innerHTML='<b>Choose physical or chemical change.</b>';return}
+  if(kindOK&&!missing.length&&!extra.length){fb.className='fb good';msg='<b>Correct!</b> '+e.why;done1[e.id]=1;picks1()}
+  else{fb.className='fb bad';msg='<b>Not quite.</b> ';
+    if(!kindOK)msg+=`Look again: is there a <i>new substance</i>? `;
+    if(missing.length)msg+=`You missed: ${missing.map(nm).join(', ')}. `;
+    if(extra.length)msg+=`You did not see: ${extra.map(nm).join(', ')}. `;
+    msg+='Try again or run it once more.'}
+  fb.innerHTML=msg;
+};
+
+/* ===================== TAB 2: MASS ===================== */
+const RX2={gas:{name:'Vinegar + baking soda',before:255.0,loss:2.6,liq:'#EEF3D8',b:'#FFFFFF',powder:true},solid:{name:'Magnesium sulfate + sodium carbonate',before:210.0,loss:0,liq:'#E3EEF7',b:'#E3EEF7',powder:false}};
+let rx2='gas',ct2='open',t2=0,run2=false,s2=0,logged2=false;
+function pick2(id,attr,val){$$(id+' .pick').forEach(b=>b.setAttribute('aria-pressed',b.dataset[attr]===val))}
+$$('#rxPick .pick').forEach(b=>b.onclick=()=>{rx2=b.dataset.rx;pick2('#rxPick','rx',rx2);reset2()});
+$$('#ctPick .pick').forEach(b=>b.onclick=()=>{ct2=b.dataset.ct;pick2('#ctPick','ct',ct2);reset2()});
+function mass2(){const R=RX2[rx2];const lost=ct2==='open'?R.loss*ease(clamp((t2-.2)/.8,0,1)):0;return R.before-lost}
+function reset2(){run2=false;t2=0;logged2=false;$('#mixBtn2').disabled=false;$('#mB').textContent=RX2[rx2].before.toFixed(1)+' g';draw2()}
+$('#mixBtn2').onclick=()=>{if(run2)return;run2=true;s2=performance.now();$('#mixBtn2').disabled=true;loop2()};
+$('#resetBtn2').onclick=reset2;
+function loop2(){if(!run2)return;t2=clamp((performance.now()-s2)/(RM?800:6500),0,1);draw2();if(t2<1)requestAnimationFrame(loop2);else{run2=false;log2()}}
+const rows2=[];
+function log2(){if(logged2)return;logged2=true;const R=RX2[rx2],a=mass2(),d=a-R.before;rows2.unshift([R.name,ct2==='open'?'Open':'Closed',R.before,a,d]);
+  $('#massRows').innerHTML=rows2.slice(0,6).map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="n">${r[2].toFixed(1)} g</td><td class="n">${r[3].toFixed(1)} g</td><td class="n ${Math.abs(r[4])<.05?'ok':'no'}">${r[4]<-.05?r[4].toFixed(1)+' g':'0.0 g'}</td></tr>`).join('');
+  const fb=$('#fb2');fb.hidden=false;
+  if(rx2==='gas'&&ct2==='open'){fb.className='fb bad';fb.innerHTML='<b>The mass went down by 2.6 g. Were atoms destroyed?</b> No! A gas (carbon dioxide) formed and escaped into the air, taking its mass with it. Now try the <i>closed</i> flask.'}
+  else if(rx2==='gas'){fb.className='fb good';fb.innerHTML='<b>No change: 255.0 g before and after.</b> The balloon trapped the gas, so every atom stayed on the balance. This is the <i>law of conservation of mass</i>: total mass before = total mass after.'}
+  else{fb.className='fb good';fb.innerHTML='<b>No change: 210.0 g.</b> The new white solid stays in the flask and no gas is made, so the mass is the same even in an open flask. Mass is conserved.'}}
+function draw2(){
+  const R=RX2[rx2],ink=css('--ink'),muted=css('--muted'),glass=css('--glass'),r=rng(3);let s='';
+  const m=mass2();$('#mN').textContent=m.toFixed(1)+' g';
+  const tip=clamp(t2/.2,0,1),rx=clamp((t2-.2)/.8,0,1);
+  // balance
+  s+=`<rect x="170" y="330" width="460" height="70" rx="12" fill="${css('--steel')}"/><rect x="150" y="318" width="500" height="16" rx="6" fill="${muted}"/>`;
+  s+=`<rect x="320" y="346" width="160" height="40" rx="6" fill="#0F1A12"/><text x="470" y="374" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="24" font-weight="600" fill="#7CFF9B">${m.toFixed(1)} g</text>`;
+  // flask
+  const fx=400,base=316;
+  s+=`<path d="M${fx-22} 150 L${fx-22} 200 L${fx-95} ${base-6} Q${fx-100} ${base} ${fx-90} ${base} L${fx+90} ${base} Q${fx+100} ${base} ${fx+95} ${base-6} L${fx+22} 200 L${fx+22} 150" fill="${css('--stage')}" stroke="${glass}" stroke-width="4" stroke-linejoin="round"/>`;
+  const lv=46+(R.powder?0:24*tip);
+  s+=`<defs><clipPath id="fk"><path d="M${fx-22} 150 L${fx-22} 200 L${fx-95} ${base-6} Q${fx-100} ${base} ${fx-90} ${base} L${fx+90} ${base} Q${fx+100} ${base} ${fx+95} ${base-6} L${fx+22} 200 L${fx+22} 150 Z"/></clipPath></defs><rect clip-path="url(#fk)" x="${fx-100}" y="${base-lv}" width="200" height="${lv}" fill="${R.liq}"/>`;
+  if(rx2==='solid'&&rx>0){for(let i=0;i<90;i++){const x=fx-80+r()*160,y=lerp(base-lv+6+r()*(lv-12),base-10-r()*8,ease(clamp((rx-.3)/.7,0,1)));s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.4" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".5" opacity="${clamp(rx*3,0,1)}"/>`}}
+  if(rx2==='gas'&&rx>0){const act=Math.sin(Math.PI*clamp(rx*1.05,0,1));for(let i=0;i<60;i++){const ph=(r()+rx*3)%1;const y=base-8-ph*(lv-6);if(r()<act)s+=`<circle cx="${(fx-75+r()*150).toFixed(1)}" cy="${y.toFixed(1)}" r="${(2+r()*3).toFixed(1)}" fill="none" stroke="${ink}" stroke-opacity=".5"/>`}
+    if(ct2==='open'){for(let i=0;i<16;i++){const ph=(r()+rx*2)%1;if(r()<act)s+=`<circle cx="${(fx-15+r()*30+ph*40*(r()-.5)).toFixed(1)}" cy="${(150-ph*120).toFixed(1)}" r="${(3+r()*3).toFixed(1)}" fill="none" stroke="${muted}" stroke-opacity="${(1-ph)*.7}"/>`}
+      s+=`<text x="${fx+40}" y="${70}" font-family="Atkinson Hyperlegible,sans-serif" font-size="15" fill="${muted}" opacity="${act}">CO₂ gas escapes ↑</text>`}}
+  if(R.powder){
+    if(ct2==='closed'){const inf=ease(rx);const bw=lerp(26,70,inf),bh=lerp(40,95,inf);const lean=lerp(70,0,tip);
+      s+=`<g transform="translate(${fx} 150) rotate(${lean})"><rect x="-24" y="-12" width="48" height="16" rx="5" fill="#E05A8A"/><ellipse cx="0" cy="${-12-bh/2}" rx="${bw}" ry="${bh/2}" fill="#E05A8A" opacity=".9"/>${tip<1?`<ellipse cx="0" cy="-30" rx="18" ry="10" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".6"/>`:''}</g>`;
+      if(tip>0&&tip<1)for(let i=0;i<14;i++)s+=`<circle cx="${(fx+r()*10-5).toFixed(1)}" cy="${lerp(150,base-lv,r()).toFixed(1)}" r="2.4" fill="#FFFFFF" stroke="${muted}"/>`;
+      s+=`<text x="${fx+110}" y="110" font-family="Atkinson Hyperlegible,sans-serif" font-size="15" fill="${muted}">balloon holds the baking soda</text>`}
+    else{const ang=lerp(0,-100,ease(tip<1?tip:1-clamp((t2-.25)/.1,0,1)));s+=`<g transform="translate(540 270) rotate(${ang})"><path d="M-26 -30 L-20 30 L20 30 L26 -30 Z" fill="${css('--stage')}" stroke="${glass}" stroke-width="3"/>${tip<1?`<rect x="-20" y="${10-14*(1-tip)}" width="40" height="${14*(1-tip)+18}" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".5"/>`:''}</g>`;
+      if(tip>0.2&&tip<1)for(let i=0;i<16;i++)s+=`<circle cx="${lerp(500,fx+10,r()).toFixed(1)}" cy="${lerp(200,150,r()).toFixed(1)}" r="2.4" fill="#FFFFFF" stroke="${muted}"/>`;
+      s+=`<text x="540" y="230" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="14" fill="${muted}">baking soda</text>`}
+    if(rx>0&&R.powder)for(let i=0;i<30*(1-rx);i++)s+=`<circle cx="${(fx-30+r()*60).toFixed(1)}" cy="${(base-8-r()*6).toFixed(1)}" r="2.4" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".5"/>`;
+  } else {
+    if(ct2==='closed')s+=`<rect x="${fx-26}" y="134" width="52" height="22" rx="5" fill="#8A6A4A"/><text x="${fx+110}" y="146" font-family="Atkinson Hyperlegible,sans-serif" font-size="15" fill="${muted}">stopper</text>`;
+    const ang=lerp(0,-105,ease(tip<1?tip:1-clamp((t2-.25)/.1,0,1)));s+=`<g transform="translate(560 250) rotate(${ang})"><path d="M-16 -50 L-16 40 Q-16 50 0 50 Q16 50 16 40 L16 -50" fill="${css('--stage')}" stroke="${glass}" stroke-width="3"/>${tip<1?`<rect x="-13" y="${45-60*(1-tip)}" width="26" height="${60*(1-tip)}" fill="${R.b}" stroke="${muted}" stroke-opacity=".4"/>`:''}</g><text x="560" y="335" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="14" fill="${muted}">sodium carbonate</text>`;
+    if(tip>0.2&&tip<1)s+=`<path d="M520 200 Q470 140 ${fx+10} 170" fill="none" stroke="${glass}" stroke-width="4" opacity=".7"/>`;
+  }
+  s+=`<text x="${fx}" y="430" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="16" font-weight="700" fill="${ink}">${rx2==='gas'?'Vinegar in the flask':'Magnesium sulfate solution in the flask'} · ${ct2==='open'?'open':'closed'}</text>`;
+  $('#s2').innerHTML=s;
+}
+
+/* ===================== TAB 3: ATOMS REARRANGE ===================== */
+const RX3=[
+ {id:'water',word:'Hydrogen + Oxygen → Water',L:[['H2',2],['O2',1]],R:[['H2O',2]]},
+ {id:'methane',word:'Methane + Oxygen → Carbon dioxide + Water',L:[['CH4',1],['O2',2]],R:[['CO2',1],['H2O',2]]},
+ {id:'so3',word:'Sulfur dioxide + Oxygen → Sulfur trioxide',L:[['SO2',2],['O2',1]],R:[['SO3',2]]},
+ {id:'co2',word:'Carbon + Oxygen → Carbon dioxide',L:[['C',1],['O2',1]],R:[['CO2',1]]},
+ {id:'mgo',word:'Magnesium + Oxygen → Magnesium oxide',L:[['Mg',2],['O2',1]],R:[['MgO',2]]}
+];
+let cur3=RX3[0],t3=0,play3=false,last3=0,atoms3=[];const S3=1.55;
+function layoutSide(list,x0,x1,yc){const items=[];list.forEach(([f,k])=>{for(let i=0;i<k;i++)items.push(f)});
+  const n=items.length,cols=Math.min(n,2),rows=Math.ceil(n/cols);const out=[];
+  const groups=[];list.forEach(([f,k])=>groups.push([f,k]));
+  // place each species group in its own column block
+  const blockW=(x1-x0)/groups.length;let gi=0;
+  groups.forEach(([f,k],g)=>{const cx=x0+blockW*(g+.5);for(let i=0;i<k;i++){const yy=yc+(i-(k-1)/2)*78*S3;out.push({f,x:cx,y:yy})}});
+  return out}
+function build3(){const Lm=layoutSide(cur3.L,30,350,215),Rm=layoutSide(cur3.R,450,790,215);
+  const pool={};atoms3=[];
+  Lm.forEach((m,mi)=>GEO[m.f].a.forEach(([el,dx,dy],ai)=>{const a={el,sx:m.x+dx*S3,sy:m.y+dy*S3,lm:mi,la:ai};atoms3.push(a);(pool[el]=pool[el]||[]).push(a)}));
+  Rm.forEach((m,mi)=>GEO[m.f].a.forEach(([el,dx,dy],ai)=>{const a=pool[el].shift();a.ex=m.x+dx*S3;a.ey=m.y+dy*S3;a.rm=mi;a.ra=ai}));
+  // middle "free atoms" positions: spread in a loose cloud
+  const r=rng(11);atoms3.forEach((a,i)=>{const ang=i/atoms3.length*Math.PI*2;const rad=75+r()*70;a.mx=400+Math.cos(ang)*rad*1.3;a.my=215+Math.sin(ang)*rad*.95});
+  cur3.Lm=Lm;cur3.Rm=Rm;
+  $('#word3').textContent=cur3.word;
+  const eq=s=>s.map(([f,k])=>`<span>${k>1?k:''}${sub(f)}</span>`).join('<span>+</span>');
+  $('#eq3').innerHTML=eq(cur3.L)+'<span>→</span>'+eq(cur3.R);
+  const cL={},cR={};cur3.L.forEach(([f,k])=>{const c=countAtoms(f,k);for(const e in c)cL[e]=(cL[e]||0)+c[e]});cur3.R.forEach(([f,k])=>{const c=countAtoms(f,k);for(const e in c)cR[e]=(cR[e]||0)+c[e]});
+  $('#count3').innerHTML=Object.keys(cL).map(e=>`<tr><td>${AT[e].name} (${e})</td><td class="n">${cL[e]}</td><td class="n">${cR[e]||0}</td><td class="ok">same ✓</td></tr>`).join('');
+  const mL=Object.keys(cL).reduce((s,e)=>s+cL[e]*AT[e].m,0);
+  $('#mass3').textContent=`Total mass of the atoms: ${mL} units before and ${mL} units after. Same atoms, same mass.`;
+  draw3()}
+function draw3(){const ink=css('--ink'),muted=css('--muted');let s='';const t=t3;
+  const ph1=clamp(t/.4,0,1),ph2=clamp((t-.4)/.26,0,1),ph3=clamp((t-.66)/.34,0,1);
+  // labels
+  s+=`<text x="185" y="40" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="18" font-weight="700" fill="${ink}" opacity="${1-ph2*.6}">Reactants</text><text x="620" y="40" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="18" font-weight="700" fill="${ink}" opacity="${.4+.6*ph3}">Products</text>`;
+  s+=`<path d="M350 220 L450 220" stroke="${muted}" stroke-width="3" opacity=".35"/><path d="M440 212 L452 220 L440 228" fill="none" stroke="${muted}" stroke-width="3" opacity=".35"/>`;
+  const pos=a=>{if(t<=.4){const k=ease(ph1);return[lerp(a.sx,a.mx,k*k*.0+ (ph1>.55?ease((ph1-.55)/.45):0)),lerp(a.sy,a.my,(ph1>.55?ease((ph1-.55)/.45):0))]}
+    if(t<=.66)return[a.mx+Math.sin(t*40+a.sx)*2,a.my+Math.cos(t*36+a.sy)*2];return[lerp(a.mx,a.ex,ease(ph3)),lerp(a.my,a.ey,ease(ph3))]};
+  const P=atoms3.map(pos);
+  // reactant bonds fade (break) during ph1 first half
+  const bOp=1-clamp(ph1/.5,0,1);
+  if(bOp>0)cur3.Lm.forEach((m,mi)=>GEO[m.f].b.forEach(([i,j])=>{const a=atoms3.findIndex(x=>x.lm===mi&&x.la===i),b=atoms3.findIndex(x=>x.lm===mi&&x.la===j);const sh=(1-bOp)*10;
+    s+=`<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="${ink}" stroke-width="7" stroke-opacity="${.6*bOp}" stroke-dasharray="${sh>1?`${12-sh} ${sh}`:'none'}"/>`}));
+  if(ph1>.15&&ph1<.6)s+=`<text x="185" y="400" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="18" font-weight="600" fill="${css('--bad')}">bonds break ✂</text>`;
+  if(ph3>0)cur3.Rm.forEach((m,mi)=>GEO[m.f].b.forEach(([i,j])=>{const a=atoms3.findIndex(x=>x.rm===mi&&x.ra===i),b=atoms3.findIndex(x=>x.rm===mi&&x.ra===j);
+    s+=`<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="${ink}" stroke-width="7" stroke-opacity="${.6*clamp((ph3-.55)/.45,0,1)}"/>`}));
+  if(ph3>.6)s+=`<text x="620" y="400" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="18" font-weight="600" fill="${css('--ok')}">new bonds form ✓</text>`;
+  if(t>.4&&t<=.7)s+=`<text x="400" y="400" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="18" font-weight="600" fill="${css('--accent')}">same atoms, new partners</text>`;
+  atoms3.forEach((a,i)=>s+=atomSvg(a.el,P[i][0],P[i][1],1,S3));
+  // species labels
+  if(t<.3)cur3.Lm.forEach((m,i)=>{if(i===0||cur3.Lm[i-1].f!==m.f){const k=cur3.L.find(x=>x[0]===m.f)[1];const last=cur3.Lm.filter(x=>x.f===m.f);s+=`<text x="${m.x}" y="${Math.max(...last.map(x=>x.y))+68}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="20" font-weight="600" fill="${muted}" opacity="${1-t/.3}">${k>1?k:''}${sub(m.f)}</text>`}});
+  if(ph3>.8)cur3.Rm.forEach((m,i)=>{if(i===0||cur3.Rm[i-1].f!==m.f){const k=cur3.R.find(x=>x[0]===m.f)[1];const last=cur3.Rm.filter(x=>x.f===m.f);s+=`<text x="${m.x}" y="${Math.max(...last.map(x=>x.y))+68}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="20" font-weight="600" fill="${muted}" opacity="${(ph3-.8)/.2}">${k>1?k:''}${sub(m.f)}</text>`}});
+  $('#s3').innerHTML=s;$('#scrub3').value=Math.round(t*1000);
+  const stepT=[0,.4,.66,1];let idx=0;stepT.forEach((v,i)=>{if(t>=v-1e-6)idx=i});$$('#steps3 .pick').forEach((b,i)=>b.setAttribute('aria-pressed',i===idx));
+}
+$('#rxAtomPicks').innerHTML=RX3.map(r=>`<button class="pick" type="button" data-id="${r.id}" aria-pressed="${r===cur3}">${r.word.split(' → ')[1]}</button>`).join('');
+$$('#rxAtomPicks .pick').forEach(b=>b.onclick=()=>{cur3=RX3.find(r=>r.id===b.dataset.id);$$('#rxAtomPicks .pick').forEach(x=>x.setAttribute('aria-pressed',x===b));t3=0;play3=false;$('#playBtn3').textContent='Play';build3()});
+$('#scrub3').oninput=e=>{play3=false;$('#playBtn3').textContent='Play';t3=e.target.value/1000;draw3()};
+$$('#steps3 .pick').forEach(b=>b.onclick=()=>{play3=false;$('#playBtn3').textContent='Play';animateTo3(+b.dataset.t)});
+let anim3=null;function animateTo3(target){const from=t3,st=performance.now(),d=RM?1:900;cancelAnimationFrame(anim3);const f=()=>{const k=clamp((performance.now()-st)/d,0,1);t3=lerp(from,target,ease(k));draw3();if(k<1)anim3=requestAnimationFrame(f)};f()}
+$('#playBtn3').onclick=()=>{if(play3){play3=false;$('#playBtn3').textContent='Play';return}if(t3>=1)t3=0;play3=true;$('#playBtn3').textContent='Pause';last3=performance.now();const f=now=>{if(!play3)return;t3=clamp(t3+(now-last3)/(RM?1500:7000),0,1);last3=now;draw3();if(t3<1)requestAnimationFrame(f);else{play3=false;$('#playBtn3').textContent='Replay'}};requestAnimationFrame(f)};
+
+/* ===================== TAB 4: BALANCE IT ===================== */
+const EQ4=[
+ {L:['H2','O2'],R:['H2O'],ans:[2,1,2]},{L:['Mg','O2'],R:['MgO'],ans:[2,1,2]},{L:['Na','Cl2'],R:['NaCl'],ans:[2,1,2]},
+ {L:['N2','H2'],R:['NH3'],ans:[1,3,2]},{L:['CH4','O2'],R:['CO2','H2O'],ans:[1,2,1,2]},{L:['SO2','O2'],R:['SO3'],ans:[2,1,2]},{L:['Al','O2'],R:['Al2O3'],ans:[4,3,2],hard:1}
+];
+let i4=0,co4=[],done4={};
+const names4={H2O:'H₂O is water. H₂O₂ is hydrogen peroxide, a different substance!',O2:'O₂ is oxygen gas. O₃ would be ozone, a different substance!',CO2:'CO₂ is carbon dioxide. CO is carbon monoxide, a poisonous gas!'};
+function sp4(){const e=EQ4[i4];return e.L.concat(e.R)}
+function counts4(){const e=EQ4[i4],cL={},cR={};e.L.forEach((f,i)=>{const c=countAtoms(f,co4[i]);for(const k in c)cL[k]=(cL[k]||0)+c[k]});e.R.forEach((f,i)=>{const c=countAtoms(f,co4[e.L.length+i]);for(const k in c)cR[k]=(cR[k]||0)+c[k]});return[cL,cR]}
+function gcd(a,b){return b?gcd(b,a%b):a}
+function picks4(){$('#balPicks').innerHTML=EQ4.map((e,i)=>`<button class="pick" type="button" data-i="${i}" aria-pressed="${i===i4}">${e.L.map(sub).join(' + ')} → ${e.R.map(sub).join(' + ')}${e.hard?' ★':''}${done4[i]?'<span class="tick">✓</span>':''}</button>`).join('');
+  $$('#balPicks .pick').forEach(b=>b.onclick=()=>{i4=+b.dataset.i;reset4()});$('#score4').textContent=Object.keys(done4).length+' / '+EQ4.length+' balanced'}
+function fmlHtml(f,si){return f.replace(/([A-Z][a-z]?)(\d*)/g,(m,el,n)=>el+(n?`<button class="sub" type="button" data-f="${f}">${sub(n)}</button>`:''))}
+function reset4(){co4=sp4().map(()=>1);$('#fb4').hidden=true;render4();picks4()}
+function render4(){const e=EQ4[i4],sp=sp4();let h='';
+  sp.forEach((f,i)=>{if(i===e.L.length)h+='<span>→</span>';else if(i>0)h+='<span>+</span>';
+    h+=`<span class="step"><button type="button" data-i="${i}" data-d="-1" aria-label="Fewer ${f}">−</button><output>${co4[i]}</output><button type="button" data-i="${i}" data-d="1" aria-label="More ${f}">+</button></span><span>${fmlHtml(f,i)}</span>`});
+  $('#eq4').innerHTML=h;
+  $$('#eq4 .step button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;co4[i]=clamp(co4[i]+(+b.dataset.d),1,8);$('#fb4').hidden=true;render4()});
+  $$('#eq4 .sub').forEach(b=>b.onclick=()=>{const fb=$('#fb4');fb.hidden=false;fb.className='fb bad';fb.innerHTML=`<b>Subscripts are locked.</b> Changing a subscript changes the substance itself. ${names4[b.dataset.f]||'It would no longer be '+sub(b.dataset.f)+'.'} Change the coefficient in front instead.`});
+  const[cL,cR]=counts4();const els=Object.keys(cL);let ok=els.every(k=>cL[k]===cR[k]);
+  $('#count4').innerHTML=els.map(k=>`<tr><td>${AT[k].name} (${k})</td><td class="n">${cL[k]}</td><td class="n">${cR[k]||0}</td><td class="${cL[k]===cR[k]?'ok':'no'}">${cL[k]===cR[k]?'✓':'✗'}</td></tr>`).join('');
+  const g=co4.reduce((a,b)=>gcd(a,b));const ban=$('#ban4');
+  if(ok&&g===1){ban.className='banner good';ban.textContent='Balanced! Same atoms on both sides, so mass is conserved.';done4[i4]=1;picks4()}
+  else if(ok){ban.className='banner warn';ban.textContent=`Balanced, but every number can be divided by ${g}. Use the smallest whole numbers.`}
+  else{ban.className='banner';const bad=els.filter(k=>cL[k]!==cR[k]).map(k=>AT[k].name.toLowerCase());ban.textContent='Not balanced yet: check '+bad.join(' and ')+'.'}
+  draw4()}
+function draw4(){const e=EQ4[i4],sp=sp4(),ink=css('--ink'),muted=css('--muted');let s='';
+  const nL=e.L.length,nR=e.R.length;
+  s+=`<text x="190" y="30" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="17" font-weight="700" fill="${ink}">Reactants</text><text x="615" y="30" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="17" font-weight="700" fill="${ink}">Products</text>`;
+  s+=`<path d="M378 200 L422 200" stroke="${muted}" stroke-width="3"/><path d="M414 192 L424 200 L414 208" fill="none" stroke="${muted}" stroke-width="3"/>`;
+  const mx=Math.max(...co4),sc=mx<=2?1.7:mx<=3?1.45:mx<=4?1.2:1;const place=(list,off,x0,x1)=>{const bw=(x1-x0)/list.length;list.forEach((f,j)=>{const k=co4[off+j],cx=x0+bw*(j+.5),w=(WID[f]||60)*sc;const cols=k>4?2:1,rows=Math.ceil(k/cols);const gapY=Math.min(68*sc,320/rows);
+      for(let q=0;q<k;q++){const c=cols===1?0:(q%cols),rr=cols===1?q:Math.floor(q/cols);const x=cx+(cols===1?0:(c-.5)*(w+14)),y=210+(rr-(rows-1)/2)*gapY;
+        const g=GEO[f];g.b.forEach(([a,b])=>s+=`<line x1="${x+g.a[a][1]*sc}" y1="${y+g.a[a][2]*sc}" x2="${x+g.a[b][1]*sc}" y2="${y+g.a[b][2]*sc}" stroke="${ink}" stroke-opacity=".5" stroke-width="${4*sc}"/>`);g.a.forEach(([el,dx,dy])=>s+=atomSvg(el,x+dx*sc,y+dy*sc,1,sc))}
+      if(j<list.length-1)s+=`<text x="${x0+bw*(j+1)}" y="${208}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="22" fill="${muted}">+</text>`})};
+  place(e.L,0,20,370);place(e.R,nL,430,790);
+  $('#s4').innerHTML=s}
+$('#reset4').onclick=reset4;
+$('#hint4').onclick=()=>{const e=EQ4[i4],fb=$('#fb4');fb.hidden=false;fb.className='fb';const[cL,cR]=counts4();const bad=Object.keys(cL).find(k=>cL[k]!==cR[k]);
+  fb.innerHTML=bad?`<b>Hint:</b> start with <b>${AT[bad].name.toLowerCase()}</b>: ${cL[bad]} on the left, ${cR[bad]} on the right. Change the coefficient of a formula that has ${bad} in it, then count again.`+(e.hard?' For this one, try to make the oxygen numbers meet at 6.':''):'<b>It is already balanced.</b> Pick another equation.'};
+
+/* ---------- start ---------- */
+picks1();reset1();reset2();build3();reset4();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{draw1();draw2();draw3();draw4()});
+new MutationObserver(()=>{draw1();draw2();draw3();draw4()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>
+
+</body></html>

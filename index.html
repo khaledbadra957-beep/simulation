@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Science Simulations · Mr Khaled</title>
-<meta name="description" content="Interactive physics and chemistry simulations for Grades 10–12, designed and built by Mr Khaled.">
+<meta name="description" content="Interactive science, physics and chemistry simulations for Grades 7–12, designed and built by Mr Khaled.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
@@ -108,7 +108,7 @@ footer .mono{font-family:var(--mono)}
     <span class="mono-mark" aria-hidden="true">MK</span>
     <span><b>Mr Khaled</b><small>Physics &amp; Chemistry</small></span>
   </div>
-  <span class="badge">Grades 10–12 · Physics &amp; Chemistry</span>
+  <span class="badge">Grades 7–12 · Science, Physics &amp; Chemistry</span>
 </header>
 
 <main class="hero">
@@ -119,6 +119,7 @@ footer .mono{font-family:var(--mono)}
     <div class="filters">
       <div class="group" role="group" aria-label="Grade">
         <button type="button" class="pill" data-grade="all" aria-pressed="true">All grades</button>
+        <button type="button" class="pill" data-grade="7" aria-pressed="false">Grade 7</button>
         <button type="button" class="pill" data-grade="10" aria-pressed="false">Grade 10</button>
         <button type="button" class="pill" data-grade="11" aria-pressed="false">Grade 11</button>
         <button type="button" class="pill" data-grade="12" aria-pressed="false">Grade 12</button>
@@ -131,19 +132,18 @@ footer .mono{font-family:var(--mono)}
     </div>
   </div>
 
-  <a class="feature" href="torque-lab.html">
-    <span class="row"><span class="new">Newest</span><span class="meta">Grade 11 · 12 · Chemistry</span></span>
+  <a class="feature" href="chemical-change-lab.html">
+    <span class="row"><span class="new">Newest</span><span class="meta">Grade 7 · Science</span></span>
     <svg viewBox="0 0 320 150" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M70 35 L105 55 L105 95 L70 115 L35 95 L35 55 Z" stroke="currentColor" stroke-width="3"/>
-      <circle cx="70" cy="75" r="22" stroke="currentColor" stroke-width="2.5"/>
-      <path d="M105 55 L140 35 L175 55 L210 35 L245 55" stroke="currentColor" stroke-width="3"/>
-      <path d="M175 55 L175 95" stroke="currentColor" stroke-width="3"/>
-      <path d="M245 55 L280 35 M249 61 L284 41" stroke="#F59E5B" stroke-width="3"/>
-      <circle cx="175" cy="105" r="9" fill="#F59E5B"/>
-      <text x="168" y="138" fill="#F59E5B" font-family="IBM Plex Mono, monospace" font-size="15">OH</text>
+      <path d="M60 20 L60 120 Q60 132 72 132 L148 132 Q160 132 160 120 L160 20" stroke="currentColor" stroke-width="3"/>
+      <path d="M62 80 L158 80" stroke="currentColor" stroke-width="2" opacity=".5"/>
+      <circle cx="90" cy="105" r="6" stroke="#F59E5B" stroke-width="2.5"/><circle cx="118" cy="92" r="4" stroke="#F59E5B" stroke-width="2.5"/><circle cx="132" cy="112" r="5" stroke="#F59E5B" stroke-width="2.5"/><circle cx="104" cy="66" r="4" stroke="#F59E5B" stroke-width="2.5"/>
+      <circle cx="215" cy="60" r="13" stroke="currentColor" stroke-width="3"/><circle cx="240" cy="60" r="13" stroke="currentColor" stroke-width="3"/>
+      <path d="M262 60 L282 60 M274 52 L284 60 L274 68" stroke="currentColor" stroke-width="3"/>
+      <circle cx="225" cy="108" r="15" fill="#F59E5B"/><circle cx="206" cy="120" r="9" stroke="currentColor" stroke-width="2.5"/><circle cx="244" cy="120" r="9" stroke="currentColor" stroke-width="2.5"/>
     </svg>
-    <h2>Organic Naming Lab</h2>
-    <p>Build any molecule, rings and benzene too, and watch its IUPAC name appear step by step.</p>
+    <h2>Chemical Change Lab</h2>
+    <p>Spot the signs of a chemical change, weigh a reaction in an open and closed flask, watch atoms rearrange and balance equations.</p>
     <span class="go">Open the lab <span aria-hidden="true">→</span></span>
   </a>
 </main>
@@ -151,7 +151,7 @@ footer .mono{font-family:var(--mono)}
 <section aria-labelledby="listTitle">
   <div class="list-head">
     <h2 id="listTitle">All grades</h2>
-    <span class="count" id="count" aria-live="polite">8 simulations</span>
+    <span class="count" id="count" aria-live="polite">9 simulations</span>
   </div>
   <ul class="grid" id="grid">
 <li class="item" data-grades="10" data-sub="phys">
@@ -231,6 +231,16 @@ footer .mono{font-family:var(--mono)}
 <span class="tag">Rotational dynamics</span>
 <h3>Torque Lab</h3>
 <p>Push a door with any force, distance and angle, see the lever arm and τ = F r sin θ live, balance a seesaw and solve torque challenges.</p>
+<span class="go">Open simulation <span aria-hidden="true">→</span></span>
+</a>
+</li>
+<li class="item" data-grades="7" data-sub="chem">
+<a class="card chem" href="chemical-change-lab.html">
+<span class="top"><span class="num">SIM 09</span><span class="chip">Science · G7</span></span>
+<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M40 10 v52 q0 8 8 8 h44 q8 0 8 -8 v-52"/> <circle class="s" cx="62" cy="52" r="4"/> <circle class="s" cx="78" cy="40" r="3"/> <circle class="s" cx="70" cy="28" r="3"/> <circle class="s" cx="150" cy="40" r="10"/> <circle class="s" cx="170" cy="40" r="10"/> <path class="s" d="M192 40 h26 M210 32 l8 8 l-8 8"/> <circle class="f" cx="248" cy="34" r="11"/> <circle class="s" cx="234" cy="52" r="7"/> <circle class="s" cx="262" cy="52" r="7"/> </svg>
+<span class="tag">Chemical changes</span>
+<h3>Chemical Change Lab</h3>
+<p>Run nine experiments and spot the signs of a chemical change, weigh a reaction in an open and closed flask, watch atoms rearrange and balance equations.</p>
 <span class="go">Open simulation <span aria-hidden="true">→</span></span>
 </a>
 </li>
