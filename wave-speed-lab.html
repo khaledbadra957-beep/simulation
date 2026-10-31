@@ -1,0 +1,591 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Wave Speed Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: one lab bench per tab, like the rest of the collection. A wide canvas stage on top (string, tools),
+   transport under it, then set-up on the left and measurements on the right. Teal-blue is the working colour,
+   brass is the measuring tools (ruler, stopwatch), rose marks the bead you are watching. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --rose:#C2185B; --rose-ink:#FFFFFF;
+  --brass:#E9C46A; --brass-ink:#4A3500; --brass-edge:#B8913A;
+  --steel:#6B7C84; --amber:#D88A1C; --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B; --rose:#FF6FA8; --rose-ink:#2B0A19;
+  --brass:#C9A24A; --brass-ink:#1E1500; --brass-edge:#8C6F2C;
+  --steel:#8FA1A9; --amber:#F2B45A; --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B; --rose:#FF6FA8; --rose-ink:#2B0A19;
+  --brass:#C9A24A; --brass-ink:#1E1500; --brass-edge:#8C6F2C;
+  --steel:#8FA1A9; --amber:#F2B45A; --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.rose{background:var(--rose);color:var(--rose-ink);border-color:var(--rose)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+.stagewrap{position:relative;min-width:0}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:none}
+#c1{height:clamp(300px,40vw,430px)}
+#c2{height:clamp(330px,44vw,470px)}
+#c3{height:clamp(300px,38vw,400px)}
+#g1{height:150px;cursor:default}
+.watch{position:absolute;top:10px;right:10px;background:var(--brass);color:var(--brass-ink);border:2px solid var(--brass-edge);border-radius:12px;padding:6px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;box-shadow:0 2px 0 var(--brass-edge)}
+.watch .t{font-family:var(--data);font-weight:600;font-size:1.3rem;font-variant-numeric:tabular-nums;background:var(--stage);color:var(--ink);border-radius:6px;padding:1px 8px;min-width:6.2ch;text-align:center}
+.watch .row{display:flex;gap:4px}
+.watch button{border:1.5px solid var(--brass-edge);background:var(--stage);border-radius:7px;padding:2px 9px;font-weight:700;font-size:.85rem}
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.col>.seg,.field>.seg{align-self:flex-start}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+.srow{display:flex;align-items:center;gap:6px}
+.srow input{flex:1 1 auto;min-width:0}
+.nudge{font-family:var(--data);font-size:.8rem;padding:3px 7px;border:1.5px solid var(--line);background:var(--stage);border-radius:7px}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.lane-a input[type=range]{accent-color:var(--accent)} .lane-b input[type=range]{accent-color:var(--amber)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input{font:inherit;font-family:var(--data);width:7.5em;padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+td.hl{color:var(--accent);font-weight:600}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body)}
+.pred{display:flex;gap:6px;flex-wrap:wrap}
+.pred button{border:1.5px solid var(--line);background:var(--stage);border-radius:999px;padding:6px 13px;font-weight:700}
+.pred button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.2rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:64ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style></head><body>
+<div class="wrap">
+ <header>
+  <div>
+   <p class="eyebrow">Grade 11 Physics · Module 14 · Wave properties</p>
+   <h1>Wave Speed Lab</h1>
+   <p class="lede">Shake a string, send pulses and play sounds. Measure each wave yourself with the ruler and the stopwatch, then find out what really decides how fast a wave travels.</p>
+  </div>
+  <div class="tools">
+   <button class="btn" id="fsBtn" type="button">Full screen</button>
+   <button class="btn" id="themeBtn" type="button">Dark mode</button>
+  </div>
+ </header>
+
+ <div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-tab="lab">1 · String lab</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="race">2 · Pulse race</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="sound">3 · Sound</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="chal">4 · Challenge</button>
+ </div>
+
+ <!-- ================= TAB 1: STRING LAB ================= -->
+ <section class="bench" id="p-lab">
+  <div class="benchhead">
+   <div class="seg" role="group" aria-label="How the string is moved"><button type="button" data-mode="osc" aria-pressed="true">Oscillate</button><button type="button" data-mode="pulse" aria-pressed="false">Pulse</button><button type="button" data-mode="manual" aria-pressed="false">By hand</button></div>
+   <div class="seg" role="group" aria-label="Right end of the string"><button type="button" data-end="fixed" aria-pressed="false">Fixed end</button><button type="button" data-end="loose" aria-pressed="false">Loose end</button><button type="button" data-end="none" aria-pressed="true">No end</button></div>
+  </div>
+  <div class="stagewrap">
+   <canvas class="stage" id="c1" tabindex="0" aria-label="String of beads with a ruler. Drag the ruler, the reference line, or the left end in By hand mode. Click a bead to watch it."></canvas>
+   <div class="watch" id="sw1" hidden><span class="t" id="sw1t">0.00 s</span><div class="row"><button type="button" id="sw1go">Start</button><button type="button" id="sw1r">Reset</button></div></div>
+  </div>
+  <div class="transport">
+   <button class="btn primary" id="play1" type="button">Pause</button>
+   <button class="btn" id="step1" type="button">Step</button>
+   <button class="btn rose" id="pulse1" type="button" hidden>Send pulse</button>
+   <button class="btn" id="restart1" type="button">Restart string</button>
+   <span class="sep"></span>
+   <div class="seg" role="group" aria-label="Speed of time"><button type="button" data-speed="1" aria-pressed="true">Normal</button><button type="button" data-speed="0.25" aria-pressed="false">Slow ×¼</button></div>
+  </div>
+  <div class="checks" aria-label="Measuring tools">
+   <label><input type="checkbox" id="tRuler" checked> Ruler</label>
+   <label><input type="checkbox" id="tVRuler"> Height ruler</label>
+   <label><input type="checkbox" id="tWatch"> Stopwatch</label>
+   <label><input type="checkbox" id="tRef"> Reference line</label>
+   <label><input type="checkbox" id="tGraph"> Graph of watched bead</label>
+   <label><input type="checkbox" id="tVals"> Show values</label>
+  </div>
+  <canvas class="stage" id="g1" hidden aria-label="Displacement of the watched bead against time"></canvas>
+  <div class="grid2">
+   <div class="col">
+    <div class="field" id="fAmp"><div class="field-head"><label for="amp1">Amplitude</label><output id="oamp1"></output></div><div class="srow"><button class="nudge" type="button" data-n="amp1,-1">−</button><input id="amp1" type="range" min="5" max="40" step="1" value="20"><button class="nudge" type="button" data-n="amp1,1">+</button></div></div>
+    <div class="field" id="fFreq"><div class="field-head"><label for="f1">Frequency</label><output id="of1"></output></div><div class="srow"><button class="nudge" type="button" data-n="f1,-1">−</button><input id="f1" type="range" min="0.25" max="3" step="0.25" value="1"><button class="nudge" type="button" data-n="f1,1">+</button></div></div>
+    <div class="field" id="fPw" hidden><div class="field-head"><label for="pw1">Pulse width</label><output id="opw1"></output></div><div class="srow"><button class="nudge" type="button" data-n="pw1,-1">−</button><input id="pw1" type="range" min="0.25" max="1" step="0.05" value="0.5"><button class="nudge" type="button" data-n="pw1,1">+</button></div></div>
+    <div class="field"><div class="field-head"><label for="ten1">Tension</label><output id="oten1"></output></div><div class="srow"><button class="nudge" type="button" data-n="ten1,-1">−</button><input id="ten1" type="range" min="0" max="4" step="1" value="2"><button class="nudge" type="button" data-n="ten1,1">+</button></div><span class="note">Tighter string → ? Find out.</span></div>
+    <div class="field"><div class="field-head"><label for="damp1">Damping</label><output id="odamp1"></output></div><input id="damp1" type="range" min="0" max="100" step="5" value="0"></div>
+   </div>
+   <div class="col">
+    <div class="card">
+     <h3>Measure it, then check</h3>
+     <p class="note" id="mHint">Pause the wave. Drag the ruler so 0 sits under one crest, read the next crest. That distance is the wavelength λ.</p>
+     <div class="ans"><label for="mIn" class="note" id="mLab">My λ =</label><input id="mIn" inputmode="decimal" autocomplete="off" placeholder="e.g. 4.0"><span class="note" id="mUnit">m</span><button class="btn primary small" id="mCheck" type="button">Check &amp; record</button></div>
+     <p class="status" id="mRes" hidden></p>
+    </div>
+    <div class="card" id="valsCard" hidden>
+     <dl class="readouts">
+      <div><dt>Wave speed v</dt><dd id="rv"></dd></div>
+      <div><dt id="rlamK">Wavelength λ</dt><dd id="rlam"></dd></div>
+      <div><dt id="rperK">Period T = 1 / f</dt><dd id="rper"></dd></div>
+      <div><dt>v = f × λ</dt><dd id="rfl"></dd></div>
+     </dl>
+    </div>
+    <div class="tablewrap"><table><thead><tr><th>#</th><th>Mode</th><th>f or width</th><th>Tension</th><th>Measured</th><th>Speed</th></tr></thead><tbody id="mBody"><tr class="empty"><td colspan="6">Your checked measurements appear here.</td></tr></tbody></table></div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ================= TAB 2: PULSE RACE ================= -->
+ <section class="bench" id="p-race" hidden>
+  <div class="benchhead"><h2>Pulse race: which pulse reaches the end first?</h2><span class="note">Both strings are 8.0 m long. The stopwatches stop by themselves.</span></div>
+  <canvas class="stage" id="c2" aria-label="Two strings with pulses racing to the end"></canvas>
+  <div class="grid2">
+   <div class="col">
+    <div class="seg" role="group" aria-label="What to send"><button type="button" data-rmode="pulse" aria-pressed="true">Single pulse</button><button type="button" data-rmode="osc" aria-pressed="false">Continuous wave</button></div>
+    <div class="lane-a col">
+     <div class="field"><div class="field-head"><label for="rAa">String A · amplitude</label><output id="orAa"></output></div><input id="rAa" type="range" min="10" max="40" step="5" value="20"></div>
+     <div class="field"><div class="field-head"><label for="rAw" id="rAwL">String A · pulse width</label><output id="orAw"></output></div><input id="rAw" type="range" min="0.25" max="1" step="0.25" value="0.5"></div>
+    </div>
+    <div class="lane-b col">
+     <div class="field"><div class="field-head"><label for="rBa">String B · amplitude</label><output id="orBa"></output></div><input id="rBa" type="range" min="10" max="40" step="5" value="20"></div>
+     <div class="field"><div class="field-head"><label for="rBw" id="rBwL">String B · pulse width</label><output id="orBw"></output></div><input id="rBw" type="range" min="0.25" max="1" step="0.25" value="0.5"></div>
+    </div>
+    <div class="checks"><label><input type="checkbox" id="rSame" checked> Same string, same tension</label></div>
+    <div class="field"><div class="field-head"><label for="rTa" id="rTaL">Tension (both strings)</label><output id="orTa"></output></div><input id="rTa" type="range" min="0" max="4" step="1" value="2"></div>
+    <div class="field lane-b" id="rTbF" hidden><div class="field-head"><label for="rTb">String B · tension</label><output id="orTb"></output></div><input id="rTb" type="range" min="0" max="4" step="1" value="2"></div>
+    <div class="transport"><span class="note">Try:</span><button class="btn small" type="button" data-x="big">A twice as big</button><button class="btn small" type="button" data-x="quick">A quicker flick</button><button class="btn small" type="button" data-x="tight">A tighter</button><button class="btn small" type="button" data-x="fast">A shakes 2× faster</button></div>
+   </div>
+   <div class="col">
+    <div><p class="flabel" style="margin:0 0 6px">1 · Predict first</p><div class="pred" id="pred"><button type="button" data-p="A">A arrives first</button><button type="button" data-p="B">B arrives first</button><button type="button" data-p="S">Same time</button></div></div>
+    <div class="transport"><button class="btn primary" id="rGo" type="button">2 · Send both</button><button class="btn" id="rReset" type="button">Reset</button><div class="seg" role="group" aria-label="Speed of time"><button type="button" data-rspeed="1" aria-pressed="true">Normal</button><button type="button" data-rspeed="0.35" aria-pressed="false">Slow</button></div></div>
+    <p class="status" id="rMsg">Choose a prediction, then send both.</p>
+   </div>
+  </div>
+  <div class="benchhead"><h3>3 · Results</h3><button class="btn small" id="rClr" type="button">Clear table</button></div>
+  <div class="tablewrap"><table><thead><tr><th>Run</th><th>String</th><th>Amplitude</th><th id="rColW">Width / f</th><th>Tension</th><th>Time to the end</th><th>v = 8.0 m ÷ t</th></tr></thead><tbody id="rBody"><tr class="empty"><td colspan="7">Send the pulses to fill the table.</td></tr></tbody></table></div>
+ </section>
+
+ <!-- ================= TAB 3: SOUND ================= -->
+ <section class="bench" id="p-sound" hidden>
+  <div class="benchhead"><h2>Sound: same idea, in air</h2><span class="note mono" id="slowNote"></span></div>
+  <canvas class="stage" id="c3" aria-label="Air particles in front of a speaker, with a pressure graph"></canvas>
+  <div class="transport">
+   <button class="btn primary" id="tone" type="button">▶ Play tone</button>
+   <div class="seg" role="group" aria-label="Show"><button type="button" data-sv="particles" aria-pressed="false">Particles</button><button type="button" data-sv="both" aria-pressed="true">Particles + graph</button></div>
+   <label class="checks"><label><input type="checkbox" id="sLam" checked> Mark λ</label></label>
+  </div>
+  <div class="grid2">
+   <div class="col">
+    <div class="field"><div class="field-head"><label for="sf">Frequency (pitch)</label><output id="osf"></output></div><div class="srow"><button class="nudge" type="button" data-n="sf,-1">−</button><input id="sf" type="range" min="170" max="1020" step="10" value="340"><button class="nudge" type="button" data-n="sf,1">+</button></div></div>
+    <div class="field"><span class="flabel">Medium</span><div class="seg" role="group" aria-label="Medium"><button type="button" data-med="340" aria-pressed="true">Air · 340 m/s</button><button type="button" data-med="1480" aria-pressed="false">Water · 1480 m/s</button></div></div>
+    <p class="note">Turn the volume down before you press Play tone. The tone stops when you leave this tab.</p>
+   </div>
+   <div class="col">
+    <div class="formula"><span class="eq">v = f λ</span><span class="live" id="sLive"></span></div>
+    <ol class="steps">
+     <li>Play 200 Hz, then 400 Hz. Which sounds higher?</li>
+     <li>Does the higher note travel faster, or are its waves shorter?</li>
+     <li>Switch to water. What changes: f, λ or v?</li>
+    </ol>
+   </div>
+  </div>
+ </section>
+
+ <!-- ================= TAB 4: CHALLENGE ================= -->
+ <section class="bench" id="p-chal" hidden>
+  <div class="benchhead"><h2>Challenge</h2><span class="note" id="score">Score 0 / 0</span></div>
+  <p class="note" id="ctype"></p>
+  <p class="q" id="cq"></p>
+  <div class="ans" id="numBox"><label for="cin" class="note">Your answer</label><input id="cin" inputmode="decimal" autocomplete="off"><span id="cunit" class="note"></span>
+   <button class="btn primary" id="cCheck" type="button">Check</button><button class="btn" id="cShow" type="button">Show working</button></div>
+  <div class="opts" id="optBox" hidden></div>
+  <p class="status" id="cres" hidden></p>
+  <pre class="sol" id="csol" hidden></pre>
+  <div class="transport"><button class="btn" id="cNext" type="button">Next question</button></div>
+ </section>
+
+ <footer>Designed and built by Mr Khaled for his physics and chemistry students · Values follow Inspire Physics Module 14 (v = λ f, T = 1 / f). String model: 8.0 m long, μ = 2.5 kg/m, v = √(T / μ). Measuring tools inspired by PhET's Wave on a String and Waves Intro (University of Colorado Boulder).</footer>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fx=(x,d=2)=>Number(x).toFixed(d);
+const TAU=Math.PI*2, MU=2.5, LEN=8;
+const TENS=[10,22.5,40,62.5,90];           // N  → v = 2, 3, 4, 5, 6 m/s
+const speedOf=T=>Math.sqrt(T/MU);
+const tLabel=i=>`${TENS[i]} N`;
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode'};
+try{const t=localStorage.getItem('wsl-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+themeLabel();
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('wsl-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='lab';
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
+ ['lab','race','sound','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if(tab!=='sound')stopTone();sizeAll()});
+$('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');$$('.bench').forEach(x=>x.classList.remove('fs'));
+ if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
+ $('#fsBtn').textContent=on?'Exit full screen':'Full screen';sizeAll()};
+const exitFs=()=>{$$('.bench').forEach(x=>x.classList.remove('fs'));$('#fsBtn').textContent='Full screen';sizeAll()};
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)exitFs()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')exitFs()});
+// nudge buttons
+$$('[data-n]').forEach(b=>b.onclick=()=>{const [id,d]=b.dataset.n.split(',');const el=$('#'+id);const st=+el.step;el.value=Math.min(+el.max,Math.max(+el.min,+el.value+d*st));el.dispatchEvent(new Event('input'))});
+
+/* ---------- canvas helper ---------- */
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function rr(x,a,b,w,h,r){x.beginPath();x.roundRect?x.roundRect(a,b,w,h,r):x.rect(a,b,w,h)}
+function arrowH(x,x1,y1,x2,y2,col,w=2.5){x.strokeStyle=col;x.fillStyle=col;x.lineWidth=w;x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.stroke();
+ const a=Math.atan2(y2-y1,x2-x1),h=10;for(const [px,py,aa] of [[x2,y2,a],[x1,y1,a+Math.PI]]){x.beginPath();x.moveTo(px,py);x.lineTo(px-h*Math.cos(aa-.45),py-h*Math.sin(aa-.45));x.lineTo(px-h*Math.cos(aa+.45),py-h*Math.sin(aa+.45));x.closePath();x.fill()}}
+
+/* ---------- string engine (exact travelling waves: courant number 1) ---------- */
+class Str{
+ constructor(n=160){this.n=n;this.y=new Float64Array(n+1);this.p=new Float64Array(n+1);this.q=new Float64Array(n+1);this.ti=2;this.end='none';this.mode='osc';
+  this.amp=.2;this.f=1;this.pw=.5;this.damp=0;this.t=0;this.acc=0;this.pulseAt=null;this.hand=0;this.handT=0;this.steps=0;this.arrived=null;this.watch=null}
+ get v(){return speedOf(TENS[this.ti])} get dt(){return LEN/this.n/this.v}
+ reset(){this.y.fill(0);this.p.fill(0);this.t=0;this.acc=0;this.pulseAt=null;this.steps=0;this.arrived=null;this.hand=0;this.handT=0}
+ drive(t){if(this.mode==='osc')return this.amp*Math.sin(TAU*this.f*t);
+  if(this.mode==='pulse'){if(this.pulseAt===null)return 0;const s=t-this.pulseAt;return s>=0&&s<=this.pw?this.amp*Math.sin(Math.PI*s/this.pw):0}
+  this.hand+= (this.handT-this.hand)*.35;return this.hand}
+ step(){const n=this.n,y=this.y,p=this.p,q=this.q,dt=this.dt,b=this.damp*1.2*dt/2;this.t+=dt;this.steps++;
+  q[0]=this.drive(this.t);for(let i=1;i<n;i++)q[i]=(y[i+1]+y[i-1]-(1-b)*p[i])/(1+b);
+  q[n]=this.end==='fixed'?0:this.end==='loose'?q[n-1]:y[n-1];
+  this.p=y;this.y=q;this.q=p;
+  if(this.arrived===null&&this.pulseAt!==null&&Math.abs(this.y[n-1])>1e-7)this.arrived=this.t-this.pulseAt}
+ advance(sec){this.acc+=sec;let k=0;const dt=this.dt;while(this.acc>=dt&&k<600){this.step();this.acc-=dt;k++}if(k>=600)this.acc=0}
+ at(i){const f=Math.min(1,this.acc/this.dt);return this.p[i]+(this.y[i]-this.p[i])*f}
+ pulse(){this.pulseAt=this.t+this.dt;this.arrived=null}
+}
+
+/* ================= TAB 1 ================= */
+const S=new Str();S.end='none';
+const L1={run:true,speed:1,ruler:{x:0,y:0},vr:{x:.8,y:0},ref:null,watch:56,hist:[],sw:{on:false,t:0,auto:true}};
+const c1=$('#c1'),g1=$('#g1');
+let geo1=null;
+function geo(w,h){const left=w<600?44:70,right=w<600?30:56;const px=(w-left-right)/LEN;const mid=h*0.5;const ys=Math.min(2.6,(h*0.36)/40,Math.max(px/50,1));return {left,right,px,mid,ys,w,h}}
+function readLab(){
+ S.amp=+$('#amp1').value/100;S.f=+$('#f1').value;S.pw=+$('#pw1').value;S.ti=+$('#ten1').value;S.damp=+$('#damp1').value/100;
+ $('#oamp1').textContent=$('#amp1').value+' cm';$('#of1').textContent=fx(S.f)+' Hz';$('#opw1').textContent=fx(S.pw)+' s';
+ $('#oten1').textContent=tLabel(S.ti);$('#odamp1').textContent=$('#damp1').value+'%';
+ const v=S.v,lam=v/S.f;
+ $('#rv').textContent=fx(v,1)+' m/s';
+ if(S.mode==='pulse'){$('#rlamK').textContent='Pulse length';$('#rlam').textContent=fx(v*S.pw)+' m';$('#rperK').textContent='Time to cross 8.0 m';$('#rper').textContent=fx(LEN/v)+' s';$('#rfl').textContent='—'}
+ else{$('#rlamK').textContent='Wavelength λ';$('#rlam').textContent=fx(lam)+' m';$('#rperK').textContent='Period T = 1 / f';$('#rper').textContent=fx(1/S.f)+' s';$('#rfl').textContent=`${fx(S.f)} × ${fx(lam)} = ${fx(v,1)} m/s`}
+ const pm=S.mode==='pulse';
+ $('#mHint').textContent=pm?'Turn on the stopwatch. Start it as you send a pulse and stop it when the pulse reaches the end of the 8.0 m string (or read the time when it reaches 8 m on the ruler).':
+  S.mode==='osc'?'Pause the wave. Drag the ruler so 0 sits under one crest, then read the next crest. That distance is the wavelength λ.':'Drag the left end up and down to make your own waves. Switch to Oscillate or Pulse to measure.';
+ $('#mLab').textContent=pm?'My time =':'My λ =';$('#mUnit').textContent=pm?'s':'m';$('#mIn').placeholder=pm?'e.g. 2.1':'e.g. 4.0';
+ $('#mCheck').disabled=S.mode==='manual';
+}
+['amp1','f1','pw1','ten1','damp1'].forEach(id=>$('#'+id).addEventListener('input',readLab));
+$$('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;$$('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+ $('#fFreq').hidden=S.mode!=='osc';$('#fPw').hidden=S.mode!=='pulse';$('#fAmp').hidden=S.mode==='manual';$('#pulse1').hidden=S.mode!=='pulse';
+ S.reset();L1.hist=[];if(S.mode==='pulse'&&!$('#tWatch').checked){$('#tWatch').checked=true;$('#sw1').hidden=false}readLab()});
+$$('[data-end]').forEach(b=>b.onclick=()=>{S.end=b.dataset.end;$$('[data-end]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+$$('[data-speed]').forEach(b=>b.onclick=()=>{L1.speed=+b.dataset.speed;$$('[data-speed]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+$('#play1').onclick=()=>{L1.run=!L1.run;$('#play1').textContent=L1.run?'Pause':'Play'};
+$('#step1').onclick=()=>{L1.run=false;$('#play1').textContent='Play';adv1(1/30)};
+$('#restart1').onclick=()=>{S.reset();L1.hist=[]};
+$('#pulse1').onclick=()=>{S.pulse();if(L1.sw.auto&&$('#tWatch').checked&&!L1.sw.on){L1.sw.t=0;L1.sw.on=true;$('#sw1go').textContent='Stop'}};
+$('#tWatch').onchange=()=>{$('#sw1').hidden=!$('#tWatch').checked};
+$('#tGraph').onchange=()=>{$('#g1').hidden=!$('#tGraph').checked;sizeAll()};
+$('#tVals').onchange=()=>{$('#valsCard').hidden=!$('#tVals').checked};
+$('#tRef').onchange=()=>{if($('#tRef').checked&&L1.ref===null)L1.ref=-0.2};
+$('#sw1go').onclick=()=>{L1.sw.on=!L1.sw.on;$('#sw1go').textContent=L1.sw.on?'Stop':'Start'};
+$('#sw1r').onclick=()=>{L1.sw.on=false;L1.sw.t=0;$('#sw1go').textContent='Start';$('#sw1t').textContent='0.00 s'};
+function adv1(sec){S.advance(sec);if(L1.sw.on)L1.sw.t+=sec;
+ L1.hist.push([S.t,S.y[L1.watch]]);const cut=S.t-6;while(L1.hist.length&&L1.hist[0][0]<cut)L1.hist.shift()}
+let mRows=0;
+$('#mCheck').onclick=()=>{const v=parseFloat($('#mIn').value.replace(',','.'));const r=$('#mRes');r.hidden=false;
+ if(isNaN(v)){r.className='status';r.textContent='Type your measurement first.';return}
+ const pm=S.mode==='pulse';const truth=pm?LEN/S.v:S.v/S.f;const tol=pm?Math.max(.12,truth*.06):Math.max(.1,truth*.06);const ok=Math.abs(v-truth)<=tol;
+ r.className='status '+(ok?'ok':'bad');
+ r.textContent=ok?(pm?`Good timing! The pulse takes ${fx(truth)} s, so v = 8.0 m ÷ ${fx(truth)} s = ${fx(S.v,1)} m/s.`:`Good measuring! λ = ${fx(truth)} m, so f × λ = ${fx(S.f)} × ${fx(truth)} = ${fx(S.v,1)} m/s.`):
+  (pm?'Not quite. Start the stopwatch exactly as you press Send pulse, and stop it when the front of the pulse reaches 8 m. Slow motion helps.':'Not quite. Measure from one crest to the NEXT crest (or trough to trough). Pause first, and try Slow motion.');
+ if(!ok)return;
+ if(mRows===0)$('#mBody').innerHTML='';mRows++;
+ $('#mBody').insertAdjacentHTML('afterbegin',`<tr><td>${mRows}</td><td style="font-family:var(--body)">${pm?'Pulse':'Oscillate'}</td><td>${pm?fx(S.pw)+' s':fx(S.f)+' Hz'}</td><td>${tLabel(S.ti)}</td><td>${pm?'t = '+fx(v)+' s':'λ = '+fx(v)+' m'}</td><td class="hl">${pm?fx(LEN/v,1):fx(S.f*v,1)} m/s</td></tr>`)};
+$('#mIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('#mCheck').click()});
+
+// pointer interaction on the stage
+let drag=null;
+function hit1(px,py){const G=geo1;if(!G)return null;
+ if($('#tVRuler').checked){const x0=G.left+L1.vr.x*G.px-46,yc=G.mid-L1.vr.y*100*G.ys;if(px>x0&&px<x0+40&&py>yc-50*G.ys-14&&py<yc+50*G.ys+14)return 'vr'}
+ if($('#tRuler').checked){const x0=G.left+L1.ruler.x*G.px,y0=G.mid+L1.ruler.y;const ry=rulerY(G);if(px>x0-14&&px<x0+LEN*G.px+14&&py>ry&&py<ry+40)return 'ruler'}
+ if($('#tRef').checked&&L1.ref!==null){const yy=G.mid-L1.ref*100*G.ys;if(Math.abs(py-yy)<9)return 'ref'}
+ if(S.mode==='manual'&&Math.abs(px-G.left)<40)return 'hand';
+ for(let i=0;i<=S.n;i+=2){const bx=G.left+i/S.n*LEN*G.px,by=G.mid-S.at(i)*100*G.ys;if(Math.hypot(px-bx,py-by)<9)return 'bead:'+i}
+ return null}
+function rulerY(G){return G.mid+L1.ruler.y+ (G.h*0.5-58)}
+c1.addEventListener('pointerdown',e=>{const r=c1.getBoundingClientRect();const px=e.clientX-r.left,py=e.clientY-r.top;const h=hit1(px,py);if(!h)return;
+ if(h.startsWith('bead:')){L1.watch=+h.slice(5);L1.hist=[];return}
+ drag={k:h,sx:px,sy:py,rx:L1.ruler.x,ry:L1.ruler.y,vx:L1.vr.x,vy:L1.vr.y,ref:L1.ref};c1.setPointerCapture(e.pointerId);e.preventDefault()});
+c1.addEventListener('pointermove',e=>{const r=c1.getBoundingClientRect();const px=e.clientX-r.left,py=e.clientY-r.top;const G=geo1;
+ if(!drag){const h=hit1(px,py);c1.style.cursor=h?(h.startsWith('bead')?'pointer':h==='ref'||h==='hand'?'ns-resize':'grab'):'default';return}
+ const dx=(px-drag.sx)/G.px,dy=py-drag.sy;
+ if(drag.k==='ruler'){L1.ruler.x=Math.max(-.5,Math.min(LEN-1,drag.rx+dx));L1.ruler.y=Math.max(-G.h*0.5+50,Math.min(10,drag.ry+dy))}
+ else if(drag.k==='vr'){L1.vr.x=Math.max(-.3,Math.min(LEN,drag.vx+dx));L1.vr.y=Math.max(-.5,Math.min(.5,drag.vy-dy/(100*G.ys)))}
+ else if(drag.k==='ref'){L1.ref=Math.max(-.6,Math.min(.6,drag.ref-dy/(100*G.ys)))}
+ else if(drag.k==='hand'){S.handT=Math.max(-.4,Math.min(.4,(G.mid-py)/(100*G.ys)))}});
+const endDrag=()=>{drag=null};c1.addEventListener('pointerup',endDrag);c1.addEventListener('pointercancel',endDrag);
+c1.addEventListener('keydown',e=>{if(S.mode==='manual'&&(e.key==='ArrowUp'||e.key==='ArrowDown')){S.handT=Math.max(-.4,Math.min(.4,S.handT+(e.key==='ArrowUp'?.05:-.05)));e.preventDefault()}});
+
+function drawRuler(x,G,x0,y0,len,unit){ // horizontal ruler in metres
+ const w=len*G.px;x.fillStyle=css('--brass');x.strokeStyle=css('--brass-edge');x.lineWidth=1.5;rr(x,x0-10,y0,w+20,36,5);x.fill();x.stroke();
+ x.fillStyle=css('--brass-ink');x.strokeStyle=css('--brass-ink');x.font=`600 11px ${css('--data')}`;x.textAlign='center';x.textBaseline='top';
+ for(let k=0;k<=len*10;k++){const xx=x0+k/10*G.px;const big=k%10===0,mid=k%5===0;x.lineWidth=big?1.6:1;x.beginPath();x.moveTo(xx,y0);x.lineTo(xx,y0+(big?14:mid?10:6));x.stroke();
+  if(big)x.fillText(k/10+(k===0?' m':''),xx,y0+17)}}
+function drawLab(){
+ const {x,w,h}=fit(c1);const G=geo1=geo(w,h);const ink=css('--ink'),mut=css('--muted'),acc=css('--accent'),rose=css('--rose'),grid=css('--grid'),steel=css('--steel'),stage=css('--stage'),amber=css('--amber');
+ x.clearRect(0,0,w,h);
+ // equilibrium line
+ x.setLineDash([5,6]);x.strokeStyle=mut;x.lineWidth=1;x.beginPath();x.moveTo(G.left,G.mid);x.lineTo(G.left+LEN*G.px,G.mid);x.stroke();x.setLineDash([]);
+ // right end
+ const xe=G.left+LEN*G.px, ye=G.mid-S.at(S.n)*100*G.ys;
+ if(S.end==='fixed'){x.fillStyle=steel;rr(x,xe-4,G.mid-60,14,120,4);x.fill();x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.fillText('clamp',xe+3,G.mid+78)}
+ else if(S.end==='loose'){x.strokeStyle=steel;x.lineWidth=5;x.beginPath();x.moveTo(xe+6,G.mid-90);x.lineTo(xe+6,G.mid+90);x.stroke();x.strokeStyle=ink;x.lineWidth=3;x.beginPath();x.arc(xe+6,ye,7,0,TAU);x.stroke();x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.fillText('ring on a pole',xe+6,G.mid+104)}
+ else{const gr=x.createLinearGradient(xe-6,0,xe+50,0);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,stage);x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.fillText('no end',xe+24,G.mid+78);
+  x.strokeStyle=acc;x.globalAlpha=.35;x.lineWidth=4;x.beginPath();x.moveTo(xe,ye);x.lineTo(xe+40,ye);x.stroke();x.globalAlpha=1}
+ // driver
+ const y0=G.mid-S.at(0)*100*G.ys;
+ if(S.mode==='osc'){const cx=G.left-36,cy=G.mid+80,R=22;x.fillStyle=grid;x.strokeStyle=steel;x.lineWidth=2;x.beginPath();x.arc(cx,cy,R,0,TAU);x.fill();x.stroke();
+  const ang=TAU*S.f*S.t;x.fillStyle=ink;x.beginPath();x.arc(cx+R*.6*Math.cos(ang),cy-R*.6*Math.sin(ang),4,0,TAU);x.fill();
+  x.strokeStyle=steel;x.lineWidth=5;x.beginPath();x.moveTo(G.left,y0);x.lineTo(G.left,cy-R);x.stroke();
+  x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.fillText('oscillator',cx,cy+R+16)}
+ else if(S.mode==='pulse'){x.fillStyle=grid;x.strokeStyle=steel;x.lineWidth=2;rr(x,G.left-56,G.mid+58,46,36,6);x.fill();x.stroke();x.fillStyle=rose;x.beginPath();x.arc(G.left-33,G.mid+76,9,0,TAU);x.fill();
+  x.strokeStyle=steel;x.lineWidth=5;x.beginPath();x.moveTo(G.left,y0);x.lineTo(G.left,G.mid+58);x.stroke();x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.fillText('pulser',G.left-33,G.mid+110)}
+ else{x.strokeStyle=steel;x.lineWidth=4;x.beginPath();x.moveTo(G.left-18,G.mid-110);x.lineTo(G.left-18,G.mid+110);x.stroke();
+  x.fillStyle=amber;x.strokeStyle=ink;x.lineWidth=2;rr(x,G.left-34,y0-14,32,28,6);x.fill();x.stroke();x.fillStyle=ink;x.font=`700 16px ${css('--body')}`;x.textAlign='center';x.fillText('⇕',G.left-18,y0+6);
+  x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.fillText('drag me',G.left-18,G.mid+128)}
+ // string + beads
+ x.strokeStyle=acc;x.lineWidth=2.5;x.beginPath();for(let i=0;i<=S.n;i++){const bx=G.left+i/S.n*LEN*G.px,by=G.mid-S.at(i)*100*G.ys;i?x.lineTo(bx,by):x.moveTo(bx,by)}x.stroke();
+ for(let i=0;i<=S.n;i+=2){const bx=G.left+i/S.n*LEN*G.px,by=G.mid-S.at(i)*100*G.ys;const tag=i%20===0;
+  x.fillStyle=tag?amber:acc;x.beginPath();x.arc(bx,by,tag?5.5:4.2,0,TAU);x.fill();x.strokeStyle=stage;x.lineWidth=1.2;x.stroke()}
+ const wx=G.left+L1.watch/S.n*LEN*G.px,wy=G.mid-S.at(L1.watch)*100*G.ys;
+ x.strokeStyle=rose;x.setLineDash([3,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(wx,G.mid-0.42*100*G.ys);x.lineTo(wx,G.mid+0.42*100*G.ys);x.stroke();x.setLineDash([]);
+ x.fillStyle=rose;x.beginPath();x.arc(wx,wy,8,0,TAU);x.fill();x.strokeStyle=stage;x.lineWidth=2;x.stroke();
+ // reference line
+ if($('#tRef').checked&&L1.ref!==null){const yy=G.mid-L1.ref*100*G.ys;x.strokeStyle=rose;x.lineWidth=2;x.setLineDash([8,6]);x.beginPath();x.moveTo(G.left-50,yy);x.lineTo(w-8,yy);x.stroke();x.setLineDash([]);
+  x.fillStyle=rose;rr(x,w-60,yy-10,52,20,10);x.fill();x.fillStyle=css('--rose-ink');x.font=`700 11px ${css('--body')}`;x.textAlign='center';x.textBaseline='middle';x.fillText('drag',w-34,yy);x.textBaseline='alphabetic'}
+ // rulers
+ if($('#tRuler').checked){drawRuler(x,G,G.left+L1.ruler.x*G.px,rulerY(G),LEN,'m')}
+ if($('#tVRuler').checked){const x0=G.left+L1.vr.x*G.px-46,yc=G.mid-L1.vr.y*100*G.ys,half=50*G.ys;x.fillStyle=css('--brass');x.strokeStyle=css('--brass-edge');x.lineWidth=1.5;rr(x,x0,yc-half-10,40,2*half+20,5);x.fill();x.stroke();
+  x.strokeStyle=css('--brass-ink');x.fillStyle=css('--brass-ink');x.font=`600 10px ${css('--data')}`;x.textAlign='left';x.textBaseline='middle';
+  for(let k=-50;k<=50;k+=5){const yy=yc-k*G.ys;const big=k%10===0;x.lineWidth=big?1.5:1;x.beginPath();x.moveTo(x0+40,yy);x.lineTo(x0+40-(big?12:7),yy);x.stroke();if(big&&k%20===0)x.fillText(String(k),x0+3,yy)}
+  x.fillText('cm',x0+3,yc-half-3);x.textBaseline='alphabetic'}
+ // values overlay
+ if(!L1.run){x.fillStyle=mut;x.font=`700 12px ${css('--data')}`;x.textAlign='left';x.fillText('PAUSED',12,20)}
+ if(L1.speed<1){x.fillStyle=mut;x.font=`700 12px ${css('--data')}`;x.textAlign='left';x.fillText('SLOW MOTION ×¼',12,L1.run?20:36)}
+ $('#sw1t').textContent=fx(L1.sw.t)+' s';
+ if(!$('#g1').hidden)drawGraph();
+}
+function drawGraph(){const {x,w,h}=fit(g1);const ink=css('--ink'),mut=css('--muted'),grid=css('--grid'),rose=css('--rose');x.clearRect(0,0,w,h);
+ const l=54,r=12,t=12,b=26,W=w-l-r,H=h-t-b,mid=t+H/2,span=6,ys=H/2/0.45;
+ x.strokeStyle=grid;x.lineWidth=1;for(let k=0;k<=12;k++){const xx=l+k/12*W;x.beginPath();x.moveTo(xx,t);x.lineTo(xx,t+H);x.stroke()}
+ x.strokeStyle=mut;x.beginPath();x.moveTo(l,mid);x.lineTo(l+W,mid);x.stroke();
+ x.fillStyle=mut;x.font=`500 11px ${css('--data')}`;x.textAlign='center';const tn=S.t;
+ for(let k=0;k<=6;k++){x.fillText((-6+k)+' s',l+k/6*W,h-8)}
+ x.textAlign='right';x.fillText('+40 cm',l-6,mid-0.4*ys+4);x.fillText('0',l-6,mid+4);x.fillText('−40 cm',l-6,mid+0.4*ys+4);
+ x.strokeStyle=rose;x.lineWidth=2.2;x.beginPath();let first=true;for(const [tt,yy] of L1.hist){const xx=l+(tt-(tn-span))/span*W;if(xx<l)continue;const py=mid-yy*ys;first?x.moveTo(xx,py):x.lineTo(xx,py);first=false}x.stroke();
+ x.fillStyle=ink;x.font=`700 12px ${css('--body')}`;x.textAlign='left';x.fillText('Watched bead: height against time (click any bead to watch it)',l+6,t+12)}
+
+/* ================= TAB 2: RACE ================= */
+const RA=new Str(),RB=new Str();RA.end=RB.end='none';RA.mode=RB.mode='pulse';
+const R={mode:'pulse',state:'idle',pred:null,run:0,speed:1,res:null};
+const c2=$('#c2');
+function readRace(){
+ const same=$('#rSame').checked;$('#rTbF').hidden=same;$('#rTaL').textContent=same?'Tension (both strings)':'String A · tension';
+ RA.amp=+$('#rAa').value/100;RB.amp=+$('#rBa').value/100;RA.ti=+$('#rTa').value;RB.ti=same?RA.ti:+$('#rTb').value;
+ const pm=R.mode==='pulse';
+ if(pm){RA.pw=+$('#rAw').value;RB.pw=+$('#rBw').value}else{RA.f=+$('#rAw').value;RB.f=+$('#rBw').value}
+ $('#orAa').textContent=$('#rAa').value+' cm';$('#orBa').textContent=$('#rBa').value+' cm';
+ $('#orAw').textContent=pm?fx(RA.pw)+' s':fx(RA.f)+' Hz';$('#orBw').textContent=pm?fx(RB.pw)+' s':fx(RB.f)+' Hz';
+ $('#rAwL').textContent=pm?'String A · pulse width':'String A · frequency';$('#rBwL').textContent=pm?'String B · pulse width':'String B · frequency';
+ $('#orTa').textContent=tLabel(RA.ti);$('#orTb').textContent=tLabel(+$('#rTb').value);$('#rColW').textContent=pm?'Pulse width':'Frequency';
+}
+function setRaceMode(m){R.mode=m;$$('[data-rmode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.rmode===m));
+ for(const id of ['rAw','rBw']){const e=$('#'+id);if(m==='pulse'){e.min=.25;e.max=1;e.step=.25;e.value=.5}else{e.min=.5;e.max=3;e.step=.5;e.value=1}}
+ RA.mode=RB.mode=m==='pulse'?'pulse':'osc';raceReset()}
+$$('[data-rmode]').forEach(b=>b.onclick=()=>setRaceMode(b.dataset.rmode));
+function raceReset(){readRace();RA.reset();RB.reset();R.state='idle';R.res=null;$('#rGo').disabled=false;$('#rMsg').className='status';$('#rMsg').textContent=R.pred?'Ready. Send both!':'Choose a prediction, then send both.'}
+['rAa','rAw','rBa','rBw','rTa','rTb'].forEach(id=>$('#'+id).addEventListener('input',()=>{if(R.state!=='running')raceReset()}));
+$('#rSame').onchange=()=>{if(!$('#rSame').checked)$('#rTb').value=$('#rTa').value;raceReset()};
+$$('#pred button').forEach(b=>b.onclick=()=>{if(R.state==='running')return;R.pred=b.dataset.p;$$('#pred button').forEach(x=>x.setAttribute('aria-pressed',x===b));if(R.state==='done')raceReset();else{$('#rMsg').className='status';$('#rMsg').textContent='Ready. Send both!'}});
+$$('[data-rspeed]').forEach(b=>b.onclick=()=>{R.speed=+b.dataset.rspeed;$$('[data-rspeed]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+$$('[data-x]').forEach(b=>b.onclick=()=>{const k=b.dataset.x;if(k==='fast'){setRaceMode('osc');$('#rAw').value=2;$('#rBw').value=1}else{if(R.mode!=='pulse')setRaceMode('pulse');$('#rAw').value=k==='quick'?.25:.5;$('#rBw').value=.5}
+ $('#rAa').value=k==='big'?40:20;$('#rBa').value=20;$('#rSame').checked=k!=='tight';$('#rTa').value=k==='tight'?4:2;$('#rTb').value=2;
+ R.pred=null;$$('#pred button').forEach(x=>x.setAttribute('aria-pressed','false'));raceReset()});
+$('#rGo').onclick=()=>{if(!R.pred){$('#rMsg').className='status bad';$('#rMsg').textContent='Make a prediction first! Scientists predict before they test.';return}
+ readRace();RA.reset();RB.reset();RA.pulse();RB.pulse();if(R.mode==='osc'){RA.pulseAt=RB.pulseAt=0}R.state='running';$('#rGo').disabled=true;$('#rMsg').className='status';$('#rMsg').textContent='Racing…'};
+$('#rReset').onclick=raceReset;
+$('#rClr').onclick=()=>{R.run=0;$('#rBody').innerHTML='<tr class="empty"><td colspan="7">Send the pulses to fill the table.</td></tr>'};
+function raceFinish(){R.state='done';$('#rGo').disabled=false;const a=RA.arrived,b=RB.arrived;const d=a-b;const out=Math.abs(d)<.02?'S':d<0?'A':'B';const right=out===R.pred;
+ const name={A:'String A arrived first',B:'String B arrived first',S:'Both arrived at the same time'}[out];let why;
+ if(out==='S'){why=RA.amp!==RB.amp?' A bigger amplitude made a TALLER pulse, not a faster one.':(R.mode==='pulse'&&RA.pw!==RB.pw)?' A quicker flick made a SHORTER pulse, not a faster one.':(R.mode==='osc'&&RA.f!==RB.f)?' Shaking faster made SHORTER waves, not faster ones.':' Same string, same speed.'}
+ else why=` The tighter string carries waves faster. The medium sets the speed.`;
+ $('#rMsg').className='status '+(right?'ok':'bad');$('#rMsg').textContent=`${right?'Your prediction was right! ':'Not what you predicted. '}${name} (A ${fx(a)} s, B ${fx(b)} s).${why}`;
+ R.run++;if(R.run===1)$('#rBody').innerHTML='';
+ const row=(n,s,col)=>`<tr><td>${R.run}</td><td style="color:${col};font-weight:700">${n}</td><td>${Math.round(s.amp*100)} cm</td><td>${R.mode==='pulse'?fx(s.pw)+' s':fx(s.f)+' Hz'}</td><td>${tLabel(s.ti)}</td><td>${fx(s.arrived)} s</td><td class="hl">${fx(LEN/s.arrived,1)} m/s</td></tr>`;
+ $('#rBody').insertAdjacentHTML('afterbegin',row('A',RA,css('--accent'))+row('B',RB,css('--amber')))}
+function drawRace(){const {x,w,h}=fit(c2);x.clearRect(0,0,w,h);const ink=css('--ink'),mut=css('--muted'),grid=css('--grid'),stage=css('--stage');
+ const left=70,right=40,px=(w-left-right)/LEN,ys=Math.min(1.9,h*0.16/40);
+ [[RA,css('--accent'),'A',h*0.28],[RB,css('--amber'),'B',h*0.72]].forEach(([s,col,n,mid])=>{
+  x.fillStyle=col;x.font=`800 18px ${css('--display')}`;x.textAlign='left';x.fillText('String '+n,12,mid-h*0.17);
+  x.fillStyle=mut;x.font=`500 12px ${css('--data')}`;x.fillText(`A ${Math.round(s.amp*100)} cm · ${R.mode==='pulse'?'width '+fx(s.pw)+' s':'f '+fx(s.f)+' Hz'} · T ${tLabel(s.ti)}`,110,mid-h*0.17);
+  x.setLineDash([4,6]);x.strokeStyle=mut;x.lineWidth=1;x.beginPath();x.moveTo(left,mid);x.lineTo(left+LEN*px,mid);x.stroke();x.setLineDash([]);
+  for(let m=0;m<=LEN;m++){const xx=left+m*px;x.strokeStyle=mut;x.beginPath();x.moveTo(xx,mid+h*0.15);x.lineTo(xx,mid+h*0.15+6);x.stroke();x.fillStyle=mut;x.font=`500 11px ${css('--data')}`;x.textAlign='center';x.fillText(m+' m',xx,mid+h*0.15+18)}
+  for(let k=0;k<8;k++){x.fillStyle=k%2?ink:grid;x.fillRect(left+LEN*px+2,mid-h*0.13+k*h*0.26/8,10,h*0.26/8)}
+  x.strokeStyle=col;x.lineWidth=3;x.beginPath();for(let i=0;i<=s.n;i++){const bx=left+i/s.n*LEN*px,by=mid-s.at(i)*100*ys;i?x.lineTo(bx,by):x.moveTo(bx,by)}x.stroke();
+  x.fillStyle=ink;x.beginPath();x.arc(left-14,mid-s.at(0)*100*ys,9,0,TAU);x.fill();
+  const t=R.state==='idle'?0:(s.arrived!==null?s.arrived:s.t-(s.pulseAt||0));const done=s.arrived!==null;
+  x.fillStyle=done?col:stage;x.strokeStyle=col;x.lineWidth=2;rr(x,w-right-190,mid-h*0.17-20,180,28,8);x.fill();x.stroke();
+  x.fillStyle=done?stage:ink;x.font=`600 14px ${css('--data')}`;x.textAlign='center';x.fillText(done?`arrived · ${fx(t)} s`:`t = ${fx(Math.max(0,t))} s`,w-right-100,mid-h*0.17-1)})}
+
+/* ================= TAB 3: SOUND ================= */
+const SD={f:340,v:340,t:0,view:'both'};const c3=$('#c3');const SLOW=400;
+function readSound(){SD.f=+$('#sf').value;$('#osf').textContent=SD.f+' Hz';const lam=SD.v/SD.f;
+ $('#sLive').textContent=`${SD.v} m/s = ${SD.f} Hz × ${fx(lam)} m`;$('#slowNote').textContent=`slow motion: 1 s on screen = 1/${SLOW} s real`;if(osc)osc.frequency.setTargetAtTime(SD.f,actx.currentTime,.02)}
+$('#sf').addEventListener('input',readSound);
+$$('[data-med]').forEach(b=>b.onclick=()=>{SD.v=+b.dataset.med;$$('[data-med]').forEach(x=>x.setAttribute('aria-pressed',x===b));readSound()});
+$$('[data-sv]').forEach(b=>b.onclick=()=>{SD.view=b.dataset.sv;$$('[data-sv]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+let actx=null,osc=null,gain=null;
+function stopTone(){if(osc){try{gain.gain.setTargetAtTime(0,actx.currentTime,.03);osc.stop(actx.currentTime+.15)}catch(e){}osc=null;$('#tone').textContent='▶ Play tone'}}
+$('#tone').onclick=()=>{if(osc){stopTone();return}try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();osc=actx.createOscillator();gain=actx.createGain();osc.type='sine';osc.frequency.value=SD.f;gain.gain.value=0;
+ osc.connect(gain).connect(actx.destination);osc.start();gain.gain.setTargetAtTime(.08,actx.currentTime,.03);$('#tone').textContent='■ Stop tone'}catch(e){$('#tone').textContent='Sound not available'}};
+function drawSound(){const {x,w,h}=fit(c3);x.clearRect(0,0,w,h);const ink=css('--ink'),mut=css('--muted'),acc=css('--accent'),rose=css('--rose'),grid=css('--grid'),steel=css('--steel');
+ const span=4,left=80,right=20,px=(w-left-right)/span,lam=SD.v/SD.f,fv=SD.f/SLOW,both=SD.view==='both';
+ const top=18,bot=both?h*0.56:h-40,rows=both?9:13,cols=Math.round(span/0.07);const S0=Math.min(13,lam*px/(TAU)*0.75);
+ const ph=TAU*fv*SD.t;
+ // speaker
+ const cone=S0*Math.sin(ph);x.fillStyle=ink;rr(x,14,top+(bot-top)/2-40,30,80,6);x.fill();x.fillStyle=steel;x.beginPath();x.moveTo(44,top+(bot-top)/2-30);x.lineTo(60+cone,top+4);x.lineTo(60+cone,bot-4);x.lineTo(44,top+(bot-top)/2+30);x.closePath();x.fill();
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const xe=(c+.5+((r*37)%10)/20-.25)*span/cols;const y=top+8+r*(bot-top-16)/(rows-1)+(((c*53+r*17)%7)-3);
+  const xx=left+xe*px+S0*Math.sin(ph-TAU*xe/lam);const watch=r===Math.floor(rows/2)&&c===Math.round(cols*0.3);x.fillStyle=watch?rose:acc;x.globalAlpha=watch?1:.85;x.beginPath();x.arc(xx,y,watch?6.5:3.3,0,TAU);x.fill()}
+ x.globalAlpha=1;
+ // metre scale
+ const sy=both?h-24:h-20;x.strokeStyle=mut;x.lineWidth=1.2;x.beginPath();x.moveTo(left,sy);x.lineTo(left+span*px,sy);x.stroke();
+ x.fillStyle=mut;x.font=`500 11px ${css('--data')}`;x.textAlign='center';for(let k=0;k<=span*2;k++){const xx=left+k/2*px;x.beginPath();x.moveTo(xx,sy-5);x.lineTo(xx,sy+(k%2?3:6));x.stroke();if(k%2===0)x.fillText(k/2+' m',xx,sy+17)}
+ if(both){const gt=bot+34,gh=sy-gt-16,gm=gt+gh/2;x.strokeStyle=grid;x.lineWidth=1;x.beginPath();x.moveTo(left,gm);x.lineTo(left+span*px,gm);x.stroke();
+  x.fillStyle=mut;x.font=`700 11px ${css('--body')}`;x.textAlign='right';x.fillText('pressure',left-8,gm+4);
+  x.strokeStyle=acc;x.lineWidth=2.4;x.beginPath();for(let k=0;k<=400;k++){const xe=k/400*span;const pv=Math.cos(ph-TAU*xe/lam);const yy=gm-pv*gh*0.42;k?x.lineTo(left+xe*px,yy):x.moveTo(left+xe*px,yy)}x.stroke()}
+ if($('#sLam').checked){const base=(fv*SD.t)%1;const xs=[];for(let n=-1;n<20;n++){const xe=lam*(base-n);if(xe>=0&&xe<=span)xs.push(xe)}xs.sort((a,b)=>a-b);
+  if(xs.length>=2){const y=top+2,x1=left+xs[0]*px,x2=left+xs[1]*px;arrowH(x,x1,both?bot+8:bot+10,x2,both?bot+8:bot+10,rose,2.5);x.fillStyle=rose;x.font=`700 13px ${css('--body')}`;x.textAlign='center';x.fillText(`λ = ${fx(lam)} m`,(x1+x2)/2,both?bot+28:bot+30)}
+  else{x.fillStyle=rose;x.font=`700 13px ${css('--body')}`;x.textAlign='left';x.fillText(`λ = ${fx(lam)} m (longer than this view)`,left,bot+12)}}
+}
+
+/* ================= TAB 4: CHALLENGE ================= */
+let score=0,tries=0,C=null,answered=false;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const sig=x=>{const r=Math.abs(x)>=100?x.toFixed(0):Math.abs(x)>=10?x.toFixed(1):x.toFixed(2);return r.replace(/\.?0+$/,'')||'0'};
+const TYPES={
+ c1:()=>({t:'Think',q:'On the same string, you shake your hand twice as fast. What happens to the wavelength?',o:['It doubles','It halves','It stays the same','It becomes zero'],a:1,why:'Same string → same speed. v = f λ, so if f doubles, λ must halve.'}),
+ v:()=>{const f=pick([1.5,2,2.5,4,5]),l=pick([0.4,0.5,0.8,1.2,1.5,2]);return{t:'Calculate',q:`A wave on a rope has a frequency of ${f} Hz and a wavelength of ${l} m. What is its speed?`,unit:'m/s',a:f*l,sol:`v = f λ\n  = (${f} Hz)(${l} m)\n  = ${sig(f*l)} m/s`}},
+ c2:()=>({t:'Think',q:'You send a pulse with twice the amplitude along the same string. Its speed…',o:['doubles','stays the same','halves','depends on the colour of the string'],a:1,why:'Amplitude changes the size and energy of the pulse, not its speed. The string sets the speed.'}),
+ lam:()=>{const f=pick([170,340,425,680,850]);return{t:'Calculate · sound',q:`A speaker plays a ${f} Hz note. Sound travels at 340 m/s in air. What is the wavelength?`,unit:'m',a:340/f,sol:`λ = v / f\n  = (340 m/s) / (${f} Hz)\n  = ${sig(340/f)} m`}},
+ c4:()=>({t:'Think',q:'Which change makes a pulse travel faster along a string?',o:['A quicker flick','A bigger flick','A tighter string','A longer string'],a:2,why:'Only a change in the medium changes the speed. A tighter string carries waves faster.'}),
+ time:()=>{const v=pick([2,3,4,5]),d=pick([6,8,10,12]);return{t:'Calculate · stopwatch',q:`A pulse travels at ${v} m/s along a ${d} m string. How long does it take to reach the end?`,unit:'s',a:d/v,sol:`t = d / v\n  = ${d} m / ${v} m/s\n  = ${sig(d/v)} s`}},
+ c3:()=>({t:'Think',q:'A sound changes from 200 Hz to 400 Hz in the same air. Its speed…',o:['doubles','halves','stays the same','becomes zero'],a:2,why:'All sounds in the same air travel at about 340 m/s. The higher note has a shorter wavelength.'}),
+ two:()=>{const t=pick([2,3,4]),d=pick([6,9,12]),f=pick([1.5,2,3]);const v=d/t;return{t:'Two steps',q:`A wave travels ${d} m along a rope in ${t} s. Its frequency is ${f} Hz. What is its wavelength?`,unit:'m',a:v/f,sol:`Step 1  v = d / t = ${d} m / ${t} s = ${sig(v)} m/s\nStep 2  λ = v / f = ${sig(v)} / ${f} = ${sig(v/f)} m`}},
+ c5:()=>({t:'Think · sound',q:'When sound travels from a speaker to your ear, the air particles…',o:['travel all the way to your ear','vibrate back and forth along the direction of the wave','vibrate up and down, across the wave','do not move at all'],a:1,why:'Sound is longitudinal. The energy travels; each particle only vibrates about its own position.'}),
+ f:()=>{const v=pick([1.2,1.5,2,3]),l=pick([0.4,0.5,0.6,0.75]);return{t:'Calculate · water waves',q:`Water waves travel at ${v} m/s and the crests are ${l} m apart. What is the frequency?`,unit:'Hz',a:v/l,sol:`f = v / λ\n  = (${v} m/s) / (${l} m)\n  = ${sig(v/l)} Hz`}}
+};
+const ORDER=['c1','v','c2','lam','c4','time','c3','two','c5','f'];let qi=0;
+function newQ(){const k=ORDER[qi%ORDER.length];qi++;C=TYPES[k]();answered=false;
+ $('#ctype').textContent=`Question ${qi} · ${C.t}`;$('#cq').textContent=C.q;$('#cres').hidden=true;$('#csol').hidden=true;
+ if(C.o){$('#numBox').hidden=true;$('#optBox').hidden=false;const idx=C.o.map((_,i)=>i).sort(()=>Math.random()-.5);
+  $('#optBox').innerHTML=idx.map((i,j)=>`<button type="button" data-i="${i}">${'ABCD'[j]} · ${C.o[i]}</button>`).join('');
+  $$('#optBox button').forEach(b=>b.onclick=()=>{if(answered)return;answered=true;tries++;const ok=+b.dataset.i===C.a;if(ok)score++;
+   $$('#optBox button').forEach(x=>{if(+x.dataset.i===C.a)x.classList.add('right')});if(!ok)b.classList.add('wrong');
+   const r=$('#cres');r.hidden=false;r.className='status '+(ok?'ok':'bad');r.textContent=(ok?'Correct! ':'Not quite. ')+C.why;$('#score').textContent=`Score ${score} / ${tries}`})}
+ else{$('#numBox').hidden=false;$('#optBox').hidden=true;$('#cunit').textContent=C.unit;$('#cin').value='';$('#csol').textContent=C.sol}}
+$('#cCheck').onclick=()=>{const v=parseFloat($('#cin').value.replace(',','.'));const r=$('#cres');r.hidden=false;if(isNaN(v)){r.className='status';r.textContent='Type a number first.';return}
+ const ok=Math.abs(v-C.a)<=Math.max(.02*Math.abs(C.a),.005);if(!answered){answered=true;tries++;if(ok)score++}
+ r.className='status '+(ok?'ok':'bad');r.textContent=ok?`Correct! ${sig(C.a)} ${C.unit}`:`Not yet. Which formula links the quantities? Rearrange it first. (Your answer: ${v})`;
+ $('#score').textContent=`Score ${score} / ${tries}`;if(ok)$('#csol').hidden=false};
+$('#cShow').onclick=()=>{$('#csol').hidden=false};$('#cNext').onclick=newQ;$('#cin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#cCheck').click()});
+
+/* ---------- loop ---------- */
+function sizeAll(){if(tab==='lab')drawLab();if(tab==='race')drawRace();if(tab==='sound')drawSound()}
+addEventListener('resize',sizeAll);
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+ if(tab==='lab'){if(L1.run)adv1(dt*L1.speed);drawLab()}
+ if(R.state==='running'){const sd=dt*R.speed;RA.advance(sd);RB.advance(sd);if(RA.arrived!==null&&RB.arrived!==null&&Math.min(RA.t-RA.pulseAt,RB.t-RB.pulseAt)>Math.max(RA.arrived,RB.arrived)+.6)raceFinish()}
+ if(tab==='race')drawRace();
+ if(tab==='sound'){SD.t+=dt;drawSound()}
+ requestAnimationFrame(loop)}
+readLab();readRace();readSound();newQ();requestAnimationFrame(loop);
+window.__wsl={S,RA,RB,R,L1,SD};
+})();
+</script>
+</body></html>
