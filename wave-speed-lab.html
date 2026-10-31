@@ -333,7 +333,7 @@ const S=new Str();S.end='none';
 const L1={run:true,speed:1,ruler:{x:0,y:0},vr:{x:.8,y:0},ref:null,watch:56,hist:[],sw:{on:false,t:0,auto:true}};
 const c1=$('#c1'),g1=$('#g1');
 let geo1=null;
-function geo(w,h){const left=w<600?44:70,right=w<600?30:56;const px=(w-left-right)/LEN;const mid=h*0.5;const ys=Math.min(2.6,(h*0.36)/40,Math.max(px/50,1));return {left,right,px,mid,ys,w,h}}
+function geo(w,h){const left=w<600?62:70,right=w<600?40:56;const px=(w-left-right)/LEN;const mid=h*0.5;const ys=Math.min(2.6,(h*0.36)/40,Math.max(px/50,1));return {left,right,px,mid,ys,w,h}}
 function readLab(){
  S.amp=+$('#amp1').value/100;S.f=+$('#f1').value;S.pw=+$('#pw1').value;S.ti=+$('#ten1').value;S.damp=+$('#damp1').value/100;
  $('#oamp1').textContent=$('#amp1').value+' cm';$('#of1').textContent=fx(S.f)+' Hz';$('#opw1').textContent=fx(S.pw)+' s';
@@ -414,17 +414,17 @@ function drawLab(){
  // right end
  const xe=G.left+LEN*G.px, ye=G.mid-S.at(S.n)*100*G.ys;
  if(S.end==='fixed'){x.fillStyle=steel;rr(x,xe-4,G.mid-60,14,120,4);x.fill();x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.fillText('clamp',xe+3,G.mid+78)}
- else if(S.end==='loose'){x.strokeStyle=steel;x.lineWidth=5;x.beginPath();x.moveTo(xe+6,G.mid-90);x.lineTo(xe+6,G.mid+90);x.stroke();x.strokeStyle=ink;x.lineWidth=3;x.beginPath();x.arc(xe+6,ye,7,0,TAU);x.stroke();x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.fillText('ring on a pole',xe+6,G.mid+104)}
- else{const gr=x.createLinearGradient(xe-6,0,xe+50,0);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,stage);x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.fillText('no end',xe+24,G.mid+78);
+ else if(S.end==='loose'){x.strokeStyle=steel;x.lineWidth=5;x.beginPath();x.moveTo(xe+6,G.mid-90);x.lineTo(xe+6,G.mid+90);x.stroke();x.strokeStyle=ink;x.lineWidth=3;x.beginPath();x.arc(xe+6,ye,7,0,TAU);x.stroke();x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.textAlign='right';x.fillText('ring on a pole',w-6,G.mid+104)}
+ else{const gr=x.createLinearGradient(xe-6,0,xe+50,0);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,stage);x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.textAlign='right';x.fillText('no end',w-6,G.mid+78);
   x.strokeStyle=acc;x.globalAlpha=.35;x.lineWidth=4;x.beginPath();x.moveTo(xe,ye);x.lineTo(xe+40,ye);x.stroke();x.globalAlpha=1}
  // driver
  const y0=G.mid-S.at(0)*100*G.ys;
  if(S.mode==='osc'){const cx=G.left-36,cy=G.mid+80,R=22;x.fillStyle=grid;x.strokeStyle=steel;x.lineWidth=2;x.beginPath();x.arc(cx,cy,R,0,TAU);x.fill();x.stroke();
   const ang=TAU*S.f*S.t;x.fillStyle=ink;x.beginPath();x.arc(cx+R*.6*Math.cos(ang),cy-R*.6*Math.sin(ang),4,0,TAU);x.fill();
   x.strokeStyle=steel;x.lineWidth=5;x.beginPath();x.moveTo(G.left,y0);x.lineTo(G.left,cy-R);x.stroke();
-  x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.fillText('oscillator',cx,cy+R+16)}
+  x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='left';x.fillText('oscillator',Math.max(4,cx-30),cy+R+16)}
  else if(S.mode==='pulse'){x.fillStyle=grid;x.strokeStyle=steel;x.lineWidth=2;rr(x,G.left-56,G.mid+58,46,36,6);x.fill();x.stroke();x.fillStyle=rose;x.beginPath();x.arc(G.left-33,G.mid+76,9,0,TAU);x.fill();
-  x.strokeStyle=steel;x.lineWidth=5;x.beginPath();x.moveTo(G.left,y0);x.lineTo(G.left,G.mid+58);x.stroke();x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='center';x.fillText('pulser',G.left-33,G.mid+110)}
+  x.strokeStyle=steel;x.lineWidth=5;x.beginPath();x.moveTo(G.left,y0);x.lineTo(G.left,G.mid+58);x.stroke();x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.textAlign='left';x.fillText('pulser',Math.max(4,G.left-52),G.mid+110)}
  else{x.strokeStyle=steel;x.lineWidth=4;x.beginPath();x.moveTo(G.left-18,G.mid-110);x.lineTo(G.left-18,G.mid+110);x.stroke();
   x.fillStyle=amber;x.strokeStyle=ink;x.lineWidth=2;rr(x,G.left-34,y0-14,32,28,6);x.fill();x.stroke();x.fillStyle=ink;x.font=`700 16px ${css('--body')}`;x.textAlign='center';x.fillText('⇕',G.left-18,y0+6);
   x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.fillText('drag me',G.left-18,G.mid+128)}
