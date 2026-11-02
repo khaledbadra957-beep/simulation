@@ -3,156 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KineticLab Pro - Prediction Mode</title>
+    <title>5 Types of Chemical Reactions</title>
+    <meta name="description" content="Build the reactants atom by atom, predict the products, then watch synthesis, decomposition, combustion, single and double replacement happen.">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
-
-        :root {
-            --bg-color: #0f172a;
-            --panel-bg: rgba(30, 41, 59, 0.85);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent: #38bdf8;
-            --accent-hover: #0ea5e9;
-            --success: #10b981;
-            --warning: #f59e0b;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
-            color: var(--text-main);
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 24px;
-            max-width: 1300px;
-            width: 95%;
-            background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .controls { display: flex; flex-direction: column; gap: 20px; }
-        .dashboard > * { min-width: 0; }
-        @media (max-width: 820px) { .dashboard { grid-template-columns: 1fr; padding: 16px; gap: 16px; width: auto; margin: 12px; } body { align-items: flex-start; } }
-
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin: 0;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        label {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            font-weight: 600;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        select, button {
-            width: 100%;
-            font-family: inherit;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        select:focus { outline: none; border-color: var(--accent); }
-
-        button.primary { background: var(--success); color: #0f172a; font-weight: 700; }
-        button.primary:hover { background: #059669; }
-        button.reset { background: rgba(255, 255, 255, 0.1); }
-        button.reset:hover { background: rgba(255, 255, 255, 0.15); }
-
-        .toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            background: rgba(0,0,0,0.3);
-            padding: 12px;
-            border-radius: 12px;
-        }
-
-        .tool-btn {
-            width: 45px; height: 45px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold; font-size: 14px;
-            color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-            padding: 0; margin: 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        .tool-btn.active {
-            border-color: var(--accent);
-            transform: scale(1.1);
-            box-shadow: 0 0 15px var(--accent);
-        }
-
-        .status-panel {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .equation-display {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 2.2rem; 
-            color: var(--accent);
-            margin-bottom: 12px;
-            font-weight: 700;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-        }
-
-        .feedback {
-            font-size: 1rem;
-            line-height: 1.5;
-            color: var(--text-muted);
-            min-height: 60px;
-        }
-
-        .canvas-container {
-            position: relative;
-            background: #000000;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-            box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
-            cursor: crosshair;
-        }
-        canvas { display: block; max-width: 100%; height: auto; }
+        /* Same look as the rest of the collection: light page, dark "stage" for the atoms. */
+        :root{--bg:#EDF1F0;--surface:#F8FAF9;--stage-ui:#FFFFFF;--ink:#13232B;--muted:#52646C;--line:#C6D2D1;--accent:#0A6A88;--accent-ink:#fff;
+          --text-main:var(--ink);--text-muted:var(--muted);--success:#1E8A55;--warning:#B4580A;
+          --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;--body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;--data:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;color-scheme:light}
+        @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0D161A;--surface:#142127;--stage-ui:#0F1B20;--ink:#E7EFF1;--muted:#94A7AE;--line:#2B3D44;--accent:#56C3DF;--accent-ink:#06222B;--success:#4ACB8A;--warning:#F2B45A;color-scheme:dark}}
+        :root[data-theme="dark"]{--bg:#0D161A;--surface:#142127;--stage-ui:#0F1B20;--ink:#E7EFF1;--muted:#94A7AE;--line:#2B3D44;--accent:#56C3DF;--accent-ink:#06222B;--success:#4ACB8A;--warning:#F2B45A;color-scheme:dark}
+        *{box-sizing:border-box}
+        body{font-family:var(--body);background:var(--bg);color:var(--ink);margin:0;line-height:1.5}
+        .wrap{max-width:1180px;margin-inline:auto;padding:clamp(18px,3.5vw,40px) max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:20px}
+        header.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+        .eyebrow{margin:0;font-family:var(--data);font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+        header.top h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.1rem);line-height:1.02;letter-spacing:-.02em}
+        .lede{margin:0;max-width:62ch;color:var(--muted)}
+        .tools{display:flex;gap:8px;flex-wrap:wrap}
+        .tools .btn{width:auto;border:1.5px solid var(--line);background:var(--stage-ui);color:var(--ink);border-radius:9px;padding:7px 13px;font-weight:700;font-size:.95rem}
+        .dashboard{display:grid;grid-template-columns:330px 1fr;gap:20px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px)}
+        .controls{display:flex;flex-direction:column;gap:18px}
+        .dashboard > *{min-width:0}
+        @media (max-width:820px){.dashboard{grid-template-columns:1fr}}
+        h2.mode{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem}
+        label{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:6px;display:block;font-family:var(--data)}
+        select,button{width:100%;font-family:inherit;background:var(--stage-ui);border:1.5px solid var(--line);color:var(--ink);padding:10px 14px;border-radius:10px;font-size:1rem;cursor:pointer;font-weight:700}
+        select:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+        button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+        button.reset:hover,select:hover{border-color:var(--ink)}
+        .toolbar{display:flex;flex-wrap:wrap;gap:10px;background:var(--stage-ui);border:1.5px solid var(--line);padding:12px;border-radius:12px}
+        .tool-btn{width:44px;height:44px;border-radius:50%;border:2px solid transparent;display:flex;justify-content:center;align-items:center;font-weight:700;font-size:14px;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,.8);padding:0;margin:0;box-shadow:inset -3px -4px 6px rgba(0,0,0,.35),inset 3px 3px 5px rgba(255,255,255,.35)}
+        .tool-btn.active{border-color:var(--ink);transform:scale(1.12);box-shadow:0 0 0 3px var(--accent),inset -3px -4px 6px rgba(0,0,0,.35)}
+        .status-panel{background:var(--stage-ui);border:1.5px solid var(--line);border-radius:12px;padding:16px;text-align:center;margin-bottom:14px}
+        .equation-display{font-family:var(--data);font-size:clamp(1.5rem,3.5vw,2.1rem);color:var(--accent);margin-bottom:8px;font-weight:600}
+        .feedback{font-size:1rem;line-height:1.5;color:var(--muted);min-height:48px}
+        .canvas-container{position:relative;background:#0B1418;border-radius:12px;border:1.5px solid var(--line);overflow:hidden;cursor:crosshair}
+        canvas{display:block;max-width:100%;height:auto}
     </style>
 </head>
 <body>
-
+<div class="wrap">
+<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+<header class="top">
+  <div>
+    <p class="eyebrow">Grade 10 Chemistry · Chemical reactions · Types of reactions</p>
+    <h1>5 Types of Chemical Reactions</h1>
+    <p class="lede">Build the reactants atom by atom, predict the products, then watch synthesis, decomposition, combustion, single and double replacement happen.</p>
+  </div>
+  <div class="tools"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
+</header>
 <div class="dashboard">
     <div class="controls">
-<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
-        <h1>Sandbox Prediction Mode</h1>
+        <h2 class="mode">Prediction mode</h2>
         
         <div>
             <label>1. Select Test Reaction</label>
@@ -188,6 +92,7 @@
             <canvas id="simCanvas" width="850" height="500"></canvas>
         </div>
     </div>
+</div>
 </div>
 
 <script>
@@ -497,6 +402,9 @@ canvas.addEventListener('pointerdown', (e) => {
 });
 
 window.onload = () => simulation.init();
+(function(){const root=document.documentElement,b=document.getElementById('themeBtn');const dk=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+ try{const t=localStorage.getItem('ft-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}const lab=()=>b.textContent=dk()?'Light mode':'Dark mode';lab();
+ b.onclick=()=>{const n=dk()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('ft-theme',n)}catch(e){}lab()}})();
 </script>
 <script src="lab-guide.js" defer></script>
 </body>
