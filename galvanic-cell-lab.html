@@ -66,6 +66,7 @@ canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid v
 :root[data-theme="dark"]{--glass:rgba(110,150,180,.35);--wire:#D98A4E;--elec:#FFD84A}
 .stagewrap{position:relative;min-width:0}
 #cv{aspect-ratio:1000/600;height:auto;max-height:600px}
+#vg{height:170px}
 #zoom{height:clamp(220px,28vw,280px)}
 #axis{height:190px;cursor:pointer}
 .three{width:100%;height:clamp(340px,50vw,540px);background:var(--stage);border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:grab}
@@ -136,7 +137,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .runs span{font-family:var(--data);font-size:.8rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
-</style></head><body>
+</style><script src="lab-viz.js"></script></head><body>
 
 <div class="wrap">
 <style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
@@ -189,6 +190,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
    <div class="seg" role="group" aria-label="Clock speed">
     <button type="button" data-spd="1" aria-pressed="true">1×</button>
     <button type="button" data-spd="5" aria-pressed="false">5×</button>
+    <button type="button" data-spd="20" aria-pressed="false">20× (run it down)</button>
    </div>
   </div>
   <div class="checks">
@@ -203,7 +205,8 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
     <div class="field"><div class="field-head"><label for="sCR" id="lCR">[right ion]</label><output id="oCR"></output></div><input id="sCR" type="range" min="-3" max="0.3" step="0.1" value="0"></div>
     <div class="card"><dl class="readouts">
      <div><dt>E°cell = E°cathode − E°anode</dt><dd id="rE0">–</dd></div>
-     <div><dt>Voltmeter (emf now)</dt><dd id="rE">–</dd></div>
+     <div><dt>emf E (Nernst)</dt><dd id="rE">–</dd></div>
+     <div><dt>Voltmeter reading</dt><dd id="rV">–</dd></div>
      <div><dt>Current I</dt><dd id="rI">–</dd></div>
      <div><dt>Lab clock</dt><dd id="rT">0 h</dd></div>
      <div><dt id="lmA">Anode mass</dt><dd id="rmA">–</dd></div>
@@ -211,6 +214,8 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
     </dl></div>
    </div>
    <div class="col">
+    <div class="formula"><span class="flabel">Nernst equation, live</span><span class="live mono" id="nernst">–</span></div>
+    <canvas class="stage" id="vg" aria-label="Voltage and current against time"></canvas>
     <div class="formula"><span class="flabel">Symbolic representation</span><span class="eq" id="notation">–</span></div>
     <pre class="sol" id="halfEq">–</pre>
     <p class="status" id="cellMsg" aria-live="polite">Close the switch to start the cell.</p>
@@ -336,51 +341,72 @@ $('#mL').value=2;$('#mR').value=6;
 /* =========================================================
    CELL MODEL
    ========================================================= */
-const VOL=0.1,M0=10,F=96485,RINT=3,RES={volt:1e9,bulb:5,motor:8},TS=1500; // TS: lab seconds per real second at 1×
+const VOL=0.1,M0=10,F=96485,RINT=1.5,RES={volt:1e9,bulb:5,motor:8},TS=1500; // TS: lab seconds per real second at 1×
 const cell={L:null,R:null,cL:1,cR:1,closed:false,bridge:true,dev:'bulb',spd:1,xi:0,t:0,I:0,E:0,answered:false,dead:''};
-function setup(){cell.L=M[+$('#mL').value];cell.R=M[+$('#mR').value];cell.xi=0;cell.t=0;cell.dead='';cell.closed=false;$('#swBtn').textContent='Close the switch';
- cell.cL0=Math.pow(10,+$('#sCL').value);cell.cR0=Math.pow(10,+$('#sCR').value);
- const same=cell.L===cell.R;cell.same=same;
- const anL=cell.L.E<cell.R.E;cell.an=anL?'L':'R';cell.A=anL?cell.L:cell.R;cell.K=anL?cell.R:cell.L;
- const n=cell.A.z*cell.K.z/gcd(cell.A.z,cell.K.z);cell.n=n;cell.ca=n/cell.A.z;cell.ck=n/cell.K.z;// ca A + ck K^z+ -> ca A^z+ + ck K
- cell.answered=!$('#cPred').checked||same;
+function setup(){cell.L=M[+$('#mL').value];cell.R=M[+$('#mR').value];cell.t=0;cell.dead='';cell.deadK=false;cell.closed=false;cell.block=0;cell.hist=[];cell.hacc=0;cell.needle=0;$('#swBtn').textContent='Close the switch';
+ cell.c={L:Math.pow(10,+$('#sCL').value),R:Math.pow(10,+$('#sCR').value)};cell.mass={L:M0,R:M0};
+ cell.same=cell.L===cell.R;orient();
+ cell.answered=!$('#cPred').checked||cell.same;
  $('#lCL').textContent=`[${ionOf(cell.L)}] in the left beaker`;$('#lCR').textContent=`[${ionOf(cell.R)}] in the right beaker`;
  initParticles();texts();renderPred();drawAll()}
-function conc(){const cA0=cell.an==='L'?cell.cL0:cell.cR0,cK0=cell.an==='L'?cell.cR0:cell.cL0;
- const cA=cA0+cell.ca*cell.xi/VOL,cK=Math.max(1e-9,cK0-cell.ck*cell.xi/VOL);return cell.an==='L'?{L:cA,R:cK,A:cA,K:cK}:{L:cK,R:cA,A:cA,K:cK}}
-function emf(){if(cell.same){const c=conc();return 0.0592/cell.L.z*Math.log10(Math.max(c.L,c.R)/Math.min(c.L,c.R))}const c=conc();const E0=cell.K.E-cell.A.E;
- const Q=Math.pow(c.A,cell.ca)/Math.pow(c.K,cell.ck);return Math.max(0,E0-0.0592/cell.n*Math.log10(Q))}
-const massA=()=>Math.max(0,M0-cell.ca*cell.xi*cell.A.mm), massK=()=>M0+cell.ck*cell.xi*cell.K.mm;
-function physics(dt){cell.E=emf();const flow=cell.closed&&cell.bridge&&!cell.dead&&!cell.same;cell.I=flow?cell.E/(RES[cell.dev]+RINT):0;
- if(flow&&cell.dev!=='volt'){const lab=dt*TS*cell.spd;cell.t+=lab;cell.xi+=cell.I*lab/(cell.n*F);
-  const xiMaxK=(cell.an==='L'?cell.cR0:cell.cL0)*VOL/cell.ck,xiMaxA=M0/cell.A.mm/cell.ca;
-  if(cell.xi>=Math.min(xiMaxK,xiMaxA)*.999){cell.xi=Math.min(xiMaxK,xiMaxA)*.999;cell.dead=xiMaxK<xiMaxA?`The ${ionOf(cell.K)} ions in the cathode beaker are used up: the cell is dead.`:`The ${cell.A.name} anode has dissolved away: the cell is dead.`}}
- else if(flow)cell.t+=dt*TS*cell.spd}
+function orient(){// which side is the anode? different metals: lower E°; same metal (concentration cell): the more dilute side
+ const anL=cell.same?cell.c.L<cell.c.R:cell.L.E<cell.R.E;const was=cell.an;cell.an=anL?'L':'R';cell.A=anL?cell.L:cell.R;cell.K=anL?cell.R:cell.L;
+ const n=cell.A.z*cell.K.z/gcd(cell.A.z,cell.K.z);cell.n=n;cell.ca=n/cell.A.z;cell.ck=n/cell.K.z;
+ cell.noCell=cell.same&&Math.abs(Math.log10(cell.c.L/cell.c.R))<0.004;if(was&&was!==cell.an&&!cell.noCell)texts()}
+const kSide=()=>cell.an==='L'?'R':'L';
+function conc(){return {L:cell.c.L,R:cell.c.R,A:cell.c[cell.an],K:cell.c[kSide()]}}
+function emf(){if(cell.noCell||cell.deadK)return 0;const c=conc();const E0=cell.same?0:cell.K.E-cell.A.E;
+ const Q=Math.pow(c.A,cell.ca)/Math.pow(Math.max(1e-12,c.K),cell.ck);return Math.max(0,E0-0.0592/cell.n*Math.log10(Q))}
+const massA=()=>Math.max(0,cell.mass[cell.an]), massK=()=>cell.mass[kSide()];
+function physics(dt){cell.E=emf();const can=cell.closed&&!cell.dead&&!cell.noCell;
+ // without the salt bridge charge piles up in each beaker within a moment and stops the current
+ cell.block=!cell.bridge&&can?Math.min(1,cell.block+dt*2.5):Math.max(0,cell.block-dt*3);
+ cell.I=can?cell.E/(RES[cell.dev]+RINT)*(cell.bridge?1:Math.max(0,1-cell.block*1.2)):0;
+ cell.V=cell.bridge&&!cell.noCell?Math.max(0,cell.E-cell.I*RINT):0;// what a voltmeter across the electrodes reads
+ cell.needle+=((cell.dev==='volt'?(cell.closed?cell.V:cell.E):cell.V)-cell.needle)*Math.min(1,dt*6);
+ if(cell.I>1e-9&&cell.dev!=='volt'){let lab=dt*TS*cell.spd,guard=0;const a=cell.an,k=kSide();
+  // small steps near the end so the fall of the voltage is drawn, not skipped
+  while(lab>0&&guard++<400&&!cell.dead){const E=emf(),I=E/(RES[cell.dev]+RINT);if(I<=1e-9)break;
+   const dnMax=Math.max(1e-9,.08*cell.c[k]*VOL/cell.ck),step=Math.min(lab,dnMax*cell.n*F/I),dn=I*step/(cell.n*F);lab-=step;cell.t+=step;
+   cell.c[a]+=cell.ca*dn/VOL;cell.c[k]-=cell.ck*dn/VOL;cell.mass[a]-=cell.ca*dn*cell.A.mm;cell.mass[k]+=cell.ck*dn*cell.K.mm;
+   if(guard>1&&cell.hist.length&&cell.c[k]<.05)cell.hist.push([cell.t,Math.max(0,emf()-I*RINT),I*1000]);
+   if(cell.c[k]<2e-6){cell.c[k]=2e-6;cell.deadK=true;cell.dead=`The ${ionOf(cell.K)} ions in the cathode beaker are used up: nothing is left to be reduced, so the voltage collapses and the cell is dead.`}
+   else if(cell.mass[a]<=0){cell.mass[a]=0;cell.dead=`The ${cell.A.name} anode has dissolved away: the cell is dead.`}
+   else if(cell.same&&cell.c[a]>=cell.c[k]){const m=(cell.c[a]+cell.c[k])/2;cell.c.L=cell.c.R=m;cell.noCell=true;cell.dead='Both beakers now have the same concentration: E = 0 V, so the concentration cell stops.'}}
+  cell.E=emf();if(cell.dead){cell.I=0;cell.V=cell.bridge&&!cell.noCell?cell.E:0;cell.hist.push([cell.t,cell.V,0])}
+  syncSliders()}
+ else if(cell.closed&&cell.dev==='volt')cell.t+=0;
+ cell.hacc+=dt;if(cell.closed&&cell.hacc>.2){cell.hacc=0;cell.hist.push([cell.t,cell.V,cell.I*1000]);if(cell.hist.length>1500)cell.hist=cell.hist.filter((_,i)=>i%2===0)}}
+function syncSliders(){['L','R'].forEach(k=>{const el=$('#sC'+k);if(document.activeElement!==el)el.value=Math.log10(cell.c[k]).toFixed(2)})}
 
 /* ---------- text outputs ---------- */
 function texts(){const {A,K}=cell;
- if(cell.same){$('#notation').textContent='Two identical metals: no galvanic cell (E° = 0 V)';$('#halfEq').textContent='Choose two different metals.';$('#rE0').textContent='0.00 V';return}
+ if(cell.noCell){$('#notation').textContent='Same metal, same concentration: no cell (E = 0 V)';$('#halfEq').textContent='Choose two different metals, or keep the same metal and change one concentration to make a concentration cell.';$('#rE0').textContent='0.00 V';return}
+ if(cell.same){const c=conc();$('#notation').textContent=`⊖ ${A.s} | ${ionOf(A)} (${fx(c.A,3)} M) ‖ ${ionOf(K)} (${fx(c.K,3)} M) | ${K.s} ⊕`;$('#halfEq').textContent=`Concentration cell: both electrodes are ${A.name}.\nAnode (−), dilute side:        ${A.s} → ${ionOf(A)} + ${A.z===1?'':A.z}e⁻\nCathode (+), concentrated side: ${ionOf(K)} + ${K.z===1?'':K.z}e⁻ → ${K.s}\nThe dilute side gets more concentrated and the concentrated side more dilute, until they are equal and E = 0.`;$('#rE0').textContent='0.00 V (same metal on both sides)';return}
  const show=cell.answered;
  $('#notation').textContent=show?`⊖ ${A.s} | ${ionOf(A)} ‖ salt bridge ‖ ${ionOf(K)} | ${K.s} ⊕`:'⊖ ? | ? ‖ salt bridge ‖ ? | ? ⊕';
  const e=n=>n===1?'e⁻':`${n}e⁻`,cf=n=>n===1?'':n;
  $('#halfEq').textContent=show?`Anode (−), oxidation:   ${A.s} → ${ionOf(A)} + ${e(A.z)}\nCathode (+), reduction: ${ionOf(K)} + ${e(K.z)} → ${K.s}\nOverall: ${cf(cell.ca)}${A.s} + ${cf(cell.ck)}${ionOf(K)} → ${cf(cell.ca)}${ionOf(A)} + ${cf(cell.ck)}${K.s}   (${cell.n} e⁻ transferred)`:'Make your prediction to see the half-equations.';
  $('#rE0').textContent=`${fx(K.E,2)} − (${fx(A.E,2)}) = ${fx(K.E-A.E,2)} V`}
 function readouts(){const c=conc();$('#oCL').textContent=fx(c.L,c.L<.01?4:3)+' M';$('#oCR').textContent=fx(c.R,c.R<.01?4:3)+' M';
- $('#rE').textContent=fx(cell.E,3)+' V';$('#rI').textContent=cell.dev==='volt'?'≈ 0 (voltmeter)':fx(cell.I*1000,0)+' mA';
+ $('#rE').textContent=fx(cell.E,3)+' V';$('#rV').textContent=fx(cell.V,3)+' V';$('#rI').textContent=cell.dev==='volt'?'≈ 0 (voltmeter only)':fx(cell.I*1000,0)+' mA';
+ if(!cell.noCell){const c=conc(),E0=cell.same?0:cell.K.E-cell.A.E,cf=(v,k)=>k===1?fx(v,3):`(${fx(v,3)})${k===2?'²':'³'}`;$('#nernst').textContent=`E = E° − (0.0592/${cell.n})·log(${cf(c.A,cell.ca)} / ${cf(c.K,cell.ck)}) = ${fx(E0,2)} − ${fx(0.0592/cell.n,4)}·log(${fx(Math.pow(c.A,cell.ca)/Math.pow(c.K,cell.ck),3)}) = ${fx(cell.E,3)} V`}else $('#nernst').textContent='E = 0 V';
+ if(cell.deadK)$('#nernst').textContent=`No ${ionOf(cell.K)} left to be reduced: the Nernst equation no longer applies and the cell voltage collapses to 0 V.`;
  const t=cell.t;$('#rT').textContent=t<3600?Math.round(t/60)+' min':fx(t/3600,1)+' h';
- $('#lmA').textContent=cell.answered&&!cell.same?`${cell.A.s} anode mass`:'Anode mass';$('#lmC').textContent=cell.answered&&!cell.same?`${cell.K.s} cathode mass`:'Cathode mass';
- $('#rmA').textContent=cell.same?'–':fx(massA(),2)+' g';$('#rmC').textContent=cell.same?'–':fx(massK(),2)+' g';
+ $('#lmA').textContent=cell.answered&&!cell.noCell?`${cell.A.s} anode mass`:'Anode mass';$('#lmC').textContent=cell.answered&&!cell.noCell?`${cell.K.s} cathode mass`:'Cathode mass';
+ $('#rmA').textContent=cell.noCell?'–':fx(massA(),2)+' g';$('#rmC').textContent=cell.noCell?'–':fx(massK(),2)+' g';
  const m=$('#cellMsg');let s,cls='status';
- if(cell.same)s='Both electrodes are the same metal, so neither has a bigger tendency to lose electrons: no current.';
+ if(cell.noCell)s='Both electrodes are the same metal in the same concentration, so neither side has a bigger tendency to lose electrons: E = 0 V. Change one concentration to make a concentration cell.';
  else if(cell.dead){s=cell.dead;cls='status bad'}
  else if(!cell.closed)s='The switch is open: no current. The voltmeter would still read the emf.';
- else if(!cell.bridge){s='No salt bridge: the circuit is not complete. Charge would build up in each beaker at once, so no current flows.';cls='status bad'}
- else if(cell.dev==='volt')s=`The voltmeter lets almost no current through, so it reads the emf of the cell: ${fx(cell.E,2)} V. Use the bulb or motor to make the cell work.`;
+ else if(!cell.bridge){s=`No salt bridge: for a moment electrons still flow, but ${ionOf(cell.A)} ions pile up in the anode beaker (+) and ${cell.K.an} ions are left behind in the cathode beaker (−). That charge stops the current at once, and the voltmeter reads 0.`;cls='status bad'}
+ else if(cell.dev==='volt')s=`The voltmeter lets almost no current through, so nothing reacts and the reading stays at the emf: ${fx(cell.E,3)} V. To change it, change a concentration (sliders) or let the cell work with the bulb.`;
+ else if(cell.E<0.9*(cell.same?1:cell.K.E-cell.A.E)&&!cell.same){s=`The cell is running down: [${ionOf(cell.K)}] is low, so by the Nernst equation E has fallen to ${fx(cell.E,2)} V.`;cls='status bad'}
  else {s=`Electrons leave the ${cell.A.name} anode through the wire to the ${cell.K.name} cathode. In the salt bridge anions (NO₃⁻) move to the anode beaker and cations (K⁺) to the cathode beaker to keep each solution neutral.`;cls='status ok'}
  m.className=cls;m.textContent=s}
 
 /* ---------- prediction ---------- */
-function renderPred(){const card=$('#predCard');if(cell.answered||cell.same){card.hidden=true;return}card.hidden=false;$('#predMsg').hidden=true;
+function renderPred(){const card=$('#predCard');if(cell.answered||cell.same||cell.noCell){card.hidden=true;return}card.hidden=false;$('#predMsg').hidden=true;
  $('#predBtns').innerHTML=[cell.L,cell.R].map((m,i)=>`<button type="button" data-p="${i?'R':'L'}">${i?'Right':'Left'}: ${m.s}</button>`).join('');
  $$('#predBtns button').forEach(b=>b.onclick=()=>{const ok=b.dataset.p===cell.an;const m=$('#predMsg');m.hidden=false;m.className='status '+(ok?'ok':'bad');
   m.textContent=(ok?'Correct. ':'Not this time. ')+`E°(${ionOf(cell.A)}/${cell.A.s}) = ${fx(cell.A.E,2)} V is lower than E°(${ionOf(cell.K)}/${cell.K.s}) = ${fx(cell.K.E,2)} V, so ${cell.A.name} has the bigger tendency to lose electrons: it is the anode.`;
@@ -400,19 +426,20 @@ function targetCount(side){const c=conc()[side];return Math.round(Math.min(18,3+
 function bridgePt(s){// s 0 → left leg bottom, 1 → right leg bottom
  const legL=BR.bot-BR.top,top=BR.R-BR.L,tot=2*legL+top;const d=s*tot;
  if(d<legL)return [BR.L,BR.bot-d];if(d<legL+top)return [BR.L+(d-legL),BR.top];return [BR.R,BR.top+(d-legL-top)]}
-function ePath(){const a=cell.an==='R'?'R':'L',k=a==='L'?'R':'L';const top=140,yW=72;return [[EX[a],top],[EX[a],yW],[500,yW],[EX[k],yW],[EX[k],top]]}
+function ePath(){const a=cell.an==='R'?'R':'L',k=a==='L'?'R':'L';const top=140,yW=72;return [[EX[a],LIQ+60],[EX[a],top],[EX[a],yW],[500,yW],[EX[k],yW],[EX[k],top],[EX[k],LIQ+60]]}
 function along(pts,f){let L=0;const seg=[];for(let i=1;i<pts.length;i++){const l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(l);L+=l}let d=f*L;for(let i=0;i<seg.length;i++){if(d<=seg[i]){const u=d/seg[i];return [pts[i][0]+(pts[i+1][0]-pts[i][0])*u,pts[i][1]+(pts[i+1][1]-pts[i][1])*u]}d-=seg[i]}return pts[pts.length-1]}
 
 function stepParticles(dt){const flow=cell.I>0&&cell.dev!=='volt';const rate=flow?cell.I/0.14:0;
- for(const s of ['L','R']){const arr=P[s];const isA=s===cell.an&&!cell.same,isK=!isA&&!cell.same;
-  for(const p of arr){if(p.state==='free'){p.vx+=(Math.random()-.5)*40*dt;p.vy+=(Math.random()-.5)*40*dt;p.vx*=.96;p.vy*=.96;p.x+=p.vx*dt*20;p.y+=p.vy*dt*20;
+ for(const s of ['L','R']){const arr=P[s];const isA=s===cell.an&&!cell.noCell,isK=!isA&&!cell.noCell;
+  const drift=flow?Math.min(1.6,rate)*(cell.an==='L'?1:-1):0;
+  for(const p of arr){if(p.state==='free'){p.vx+=(Math.random()-.5)*40*dt+(p.type==='cat'?1:p.type==='an'?-1:0)*drift*1.6*dt;p.vy+=(Math.random()-.5)*40*dt;p.vx*=.96;p.vy*=.96;p.x+=p.vx*dt*20;p.y+=p.vy*dt*20;
     const [x0,x1]=BK[s];p.x=Math.max(x0+14,Math.min(x1-14,p.x));p.y=Math.max(LIQ+12,Math.min(BOT-12,p.y));
     if(Math.abs(p.x-EX[s])<30)p.x+=(p.x<EX[s]?-1:1)*2}
    else if(p.state==='out'){p.x+=(p.x<EX[s]?-1:1)*30*dt;p.y+=(Math.random()-.5)*20*dt;p.life+=dt;if(p.life>1.2)p.state='free'}
    else if(p.state==='in'){const tx=EX[s]+(p.x<EX[s]?-22:22);p.x+=(tx-p.x)*Math.min(1,dt*2.5);p.y+=(p.ty-p.y)*Math.min(1,dt*2.5);if(Math.abs(p.x-tx)<2)p.gone=true}
    else if(p.state==='bridge'){p.life-=dt*.6}}
   P[s]=arr.filter(p=>!p.gone&&p.life>0);
-  if(cell.same)continue;
+  if(cell.noCell)continue;
   const nc=P[s].filter(p=>p.type==='cat'&&p.state!=='in').length,tg=targetCount(s);
   if(isA&&nc<tg){const p={type:'cat',x:EX[s]+(Math.random()<.5?-20:20),y:rnd(LIQ+20,BOT-30),vx:0,vy:0,life:0,state:'out'};P[s].push(p)}
   if(isK&&nc>tg){const c=P[s].filter(p=>p.type==='cat'&&p.state==='free');if(c.length){c.sort((a,b)=>Math.abs(a.x-EX[s])-Math.abs(b.x-EX[s]));c[0].state='in';c[0].ty=Math.max(LIQ+20,Math.min(BOT-20,c[0].y))}}}
@@ -425,7 +452,7 @@ function stepParticles(dt){const flow=cell.I>0&&cell.dev!=='volt';const rate=flo
 function drawCell(){const c=$('#cv');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const s=Math.min(w/VW,h/VH),ox=(w-VW*s)/2,oy=(h-VH*s)/2;
  CVT={s,ox,oy};x.save();x.translate(ox,oy);x.scale(s,s);const fs=v=>Math.max(9/s,v);
  const font=(sz,wt=600)=>`${wt} ${fs(sz)}px "IBM Plex Mono",monospace`;
- const lab=$('#cLab').checked,show=cell.answered&&!cell.same,conc_=conc();
+ const lab=$('#cLab').checked,show=cell.answered&&!cell.noCell,conc_=conc();
  // beakers + solutions
  for(const side of ['L','R']){const m=side==='L'?cell.L:cell.R;const [x0,x1]=BK[side];const cc=conc_[side];
   const a=Math.min(.75,m.ionA*(0.35+0.65*Math.min(1.5,cc)/1.5)*1.6+.04);x.fillStyle=hexA(m.ion,a);x.fillRect(x0+4,LIQ,x1-x0-8,BOT-LIQ-4);
@@ -445,20 +472,20 @@ function drawCell(){const c=$('#cv');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);c
  // ions
  function ion(px,py,type,m){const r=type==='cat'?11:type==='an'?10:7.5;let col,txt;
   if(type==='cat'){col=m.ion;txt=m.z===1?'+':m.z+'+'}else if(type==='an'){col=m.an==='NO₃⁻'?'#E08A3C':'#E07AA8';txt='−'}else if(type==='K'){col='#9B6BD3';txt='+'}else{col='#E08A3C';txt='−'}
-  x.fillStyle=col;x.beginPath();x.arc(px,py,r,0,7);x.fill();x.strokeStyle=hexA('#000000',.35);x.lineWidth=1.2;x.stroke();
+  LabViz.ball(x,px,py,r,col);x.strokeStyle=hexA('#000000',.3);x.lineWidth=1;x.beginPath();x.arc(px,py,r,0,7);x.stroke();
   x.fillStyle='#10202A';x.font=`700 ${type==='cat'?12:11}px "IBM Plex Mono",monospace`;x.textAlign='center';x.textBaseline='middle';x.fillText(txt,px,py+.5);x.textBaseline='alphabetic'}
  if($('#cIons').checked)for(const side of ['L','R']){const m=side==='L'?cell.L:cell.R;for(const p of P[side]){x.globalAlpha=p.state==='bridge'?Math.max(0,Math.min(1,p.life)):1;ion(p.x,p.y,p.type,m)}x.globalAlpha=1}
  // electrodes
- for(const side of ['L','R']){const m=side==='L'?cell.L:cell.R;const isA=!cell.same&&side===cell.an;const mass=cell.same?M0:isA?massA():massK();
+ for(const side of ['L','R']){const m=side==='L'?cell.L:cell.R;const isA=!cell.noCell&&side===cell.an;const mass=cell.mass[side];
   const w0=34,ww=Math.max(5,w0*Math.pow(mass/M0,isA?1:.6));const cx=EX[side];
   const g=x.createLinearGradient(cx-ww/2,0,cx+ww/2,0);g.addColorStop(0,shade(m.metal,-.25));g.addColorStop(.45,shade(m.metal,.25));g.addColorStop(1,shade(m.metal,-.3));
   x.fillStyle=g;x.fillRect(cx-ww/2,140,ww,400);
   if(isA&&cell.xi>0){x.fillStyle=hexA(C.stage,.0);}
-  if(!isA&&!cell.same&&mass>M0+.05){x.fillStyle=shade(m.metal,-.1);for(let k=0;k<26;k++){const yy=LIQ+8+k*8;const bump=2+((k*37)%5);x.beginPath();x.arc(cx-ww/2,yy,bump,0,7);x.arc(cx+ww/2,yy,bump,0,7);x.fill()}}
+  if(!isA&&!cell.noCell&&mass>M0+.05){x.fillStyle=shade(m.metal,-.1);for(let k=0;k<26;k++){const yy=LIQ+8+k*8;const bump=2+((k*37)%5);x.beginPath();x.arc(cx-ww/2,yy,bump,0,7);x.arc(cx+ww/2,yy,bump,0,7);x.fill()}}
   x.strokeStyle=hexA('#000000',.35);x.lineWidth=1.5;x.strokeRect(cx-ww/2,140,ww,400);
   if(lab){x.textAlign=side==='L'?'right':'left';x.font=font(18,700);x.fillStyle=C.ink;x.fillText(m.s,cx+(side==='L'?-ww/2-8:ww/2+8),190);x.textAlign='center';
    if(show){x.font=font(14,700);x.fillStyle=isA?C.bad:C.a;x.fillText(isA?'anode (−) · oxidation':'cathode (+) · reduction',cx,600-4)}
-   else if(!cell.same){x.font=font(14,700);x.fillStyle=C.muted;x.fillText('?',cx,600-4)}}}
+   else if(!cell.noCell){x.font=font(14,700);x.fillStyle=C.muted;x.fillText('?',cx,600-4)}}}
  // wires
  const ep=[[EX.L,140],[EX.L,72],[EX.R,72],[EX.R,140]];x.strokeStyle=C.wire;x.lineWidth=5;x.lineJoin='round';x.beginPath();x.moveTo(...ep[0]);x.lineTo(...ep[1]);
  const swX=330;x.lineTo(swX-24,72);x.stroke();x.beginPath();x.moveTo(swX+24,72);x.lineTo(500-48,72);x.moveTo(500+48,72);x.lineTo(...ep[2]);x.lineTo(...ep[3]);x.stroke();
@@ -474,16 +501,19 @@ function drawCell(){const c=$('#cv');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);c
   if(lab){x.fillStyle=C.elec;x.font=font(14,700);x.textAlign='center';const dir=cell.an==='L'?1:-1;x.fillText(`e⁻ ${dir>0?'→':'←'}`,500+dir*-220,58)}}
  if(show&&$('#cI').checked){const dir=cell.an==='L'?-1:1;const y=24;x.strokeStyle=C.rose;x.fillStyle=C.rose;x.lineWidth=3;const xa=500+180*dir*-1,xb=500+180*dir*-1+dir*110;
   x.beginPath();x.moveTo(xa,y);x.lineTo(xb,y);x.stroke();x.beginPath();x.moveTo(xb,y);x.lineTo(xb-dir*12,y-7);x.lineTo(xb-dir*12,y+7);x.closePath();x.fill();x.font=font(14,700);x.textAlign='center';x.fillText('I',(xa+xb)/2,y-8)}
+ if(cell.block>0.05&&!cell.noCell){const a=cell.block;x.font=font(26,700);x.textAlign='center';for(let k=0;k<6;k++){const an=cell.an,ka=kSide();
+   x.fillStyle=`rgba(214,69,69,${a})`;x.fillText('+',BK[an][0]+40+k*42,LIQ+40+(k%2)*60);x.fillStyle=`rgba(47,111,208,${a})`;x.fillText('−',BK[ka][0]+40+k*42,LIQ+40+(k%2)*60)}
+  x.font=font(13,700);x.fillStyle=C.bad;x.fillText('charge builds up: current stops',500,BR.top-40)}
  if(cell.dead){x.fillStyle=C.bad;x.font=font(18,700);x.textAlign='center';x.fillText('cell is dead',500,300)}
  x.restore()}
 function drawDevice(x,cx,cy,font){const flow=cell.I>0;x.lineWidth=3;x.strokeStyle=C.ink;
- if(cell.dev==='volt'){x.fillStyle=C.surface;x.beginPath();x.arc(cx,cy,46,0,7);x.fill();x.stroke();const E=cell.closed&&cell.bridge?cell.E:cell.closed?0:cell.E;
+ if(cell.dev==='volt'){x.fillStyle=C.surface;x.beginPath();x.arc(cx,cy,46,0,7);x.fill();x.stroke();const E=cell.needle;
   const ang=Math.PI*(1.15+.7*Math.min(1,E/3.5));x.strokeStyle=C.bad;x.lineWidth=2.5;x.beginPath();x.moveTo(cx,cy+16);x.lineTo(cx+36*Math.cos(ang),cy+16+36*Math.sin(ang));x.stroke();
   x.fillStyle=C.ink;x.font=font(13,700);x.textAlign='center';x.fillText(fx(E,2)+' V',cx,cy+34);x.font=font(12,700);x.fillText('V',cx,cy-22)}
  else{// ammeter box + bulb or motor
-  x.fillStyle=C.surface;x.fillRect(cx-46,cy-26,92,52);x.strokeRect(cx-46,cy-26,92,52);x.fillStyle=C.ink;x.font=font(13,700);x.textAlign='center';x.fillText(`${fx(cell.I*1000,0)} mA`,cx,cy+5);x.font=font(10,500);x.fillStyle=C.muted;x.fillText('ammeter',cx,cy+19);
+  x.fillStyle=C.surface;x.fillRect(cx-54,cy-28,108,56);x.strokeRect(cx-54,cy-28,108,56);x.fillStyle=C.ink;x.font=font(13,700);x.textAlign='center';x.fillText(`${fx(cell.needle,2)} V`,cx,cy-6);x.fillText(`${fx(cell.I*1000,0)} mA`,cx,cy+11);x.font=font(9,500);x.fillStyle=C.muted;x.fillText('voltmeter · ammeter',cx,cy+22);
   const bx=cx,by=cy+80;x.strokeStyle=C.wire;x.lineWidth=3;x.beginPath();x.moveTo(cx-10,cy+26);x.lineTo(cx-10,by-20);x.moveTo(cx+10,cy+26);x.lineTo(cx+10,by-20);x.stroke();x.strokeStyle=C.ink;x.lineWidth=3;
-  if(cell.dev==='bulb'){const p=Math.min(1,cell.I/0.3);if(p>0){const g=x.createRadialGradient(bx,by,4,bx,by,70);g.addColorStop(0,`rgba(255,220,90,${.85*p})`);g.addColorStop(1,'rgba(255,220,90,0)');x.fillStyle=g;x.beginPath();x.arc(bx,by,70,0,7);x.fill()}
+  if(cell.dev==='bulb'){const p=Math.min(1,Math.pow(cell.I/0.14,2)*.8);if(p>0){const g=x.createRadialGradient(bx,by,4,bx,by,70);g.addColorStop(0,`rgba(255,220,90,${.85*p})`);g.addColorStop(1,'rgba(255,220,90,0)');x.fillStyle=g;x.beginPath();x.arc(bx,by,70,0,7);x.fill()}
    x.fillStyle=p>0?`rgba(255,236,150,${.4+.6*p})`:hexA(C.surface,.9);x.strokeStyle=C.ink;x.lineWidth=2.5;x.beginPath();x.arc(bx,by,22,0,7);x.fill();x.stroke();x.fillStyle=C.muted;x.fillRect(bx-10,by-36,20,14);
    x.strokeStyle=hexA(C.ink,.7);x.beginPath();x.moveTo(bx-6,by-22);x.lineTo(bx-3,by+4);x.lineTo(bx+3,by+4);x.lineTo(bx+6,by-22);x.stroke()}
   else{x.fillStyle=C.surface;x.strokeStyle=C.ink;x.lineWidth=2.5;x.beginPath();x.arc(bx,by,22,0,7);x.fill();x.stroke();x.fillStyle=C.ink;x.font=font(12,700);x.fillText('M',bx,by+4);
@@ -496,12 +526,12 @@ function shade(col,k){const c=col.replace('#','');const n=parseInt(c,16);let r=n
 const Z={A:{cols:4,surf:[],ev:[]},K:{cols:3,extra:[],ev:[]},acc:0};
 function zoomReset(){Z.A={removed:new Set(),col:3,ev:[]};Z.K={added:[],ev:[]};Z.acc=0}
 zoomReset();
-function zoomStep(dt){const flow=cell.I>0&&cell.dev!=='volt'&&!cell.same;if(!flow)return;Z.acc+=dt*Math.min(3,cell.I/0.12)*1.1;
+function zoomStep(dt){const flow=cell.I>0&&cell.dev!=='volt'&&!cell.noCell;if(!flow)return;Z.acc+=dt*Math.min(3,cell.I/0.12)*1.1;
  while(Z.acc>1){Z.acc-=1;// anode event
   const A=Z.A;let rows=[...Array(7).keys()].filter(r=>!A.removed.has(A.col+','+r));if(!rows.length){A.col--;if(A.col<1){A.removed.clear();A.col=3}rows=[...Array(7).keys()].filter(r=>!A.removed.has(A.col+','+r))}
   const r=rows[Math.floor(Math.random()*rows.length)];A.removed.add(A.col+','+r);A.ev.push({col:A.col,row:r,t:0});
   const K=Z.K;if(K.added.length>=21)K.added=[];const slot=K.added.length;K.ev.push({slot,t:0,ry:Math.random()})}}
-function drawZoom(){const c=$('#zoom');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);if(cell.same){x.fillStyle=C.muted;x.font='500 14px "IBM Plex Mono",monospace';x.textAlign='center';x.fillText('Choose two different metals.',w/2,h/2);return}
+function drawZoom(){const c=$('#zoom');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);if(cell.noCell){x.fillStyle=C.muted;x.font='500 14px "IBM Plex Mono",monospace';x.textAlign='center';x.fillText('No cell: choose different metals or concentrations.',w/2,h/2);return}
  const show=cell.answered;const gap=14,lw=(w-gap)/2;lens(x,0,0,lw,h,'A',show);lens(x,lw+gap,0,lw,h,'K',show)}
 function lens(x,X0,Y0,W,H,which,show){const m=which==='A'?cell.A:cell.K;const R=Math.min(W,H);x.save();x.beginPath();x.rect(X0,Y0,W,H);x.clip();
  x.fillStyle=hexA(m.ion,Math.max(.06,m.ionA*.5));x.fillRect(X0,Y0,W,H);
@@ -551,13 +581,27 @@ const endDrag=()=>{if(!drag)return;drag=null;cell.bridge=bDrag>-60;bDrag=0;syncB
 $('#cv').addEventListener('pointerup',endDrag);$('#cv').addEventListener('pointercancel',endDrag);
 $('#cv').style.touchAction='pan-y';
 
+/* ---------- voltage–time graph ---------- */
+let VG=null;
+function drawVG(){const c=$('#vg');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const L=40,Rm=42,T=12,B=26,H=cell.hist;
+ const tmaxS=Math.max(600,H.length?H[H.length-1][0]:0),tmax=tmaxS/3600,E0=cell.same?Math.max(.06,emf()*1.3):Math.max(.2,(cell.K.E-cell.A.E)*1.15),Imax=Math.max(50,...H.map(q=>q[2]))*1.15;
+ const X=t=>L+t/tmaxS*(w-L-Rm),YV=v=>h-B-v/E0*(h-T-B),YI=v=>h-B-v/Imax*(h-T-B);txt2(x,'— V (voltmeter)',L+6,h-B-6,C.accent,10,'left');txt2(x,'— I (mA)',L+130,h-B-6,C.rose,10,'left');
+ x.strokeStyle=C.grid;x.lineWidth=1;for(let k=0;k<=4;k++){const y=T+(h-T-B)*k/4;x.beginPath();x.moveTo(L,y);x.lineTo(w-Rm,y);x.stroke();txt2(x,fx(E0*(1-k/4),2),L-4,y+4,C.accent,10,'right');txt2(x,String(Math.round(Imax*(1-k/4))),w-Rm+4,y+4,C.rose,10,'left')}
+ txt2(x,`lab time (${tmax<2?Math.round(tmaxS/60)+' min':fx(tmax,1)+' h'} wide)`,w-Rm,h-6,C.muted,10,'right');
+ if(H.length<2){txt2(x,'Close the switch with the bulb or motor to record V and I',(L+w-Rm)/2,h/2,C.muted,11,'center');VG={X,YV,L,Rm,T,B,w,h,tmaxS};LabViz.drawReadout(x,c);return}
+ const ln=(k,Y,col)=>{x.strokeStyle=col;x.lineWidth=2.5;x.beginPath();H.forEach((q,i)=>i?x.lineTo(X(q[0]),Y(q[k])):x.moveTo(X(q[0]),Y(q[k])));x.stroke()};ln(2,YI,C.rose);ln(1,YV,C.accent);
+ const lq=H[H.length-1];LabViz.tracer(x,X(lq[0]),YV(lq[1]),C.accent);VG={X,YV,L,Rm,T,B,w,h,tmaxS};LabViz.drawReadout(x,c)}
+function txt2(x,s,a,b,col,size,al){x.fillStyle=col;x.font=`600 ${size}px "IBM Plex Mono",monospace`;x.textAlign=al;x.fillText(s,a,b)}
+LabViz.readout($('#vg'),px=>{const H=cell.hist;if(!VG||H.length<2)return null;const t=(px-VG.L)/(VG.w-VG.L-VG.Rm)*VG.tmaxS;let q=null;for(const r of H){if(r[0]<=t)q=r;else break}if(!q)return null;
+ return {x:VG.X(q[0]),y:VG.YV(q[1]),top:VG.T,bottom:VG.h-VG.B,col:C.accent,text:`t = ${q[0]<3600?Math.round(q[0]/60)+' min':fx(q[0]/3600,2)+' h'}|V = ${fx(q[1],3)} V|I = ${fx(q[2],0)} mA`}},()=>drawVG());
+
 /* ---------- controls ---------- */
 ['#mL','#mR'].forEach(s=>$(s).onchange=()=>{zoomReset();setup();T3.rebuild()});
-['#sCL','#sCR'].forEach(s=>$(s).addEventListener('input',()=>{if(cell.xi===0){cell.cL0=Math.pow(10,+$('#sCL').value);cell.cR0=Math.pow(10,+$('#sCR').value);initParticles()}else{setup()}readouts()}));
+['#sCL','#sCR'].forEach(sel=>$(sel).addEventListener('input',()=>{const k=sel==='#sCL'?'L':'R';cell.c[k]=Math.pow(10,+$(sel).value);if(cell.dead&&!/anode has dissolved/.test(cell.dead))cell.dead='';orient();texts();renderPred();initParticles();readouts()}));
 $('#cPred').onchange=()=>setup();
 $('#swBtn').onclick=()=>{cell.closed=!cell.closed;syncSwitch()};
 $('#bridgeBtn').onclick=()=>{cell.bridge=!cell.bridge;syncBridge()};
-$('#resetBtn').onclick=()=>{zoomReset();setup()};
+$('#resetBtn').onclick=()=>{$('#sCL').value=0;$('#sCR').value=0;zoomReset();setup()};
 $$('[data-dev]').forEach(b=>b.onclick=()=>{segPick(b);cell.dev=b.dataset.dev});
 $$('[data-spd]').forEach(b=>b.onclick=()=>{segPick(b);cell.spd=+b.dataset.spd});
 $$('#p-cell .checks input').forEach(i=>i.addEventListener('change',drawAll));
@@ -702,7 +746,7 @@ function drawAll(){if(!C.ink)readColors();if(!cell.L)return;if(tab==='cell'){dra
 addEventListener('resize',drawAll);
 let last=performance.now(),racc=0;
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
- if(tab==='cell'){physics(dt);stepParticles(dt);zoomStep(dt);drawCell();drawZoom();racc+=dt;if(racc>.2){racc=0;readouts()}}
+ if(tab==='cell'){physics(dt);stepParticles(dt);zoomStep(dt);try{drawCell();drawZoom()}catch(e){console.warn(e)}racc+=dt;if(racc>.2){racc=0;readouts();drawVG()}}
  if(tab==='three')T3.step(dt);
  requestAnimationFrame(loop)}
 readColors();setup();readouts();$('#ordNew').onclick();nextQ();themeLabel();

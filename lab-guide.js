@@ -368,7 +368,7 @@
   var CFG = {
     'wave-speed-lab.html': { hide: ['[data-mode="manual"]', '.seg:has([data-end])', '#step1', '.seg:has([data-speed])', 'label:has(#tVRuler)', 'label:has(#tRef)', 'label:has(#tGraph)', 'label:has(#tVals)', '[data-n]', '.field:has(#damp1)'] },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
-    'galvanic-cell-lab.html': { hide: ['.seg:has([data-dev])', '.seg:has([data-spd])', '#p-cell > .checks', '.field:has(#sCL)', '.field:has(#sCR)', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
+    'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
     'organic-naming-lab.html': { hide: ['.row:has(> #o3dSF)', 'label:has(#o3dH)', '#o3dReset'] },
     'resonance-on-a-string.html': { hide: ['#fDown', '#fUp', '#pdf', '.field:has(#dampSeg)', '.field:has(#slowSeg)', 'label:has(#cEnv)', 'label:has(#cTheory)', 'section.block:has(#hWhy)', 'section.block:has(#hLesson)'], start: '#sweep' },
     'enthalpy-lab.html': { hide: ['.card:has(> .worked)'], start: '#heatGo' },
