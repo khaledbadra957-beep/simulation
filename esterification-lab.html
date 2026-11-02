@@ -1,0 +1,463 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Esterification Lab</title>
+<meta name="description" content="Build and name esters, run acid + alcohol to equilibrium, fill in the table in moles, find the yield and see what changes it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench layout as the other labs. Boxed rose atoms are the OH of the acid and the H of the alcohol that form water. Teal is the ester, brass the theoretical amount, rose the equilibrium amount. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --a:#2F6FD0; --b:#D88A1C; --prod:#1E8A55; --rose:#C2185B;
+  --brass:#B8913A; --brass-soft:rgba(233,196,106,.45);
+  --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
+#eg{height:260px}
+.eqbox{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:16px;overflow-x:auto}
+.eqrow{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-start}
+.term{display:flex;flex-direction:column;gap:2px;min-width:0}
+.term .mol{font-family:var(--data);font-weight:600;font-size:clamp(1rem,2.2vw,1.35rem);overflow-wrap:anywhere}
+.term .nm{font-size:.85rem;color:var(--muted)}
+.term.est .mol,.term.est .nm{color:var(--accent)} .term.est .nm{font-weight:700}
+.eqrow .op{font-family:var(--data);font-size:1.3rem;color:var(--muted);line-height:1.6}
+.bx{border:2px solid var(--rose);border-radius:6px;padding:0 3px;margin:0 1px;color:var(--rose)}
+.pred{display:flex;gap:6px;flex-wrap:wrap}
+.pred button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700}
+.pred button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pred button:hover{border-color:var(--accent)}
+.ans select{max-width:100%}
+
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%;align-self:flex-start}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.ans input{width:8em}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+tr.pick td{background:var(--brass-soft)}
+tbody tr{cursor:pointer}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body);cursor:default}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0;font-size:.92rem}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.15rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+.runs{display:flex;flex-wrap:wrap;gap:6px}
+.runs span{font-family:var(--data);font-size:.8rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style></head><body>
+
+<div class="wrap">
+<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+ <header>
+  <div>
+   <p class="eyebrow">Grade 12 Chemistry · Organic chemistry · Esterification</p>
+   <h1>Esterification Lab</h1>
+   <p class="lede">Acid + alcohol ⇌ ester + water. Build and name the ester, then run the reaction to equilibrium, fill in the table in moles and find the yield. See why primary alcohols give 67 %, secondary 60 % and tertiary almost nothing.</p>
+  </div>
+  <div class="tools">
+   <button class="btn" id="fsBtn" type="button">Full screen</button>
+   <button class="btn" id="themeBtn" type="button">Dark mode</button>
+  </div>
+ </header>
+
+ <div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-tab="build" aria-controls="p-build">1 · Build and name the ester</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="eq" aria-controls="p-eq">2 · Equilibrium and yield</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">3 · Exercise step by step</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">4 · Challenge</button>
+ </div>
+
+ <!-- ================= TAB 1 ================= -->
+ <section class="bench" id="p-build" role="tabpanel">
+  <div class="grid2">
+   <div class="col">
+    <div class="ans"><label for="acidSel" class="flabel">Carboxylic acid</label><select id="acidSel" class="sel"></select></div>
+    <div class="ans"><label for="alcSel" class="flabel">Alcohol</label><select id="alcSel" class="sel"></select></div>
+    <div class="checks"><label><input type="checkbox" id="cHide" checked> Hide the ester's name until I answer</label></div>
+   </div>
+   <div class="col">
+    <div class="card" id="infoCard"></div>
+   </div>
+  </div>
+  <div class="eqbox" id="eqn" aria-live="polite"></div>
+  <p class="note">The acid loses its <b>OH</b> and the alcohol loses the <b>H</b> of its OH group (boxed). Together they make the water. Name: <b>alkyl</b> (from the alcohol) + <b>alkanoate</b> (from the acid).</p>
+  <div class="card" id="nameCard">
+   <p class="q" style="font-size:1rem">What is the name of the ester?</p>
+   <div class="opts" id="nameOpts"></div>
+   <p class="status" id="nameMsg" hidden></p>
+  </div>
+ </section>
+
+ <!-- ================= TAB 2 ================= -->
+ <section class="bench" id="p-eq" role="tabpanel" hidden>
+  <div class="benchhead"><h2 class="mono" id="eqTitle"></h2><span class="note">Esterification is <b>slow</b>, <b>limited</b> (reversible) and <b>athermic</b>.</span></div>
+  <div class="grid2">
+   <div class="col">
+    <div class="field"><div class="field-head"><label for="sA">n₀(acid)</label><output id="oA"></output></div><input id="sA" type="range" min="0.2" max="3" step="0.1" value="1"></div>
+    <div class="field"><div class="field-head"><label for="sB">n₀(alcohol)</label><output id="oB"></output></div><input id="sB" type="range" min="0.2" max="3" step="0.1" value="1"></div>
+    <div class="field"><span class="flabel">Class of the alcohol</span>
+     <div class="seg" role="group" aria-label="Class of alcohol">
+      <button type="button" data-cls="1" aria-pressed="true">Primary (I)</button>
+      <button type="button" data-cls="2" aria-pressed="false">Secondary (II)</button>
+      <button type="button" data-cls="3" aria-pressed="false">Tertiary (III)</button>
+     </div>
+    </div>
+    <div class="checks" style="flex-direction:column">
+     <label><input type="checkbox" id="cHeat"> Heat under reflux</label>
+     <label><input type="checkbox" id="cCat"> Add a few drops of concentrated H₂SO₄ (catalyst)</label>
+     <label><input type="checkbox" id="cRem"> Remove the water as it forms</label>
+    </div>
+    <div class="transport">
+     <button class="btn primary" id="runBtn" type="button">Start the reaction</button>
+     <button class="btn" id="resetBtn" type="button">Reset</button>
+    </div>
+   </div>
+   <div class="col">
+    <canvas class="stage" id="eg" aria-label="Amount of ester against time"></canvas>
+    <div class="card"><dl class="readouts">
+     <div><dt>Time</dt><dd id="rT">0 h</dd></div>
+     <div><dt>n(ester) now</dt><dd id="rX">0.00 mol</dd></div>
+     <div><dt>n(ester) theoretical (ATSR)</dt><dd id="rTh">–</dd></div>
+     <div><dt>Yield now</dt><dd id="rY">–</dd></div>
+    </dl></div>
+   </div>
+  </div>
+  <div class="tablewrap"><table id="ice"></table></div>
+  <pre class="sol" id="yieldSol"></pre>
+  <h3>Your runs</h3>
+  <div class="tablewrap"><table><thead><tr><th>Run</th><th>n₀ acid / alcohol</th><th>Alcohol</th><th>Conditions</th><th>Time to equilibrium</th><th>Yield</th></tr></thead><tbody id="runsTb"><tr class="empty"><td colspan="6">Finished runs are listed here so you can compare.</td></tr></tbody></table></div>
+  <ol class="steps">
+   <li>Heating and the catalyst only make the reaction <b>faster</b>: compare the times. The yield stays the same.</li>
+   <li>To get <b>more</b> ester, use one reagent in excess (a non-equimolar mixture) or remove one product (water or ester) as it forms.</li>
+  </ol>
+ </section>
+
+ <!-- ================= TAB 3 ================= -->
+ <section class="bench" id="p-ex" role="tabpanel" hidden>
+  <div class="benchhead">
+   <h2>Exercise</h2>
+   <div class="transport"><button class="btn" type="button" id="exNotes">Mr Khaled's example</button><button class="btn primary" type="button" id="exNew">New numbers</button></div>
+  </div>
+  <p id="exText"></p>
+  <p class="note">M(C) = 12, M(H) = 1, M(O) = 16 g/mol. Type numbers like 0.67 or 6.7e-1.</p>
+  <div id="steps" class="grid2"></div>
+ </section>
+
+ <!-- ================= TAB 4 ================= -->
+ <section class="bench" id="p-chal" role="tabpanel" hidden>
+  <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
+  <p class="q" id="qText"></p>
+  <div class="opts" id="qOpts"></div>
+  <p class="status" id="qStatus" aria-live="polite" hidden></p>
+  <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
+ </section>
+
+ <footer>Designed and built by Mr Khaled. Model: equilibrium constant K = 4 for primary alcohols, 2.25 for secondary and 0.0028 for tertiary, which give the classic yields of 67 %, 60 % and 5 % for an equimolar mixture. Times are illustrative.</footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fx=(x,d=2)=>Number(x).toFixed(d);
+function num(s){if(s==null)return NaN;s=String(s).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/[()%\s]/g,'');s=s.replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return s===''?NaN:Number(s)}
+const near=(a,b,tol=.02)=>isFinite(a)&&Math.abs(a-b)<=Math.abs(b)*tol+1e-9;
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+let C={};
+function readColors(){const s=getComputedStyle(root);['stage','ink','muted','line','grid','accent','a','b','prod','rose','brass','ok','bad'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
+try{const t=localStorage.getItem('est-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('est-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='build';
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
+ ['build','eq','ex','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
+$('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');$$('.bench').forEach(x=>x.classList.remove('fs'));
+ if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
+ $('#fsBtn').textContent=on?'Exit full screen':'Full screen';drawAll()};
+function exitFs(){$$('.bench').forEach(x=>x.classList.remove('fs'));$('#fsBtn').textContent='Full screen';try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}drawAll()}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&$('.bench.fs')){$$('.bench').forEach(x=>x.classList.remove('fs'));$('#fsBtn').textContent='Full screen';drawAll()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.bench.fs'))exitFs()});
+function segPick(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===btn))}
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function txt(x,s,a,b,col,size=12,align='left',base='alphabetic'){x.fillStyle=col;x.font=`500 ${size}px "IBM Plex Mono",monospace`;x.textAlign=align;x.textBaseline=base;x.fillText(s,a,b)}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+/* =========================================================
+   DATA
+   ========================================================= */
+const ACIDS=[
+ {name:'methanoic acid',f:'H–COOH',R:'H',c:1,ate:'methanoate'},
+ {name:'ethanoic acid',f:'CH₃–COOH',R:'CH₃',c:2,ate:'ethanoate'},
+ {name:'propanoic acid',f:'CH₃–CH₂–COOH',R:'CH₃–CH₂',c:3,ate:'propanoate'},
+ {name:'butanoic acid',f:'CH₃–CH₂–CH₂–COOH',R:'CH₃–CH₂–CH₂',c:4,ate:'butanoate'},
+ {name:'2-methylpropanoic acid',f:'CH₃–CH(CH₃)–COOH',R:'CH₃–CH(CH₃)',c:4,ate:'2-methylpropanoate'}];
+const ALCS=[
+ {name:'methanol',f:'CH₃–OH',R:'CH₃',cls:1,c:1,yl:'methyl'},
+ {name:'ethanol',f:'CH₃–CH₂–OH',R:'CH₂–CH₃',cls:1,c:2,yl:'ethyl'},
+ {name:'propan-1-ol',f:'CH₃–CH₂–CH₂–OH',R:'CH₂–CH₂–CH₃',cls:1,c:3,yl:'propyl'},
+ {name:'propan-2-ol',f:'CH₃–CH(OH)–CH₃',R:'CH(CH₃)–CH₃',cls:2,c:3,yl:'propan-2-yl'},
+ {name:'butan-1-ol',f:'CH₃–CH₂–CH₂–CH₂–OH',R:'CH₂–CH₂–CH₂–CH₃',cls:1,c:4,yl:'butyl'},
+ {name:'butan-2-ol',f:'CH₃–CH₂–CH(OH)–CH₃',R:'CH(CH₃)–CH₂–CH₃',cls:2,c:4,yl:'butan-2-yl'},
+ {name:'2-methylpropan-1-ol',f:'CH₃–CH(CH₃)–CH₂–OH',R:'CH₂–CH(CH₃)–CH₃',cls:1,c:4,yl:'2-methylpropyl'},
+ {name:'2-methylpropan-2-ol',f:'(CH₃)₃C–OH',R:'C(CH₃)₂–CH₃',cls:3,c:4,yl:'2-methylpropan-2-yl'},
+ {name:'2-methylbutan-1-ol',f:'CH₃–CH₂–CH(CH₃)–CH₂–OH',R:'CH₂–CH(CH₃)–CH₂–CH₃',cls:1,c:5,yl:'2-methylbutyl'},
+ {name:'3-methylbutan-1-ol',f:'CH₃–CH(CH₃)–CH₂–CH₂–OH',R:'CH₂–CH₂–CH(CH₃)–CH₃',cls:1,c:5,yl:'3-methylbutyl'},
+ {name:'pentan-2-ol',f:'CH₃–CH₂–CH₂–CH(OH)–CH₃',R:'CH(CH₃)–CH₂–CH₂–CH₃',cls:2,c:5,yl:'pentan-2-yl'}];
+const SMELL={'ethanoic acid|ethanol':'pear drops (nail-varnish remover)','ethanoic acid|3-methylbutan-1-ol':'banana','butanoic acid|ethanol':'pineapple','butanoic acid|methanol':'apple','ethanoic acid|propan-1-ol':'pear','methanoic acid|ethanol':'rum'};
+const STEM=['','meth','eth','prop','but','pent','hex','hept','oct','non'];
+const KCLS={1:4,2:2.25,3:0.0028};
+const CLSNAME={1:'primary (I)',2:'secondary (II)',3:'tertiary (III)'};
+const sub=n=>String(n).split('').map(d=>'₀₁₂₃₄₅₆₇₈₉'[+d]).join('');
+const molF=n=>`C${n>1?sub(n):''}H${sub(2*n)}O₂`;
+const Macid=a=>14*a.c+32, Malc=b=>14*b.c+18, Mest=(a,b)=>14*(a.c+b.c)+32;
+const esterName=(a,b)=>`${b.yl} ${a.ate}`;
+const esterF=(a,b)=>`${a.R}–COO–${b.R}`;
+function xEq(a,b,K,remove){if(remove)return Math.min(a,b);let lo=0,hi=Math.min(a,b);for(let i=0;i<100;i++){const m=(lo+hi)/2;const q=m*m/((a-m)*(b-m));if(q>K)hi=m;else lo=m}return (lo+hi)/2}
+
+/* =========================================================
+   TAB 1
+   ========================================================= */
+ACIDS.forEach((a,i)=>$('#acidSel').insertAdjacentHTML('beforeend',`<option value="${i}">${a.name}</option>`));
+ALCS.forEach((a,i)=>$('#alcSel').insertAdjacentHTML('beforeend',`<option value="${i}">${a.name} (${['','I','II','III'][a.cls]})</option>`));
+$('#acidSel').value=1;$('#alcSel').value=1;
+let named=false;
+const pick=()=>[ACIDS[+$('#acidSel').value],ALCS[+$('#alcSel').value]];
+function renderBuild(){const [a,b]=pick();const show=named||!$('#cHide').checked;
+ const T=(m,n,cls='')=>`<span class="term ${cls}"><span class="mol">${m}</span><span class="nm">${n}</span></span>`,O=o=>`<span class="op">${o}</span>`;
+ $('#eqn').innerHTML=`<div class="eqrow">${T(`${a.R}–CO<span class="bx">OH</span>`,a.name)}${O('+')}${T(`<span class="bx">H</span>–O–${b.R}`,b.name)}${O('⇌')}${T(esterF(a,b),show?esterName(a,b):'? ester','est')}${O('+')}${T('H₂O','water')}</div>`;
+ const n=a.c+b.c;const smell=SMELL[a.name+'|'+b.name];
+ $('#infoCard').innerHTML=`<dl class="readouts">
+  <div><dt>Alcohol class</dt><dd>${CLSNAME[b.cls]}</dd></div>
+  <div><dt>Yield (1 mol + 1 mol)</dt><dd>${['','67 %','60 %','about 5 %'][b.cls]}</dd></div>
+  <div><dt>M(acid) · M(alcohol)</dt><dd>${Macid(a)} · ${Malc(b)} g/mol</dd></div>
+  <div><dt>Ester: CₙH₂ₙO₂</dt><dd>${molF(n)} · ${Mest(a,b)} g/mol</dd></div>
+  <div style="grid-column:1/-1"><dt>Functional isomer of the ester</dt><dd style="font-size:1rem">${STEM[n]}anoic acid (also ${molF(n)})</dd></div>
+  ${smell?`<div style="grid-column:1/-1"><dt>Smells of</dt><dd style="font-size:1rem">${smell}</dd></div>`:''}
+  ${b.cls===3?'<div style="grid-column:1/-1"><dt>Note</dt><dd style="font-size:.95rem;font-family:var(--body)">Tertiary alcohols barely esterify: side reactions (dehydration) take over.</dd></div>':''}</dl>`;
+ renderNameQuiz()}
+function renderNameQuiz(){const [a,b]=pick();const right=esterName(a,b);
+ const swap=(STEM[a.c]&&b.yl.match(/^(meth|eth|prop|but|pent)yl$/))?`${STEM[a.c]}yl ${STEM[b.c]}anoate`:null;
+ const cand=[right,swap,`${b.yl} ${a.name}`,`${STEM[a.c+b.c]}anoic acid`,`${b.name} ${a.ate}`].filter((v,i,arr)=>v&&arr.indexOf(v)===i).slice(0,4);
+ const opts=shuffle(cand);$('#nameMsg').hidden=true;$('#nameOpts').innerHTML='';
+ opts.forEach(o=>{const btn=document.createElement('button');btn.type='button';btn.textContent=o;btn.onclick=()=>{if(named)return;named=true;const ok=o===right;btn.classList.add(ok?'right':'wrong');
+  if(!ok)[...$('#nameOpts').children].forEach(x=>{if(x.textContent===right)x.classList.add('right')});
+  const m=$('#nameMsg');m.hidden=false;m.className='status '+(ok?'ok':'bad');
+  m.textContent=(ok?'Correct. ':'Not quite. ')+`The alcohol ${b.name} gives the alkyl group "${b.yl}" and ${a.name} gives "${a.ate}", so the ester is ${right}.`+(o===`${STEM[a.c+b.c]}anoic acid`?' (That acid has the same formula: it is a functional isomer of the ester.)':'');renderBuild2()};$('#nameOpts').appendChild(btn)})}
+function renderBuild2(){const [a,b]=pick();
+ $('#eqn').querySelector('.est .nm').textContent=esterName(a,b)}
+['#acidSel','#alcSel'].forEach(s=>$(s).onchange=()=>{named=false;renderBuild();syncEq()});
+$('#cHide').onchange=()=>renderBuild();
+
+/* =========================================================
+   TAB 2 — equilibrium run
+   dx/dt = k[(a−x)(b−x) − x·w/K], w = x (water) unless it is removed
+   ========================================================= */
+const eq={cls:1,heat:false,cat:false,rem:false,running:false,t:0,x:0,hist:[],done:false,runs:[]};
+function kOf(){return .004*(eq.heat?8:1)*(eq.cat?12:1)}
+function eqParams(){return {a:+$('#sA').value,b:+$('#sB').value,K:KCLS[eq.cls]}}
+function syncEq(){const [a,b]=pick();eq.cls=b.cls;$$('[data-cls]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.cls===eq.cls));resetEq()}
+function resetEq(){eq.running=false;eq.t=0;eq.x=0;eq.hist=[[0,0]];eq.done=false;$('#runBtn').textContent='Start the reaction';
+ const p=eqParams();eq.xe=xEq(p.a,p.b,p.K,eq.rem);eq.tc=1/(kOf()*Math.max(.3,(p.a+p.b)/2));eq.tmax=eq.tc*(eq.rem?5:7);eq.t95=null;updEq()}
+function f(x){const p=eqParams();return kOf()*((p.a-x)*(p.b-x)-(eq.rem?0:x*x/p.K))}
+function stepEq(dt){const n=Math.max(1,Math.ceil(dt/(eq.tc/400)));const h=dt/n;for(let i=0;i<n;i++){const x=eq.x;const k1=f(x),k2=f(x+h*k1/2),k3=f(x+h*k2/2),k4=f(x+h*k3);eq.x=Math.max(0,x+h*(k1+2*k2+2*k3+k4)/6);eq.t+=h;
+  if(eq.t95===null&&eq.x>=.95*eq.xe)eq.t95=eq.t}}
+const fmtT=t=>t>=48?fx(t/24,1)+' days':t>=1?fx(t,1)+' h':Math.round(t*60)+' min';
+function updEq(){const p=eqParams(),[A,B]=pick();
+ $('#oA').textContent=fx(p.a,1)+' mol';$('#oB').textContent=fx(p.b,1)+' mol';
+ $('#eqTitle').textContent=`acid + alcohol ⇌ ester + water`;
+ const th=Math.min(p.a,p.b);$('#rT').textContent=fmtT(eq.t);$('#rX').textContent=fx(eq.x,3)+' mol';$('#rTh').textContent=fx(th,2)+' mol';$('#rY').textContent=fx(100*eq.x/th,1)+' %';
+ const at=eq.done,x=at?eq.xe:eq.x,lab=at?'t_eq':'t';
+ const w=eq.rem?'removed':`x${at||eq.t>0?' = '+fx(x,3):''}`;
+ $('#ice').innerHTML=`<thead><tr><th>(mol)</th><th>acid</th><th>alcohol</th><th>ester</th><th>water</th></tr></thead><tbody>
+  <tr><td>t₀</td><td>${fx(p.a,1)}</td><td>${fx(p.b,1)}</td><td>0</td><td>0</td></tr>
+  <tr><td>Δn</td><td>−x</td><td>−x</td><td>+x</td><td>+x</td></tr>
+  <tr><td>${at?'t_eq':'t'}</td><td>${fx(p.a,1)} − x${eq.t>0?' = '+fx(p.a-x,3):''}</td><td>${fx(p.b,1)} − x${eq.t>0?' = '+fx(p.b-x,3):''}</td><td>x${eq.t>0?' = '+fx(x,3):''}</td><td>${w}</td></tr></tbody>`;
+ const lim=p.a<p.b?'the acid':p.b<p.a?'the alcohol':'equimolar, so either reagent';
+ $('#yieldSol').textContent=`Theoretical n(ester) by ATSR = n₀ of the limiting reagent (${lim}) = ${fx(th,2)} mol\n`+
+  (at?`At equilibrium x = ${fx(eq.xe,3)} mol\nYield = n(ester)obtained / n(ester)theoretical × 100 = ${fx(eq.xe,3)} / ${fx(th,2)} × 100 = ${fx(100*eq.xe/th,1)} %\n`+(eq.rem?'Water was removed, so the reverse reaction (hydrolysis) cannot happen: the reaction becomes complete.':`Check: K = x² / ((n₀acid − x)(n₀alcohol − x)) = ${fx(eq.xe*eq.xe/((p.a-eq.xe)*(p.b-eq.xe)),2)}  (K = ${KCLS[eq.cls]} for a ${CLSNAME[eq.cls]} alcohol)\nConversion of the acid = x / n₀(acid) = ${fx(eq.xe/p.a,2)}`):'Run the reaction until n(ester) stops changing.');
+ drawEq()}
+function drawEq(){const c=$('#eg');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const L=46,Rm=12,T=14,B=32;const p=eqParams();const th=Math.min(p.a,p.b);
+ const ymax=Math.max(.5,Math.ceil(th*1.15*10)/10),tmax=eq.tmax;const X=t=>L+t/tmax*(w-L-Rm),Y=v=>h-B-v/ymax*(h-T-B);
+ x.strokeStyle=C.grid;x.lineWidth=1;const ys=ymax>2?.5:ymax>1?.25:.1;
+ for(let v=0;v<=ymax+1e-9;v+=ys){x.beginPath();x.moveTo(L,Y(v));x.lineTo(w-Rm,Y(v));x.stroke();txt(x,fx(v,ys<.25?1:2),L-5,Y(v),C.muted,10,'right','middle')}
+ const unit=tmax>=72?24:1,uName=unit===24?'days':'h';const span=tmax/unit;const st=span>20?5:span>8?2:span>3?1:.5;
+ for(let t=0;t<=span+1e-9;t+=st){x.beginPath();x.moveTo(X(t*unit),T);x.lineTo(X(t*unit),h-B);x.stroke();txt(x,String(t),X(t*unit),h-B+14,C.muted,10,'center')}
+ txt(x,`t (${uName})`,w-Rm,h-3,C.muted,11,'right');txt(x,'n(ester) mol',L+6,T+12,C.muted,11);
+ x.setLineDash([6,5]);x.lineWidth=1.5;x.strokeStyle=C.brass;x.beginPath();x.moveTo(L,Y(th));x.lineTo(w-Rm,Y(th));x.stroke();txt(x,`theoretical ${fx(th,2)} mol`,w-Rm-4,Y(th)-5,C.brass,11,'right');
+ if(!eq.rem){x.strokeStyle=C.rose;x.beginPath();x.moveTo(L,Y(eq.xe));x.lineTo(w-Rm,Y(eq.xe));x.stroke();txt(x,`equilibrium x = ${fx(eq.xe,2)} mol`,w-Rm-4,Y(eq.xe)+14,C.rose,11,'right')}
+ x.setLineDash([]);x.strokeStyle=C.accent;x.lineWidth=3;x.beginPath();eq.hist.forEach(([t,v],i)=>i?x.lineTo(X(t),Y(v)):x.moveTo(X(t),Y(v)));x.stroke()}
+function renderRuns(){const tb=$('#runsTb');if(!eq.runs.length){tb.innerHTML='<tr class="empty"><td colspan="6">Finished runs are listed here so you can compare.</td></tr>';return}
+ tb.innerHTML=eq.runs.map((r,i)=>`<tr><td>${i+1}</td><td>${r.ab}</td><td>${r.cls}</td><td>${r.cond}</td><td>${r.t}</td><td>${r.y}</td></tr>`).join('')}
+$('#runBtn').onclick=()=>{if(eq.done)resetEq();eq.running=!eq.running;$('#runBtn').textContent=eq.running?'Pause':'Continue'};
+$('#resetBtn').onclick=resetEq;
+['#sA','#sB'].forEach(s=>$(s).addEventListener('input',resetEq));
+$$('[data-cls]').forEach(b=>b.onclick=()=>{segPick(b);eq.cls=+b.dataset.cls;resetEq()});
+$('#cHeat').onchange=e=>{eq.heat=e.target.checked;resetEq()};$('#cCat').onchange=e=>{eq.cat=e.target.checked;resetEq()};$('#cRem').onchange=e=>{eq.rem=e.target.checked;resetEq()};
+let last=performance.now(),acc=0;
+function loop(now){const real=Math.min(.05,(now-last)/1000);last=now;
+ if(eq.running&&tab==='eq'){stepEq(real*eq.tmax/9);eq.hist.push([eq.t,eq.x]);
+  if(eq.t>=eq.tmax){eq.running=false;eq.done=true;eq.x=eq.xe;eq.hist.push([eq.t,eq.x]);$('#runBtn').textContent='Run again';const p=eqParams();
+   eq.runs.push({ab:`${fx(p.a,1)} / ${fx(p.b,1)}`,cls:['','I','II','III'][eq.cls],cond:[eq.heat?'heated':'room temp.',eq.cat?'H₂SO₄':'no catalyst',eq.rem?'water removed':''].filter(Boolean).join(', '),t:'≈ '+fmtT(eq.t95||eq.tmax),y:fx(100*eq.xe/Math.min(p.a,p.b),0)+' %'});
+   if(eq.runs.length>8)eq.runs.shift();renderRuns()}
+  acc+=real;if(acc>.1||eq.done){acc=0;updEq()}}
+ requestAnimationFrame(loop)}
+
+/* =========================================================
+   TAB 3 — exercise
+   ========================================================= */
+let ex=null;
+function setEx(acidI,alcI,a,b,m){const A=ACIDS[acidI],B=ALCS[alcI];const M=Mest(A,B);ex={A,B,a,b,m,M,x:m/M};ex.th=Math.min(a,b);renderEx()}
+function notesEx(){setEx(1,1,1,1,58.96)}
+function newEx(){const acidI=Math.floor(Math.random()*4),cands=ALCS.map((x,i)=>i).filter(i=>ALCS[i].cls<3);const alcI=cands[Math.floor(Math.random()*cands.length)];
+ const pairs=[[1,1],[1,1],[.5,.5],[2,1],[1,2],[2,2]];const [a,b]=pairs[Math.floor(Math.random()*pairs.length)];const B=ALCS[alcI];
+ const x=xEq(a,b,KCLS[B.cls],false);const M=Mest(ACIDS[acidI],B);setEx(acidI,alcI,a,b,Math.round(x*M*100)/100)}
+function exSteps(){const {A,B,a,b,x,M,th}=ex;const eqm=a===b;const y=100*x/th;
+ const names=shuffle([esterName(A,B),`${B.name} ${A.ate}`,`${B.yl} ${A.name}`,`${STEM[A.c+B.c]}anoic acid`]);
+ return [
+ {id:'e1',q:'1 · Write the name of the ester formed.',select:['Ester',...names],check:(v,s)=>[s===esterName(A,B),'alkyl (from the alcohol) + alkanoate (from the acid).'],
+  sol:()=>`${A.f} + ${B.f} ⇌ ${esterF(A,B)} + H₂O\nThe acid loses OH, the alcohol loses H.\nName: ${esterName(A,B)}`},
+ {id:'e2',q:'2 · Calculate the molar mass of the ester.',inputs:[['M(ester) =','g/mol']],check:v=>[near(v[0],M,.005),'Count C, H and O in the ester formula (CₙH₂ₙO₂).'],
+  sol:()=>`Ester ${molF(A.c+B.c)}\nM = ${A.c+B.c}×12 + ${2*(A.c+B.c)}×1 + 2×16 = ${M} g/mol`},
+ {id:'e3',q:'3 · Find x, the amount of ester at equilibrium.',inputs:[['x = n(ester) =','mol']],check:v=>[near(v[0],x,.02),'n = m / M.'],
+  sol:()=>`x = n(ester) = m / M = ${ex.m} / ${M} = ${fx(x,3)} mol`},
+ {id:'e4',q:'4 · Complete the table: how much acid and alcohol remain at equilibrium?',inputs:[['n(acid) remaining =','mol'],['n(alcohol) remaining =','mol']],check:v=>[near(v[0],a-x,.03)&&near(v[1],b-x,.03),'At equilibrium each reagent is n₀ − x.'],
+  sol:()=>`        acid      alcohol    ester   water\nt₀      ${a}         ${b}          0       0\nΔn      −x        −x         +x      +x\nt_eq    ${a} − x   ${b} − x    x       x\n\nn(acid) = ${a} − ${fx(x,3)} = ${fx(a-x,3)} mol\nn(alcohol) = ${b} − ${fx(x,3)} = ${fx(b-x,3)} mol`},
+ {id:'e5',q:'5 · Calculate the yield of the reaction.',inputs:[['yield =','%']],check:v=>[near(v[0],y,.03),'Yield = n(ester)obtained / n(ester)theoretical × 100; theoretical by ATSR = n₀ of the limiting reagent.'],
+  sol:()=>`n(ester)theoretical (ATSR) = n₀ of the limiting reagent = ${th} mol\nYield = ${fx(x,3)} / ${th} × 100 = ${fx(y,0)} %`},
+ eqm?{id:'e6',q:'6 · The mixture was equimolar. What is the class of the alcohol?',select:['Class','primary (I)','secondary (II)','tertiary (III)'],check:(v,s)=>[s===CLSNAME[B.cls],'Equimolar mixtures give 67 % with primary, 60 % with secondary and about 5 % with tertiary alcohols.'],
+  sol:()=>`Yield ≈ ${fx(y,0)} % with an equimolar mixture → ${CLSNAME[B.cls]} alcohol (${B.name}).`}
+ :{id:'e6',q:`6 · The alcohol is ${CLSNAME[B.cls]}, yet the yield is not ${B.cls===1?'67':'60'} %. Why?`,select:['Reason','One reagent is in excess (non-equimolar), which shifts the equilibrium towards the ester','The catalyst changed the yield','The temperature was higher'],
+  check:(v,s)=>[s.startsWith('One reagent'),'Only the excess of a reagent (or removing a product) changes the yield; heat and catalyst only change the speed.'],
+  sol:()=>`The mixture is non-equimolar (${a} mol acid, ${b} mol alcohol). An excess of one reagent shifts the equilibrium to the right, so more of the limiting reagent becomes ester: ${fx(y,0)} % instead of ${B.cls===1?'67':'60'} %.`},
+ {id:'e7',q:'7 · Calculate the equilibrium constant K.',inputs:[['K =','']],check:v=>[near(v[0],x*x/((a-x)*(b-x)),.06),'K = [ester][water] / ([acid][alcohol]); the volume cancels, so you can use moles.'],
+  sol:()=>`K = x² / ((${a} − x)(${b} − x)) = ${fx(x,3)}² / (${fx(a-x,3)} × ${fx(b-x,3)}) = ${fx(x*x/((a-x)*(b-x)),2)}`}]}
+let STEPS=[];
+function renderEx(){const {A,B,a,b,m}=ex;STEPS=exSteps();
+ $('#exText').textContent=`${a} mol of ${A.name} (${A.f}) is heated with ${b} mol of ${B.name} (${B.f}) and a few drops of concentrated H₂SO₄. At equilibrium, ${m} g of ester has formed.`;
+ $('#steps').innerHTML=STEPS.map(s=>`<div class="card" id="${s.id}"><p class="q" style="font-size:1rem">${s.q}</p>
+  ${(s.inputs||[]).map((inp,i)=>`<div class="ans"><label for="${s.id}i${i}">${inp[0]}</label><input id="${s.id}i${i}" inputmode="decimal" autocomplete="off"><span class="mono">${inp[1]}</span></div>`).join('')}
+  ${s.select?`<div class="ans"><label for="${s.id}sel">${s.select[0]}</label><select id="${s.id}sel"><option value="">choose</option>${s.select.slice(1).map(o=>`<option>${o}</option>`).join('')}</select></div>`:''}
+  <div class="transport"><button class="btn primary small" type="button" data-chk="${s.id}">Check</button><button class="btn small" type="button" data-sol="${s.id}">Show solution</button></div>
+  <p class="status" id="${s.id}st" hidden></p><pre class="sol" id="${s.id}sol" hidden></pre></div>`).join('');
+ $$('[data-chk]').forEach(b=>b.onclick=()=>{const s=STEPS.find(q=>q.id===b.dataset.chk);const v=(s.inputs||[]).map((_,i)=>num($(`#${s.id}i${i}`).value));const sel=s.select?$(`#${s.id}sel`).value:'';
+  const [ok,hint]=s.check(v,sel);const st=$(`#${s.id}st`);st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=ok?'Correct!':'Not yet. '+hint});
+ $$('[data-sol]').forEach(b=>b.onclick=()=>{const s=STEPS.find(q=>q.id===b.dataset.sol);const el=$(`#${s.id}sol`);el.hidden=!el.hidden;el.textContent=s.sol()})}
+$('#exNotes').onclick=notesEx;$('#exNew').onclick=newEx;
+
+/* =========================================================
+   TAB 4 — challenge
+   ========================================================= */
+const QS=[
+ ['What are the three characteristics of esterification?',['Slow, limited (reversible), athermic','Fast, complete, exothermic','Slow, complete, endothermic','Fast, limited, exothermic'],0,'It takes hours, stops at an equilibrium, and gives out almost no heat.'],
+ ['Name the ester formed from propanoic acid and methanol.',['methyl propanoate','propyl methanoate','methyl propanol','propanoic methyl'],0,'Alkyl from the alcohol (methyl) + alkanoate from the acid (propanoate).'],
+ ['Name the ester CH₃–COO–CH₂–CH₃.',['ethyl ethanoate','methyl propanoate','ethyl methanoate','propyl ethanoate'],0,'The part with C=O (CH₃–CO–) comes from ethanoic acid; –CH₂–CH₃ from ethanol.'],
+ ['1 mol of acid and 1 mol of a primary alcohol reach equilibrium. The yield is about…',['67 %','100 %','60 %','5 %'],0,'Primary: 67 %, secondary: 60 %, tertiary: about 5 % (equimolar mixtures).'],
+ ['Which change INCREASES the yield of ester?',['Using an excess of the alcohol','Adding more H₂SO₄ catalyst','Heating under reflux','Stirring faster'],0,'An excess of one reagent shifts the equilibrium towards the ester. Heat and catalyst only reach equilibrium faster.'],
+ ['What is the role of concentrated H₂SO₄ in esterification?',['A catalyst: the reaction reaches equilibrium faster','It increases the yield','It is a reagent that is used up','It removes the ester'],0,'A catalyst speeds up both the forward and reverse reactions; the yield is unchanged.'],
+ ['The reverse reaction of esterification is called…',['Hydrolysis','Saponification','Dehydration','Combustion'],0,'Ester + water ⇌ acid + alcohol: hydrolysis. It is also slow and limited.'],
+ ['Ester + NaOH → carboxylate salt + alcohol is called…',['Saponification (it is complete)','Esterification','Hydration','Oxidation'],0,'Saponification is complete and makes soap when the ester is a fat.'],
+ ['Which pair are functional isomers?',['An ester and a carboxylic acid with the same formula','An alcohol and an alkane','Butan-1-ol and butan-2-ol','Butane and 2-methylpropane'],0,'Both are CₙH₂ₙO₂ but have different functional groups. (Butan-1-ol/butan-2-ol are position isomers.)'],
+ ['58.96 g of ethyl ethanoate (M = 88 g/mol) form from 1 mol acid + 1 mol ethanol. What is the yield?',['67 %','59 %','88 %','100 %'],0,'n = 58.96 / 88 = 0.67 mol; yield = 0.67 / 1 × 100 = 67 %.'],
+ ['In esterification, which atoms form the water molecule?',['OH from the acid and H from the alcohol','H from the acid and OH from the alcohol','Both H atoms from the alcohol','O from the acid and H₂ from the alcohol'],0,'The acid loses its OH group; the alcohol loses the H of its OH group.'],
+ ['What is the molecular formula of propyl ethanoate?',['C₅H₁₀O₂','C₅H₁₂O₂','C₄H₈O₂','C₅H₁₀O'],0,'5 carbons: CₙH₂ₙO₂ with n = 5.'],
+ ['2 mol of acid react with 1 mol of alcohol. How do you find n(ester)theoretical?',['ATSR with the limiting reagent: 1 mol','Add them: 3 mol','Use the acid: 2 mol','Average: 1.5 mol'],0,'The limiting reagent (the alcohol) sets the maximum amount of ester.']];
+let order=[],qi=-1,score=0,tries=0,answered=false;
+function nextQ(){if(!order.length||qi>=order.length-1){order=shuffle([...QS.keys()]);qi=-1}qi++;answered=false;const q=QS[order[qi]];
+ $('#qText').textContent=q[0];$('#qStatus').hidden=true;const opts=shuffle(q[1].map((t,k)=>({t,k})));
+ $('#qOpts').innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;b.onclick=()=>{if(answered)return;answered=true;tries++;
+  const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
+  const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
+$('#qNext').onclick=nextQ;
+
+function drawAll(){if(!C.ink)readColors();if(tab==='eq'&&eq.hist)drawEq()}
+addEventListener('resize',drawAll);
+readColors();renderBuild();syncEq();notesEx();nextQ();themeLabel();
+requestAnimationFrame(loop);
+</script>
+</body></html>
