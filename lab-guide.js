@@ -273,6 +273,9 @@
     '.lg-ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:5px}' +
     '.lg-pres{align-self:flex-start;border:1.5px solid #0A6A88;background:none;color:inherit;border-radius:9px;padding:8px 12px;font:700 14px system-ui;cursor:pointer}' +
     'html.lg-present{font-size:125%}html.lg-present body{font-size:1.15em}html.lg-present .lede,html.lg-present footer{display:none!important}' +
+    '.lg-btn,.lg-panel button{width:auto!important;min-width:0!important;margin:0!important;text-transform:none!important;letter-spacing:normal!important;flex:none}' +
+    '.lg-btn{left:auto!important;top:auto!important}' +
+    '.lg-panel label{width:auto!important;margin:0!important;text-transform:none!important;letter-spacing:normal!important;font-size:inherit!important;color:inherit!important}' +
     '@media print{.lg-btn{display:none}}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
