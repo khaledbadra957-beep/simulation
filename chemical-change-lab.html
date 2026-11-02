@@ -266,6 +266,40 @@ const EXP=[
  {id:'mg',name:'Burning magnesium ribbon',scene:'flame',kind:'chemical',need:['energy'],ok:['colour','solid'],
   obs:'A dazzling white light and lots of heat! The shiny grey ribbon turns into a white powder.',why:'Giving off light and heat is a strong sign of a chemical change. The grey metal became white magnesium oxide, a new substance.'}
 ];
+/* ---- glass look (SVG) ---- */
+function svgGlassBack(bx,by,bw,bh){const dk=document.documentElement.getAttribute('data-theme')==='dark'||(!document.documentElement.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+ return `<defs><radialGradient id="gsh" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity="${dk?.45:.2}"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+ <linearGradient id="gtint" x1="0" x2="1"><stop offset="0" stop-color="${dk?'#96BED7':'#BEDCEB'}" stop-opacity="${dk?.16:.35}"/><stop offset=".5" stop-color="#E1F0F8" stop-opacity="${dk?.05:.12}"/><stop offset="1" stop-color="${dk?'#96BED7':'#AACDE1'}" stop-opacity="${dk?.2:.38}"/></linearGradient>
+ <linearGradient id="ghl" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".4" stop-color="#fff" stop-opacity="${dk?.2:.6}"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+ <ellipse cx="${bx+bw/2}" cy="${by+bh+8}" rx="${bw*.62}" ry="9" fill="url(#gsh)"/>
+ <path d="M${bx} ${by-6} L${bx} ${by+bh} Q${bx} ${by+bh+6} ${bx+8} ${by+bh+6} L${bx+bw-8} ${by+bh+6} Q${bx+bw} ${by+bh+6} ${bx+bw} ${by+bh} L${bx+bw} ${by-6}Z" fill="url(#gtint)"/>`}
+function svgGlassFront(bx,by,bw,bh){return `<rect x="${bx+bw*.07}" y="${by+bh*.06}" width="${bw*.12}" height="${bh*.82}" rx="6" fill="url(#ghl)"/><rect x="${bx+bw*.86}" y="${by+bh*.1}" width="${bw*.035}" height="${bh*.6}" rx="3" fill="#fff" opacity=".28"/>`}
+/* ---- macro → micro lens: what the particles do in the beaker ---- */
+const MICRO={
+ soda:{a:['acid','#C9D17A'],b:['HCO₃⁻','#E9E4D8'],p:['CO₂','#4A4F55'],p2:['H₂O','#5B9BD5'],gas:true,say:'Acid + hydrogencarbonate → new molecules: CO₂ gas escapes'},
+ mgso4:{a:['Mg²⁺','#9EC1E8'],b:['CO₃²⁻','#E2B86B'],p:['MgCO₃','#FFFFFF'],solid:true,spect:[['SO₄²⁻','#D9C24A'],['Na⁺','#B48BE0']],say:'Mg²⁺ and CO₃²⁻ join into a new solid (precipitate)'},
+ pbi:{a:['Pb²⁺','#9AA4AE'],b:['I⁻','#8E5BC8'],p:['PbI₂','#F2C514'],solid:true,spect:[['K⁺','#B48BE0'],['NO₃⁻','#E08A3C']],say:'Pb²⁺ and I⁻ join into a new yellow solid'},
+ yeast:{a:['H₂O₂','#D8322A'],b:null,p:['O₂','#E8584E'],p2:['H₂O','#5B9BD5'],gas:true,say:'H₂O₂ breaks into new molecules: water and oxygen gas'},
+ sugar:{phys:['C₁₂H₂₂O₁₁','#F4F0E6'],say:'Sugar molecules spread out between water molecules, but they are still sugar'},
+ dye:{phys:['dye','#2E7BD6'],say:'Dye molecules spread out between water molecules. No new substance'}};
+function microLens(e,k,tt){const m=MICRO[e.id],cx=150,cy=180,R=100,r=rng(31);let s=`<defs><clipPath id="mlc"><circle cx="${cx}" cy="${cy}" r="${R}"/></clipPath><radialGradient id="mlg" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".18"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>`;
+ s+=`<path d="M${cx+R*.86} ${cy+R*.5} L322 300" stroke="${css('--ink')}" stroke-width="1.5" stroke-dasharray="4 4" opacity=".55"/><circle cx="322" cy="300" r="9" fill="none" stroke="${css('--ink')}" stroke-width="1.5" opacity=".55"/>`;
+ s+=`<g clip-path="url(#mlc)"><rect x="${cx-R}" y="${cy-R}" width="${2*R}" height="${2*R}" fill="${e.mix||e.liq}" opacity=".55"/>`;
+ const ball=(x,y,rad,col,lab)=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rad}" fill="${col}" stroke="#00000055" stroke-width="1"/><circle cx="${(x-rad*.35).toFixed(1)}" cy="${(y-rad*.4).toFixed(1)}" r="${(rad*.35).toFixed(1)}" fill="#fff" opacity=".45"/>`+(lab?`<text x="${x.toFixed(1)}" y="${(y+3.5).toFixed(1)}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="${lab.length>4?7.5:9}" font-weight="700" fill="#10202A">${lab}</text>`:'');
+ const wob=i=>[Math.sin(tt*30+i)*2.5,Math.cos(tt*26+i*1.3)*2.5];
+ // water background molecules
+ for(let i=0;i<14;i++){const x=cx-R+r()*2*R,y=cy-R+r()*2*R,[a,b]=wob(i+50);s+=ball(x+a,y+b,5,'#E05A4A','')+ball(x+a-5,y+b+4,3,'#F2F2F2','')+ball(x+a+5,y+b+4,3,'#F2F2F2','')}
+ if(m.phys){const n=10;for(let i=0;i<n;i++){const sx=cx-R*.15+r()*R*.3,sy=cy-R*.6+r()*R*.25,ex=cx-R*.75+r()*R*1.5,ey=cy-R*.7+r()*R*1.4;const u=ease(k);const [a,b]=wob(i);s+=ball(lerp(sx,ex,u)+a,lerp(sy,ey,u)+b,11,m.phys[1],m.phys[0]==='dye'?'':'')}}
+ else{const n=8;for(let i=0;i<n;i++){const hx=cx-R*.6+(i%4)*R*.4+r()*10,hy=cy-R*.45+Math.floor(i/4)*R*.5+r()*10,[a,b]=wob(i);const done=k>(i+.5)/n;
+   if(!done){const meet=clamp(k*n-i+.6,0,1);s+=ball(hx-14+meet*6+a,hy+b,12,m.a[1],m.a[0]);if(m.b)s+=ball(hx+14-meet*6+a,hy+b,12,m.b[1],m.b[0])}
+   else{const age=clamp(k*n-i-.5,0,3);
+    if(m.gas){const up=age*40;s+=ball(hx+a,hy-up+b,12,m.p[1],m.p[0])+`<circle cx="${hx+a}" cy="${hy-up+b}" r="16" fill="none" stroke="${css('--ink')}" stroke-opacity=".35"/>`;if(m.p2)s+=ball(hx+16+a,hy+14+b,9,m.p2[1],'')}
+    else{const tx=cx-R*.55+(i%5)*24,ty=cy+R*.62-Math.floor(i/5)*20,u=clamp(age,0,1);s+=ball(lerp(hx,tx,u)+a*(1-u),lerp(hy,ty,u)+b*(1-u),12,m.p[1],m.p[0])}}}
+  if(m.spect)m.spect.forEach((sp,j)=>{for(let q=0;q<3;q++){const x=cx-R*.8+r()*R*1.6,y=cy-R*.75+r()*R*.9,[a,b]=wob(q+j*7+20);s+=ball(x+a,y+b,9,sp[1],sp[0])}})}
+ s+=`<rect x="${cx-R}" y="${cy-R}" width="${2*R}" height="${2*R}" fill="url(#mlg)"/></g><circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${css('--ink')}" stroke-width="4"/>`;
+ s+=`<rect x="${cx-62}" y="${cy+R-11}" width="124" height="20" rx="10" fill="${css('--ink')}"/><text x="${cx}" y="${cy+R+3}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="700" fill="${css('--stage')}">particle view</text>`;
+ if(k>0)s+=`<foreignObject x="${cx-R-10}" y="${cy+R+12}" width="${2*R+20}" height="60"><div xmlns="http://www.w3.org/1999/xhtml" style="font:600 12px Atkinson Hyperlegible,sans-serif;color:${css('--ink')};text-align:center">${m.say}</div></foreignObject>`;
+ return s}
 let cur1=EXP[0], t1=0, run1=false, start1=0, done1={}, kind1=null;
 const DUR1=6000;
 function picks1(){$('#expPicks').innerHTML=EXP.map(e=>`<button class="pick" type="button" data-id="${e.id}" aria-pressed="${e===cur1}">${e.name}${done1[e.id]?'<span class="tick">✓</span>':''}</button>`).join('');
@@ -290,6 +324,7 @@ function draw1(){
     const bx=300,by=150,bw=200,bh=240,pour=clamp(t1/.22,0,1),rxt=clamp((t1-.2)/.8,0,1);
     const lvl0=110,lvl=lvl0+(e.bPowder?10:40)*pour, ytop=by+bh-lvl;
     const fill=pour<1&&!e.dye?e.liq:e.liq;
+    s+=svgGlassBack(bx,by,bw,bh);
     // liquid
     let lc=e.liq; if(e.dye) lc=e.mix;
     s+=`<rect x="${bx+4}" y="${ytop}" width="${bw-8}" height="${lvl-4}" fill="${e.dye?e.liq:e.liq}" opacity=".95"/>`;
@@ -310,6 +345,7 @@ function draw1(){
       if(pile>0.02){for(let i=0;i<60*pile;i++)s+=`<circle cx="${(bx+bw/2+(r()-.5)*90*pile).toFixed(1)}" cy="${(by+bh-8-r()*10*pile).toFixed(1)}" r="2.6" fill="${e.powderC||'#FFFFFF'}" stroke="${muted}" stroke-opacity=".5"/>`}}
     // glass
     s+=`<path d="M${bx} ${by-6} L${bx} ${by+bh} Q${bx} ${by+bh+6} ${bx+8} ${by+bh+6} L${bx+bw-8} ${by+bh+6} Q${bx+bw} ${by+bh+6} ${bx+bw} ${by+bh} L${bx+bw} ${by-6}" fill="none" stroke="${glass}" stroke-width="4" stroke-linejoin="round"/>`;
+    s+=svgGlassFront(bx,by,bw,bh);
     for(let k=1;k<5;k++)s+=`<line x1="${bx+bw-30}" y1="${by+bh-k*45}" x2="${bx+bw-6}" y2="${by+bh-k*45}" stroke="${glass}" stroke-width="2"/>`;
     // thermometer
     const tm2=tm==null?22:tm,th=lerp(40,150,(tm2-10)/30);s+=`<rect x="${bx+bw-58}" y="${by-60}" width="12" height="230" rx="6" fill="${css('--stage')}" stroke="${muted}" stroke-width="2"/><rect x="${bx+bw-55}" y="${by+170-th}" width="6" height="${th}" rx="3" fill="${css('--hot')}"/><circle cx="${bx+bw-52}" cy="${by+176}" r="10" fill="${css('--hot')}"/>`;
@@ -347,6 +383,7 @@ function draw1(){
     if(glow>0){s+=`<defs><radialGradient id="gl"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset=".35" stop-color="#FFFFFF" stop-opacity=".85"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient></defs><circle cx="${tipx}" cy="${tipy}" r="${110+20*Math.sin(t1*60)}" fill="url(#gl)" opacity="${glow}"/><circle cx="${tipx}" cy="${tipy}" r="16" fill="#FFFFFF" opacity="${glow}"/>`}
     s+=`<text x="400" y="420" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="17" font-weight="700" fill="${ink}">Magnesium ribbon held in tongs over a burner</text>`;
   }
+  if(e.scene==='beaker'&&MICRO[e.id])s+=microLens(e,clamp((t1-.2)/.8,0,1),t1);
   $('#s1').innerHTML=s;
 }
 $('#checkBtn').onclick=()=>{

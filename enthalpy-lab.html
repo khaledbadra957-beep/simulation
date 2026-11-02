@@ -140,6 +140,7 @@ table.data td.nm{font-family:var(--body);color:var(--muted)}
 
 /* svg classes (colors come from tokens so both themes work) */
 .s-ink{fill:var(--ink)} .s-muted{fill:var(--muted)} .s-line{stroke:var(--line)} .s-inkline{stroke:var(--ink)}
+.s-paper{fill:var(--surface,#fff)}
 .s-hot{fill:var(--hot)} .s-cold{fill:var(--cold)} .s-hotl{stroke:var(--hot)} .s-coldl{stroke:var(--cold)}
 .s-water{fill:var(--water)} .s-metal{fill:var(--metal)} .s-surface{fill:var(--surface)} .s-sunk{fill:var(--sunk)} .s-accent{fill:var(--accent)} .s-accentl{stroke:var(--accent)}
 .s-text{fill:var(--ink);font-family:var(--body);font-size:13px}
@@ -408,6 +409,23 @@ function thermo(x, y, h, T, lo, hi){
     '<rect x="' + (x - 3) + '" y="' + (y + h - 18 - fh) + '" width="6" height="' + (fh + 8) + '" class="' + col + '"/>' +
     '<circle cx="' + x + '" cy="' + (y + h - 6) + '" r="10" class="' + col + '"/>' + ticks;
 }
+/* particle lens: the particles jiggle harder as the temperature rises (same heat, different speed-up) */
+function heatLens(cx, cy, R, S, k){
+  var t = performance.now() / 1000, amp = 0.6 + Math.max(0, S.T - 10) / 90 * 6, hot = Math.min(1, Math.max(0, (S.T - 20) / 80));
+  var col = 'rgb(' + Math.round(90 + 165 * hot) + ',' + Math.round(140 - 60 * hot) + ',' + Math.round(220 - 170 * hot) + ')';
+  var s = '<defs><clipPath id="hl' + k + '"><circle cx="' + cx + '" cy="' + cy + '" r="' + R + '"/></clipPath></defs><circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" class="s-paper"/><g clip-path="url(#hl' + k + ')">';
+  var liquid = S.s.liquid, n = 0;
+  for (var i = -2; i <= 2; i++) for (var j = -2; j <= 2; j++){
+    var bx = cx + i * 15 + (j % 2 ? 7 : 0), by = cy + j * 13; n++;
+    if (liquid){ bx += Math.sin(n * 2.1) * 6; by += Math.cos(n * 1.7) * 6; }
+    var w = liquid ? amp * 1.6 : amp;
+    var x = bx + Math.sin(t * (9 + n % 5) + n) * w, y = by + Math.cos(t * (8 + n % 7) + n * 1.3) * w;
+    s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="6" fill="' + col + '" stroke="#00000044"/><circle cx="' + (x - 2).toFixed(1) + '" cy="' + (y - 2.2).toFixed(1) + '" r="2" fill="#fff" opacity=".5"/>';
+  }
+  s += '</g><circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" class="s-inkline" stroke-width="3"/>';
+  s += '<text x="' + cx + '" y="' + (cy + R + 14) + '" text-anchor="middle" class="s-small">particles</text>';
+  return s;
+}
 function drawHeat(){
   var A = sampleState(0), B = sampleState(1), out = '';
   [A, B].forEach(function(S, k){
@@ -419,19 +437,24 @@ function drawHeat(){
     var size = 34 + Math.sqrt(S.m) * 3.2;
     var glow = Math.min(1, (S.T - T0) / 80);
     if (S.s.liquid){
+      out += '<ellipse cx="' + cx + '" cy="' + (base + 2) + '" rx="66" ry="6" fill="url(#hsh)"/><path d="M' + (cx - 55) + ' ' + (base - 120) + ' v118 h110 v-118z" fill="url(#htint)"/>';
       out += '<path d="M' + (cx - 55) + ' ' + (base - 120) + ' v118 h110 v-118" fill="none" class="s-inkline" stroke-width="2"/>';
       var lh = Math.min(112, size * 0.9);
       out += '<rect x="' + (cx - 53) + '" y="' + (base - 2 - lh) + '" width="106" height="' + lh + '" class="s-water"/>';
       out += '<rect x="' + (cx - 53) + '" y="' + (base - 2 - lh) + '" width="106" height="' + lh + '" class="s-hot" opacity="' + (glow * 0.45).toFixed(2) + '"/>';
+      out += '<rect x="' + (cx - 46) + '" y="' + (base - 112) + '" width="12" height="100" rx="5" fill="url(#hhl)"/>';
     } else {
       out += '<rect x="' + (cx - size / 2) + '" y="' + (base - size) + '" width="' + size + '" height="' + size + '" rx="4" class="s-metal"/>';
       out += '<rect x="' + (cx - size / 2) + '" y="' + (base - size) + '" width="' + size + '" height="' + size + '" rx="4" class="s-hot" opacity="' + (glow * 0.75).toFixed(2) + '"/>';
     }
     out += thermo(cx + 92, 40, 200, S.T, 0, 100);
+    out += '<path d="M' + (cx - 72) + ' 108 L' + (cx - 20) + ' ' + (base - 40) + '" class="s-inkline" stroke-width="1.5" stroke-dasharray="4 4" fill="none" opacity=".5"/>';
+    out += heatLens(cx - 100, 84, 38, S, k);
     out += '<text x="' + cx + '" y="22" text-anchor="middle" class="s-text" font-weight="700">' + (k ? 'B' : 'A') + ': ' + esc(S.s.n) + ', ' + S.m + ' g</text>';
     out += '<text x="' + cx + '" y="' + (base + 54) + '" text-anchor="middle" class="s-mono">q = ' + sf(S.q) + ' J · T = ' + fx(S.T, 1) + ' °C</text>';
     out += '<text x="' + cx + '" y="' + (base + 72) + '" text-anchor="middle" class="s-small">' + (S.full ? 'reached 100 °C, heating stopped' : 'c = ' + S.s.c + ' J/(g·°C)') + '</text>';
   });
+  out = '<defs><radialGradient id="hsh"><stop offset="0" stop-color="#000" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><linearGradient id="htint" x1="0" x2="1"><stop offset="0" stop-color="#BEDCEB" stop-opacity=".35"/><stop offset=".5" stop-color="#E1F0F8" stop-opacity=".1"/><stop offset="1" stop-color="#AACDE1" stop-opacity=".35"/></linearGradient><linearGradient id="hhl" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".45" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>' + out;
   $('svgHeat').innerHTML = out;
   var lines = [A, B].map(function(S, k){
     var dT = S.T - T0;
@@ -1211,8 +1234,8 @@ function frame(now){
   if (heat.on){
     heat.q += POWER * dt;
     if (sampleState(0).full && sampleState(1).full){ heat.on = false; $('heatGo').textContent = 'Start heating'; }
-    if (tab === 'heat') drawHeat();
   }
+  if (tab === 'heat') drawHeat();
   if (cal.run){ cal.t += dt; if (cal.t >= TEND){ cal.t = TEND; cal.run = false; cal.done = true; } if (tab === 'cal' || cal.done) drawCal(); }
   requestAnimationFrame(frame);
 }
