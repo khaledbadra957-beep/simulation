@@ -118,7 +118,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .runs span{font-family:var(--data);font-size:.8rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
-</style></head><body>
+</style><script src="lab-viz.js"></script></head><body>
 <div class="wrap">
 <style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
  <header>
@@ -156,6 +156,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
    <span><span class="dot" style="background:linear-gradient(90deg,var(--a) 50%,var(--b) 50%);box-shadow:0 0 0 1.5px var(--ink)"></span>AB product (outlined)</span>
    <span><span class="dot" style="background:var(--prod)"></span>successful collision</span>
    <span><span class="dot" style="border:2px solid var(--muted)"></span>bounce: not enough energy</span>
+   <span><span class="dot" style="background:var(--brass-soft);box-shadow:0 0 0 1.5px var(--brass)"></span>has energy ≥ Ea</span>
   </div>
   <div class="transport">
    <button class="btn primary" id="playBtn" type="button">Pause</button>
@@ -193,6 +194,8 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
     <div class="checks">
      <label><input type="checkbox" id="cCat"> Add a catalyst</label>
      <label><input type="checkbox" id="cFlash" checked> Show collision flashes</label>
+     <label><input type="checkbox" id="cFast" checked> Highlight particles with enough energy</label>
+     <label><input type="checkbox" id="cTrail"> Motion trails</label>
     </div>
     <p class="note" id="setNote">Concentration and temperature only take effect on a <b>New run</b>. Temperature can also change while the run is going, like moving the flask to a hotter water bath.</p>
    </div>
@@ -448,19 +451,26 @@ function drawBox(){const c=$('#box');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);
  x.strokeStyle=C.muted;x.lineWidth=2;x.strokeRect(ox,oy,BW*sc,BH*sc);
  txt(x,`${sim.T} K`,ox+8,oy+16,C.muted,12);
  if(sim.cat){txt(x,'catalyst added',ox+BW*sc-8,oy+16,C.prod,12,'right')}
- for(const a of sim.atoms){if(a.dead)continue;x.fillStyle=C.a;x.beginPath();x.arc(ox+a.x*sc,oy+a.y*sc,RAD*sc*.96,0,7);x.fill();
-  x.strokeStyle=C.stage;x.lineWidth=1;x.stroke()}
+ const ea=eaModel(),glow=$('#cFast').checked,trail=$('#cTrail').checked;
+ for(const a of sim.atoms){if(a.dead)continue;LabViz.ball(x,ox+a.x*sc,oy+a.y*sc,RAD*sc*.96,C.a)}
+ // motion trails first, under the particles
+ if(trail){x.lineCap='round';for(const p of sim.P){const sp=Math.hypot(p.vx,p.vy);if(sp<1)continue;const k=.11*sc,px=ox+p.x*sc,py=oy+p.y*sc;
+  const g=x.createLinearGradient(px-p.vx*k,py-p.vy*k,px,py);const col=p.type==='B'?C.b:C.a;g.addColorStop(0,'rgba(128,128,128,0)');g.addColorStop(1,col);
+  x.strokeStyle=g;x.globalAlpha=.55;x.lineWidth=p.r*sc*1.3;x.beginPath();x.moveTo(px-p.vx*k,py-p.vy*k);x.lineTo(px,py);x.stroke()}x.globalAlpha=1;x.lineCap='butt'}
  for(const p of sim.P){const px=ox+p.x*sc,py=oy+p.y*sc;
+  // particles with kinetic energy above Ea get a brass halo: these are the ones that can react
+  if(glow&&p.type!=='AB'&&.5*p.m*(p.vx*p.vx+p.vy*p.vy)>=ea){x.fillStyle=C['brass-soft']||'rgba(233,196,106,.45)';x.beginPath();x.arc(px,py,p.r*sc*1.9,0,7);x.fill();x.strokeStyle=C.brass;x.lineWidth=1.5;x.stroke()}
   if(p.type==='AB'){const sp=Math.hypot(p.vx,p.vy)||1,ux=p.vx/sp,uy=p.vy/sp,o=RAD*.75*sc;
    const ax=px-uy*o,ay=py+ux*o,bx=px+uy*o,by=py-ux*o;
    x.strokeStyle=C.ink;x.lineWidth=2.5;x.beginPath();x.arc(ax,ay,RAD*sc,0,7);x.stroke();x.beginPath();x.arc(bx,by,RAD*sc,0,7);x.stroke();
-   x.fillStyle=C.a;x.beginPath();x.arc(ax,ay,RAD*sc,0,7);x.fill();
-   x.fillStyle=C.b;x.beginPath();x.arc(bx,by,RAD*sc,0,7);x.fill()}
-  else{x.fillStyle=p.type==='A'?C.a:C.b;x.beginPath();x.arc(px,py,p.r*sc,0,7);x.fill()}}
- if(sim.flash){sim.flashes=sim.flashes.filter(f=>sim.t-f.t<.5);
-  for(const f of sim.flashes){const age=(sim.t-f.t)/.5,px=ox+f.x*sc,py=oy+f.y*sc;
+   LabViz.ball(x,ax,ay,RAD*sc,C.a);LabViz.ball(x,bx,by,RAD*sc,C.b)}
+  else LabViz.ball(x,px,py,p.r*sc,p.type==='A'?C.a:C.b)}
+ if(sim.flash){sim.flashes=sim.flashes.filter(f=>sim.t-f.t<(f.ok?.9:.4));
+  for(const f of sim.flashes){const life=f.ok?.9:.4,age=(sim.t-f.t)/life,px=ox+f.x*sc,py=oy+f.y*sc;
    x.globalAlpha=1-age;
-   if(f.ok){x.strokeStyle=C.prod;x.lineWidth=3;x.beginPath();for(let k=0;k<8;k++){const an=k*Math.PI/4,r1=(1.5+age*3)*sc,r2=(3+age*5)*sc;x.moveTo(px+r1*Math.cos(an),py+r1*Math.sin(an));x.lineTo(px+r2*Math.cos(an),py+r2*Math.sin(an))}x.stroke()}
+   if(f.ok){const gr=x.createRadialGradient(px,py,0,px,py,(4+age*9)*sc);gr.addColorStop(0,'rgba(74,203,138,.65)');gr.addColorStop(1,'rgba(74,203,138,0)');x.fillStyle=gr;x.beginPath();x.arc(px,py,(4+age*9)*sc,0,7);x.fill();
+    x.strokeStyle=C.prod;x.lineWidth=3.5;x.beginPath();for(let k=0;k<10;k++){const an=k*Math.PI/5,r1=(2+age*4)*sc,r2=(4+age*7)*sc;x.moveTo(px+r1*Math.cos(an),py+r1*Math.sin(an));x.lineTo(px+r2*Math.cos(an),py+r2*Math.sin(an))}x.stroke();
+    txt(x,'+AB',px,py-(5+age*8)*sc,C.prod,13,'center','alphabetic',700)}
    else{x.strokeStyle=C.muted;x.lineWidth=1.5;x.beginPath();x.arc(px,py,(.5+age*1.3)*sc,0,7);x.stroke()}
    x.globalAlpha=1}}else sim.flashes=[]}
 
@@ -477,9 +487,12 @@ function drawGraph(){const g=graphFrame(),{x,w,h,L,Rm,T,B,tmax,ymax,X,Y}=g;x.cle
  if($('#cCtrl').checked&&sim.control){x.setLineDash([7,5]);line(sim.control,C.muted,2);x.setLineDash([]);const lc=sim.control[Math.min(sim.control.length-1,Math.floor(sim.control.length*.55))];txt(x,'control',X(lc[0])+4,Y(lc[1]*PER)-6,C.muted,11)}
  sim.kept.forEach((r,k)=>line(r.hist,RUNCOL()[k%4],2));
  line(sim.hist,C.a,3);
+ sim.gf={X,Y,L,Rm,T,B,w,h,tmax};if(sim.hist.length>1){const lp=sim.hist[sim.hist.length-1];LabViz.tracer(x,X(lp[0]),Y(lp[1]*PER),C.a)}
  for(const [t,v] of sim.meas){x.fillStyle=C.ink;x.beginPath();x.arc(X(t),Y(v),5,0,7);x.fill()}
- if(sim.meas.length===2){const [[t1,v1],[t2,v2]]=sim.meas;x.strokeStyle=C.ink;x.setLineDash([5,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(X(t1),Y(v1));x.lineTo(X(t2),Y(v2));x.stroke();x.setLineDash([])}}
+ if(sim.meas.length===2){const [[t1,v1],[t2,v2]]=sim.meas;x.strokeStyle=C.ink;x.setLineDash([5,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(X(t1),Y(v1));x.lineTo(X(t2),Y(v2));x.stroke();x.setLineDash([])}
+ LabViz.drawReadout(x,$('#graph'))}
 function concAt(hist,t){if(!hist.length)return null;if(t>=hist[hist.length-1][0])return hist[hist.length-1][1];for(let k=hist.length-1;k>=0;k--)if(hist[k][0]<=t)return hist[k][1];return hist[0][1]}
+LabViz.readout($('#graph'),(px)=>{const g=sim.gf;if(!g||sim.hist.length<2)return null;const t=(px-g.L)/(g.w-g.L-g.Rm)*g.tmax,last=sim.hist[sim.hist.length-1][0];if(t<0||t>last)return null;const n=concAt(sim.hist,t);return {x:g.X(t),y:g.Y(n*PER),top:g.T,bottom:g.h-g.B,col:C.rose,text:`t = ${fx(t,1)} s|[A] = ${fx(n*PER,2)} M`}},()=>drawGraph());
 $('#graph').addEventListener('click',e=>{const g=graphFrame(),r=$('#graph').getBoundingClientRect();
  let t=((e.clientX-r.left)-g.L)/(g.w-g.L-g.Rm)*g.tmax;const last=sim.hist.length?sim.hist[sim.hist.length-1][0]:0;t=Math.max(0,Math.min(last,t));
  const n=concAt(sim.hist,t);if(n===null)return;if(sim.meas.length>=2)sim.meas=[];sim.meas.push([t,n*PER]);updateRateLive();drawGraph()});
@@ -516,7 +529,7 @@ function loop(now){const real=Math.min(.05,(now-last)/1000);last=now;
   hacc+=simdt;if(hacc>=.25){hacc=0;sim.hist.push([sim.t,countA()])}
   racc+=real;if(racc>.2){racc=0;updateReadouts();drawGraph()}
   if(sim.t>600)sim.running=false}
- if(tab==='box')drawBox();
+ if(tab==='box')try{drawBox()}catch(e){console.warn(e)}
  requestAnimationFrame(loop)}
 
 /* =========================================================

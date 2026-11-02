@@ -123,7 +123,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .runs span{font-family:var(--data);font-size:.8rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
-</style></head><body>
+</style><script src="lab-viz.js"></script></head><body>
 
 <div class="wrap">
 <style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
@@ -352,12 +352,12 @@ function drawBox(){const c=$('#box');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);
  if(sim.W<WFULL){x.fillStyle=C.muted;x.fillRect(ox+sim.W*sc,oy-4,6,BH*sc+8);txt(x,'piston',ox+sim.W*sc+12,oy+BH*sc/2,C.muted,12,'left','middle')}
  txt(x,`${sim.T} K`,ox+8,oy+16,C.muted,12);if(sim.cat)txt(x,'catalyst',ox+8,oy+32,C.prod,12);
  for(const p of sim.P){const px=ox+p.x*sc,py=oy+p.y*sc;
-  if(p.type==='M'){x.fillStyle=C.no2;x.beginPath();x.arc(px,py,RM*sc,0,7);x.fill()}
+  if(p.type==='M')LabViz.ball(x,px,py,RM*sc,C.no2);
   else{const o=RM*.8*sc,ux=Math.cos(p.ang),uy=Math.sin(p.ang);x.strokeStyle=C.ink;x.lineWidth=1.5;
    for(const sg of [-1,1]){x.beginPath();x.arc(px+sg*ux*o,py+sg*uy*o,RM*sc,0,7);x.stroke()}
-   x.fillStyle=C.n2o4;for(const sg of [-1,1]){x.beginPath();x.arc(px+sg*ux*o,py+sg*uy*o,RM*sc-.75,0,7);x.fill()}}}
+   for(const sg of [-1,1])LabViz.ball(x,px+sg*ux*o,py+sg*uy*o,RM*sc-.75,C.n2o4)}}
  sim.fl=sim.fl.filter(f=>sim.t-f.t<.45*sim.spd);
- for(const f of sim.fl){const age=(sim.t-f.t)/(.45*sim.spd),px=ox+f.x*sc,py=oy+f.y*sc;x.globalAlpha=1-age;x.strokeStyle=f.f?C.prod:C.rose;x.lineWidth=2.5;
+ for(const f of sim.fl){const age=(sim.t-f.t)/(.45*sim.spd),px=ox+f.x*sc,py=oy+f.y*sc;x.globalAlpha=1-age;{const gr=x.createRadialGradient(px,py,0,px,py,(3+age*5)*sc);gr.addColorStop(0,f.f?'rgba(74,203,138,.45)':'rgba(255,111,168,.45)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.beginPath();x.arc(px,py,(3+age*5)*sc,0,7);x.fill()}x.strokeStyle=f.f?C.prod:C.rose;x.lineWidth=2.5;
   x.beginPath();x.arc(px,py,(1.6+age*1.6)*sc,0,7);x.stroke();x.globalAlpha=1}}
 
 function drawGraph(){const c=$('#graph');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const L=46,Rm=12,T=14,B=30;
@@ -370,9 +370,13 @@ function drawGraph(){const c=$('#graph');const {x,w,h}=fit(c);x.clearRect(0,0,w,
  for(let t=Math.ceil(t0/10)*10;t<=t1;t+=10){x.beginPath();x.moveTo(X(t),T);x.lineTo(X(t),h-B);x.stroke();txt(x,String(t),X(t),h-B+15,C.muted,11,'center')}
  txt(x,'time (s)',w-Rm,h-3,C.muted,11,'right');
  for(const m of sim.marks)if(m[0]>=t0){x.strokeStyle=C.muted;x.setLineDash([4,4]);x.beginPath();x.moveTo(X(m[0]),T);x.lineTo(X(m[0]),h-B);x.stroke();x.setLineDash([]);txt(x,m[1],X(m[0])+4,T+10,C.muted,10)}
- const line=(k,col)=>{x.strokeStyle=col;x.lineWidth=2.5;x.beginPath();let st=false;for(const r of sim.hist){if(r[0]<t0)continue;st?x.lineTo(X(r[0]),Y(r[k])):x.moveTo(X(r[0]),Y(r[k]));st=true}x.stroke()};
+ const line=(k,col)=>{x.strokeStyle=col;x.lineWidth=2.5;x.beginPath();let st=false;for(const r of sim.hist){if(r[0]<t0)continue;st?x.lineTo(X(r[0]),Y(r[k])):x.moveTo(X(r[0]),Y(r[k]));st=true}x.stroke();const lr=sim.hist[sim.hist.length-1];if(lr)LabViz.tracer(x,X(lr[0]),Y(lr[k]),col)};
+ sim.gf={X,Y,L,Rm,T,B,w,h,t0,t1,span,conc};
  if(conc){line(1,C.no2);line(2,C['n2o4-line']);txt(x,'[NO₂] (M)',w-Rm-4,T+26,C.no2,12,'right');txt(x,'[N₂O₄] (M)',w-Rm-4,T+42,C['n2o4-line'],12,'right')}
- else{line(3,C.prod);line(4,C.rose);txt(x,'forward per s',w-Rm-4,T+26,C.prod,12,'right');txt(x,'reverse per s',w-Rm-4,T+42,C.rose,12,'right')}}
+ else{line(3,C.prod);line(4,C.rose);txt(x,'forward per s',w-Rm-4,T+26,C.prod,12,'right');txt(x,'reverse per s',w-Rm-4,T+42,C.rose,12,'right')}
+ LabViz.drawReadout(x,c)}
+LabViz.readout($('#graph'),(px)=>{const g=sim.gf;if(!g||sim.hist.length<2)return null;const t=g.t0+(px-g.L)/(g.w-g.L-g.Rm)*g.span;let r=null;for(const q of sim.hist){if(q[0]<=t)r=q;else break}if(!r||t>sim.hist[sim.hist.length-1][0])return null;
+ return g.conc?{x:g.X(r[0]),y:g.Y(r[1]),top:g.T,bottom:g.h-g.B,col:C.no2,text:`t = ${fx(r[0],1)} s|[NO₂] = ${fx(r[1],2)} M|[N₂O₄] = ${fx(r[2],2)} M|Q = ${r[1]>0?fx(r[2]/(r[1]*r[1]),2):'∞'}`}:{x:g.X(r[0]),y:g.Y(r[3]),top:g.T,bottom:g.h-g.B,col:C.prod,text:`t = ${fx(r[0],1)} s|forward ${fx(r[3],1)} /s|reverse ${fx(r[4],1)} /s`}},()=>drawGraph());
 
 /* ---- stresses and predictions ---- */
 const STRESS={
@@ -417,7 +421,7 @@ function loop(now){const real=Math.min(.05,(now-last)/1000);last=now;
   hacc+=dt;if(hacc>=.25){hacc=0;const [f,r]=rates();sim.buf.push([conc('M'),conc('D')]);if(sim.buf.length>8)sim.buf.shift();
   const av=k=>sim.buf.reduce((a,q)=>a+q[k],0)/sim.buf.length;sim.hist.push([sim.t,av(0),av(1),f,r]);sim.qlog.push([sim.t,conc('M'),conc('D')]);if(sim.hist.length>2000)sim.hist.splice(0,400);if(sim.qlog.length>400)sim.qlog.splice(0,100)}
   racc+=real;if(racc>.2){racc=0;readouts();drawGraph();refreshStressButtons()}}
- if(tab==='box')drawBox();
+ if(tab==='box')try{drawBox()}catch(e){console.warn(e)}
  requestAnimationFrame(loop)}
 
 /* =========================================================
