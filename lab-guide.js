@@ -357,3 +357,93 @@
   function onKey(e) { if (e.key === 'Escape') { e.stopPropagation(); close(); } }
   btn.onclick = open;
 })();
+
+/* Simple / Full view — one switch for every lab (choice remembered on this device).
+   Simple (default): only the controls needed for the main idea, no intro paragraph, short feedback
+   that expands when tapped, and a pulsing "start here" on the first action. Full: everything. */
+(function () {
+  'use strict';
+  var file = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
+  if (file === 'index.html' || file === '') return;
+  var CFG = {
+    'wave-speed-lab.html': { hide: ['[data-mode="manual"]', '.seg:has([data-end])', '#step1', '.seg:has([data-speed])', 'label:has(#tVRuler)', 'label:has(#tRef)', 'label:has(#tGraph)', 'label:has(#tVals)', '[data-n]', '.field:has(#damp1)'] },
+    'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
+    'galvanic-cell-lab.html': { hide: ['.seg:has([data-dev])', '.seg:has([data-spd])', '#p-cell > .checks', '.field:has(#sCL)', '.field:has(#sCR)', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
+    'organic-naming-lab.html': { hide: ['.row:has(> #o3dSF)', 'label:has(#o3dH)', '#o3dReset'] },
+    'resonance-on-a-string.html': { hide: ['#fDown', '#fUp', '#pdf', '.field:has(#dampSeg)', '.field:has(#slowSeg)', 'label:has(#cEnv)', 'label:has(#cTheory)', 'section.block:has(#hWhy)', 'section.block:has(#hLesson)'], start: '#sweep' },
+    'enthalpy-lab.html': { hide: ['.card:has(> .worked)'], start: '#heatGo' },
+    'chemical-equilibrium-lab.html': { hide: ['.seg:has([data-spd])', '[data-stress="remD"]'] },
+    'reaction-rates-lab.html': { hide: ['.seg:has([data-spd])', 'label:has(#cFlash)'] },
+    'pulse-at-a-boundary.html': { hide: ['section.look', '.speed', '.field:has(#ratio)'] },
+    'chemical-change-lab.html': { start: '#runBtn' },
+    'titration-lab.html': { hide: ['[data-scoop="0.01"]', 'label:has(#cMeter)'], start: '#chkGlass' },
+    'esterification-lab.html': { hide: ['label:has(#cHide)'] },
+    'torque-lab.html': {},
+    'keplers-laws.html': { hide: ['#step'] },
+    'entropy-lab.html': {},
+    'five-types-of-chemical-reactions.html': {}
+  };
+  var cfg = CFG[file] || {};
+  var hide = (cfg.hide || []).concat(['.lede', 'header p.lede', '.head-text p:not(.eyebrow)', 'p.foot', 'p.fine']);
+  var css = 'html.lg-simple ' + hide.join(',html.lg-simple ') + '{display:none!important}' +
+    'html.lg-simple p.note,html.lg-simple p.caption{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;cursor:pointer;position:relative}' +
+    'html.lg-simple p.note.lg-open,html.lg-simple p.caption.lg-open{display:block}' +
+    'html.lg-simple .status,html.lg-simple .verdict{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;cursor:pointer;position:relative}' +
+    'html.lg-simple .status.lg-open,html.lg-simple .verdict.lg-open{display:block;-webkit-line-clamp:unset}' +
+    'html.lg-simple .lg-more{padding-bottom:1.7em!important}html.lg-simple .lg-more::after{content:"Why? ▾";position:absolute;right:10px;bottom:4px;font-size:.85em;font-weight:700;text-decoration:underline}' +
+    '.lg-mode{display:inline-flex;border:1.5px solid currentColor;border-radius:999px;overflow:hidden;font:700 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif;opacity:.9;vertical-align:middle}' +
+    '.lg-mode button{border:0!important;background:none!important;color:inherit!important;padding:8px 12px!important;font:inherit!important;cursor:pointer;margin:0!important;width:auto!important;border-radius:0!important;text-transform:none!important;letter-spacing:normal!important}' +
+    '.lg-mode button[aria-pressed="true"]{background:#0A6A88!important;color:#fff!important}' +
+    '.lg-mode.float{position:fixed;left:max(14px,env(safe-area-inset-left,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));z-index:60;background:Canvas;color:CanvasText;box-shadow:0 6px 18px rgba(0,0,0,.18)}' +
+    '@keyframes lgPulse{0%{box-shadow:0 0 0 0 rgba(245,158,91,.9)}100%{box-shadow:0 0 0 14px rgba(245,158,91,0)}}' +
+    'html.lg-simple .lg-start{animation:lgPulse 1.4s ease-out infinite;position:relative}' +
+    'html.lg-simple .lg-start::after{content:"Start here";position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);background:#F59E5B;color:#1C1203;font:700 12px system-ui,sans-serif;padding:3px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:5}' +
+    '@media (prefers-reduced-motion: reduce){html.lg-simple .lg-start{animation:none;outline:3px solid #F59E5B;outline-offset:2px}}' +
+    '@media print{.lg-mode{display:none}}';
+  var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+
+  var KEY = 'lg:view', root = document.documentElement;
+  function get() { try { return localStorage.getItem(KEY) || 'simple'; } catch (e) { return 'simple'; } }
+  function set(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+  var mode = get();
+  root.classList.toggle('lg-simple', mode === 'simple');
+
+  var box = document.createElement('div'); box.className = 'lg-mode'; box.setAttribute('role', 'group'); box.setAttribute('aria-label', 'How much to show');
+  box.innerHTML = '<button type="button" data-v="simple" title="Only the main controls">Simple</button><button type="button" data-v="full" title="All controls, explanations and teacher notes">Full</button>';
+  var tools = document.querySelector('header .tools, .head-actions, .toprow .row, header .row');
+  if (tools) tools.insertBefore(box, tools.firstChild); else { box.classList.add('float'); document.body.appendChild(box); }
+  function sync() { box.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === mode)); }); }
+  sync();
+  box.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-v]'); if (!b) return;
+    mode = b.dataset.v; set(mode); root.classList.toggle('lg-simple', mode === 'simple'); sync(); mark();
+    window.dispatchEvent(new Event('resize'));
+  });
+
+  // short feedback: mark the ones that are cut off, open them on tap
+  function mark() {
+    if (mode !== 'simple') return;
+    document.querySelectorAll('.status,.verdict,p.note,p.caption').forEach(function (el) {
+      if (el.classList.contains('lg-open')) return;
+      el.classList.toggle('lg-more', el.scrollHeight > el.clientHeight + 2);
+    });
+  }
+  document.addEventListener('click', function (e) {
+    if (mode !== 'simple') return;
+    var el = e.target.closest('.status,.verdict,p.note,p.caption'); if (!el || e.target.closest('button,a,input,select')) return;
+    el.classList.toggle('lg-open'); el.classList.remove('lg-more'); if (!el.classList.contains('lg-open')) mark();
+  });
+  if ('MutationObserver' in window) {
+    var t = null; new MutationObserver(function () { clearTimeout(t); t = setTimeout(function () {
+      document.querySelectorAll('.status.lg-open,.verdict.lg-open').forEach(function (el) { if (el.dataset.lgText !== el.textContent) { el.classList.remove('lg-open'); } });
+      document.querySelectorAll('.status,.verdict').forEach(function (el) { el.dataset.lgText = el.textContent; });
+      mark(); }, 60); }).observe(document.body, { subtree: true, childList: true, characterData: true });
+  }
+  setTimeout(mark, 300);
+
+  // one clear first action
+  if (cfg.start) {
+    var go = document.querySelector(cfg.start);
+    if (go) { go.classList.add('lg-start'); var off = function () { go.classList.remove('lg-start'); go.removeEventListener('click', off, true); }; go.addEventListener('click', off, true); }
+  }
+})();
