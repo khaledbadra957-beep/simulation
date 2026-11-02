@@ -418,7 +418,8 @@
     'reaction-rates-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
     'titration-lab.html': { intro: '[data-tab="dil"]', game: '[data-tab="chal"]' },
     'torque-lab.html': { intro: '[data-tab="door"]', game: '[data-tab="chal"]' },
-    'wave-speed-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' }
+    'wave-speed-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
+    'five-types-of-chemical-reactions.html': { intro: '[data-tab="build"]', game: '[data-tab="game"]' }
   };
   var ph = PH[file] || {};
   var tabBar = document.querySelector('[role="tablist"], .tabs');

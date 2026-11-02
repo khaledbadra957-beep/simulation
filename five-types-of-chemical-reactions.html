@@ -41,6 +41,29 @@
         .feedback{font-size:1rem;line-height:1.5;color:var(--muted);min-height:48px}
         .canvas-container{position:relative;background:#0B1418;border-radius:12px;border:1.5px solid var(--line);overflow:hidden;cursor:crosshair}
         canvas{display:block;max-width:100%;height:auto}
+        .tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+        .tab{width:auto;border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px;border-radius:0}
+        .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+        .dashboard.one{grid-template-columns:1fr}
+        #patCanvas{width:100%;background:#0B1418;border-radius:12px;border:1.5px solid var(--line);cursor:pointer}
+        .hint{margin:6px 0 0;color:var(--muted)}
+        .predict{margin-top:12px;text-align:left;display:flex;flex-direction:column;gap:8px}
+        .pq{margin:0;font-weight:700}
+        .chips{display:flex;flex-wrap:wrap;gap:6px}
+        .chips button{width:auto;padding:7px 12px;font-size:.95rem;border-radius:999px}
+        .chips button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+        .chips button.right{border-color:var(--success);color:var(--success);background:var(--stage-ui)}
+        .chips button.wrong{border-color:var(--warning);color:var(--warning);background:var(--stage-ui)}
+        .chips.big button{padding:10px 16px;font-size:1rem;border-radius:12px}
+        #goReact{width:auto;align-self:flex-start}
+        .pmsg{margin:0;font-weight:700;min-height:1.4em}
+        .score{margin:6px 0 0;font-family:var(--data);color:var(--muted)}
+        .gamehead{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+        .gq{margin:0;font-size:1.1rem;font-weight:700}
+        .gEq{font-family:var(--data);font-size:clamp(1.3rem,3.5vw,2rem);color:var(--accent);font-weight:600;padding:10px 0}
+        .row2{display:flex;flex-wrap:wrap;gap:8px}.row2 button{width:auto}
+        .ref{background:var(--stage-ui);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;line-height:1.6}
+    [hidden]{display:none!important}
     </style>
 </head>
 <body>
@@ -54,6 +77,12 @@
   </div>
   <div class="tools"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
 </header>
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-tab="build" type="button">1 · Build &amp; react</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="pat" type="button">2 · The five patterns</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="game" type="button">3 · Challenge</button>
+</div>
+<section id="p-build" role="tabpanel">
 <div class="dashboard">
     <div class="controls">
         <h2 class="mode">Prediction mode</h2>
@@ -62,7 +91,7 @@
             <label>1. Select Test Reaction</label>
             <select id="reactionSelector" onchange="simulation.init()">
                 <option value="synthesis">1. Synthesis (2Na + Cl₂)</option>
-                <option value="decomposition">2. Decomposition (H₂O₂)</option>
+                <option value="decomposition">2. Decomposition (2H₂O₂)</option>
                 <option value="combustion">3. Combustion (CH₄ + 2O₂)</option>
                 <option value="single">4. Single Replacement (Fe + CuSO₄)</option>
                 <option value="double">5. Double Replacement (AgNO₃ + NaCl)</option>
@@ -71,6 +100,7 @@
                 <option value="mercury_decomp">8. Decomposition (2HgO)</option>
                 <option value="zinc_single">9. Single Replacement (Zn + 2HCl)</option>
                 <option value="neutralization">10. Double Replacement (NaOH + HCl)</option>
+                <option value="cu_none">11. Will it react? (Cu + FeSO₄)</option>
             </select>
         </div>
 
@@ -80,6 +110,7 @@
         </div>
 
         <button class="primary" onclick="simulation.verifyAndReact()">Verify Atoms & React</button>
+        <button class="reset" type="button" onclick="autoPlace()">Place the atoms for me</button>
         <button class="reset" onclick="simulation.init()">Clear Canvas</button>
     </div>
 
@@ -87,12 +118,42 @@
         <div class="status-panel">
             <div id="eqDisplay" class="equation-display"></div>
             <div id="feedbackText" class="feedback">Select an atom from the left and click the canvas to build the <strong>Reactants</strong>.</div>
+            <div id="predictBox" class="predict" hidden>
+                <p class="pq">1 · What type of reaction is it?</p>
+                <div class="chips" id="typeChips"></div>
+                <p class="pq">2 · What are the products?</p>
+                <div class="chips" id="prodChips"></div>
+                <button class="primary" id="goReact" type="button" disabled>React!</button>
+                <p class="pmsg" id="predMsg" aria-live="polite"></p>
+            </div>
+            <p class="score" id="buildScore"></p>
         </div>
         <div class="canvas-container">
             <canvas id="simCanvas" width="850" height="500"></canvas>
         </div>
     </div>
 </div>
+</section>
+
+<section id="p-pat" class="dashboard one" role="tabpanel" hidden>
+  <div>
+    <h2 class="mode">Every reaction type has a pattern</h2>
+    <p class="hint">Coloured shapes stand for any element. Watch which partners swap, join or split, then tap a pattern to try its real reaction.</p>
+  </div>
+  <canvas id="patCanvas" width="900" height="560" aria-label="Animated patterns of the five reaction types"></canvas>
+</section>
+
+<section id="p-game" class="dashboard one" role="tabpanel" hidden>
+  <div class="gamehead"><h2 class="mode">Challenge</h2><span class="score" id="gScore">Score 0 / 0 · streak 0</span></div>
+  <p class="gq" id="gQ"></p>
+  <div class="gEq" id="gEq"></div>
+  <div class="chips big" id="gOpts"></div>
+  <p class="pmsg" id="gMsg" aria-live="polite"></p>
+  <div class="row2"><button class="primary" id="gNext" type="button">Next question</button>
+   <button class="reset" id="gAct" type="button">Activity series</button><button class="reset" id="gSol" type="button">Solubility rules</button></div>
+  <div class="ref" id="refAct" hidden><b>Activity series (most active first):</b> K &gt; Na &gt; Ca &gt; Mg &gt; Al &gt; Zn &gt; Fe &gt; Pb &gt; (H) &gt; Cu &gt; Ag &gt; Au<br>A metal replaces another metal (or H) only if it is <b>higher</b> in the list.</div>
+  <div class="ref" id="refSol" hidden><b>Solubility rules:</b> all Na⁺, K⁺, NH₄⁺ and NO₃⁻ compounds dissolve. Most Cl⁻ compounds dissolve except AgCl and PbCl₂. Most SO₄²⁻ dissolve except BaSO₄ and PbSO₄. Most CO₃²⁻ and OH⁻ do not dissolve (except with Na⁺, K⁺).<br>Double replacement happens when a <b>precipitate</b> (solid), a gas or water forms.</div>
+</section>
 </div>
 
 <script>
@@ -117,7 +178,8 @@ const elements = {
 // Hidden products logic added here (qEq vs fullEq)
 const reactionRequirements = {
     synthesis: { Na: 2, Cl: 2, qEq: '2Na + Cl₂ → ?', fullEq: '2Na + Cl₂ → 2NaCl' },
-    decomposition: { H: 2, O: 2, qEq: 'H₂O₂ → ?', fullEq: 'H₂O₂ → H₂ + O₂' },
+    decomposition: { H: 4, O: 4, qEq: '2H₂O₂ → ?', fullEq: '2H₂O₂ → 2H₂O + O₂' },
+    cu_none: { Cu: 1, Fe: 1, S: 1, O: 4, qEq: 'Cu + FeSO₄ → ?', fullEq: 'Cu + FeSO₄ → no reaction' },
     combustion: { C: 1, H: 4, O: 4, qEq: 'CH₄ + 2O₂ → ?', fullEq: 'CH₄ + 2O₂ → CO₂ + 2H₂O' },
     single: { Fe: 1, Cu: 1, S: 1, O: 4, qEq: 'Fe + CuSO₄ → ?', fullEq: 'Fe + CuSO₄ → FeSO₄ + Cu' },
     double: { Ag: 1, N: 1, O: 3, Na: 1, Cl: 1, qEq: 'AgNO₃ + NaCl → ?', fullEq: 'AgNO₃ + NaCl → AgCl + NaNO₃' },
@@ -240,9 +302,14 @@ const simulation = {
             return;
         }
 
-        // CORRECT! Reveal the full equation and react
+        // atoms are right: now predict the type and the products before anything happens
+        this.setFeedback(`<strong>All the atoms are there.</strong> Now predict: what type of reaction, and what forms?`, 'var(--success)');
+        showPredict(this.type);
+    },
+
+    startReaction() {
         document.getElementById('eqDisplay').innerText = reactionRequirements[this.type].fullEq;
-        this.setFeedback(`<strong>Correct!</strong> Watch the predicted products form...`, 'var(--success)');
+        this.setFeedback(`Watch the bonds break and the atoms rearrange…`, 'var(--success)');
         this.isReacting = true;
         this.snapToReactants();
     },
@@ -259,16 +326,22 @@ const simulation = {
             cls[0].id = 'cl1'; this.setTarget(cls[0], 550, 250); cls[1].id = 'cl2'; this.setTarget(cls[1], 610, 250);
             this.bonds = [['cl1', 'cl2']];
         } else if (this.type === 'decomposition') {
-            const os = getAtoms('O', 2); const hs = getAtoms('H', 2);
-            os[0].id = 'o1'; this.setTarget(os[0], 370, 250); os[1].id = 'o2'; this.setTarget(os[1], 430, 250);
-            hs[0].id = 'h1'; this.setTarget(hs[0], 330, 210); hs[1].id = 'h2'; this.setTarget(hs[1], 470, 290);
-            this.bonds = [['o1', 'o2'], ['o1', 'h1'], ['o2', 'h2']];
+            const os = getAtoms('O', 4); const hs = getAtoms('H', 4);
+            ['o1','o2','o3','o4'].forEach((id,i)=>os[i].id=id); ['h1','h2','h3','h4'].forEach((id,i)=>hs[i].id=id);
+            this.setTarget(hs[0], 300, 170); this.setTarget(os[0], 360, 170); this.setTarget(os[1], 420, 170); this.setTarget(hs[1], 480, 170);
+            this.setTarget(hs[2], 300, 330); this.setTarget(os[2], 360, 330); this.setTarget(os[3], 420, 330); this.setTarget(hs[3], 480, 330);
+            this.bonds = [['h1','o1'],['o1','o2'],['o2','h2'],['h3','o3'],['o3','o4'],['o4','h4']];
         } else if (this.type === 'combustion') {
             const c = getAtoms('C', 1)[0]; const hs = getAtoms('H', 4); const os = getAtoms('O', 4);
             c.id = 'c1'; this.setTarget(c, 200, 250);
             hs[0].id='ch1'; this.setTarget(hs[0], 200, 190); hs[1].id='ch2'; this.setTarget(hs[1], 200, 310); hs[2].id='ch3'; this.setTarget(hs[2], 140, 250); hs[3].id='ch4'; this.setTarget(hs[3], 260, 250);
             os[0].id='o1'; this.setTarget(os[0], 550, 150); os[1].id='o2'; this.setTarget(os[1], 610, 150); os[2].id='o3'; this.setTarget(os[2], 550, 350); os[3].id='o4'; this.setTarget(os[3], 610, 350);
             this.bonds = [['c1','ch1'],['c1','ch2'],['c1','ch3'],['c1','ch4'],['o1','o2'],['o3','o4']];
+        } else if (this.type === 'cu_none') {
+            const cu = getAtoms('Cu', 1)[0]; const fe = getAtoms('Fe', 1)[0]; const s = getAtoms('S', 1)[0]; const os = getAtoms('O', 4);
+            cu.id = 'cu'; this.setTarget(cu, 180, 250); fe.id = 'fe'; this.setTarget(fe, 450, 250); s.id = 's'; this.setTarget(s, 520, 250);
+            os[0].id='o1'; this.setTarget(os[0], 520, 190); os[1].id='o2'; this.setTarget(os[1], 520, 310); os[2].id='o3'; this.setTarget(os[2], 580, 250); os[3].id='o4'; this.setTarget(os[3], 480, 200);
+            this.bonds = [['fe','s'],['s','o1'],['s','o2'],['s','o3'],['s','o4']];
         } else if (this.type === 'single') {
             const fe = getAtoms('Fe', 1)[0]; const cu = getAtoms('Cu', 1)[0]; const s = getAtoms('S', 1)[0]; const os = getAtoms('O', 4);
             fe.id = 'fe'; this.setTarget(fe, 150, 250); cu.id = 'cu'; this.setTarget(cu, 450, 250); s.id = 's'; this.setTarget(s, 520, 250);
@@ -314,14 +387,21 @@ const simulation = {
     setTargetById(id, x, y) { const atom = this.atoms.find(a => a.id === id); if(atom) { atom.targetX = x; atom.targetY = y; } },
 
     executeReaction() {
+        if (this.type === 'cu_none') {
+            this.setTargetById('cu', 330, 250); setTimeout(() => this.setTargetById('cu', 180, 250), 700);
+            setTimeout(() => this.setFeedback(`<strong>No reaction.</strong> Copper is <em>below</em> iron in the activity series, so it cannot push iron out of FeSO₄. The atoms bump and stay as they were.`, 'var(--warning)'), 1000);
+            return;
+        }
         if (this.type === 'synthesis') {
             this.setTargetById('na1', 400, 150); this.setTargetById('cl1', 460, 150); this.setTargetById('na2', 400, 350); this.setTargetById('cl2', 460, 350);
             this.bonds = []; this.createExplosion(580, 250, '#22c55e');
             setTimeout(() => { this.bonds = [['na1', 'cl1'], ['na2', 'cl2']]; this.setFeedback(`<strong>Reaction Complete!</strong> Synthesis successful.`, 'var(--accent)'); }, 800);
         } else if (this.type === 'decomposition') {
-            this.setTargetById('h1', 250, 250); this.setTargetById('h2', 290, 250); this.setTargetById('o1', 510, 250); this.setTargetById('o2', 570, 250);
+            this.setTargetById('o1', 250, 190); this.setTargetById('h1', 210, 228); this.setTargetById('h2', 290, 228);
+            this.setTargetById('o3', 250, 340); this.setTargetById('h3', 210, 378); this.setTargetById('h4', 290, 378);
+            this.setTargetById('o2', 560, 260); this.setTargetById('o4', 622, 260);
             this.bonds = []; this.createExplosion(400, 250, '#ffffff');
-            setTimeout(() => { this.bonds = [['h1', 'h2'], ['o1', 'o2']]; this.setFeedback(`<strong>Reaction Complete!</strong> Decomposition successful.`, 'var(--accent)'); }, 800);
+            setTimeout(() => { this.bonds = [['o1','h1'],['o1','h2'],['o3','h3'],['o3','h4'],['o2','o4']]; this.setFeedback(`<strong>Reaction complete!</strong> 2H₂O₂ → 2H₂O + O₂. One reactant broke down into two simpler products: decomposition.`, 'var(--accent)'); }, 800);
         } else if (this.type === 'combustion') {
             this.setTargetById('c1', 400, 250); this.setTargetById('o1', 340, 250); this.setTargetById('o3', 460, 250);
             this.setTargetById('o2', 200, 100); this.setTargetById('ch1', 170, 70); this.setTargetById('ch2', 230, 70);
@@ -401,7 +481,107 @@ canvas.addEventListener('pointerdown', (e) => {
     simulation.addAtom((e.clientX - rect.left) * canvas.width / rect.width, (e.clientY - rect.top) * canvas.height / rect.height);
 });
 
-window.onload = () => simulation.init();
+window.onload = () => { simulation.init(); initTabs(); drawPatternsLoop(); nextQ(); };
+
+/* ---------- predict before reacting ---------- */
+const TYPES = ['Synthesis', 'Decomposition', 'Combustion', 'Single replacement', 'Double replacement', 'No reaction'];
+const PRED = {
+  synthesis: ['Synthesis', ['2NaCl', 'Na₂Cl₂', '2Na + Cl₂ (no change)', 'NaCl₂']],
+  decomposition: ['Decomposition', ['2H₂O + O₂', '2H₂ + 2O₂', 'H₂O₄', '2H₂ + O₂']],
+  combustion: ['Combustion', ['CO₂ + 2H₂O', 'C + 2H₂O₂', 'CH₄O₂ + O₂', 'CO + H₂ + O₂']],
+  single: ['Single replacement', ['FeSO₄ + Cu', 'FeCu + SO₄', 'CuFe + SO₄', 'no reaction']],
+  double: ['Double replacement', ['AgCl + NaNO₃', 'AgNa + ClNO₃', 'AgNO₃Cl + Na', 'no reaction']],
+  water_synth: ['Synthesis', ['2H₂O', 'H₂O₂ + H₂', '2HO', '4H + 2O']],
+  co2_synth: ['Synthesis', ['CO₂', 'CO + O', 'C₂O', 'CO₃']],
+  mercury_decomp: ['Decomposition', ['2Hg + O₂', 'Hg₂O₂', '2Hg + 2O₂', 'HgO₂ + Hg']],
+  zinc_single: ['Single replacement', ['ZnCl₂ + H₂', 'ZnH₂ + Cl₂', 'Zn₂Cl + H', 'no reaction']],
+  neutralization: ['Double replacement', ['NaCl + H₂O', 'NaH + ClOH', 'NaOCl + H₂', 'no reaction']],
+  cu_none: ['No reaction', ['no reaction', 'CuSO₄ + Fe', 'CuFe + SO₄', 'FeCu + SO₄']]
+};
+const pred = { type: null, prod: null, score: 0, tries: 0 };
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function showPredict(key){
+  const box=document.getElementById('predictBox'),P=PRED[key];box.hidden=false;pred.type=null;pred.prod=null;
+  const tc=document.getElementById('typeChips'),pc=document.getElementById('prodChips');
+  tc.innerHTML=TYPES.map(t=>`<button type="button" data-t="${t}">${t}</button>`).join('');
+  pc.innerHTML=shuffle(P[1].slice()).map(t=>`<button type="button" data-p="${t}">${t}</button>`).join('');
+  document.getElementById('predMsg').textContent='';const go=document.getElementById('goReact');go.disabled=true;
+  const sync=()=>{tc.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===pred.type));pc.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===pred.prod));go.disabled=!(pred.type&&pred.prod)};
+  tc.onclick=e=>{const b=e.target.closest('button');if(b){pred.type=b.dataset.t;sync()}};pc.onclick=e=>{const b=e.target.closest('button');if(b){pred.prod=b.dataset.p;sync()}};
+  go.onclick=()=>{const okT=pred.type===P[0],okP=pred.prod===P[1][0];pred.tries++;if(okT&&okP)pred.score++;
+    tc.querySelectorAll('button').forEach(b=>{if(b.dataset.t===P[0])b.className='right';else if(b.dataset.t===pred.type)b.className='wrong'});
+    pc.querySelectorAll('button').forEach(b=>{if(b.dataset.p===P[1][0])b.className='right';else if(b.dataset.p===pred.prod)b.className='wrong'});
+    const m=document.getElementById('predMsg');m.style.color=okT&&okP?'var(--success)':'var(--warning)';
+    m.textContent=okT&&okP?'Both predictions right! Now watch it happen.':`${okT?'Type right':'Type: it is '+P[0]}. ${okP?'Products right':'Products: '+P[1][0]}. Watch the atoms to see why.`;
+    document.getElementById('buildScore').textContent=`Predictions fully right: ${pred.score} / ${pred.tries}`;
+    go.disabled=true;tc.onclick=pc.onclick=null;setTimeout(()=>simulation.startReaction(),600)};
+}
+const _init=simulation.init.bind(simulation);simulation.init=function(){const b=document.getElementById('predictBox');if(b)b.hidden=true;_init()};
+function autoPlace(){if(simulation.isReacting)return;simulation.atoms=[];const req=reactionRequirements[simulation.type];let k=0;
+  Object.keys(req).forEach(sym=>{if(/Eq$/.test(sym))return;for(let i=0;i<req[sym];i++){const a=k++*2.39996;const r=60+18*Math.sqrt(k)*6;simulation.atoms.push(new Atom(sym,425+Math.cos(a)*Math.min(r,300),250+Math.sin(a)*Math.min(r*.6,190)))}});
+  simulation.setFeedback('All the reactant atoms are placed. Press <strong>Verify Atoms &amp; React</strong>.','var(--text-muted)')}
+
+/* ---------- tabs ---------- */
+function initTabs(){document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
+  ['build','pat','game'].forEach(t=>document.getElementById('p-'+t).hidden=t!==b.dataset.tab)})}
+
+/* ---------- the five patterns, animated ---------- */
+const pc=document.getElementById('patCanvas'),px=pc.getContext('2d');
+const COLS={A:'#E45757',B:'#3D7BE0',C:'#F2B640',D:'#3FA34D',X:'#8A9399',O:'#FF6B6B',H:'#F2F2F2'};
+const PATS=[
+ {name:'Synthesis',rule:'A + B → AB',ex:'synthesis',r:[['A',-1.6,0],['B',-.4,0]],p:[['A',-.25,0],['B',.25,0]],bondsR:[],bondsP:[[0,1]]},
+ {name:'Decomposition',rule:'AB → A + B',ex:'decomposition',r:[['A',-.25,0],['B',.25,0]],p:[['A',-1.4,0],['B',1.4,0]],bondsR:[[0,1]],bondsP:[]},
+ {name:'Single replacement',rule:'A + BC → AC + B',ex:'single',r:[['A',-1.6,0],['B',.3,0],['C',.8,0]],p:[['A',-.2,0],['B',1.7,0],['C',.3,0]],bondsR:[[1,2]],bondsP:[[0,2]]},
+ {name:'Double replacement',rule:'AB + CD → AD + CB',ex:'double',r:[['A',-1.4,0],['B',-.9,0],['C',.9,0],['D',1.4,0]],p:[['A',-1.4,0],['D',-.9,0],['C',.9,0],['B',1.4,0]],bondsR:[[0,1],[2,3]],bondsP:[[0,1],[2,3]],swap:true},
+ {name:'Combustion',rule:'fuel + O₂ → CO₂ + H₂O',ex:'combustion',r:[['X',-1.5,0],['H',-1.9,-.4],['H',-1.1,.4],['O',.6,0],['O',1.1,0]],p:[['X',-.9,0],['O',-.4,0],['O',-1.4,0],['H',1.0,-.35],['H',1.6,-.35]],bondsR:[[0,1],[0,2],[3,4]],bondsP:[[0,1],[0,2]],fire:true}];
+function ease(u){return u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2}
+function drawPatternsLoop(){const t=performance.now()/1000;const W=pc.width,H=pc.height,rowH=H/5;px.clearRect(0,0,W,H);
+ PATS.forEach((P,i)=>{const cy=rowH*i+rowH/2,cx=W*.62,sc=Math.min(70,W*.08);const ph=(t*.35+i*.13)%1;const u=ph<.3?0:ph<.6?ease((ph-.3)/.3):1;
+  px.fillStyle=i%2?'#0E1A1F':'#0B1418';px.fillRect(0,rowH*i,W,rowH);
+  px.fillStyle='#E7EFF1';px.font='700 20px "Bricolage Grotesque",sans-serif';px.textAlign='left';px.fillText(P.name,20,cy-6);
+  px.fillStyle='#56C3DF';px.font='600 17px "IBM Plex Mono",monospace';px.fillText(P.rule,20,cy+20);
+  const pos=P.r.map((a,k)=>{const b=P.p[k];return [a[0],cx+(a[1]+(b[1]-a[1])*u)*sc,cy+(a[2]+(b[2]-a[2])*u)*sc]});
+  const bonds=u<.5?P.bondsR:P.bondsP;px.strokeStyle='#C9D4D8';px.lineWidth=5;bonds.forEach(([a,b])=>{px.globalAlpha=Math.abs(u-.5)*2;px.beginPath();px.moveTo(pos[a][1],pos[a][2]);px.lineTo(pos[b][1],pos[b][2]);px.stroke()});px.globalAlpha=1;
+  if(P.fire&&u>0&&u<1){px.fillStyle=`rgba(255,160,40,${.5*Math.sin(u*Math.PI)})`;px.beginPath();px.save();px.beginPath();px.rect(0,cy-48,patCanvas.width,96);px.clip();px.beginPath();px.arc(cx,cy,sc*0.9,0,7);px.fill();px.restore()}
+  pos.forEach(([k,x,y])=>{const r=k==='H'?sc*.2:sc*.3;const g=px.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,'#fff');g.addColorStop(.35,COLS[k]);g.addColorStop(1,'#111');px.fillStyle=g;px.beginPath();px.arc(x,y,r,0,7);px.fill();
+   if(k!=='H'){px.fillStyle='#10202A';px.font=`700 ${Math.round(r*.9)}px "IBM Plex Mono",monospace`;px.textAlign='center';px.textBaseline='middle';px.fillText(k==='X'?'C':k,x,y+1);px.textBaseline='alphabetic'}});
+  px.fillStyle='#94A7AE';px.font='500 13px "Atkinson Hyperlegible",sans-serif';px.textAlign='right';px.fillText('tap to try it →',W-16,cy+rowH*.36)});
+ requestAnimationFrame(drawPatternsLoop)}
+pc.addEventListener('click',e=>{const r=pc.getBoundingClientRect();const i=Math.floor((e.clientY-r.top)/r.height*5);const P=PATS[i];if(!P)return;
+ document.getElementById('reactionSelector').value=P.ex;simulation.init();document.querySelector('.tab[data-tab="build"]').click();window.scrollTo(0,0)});
+
+/* ---------- challenge: classify + predict products (activity series, solubility, no reaction) ---------- */
+const QB=[
+ ['type','2Mg + O₂ → 2MgO','Synthesis','Two substances join into one product.'],
+ ['type','CaCO₃ → CaO + CO₂','Decomposition','One compound breaks into simpler substances.'],
+ ['type','C₃H₈ + 5O₂ → 3CO₂ + 4H₂O','Combustion','A hydrocarbon burns in oxygen to give CO₂ and H₂O.'],
+ ['type','Zn + CuSO₄ → ZnSO₄ + Cu','Single replacement','Zinc (more active) takes the place of copper.'],
+ ['type','BaCl₂ + Na₂SO₄ → BaSO₄ + 2NaCl','Double replacement','The partners swap; solid BaSO₄ forms.'],
+ ['type','2KClO₃ → 2KCl + 3O₂','Decomposition','One reactant, several products.'],
+ ['type','N₂ + 3H₂ → 2NH₃','Synthesis','Elements join into one compound.'],
+ ['type','Cl₂ + 2NaBr → 2NaCl + Br₂','Single replacement','A more active non-metal (Cl₂) replaces Br.'],
+ ['type','HCl + KOH → KCl + H₂O','Double replacement','Acid + base: the ions swap partners and water forms.'],
+ ['type','C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O','Combustion','An organic fuel burns: CO₂ and H₂O.'],
+ ['pred','Mg + 2HCl →',['MgCl₂ + H₂','no reaction','MgH₂ + Cl₂','Mg₂Cl + H'],'Mg is above H in the activity series, so it replaces hydrogen.'],
+ ['pred','Cu + ZnSO₄ →',['no reaction','CuSO₄ + Zn','CuZn + SO₄','ZnCu + SO₄'],'Cu is below Zn in the activity series: no reaction.'],
+ ['pred','Ag + HCl →',['no reaction','AgCl + H₂','AgH + Cl₂','Ag₂Cl + H'],'Silver is below hydrogen: it cannot replace H.'],
+ ['pred','Fe + CuCl₂ →',['FeCl₂ + Cu','no reaction','CuFe + Cl₂','FeCu + Cl₂'],'Iron is above copper, so it replaces it.'],
+ ['pred','AgNO₃ + KCl →',['AgCl + KNO₃','no reaction','AgK + ClNO₃','KAg + NO₃Cl'],'AgCl does not dissolve: a white precipitate forms.'],
+ ['pred','NaCl + KNO₃ →',['no reaction','NaNO₃ + KCl','NaK + ClNO₃','Na₂K + Cl'],'All the possible products dissolve: no precipitate, gas or water, so no reaction.'],
+ ['pred','Pb(NO₃)₂ + 2KI →',['PbI₂ + 2KNO₃','no reaction','PbK₂ + 2INO₃','2PbI + K₂NO₃'],'PbI₂ is a yellow precipitate.'],
+ ['pred','CH₄ + 2O₂ →',['CO₂ + 2H₂O','C + 2H₂O₂','CH₄O₂ + O₂','CO + H₂'],'Complete combustion of a hydrocarbon gives CO₂ and H₂O.']];
+const G={order:[],i:-1,score:0,tries:0,streak:0,done:false};
+function nextQ(){if(!G.order.length||G.i>=G.order.length-1){G.order=shuffle([...QB.keys()]);G.i=-1}G.i++;G.done=false;const q=QB[G.order[G.i]];
+ document.getElementById('gQ').textContent=q[0]==='type'?'What type of reaction is this?':'Predict the products (or no reaction):';document.getElementById('gEq').textContent=q[1];
+ const opts=q[0]==='type'?TYPES.slice(0,5):shuffle(q[2].slice());const right=q[0]==='type'?q[2]:q[2][0];
+ const box=document.getElementById('gOpts');box.innerHTML=opts.map(o=>`<button type="button" data-o="${o}">${o}</button>`).join('');document.getElementById('gMsg').textContent='';
+ box.onclick=e=>{const b=e.target.closest('button');if(!b||G.done)return;G.done=true;G.tries++;const ok=b.dataset.o===right;if(ok){G.score++;G.streak++}else G.streak=0;
+  box.querySelectorAll('button').forEach(x=>{if(x.dataset.o===right)x.className='right';else if(x===b)x.className='wrong'});
+  const m=document.getElementById('gMsg');m.style.color=ok?'var(--success)':'var(--warning)';m.textContent=(ok?'Correct. ':`Not quite: ${right}. `)+(q[0]==='type'?q[3]:q[3]);
+  document.getElementById('gScore').textContent=`Score ${G.score} / ${G.tries} · streak ${G.streak}${G.streak>=5?' 🔥':''}`}}
+document.getElementById('gNext').onclick=nextQ;
+document.getElementById('gAct').onclick=()=>{const r=document.getElementById('refAct');r.hidden=!r.hidden};
+document.getElementById('gSol').onclick=()=>{const r=document.getElementById('refSol');r.hidden=!r.hidden};
 (function(){const root=document.documentElement,b=document.getElementById('themeBtn');const dk=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
  try{const t=localStorage.getItem('ft-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}const lab=()=>b.textContent=dk()?'Light mode':'Dark mode';lab();
  b.onclick=()=>{const n=dk()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('ft-theme',n)}catch(e){}lab()}})();
