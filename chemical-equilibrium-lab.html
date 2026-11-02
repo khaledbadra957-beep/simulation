@@ -1,0 +1,515 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Chemical Equilibrium Lab</title>
+<meta name="description" content="Watch dynamic equilibrium form between NO2 and N2O4, predict Le Chatelier shifts, compare Q with K and solve ICE tables.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench layout as the other labs. NO2 is brown, N2O4 is pale (it is colourless in real life) and outlined.
+   Green marks the forward reaction (2NO2 -> N2O4), rose the reverse. Brass marks K on the Q-K number line. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --a:#2F6FD0; --b:#D88A1C; --prod:#1E8A55; --rose:#C2185B;
+  --brass:#B8913A; --no2:#A8461F; --n2o4:#C9D6E3; --n2o4-line:#4F6F8F; --brass-soft:rgba(233,196,106,.45);
+  --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --no2:#E8875A; --n2o4:#5E7388; --n2o4-line:#9DB8D3; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --no2:#E8875A; --n2o4:#5E7388; --n2o4-line:#9DB8D3; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
+#box{aspect-ratio:100/60;height:auto;max-height:420px}
+#graph{height:230px}
+#gauge{height:96px}
+#bars{height:210px}
+.stress{display:flex;flex-wrap:wrap;gap:6px}
+.pred{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.pred button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700}
+.pred button:hover{border-color:var(--accent)}
+#predBox{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+#predBox[hidden]{display:none!important}
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%;align-self:flex-start}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.ans input{width:8em}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+tr.pick td{background:var(--brass-soft)}
+tbody tr{cursor:pointer}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body);cursor:default}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0;font-size:.92rem}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.15rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+.runs{display:flex;flex-wrap:wrap;gap:6px}
+.runs span{font-family:var(--data);font-size:.8rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style></head><body>
+
+<div class="wrap">
+<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+ <header>
+  <div>
+   <p class="eyebrow">Grade 11 Chemistry · Chemical Equilibrium · Le Châtelier's principle</p>
+   <h1>Chemical Equilibrium Lab</h1>
+   <p class="lede">At equilibrium the reaction has not stopped. The forward and reverse reactions are happening at the same rate. Disturb the system, predict which way it shifts, then watch it settle again.</p>
+  </div>
+  <div class="tools">
+   <button class="btn" id="fsBtn" type="button">Full screen</button>
+   <button class="btn" id="themeBtn" type="button">Dark mode</button>
+  </div>
+ </header>
+
+ <div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-tab="box" aria-controls="p-box">1 · Dynamic equilibrium</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="qk" aria-controls="p-qk">2 · Q, K and the ICE table</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">3 · Challenge</button>
+ </div>
+
+ <!-- ================= TAB 1 ================= -->
+ <section class="bench" id="p-box" role="tabpanel">
+  <div class="benchhead">
+   <h2 class="mono">2NO₂(g) <span style="color:var(--no2)">brown</span> ⇌ N₂O₄(g) <span style="color:var(--muted)">colourless</span> &nbsp;ΔH &lt; 0</h2>
+   <div class="checks"><label><input type="checkbox" id="cPred" checked> Predict before each change</label></div>
+  </div>
+  <canvas class="stage" id="box" aria-label="Sealed container of NO2 and N2O4 particles. NO2 particles join to make N2O4 and N2O4 particles break apart."></canvas>
+  <div class="key">
+   <span><span class="dot" style="background:var(--no2)"></span>NO₂</span>
+   <span><span class="dot" style="background:var(--n2o4);box-shadow:0 0 0 1.5px var(--ink)"></span>N₂O₄ (two joined NO₂)</span>
+   <span><span class="dot" style="background:var(--prod)"></span>forward: 2NO₂ → N₂O₄</span>
+   <span><span class="dot" style="background:var(--rose)"></span>reverse: N₂O₄ → 2NO₂</span>
+   <span>The brown tint shows how much NO₂ is in the flask.</span>
+  </div>
+  <div class="transport">
+   <button class="btn primary" id="playBtn" type="button">Pause</button>
+   <button class="btn" id="resetBtn" type="button">Start again</button>
+   <span class="sep"></span>
+   <div class="seg" role="group" aria-label="Simulation speed">
+    <button type="button" data-spd="1" aria-pressed="true">1×</button>
+    <button type="button" data-spd="3" aria-pressed="false">3×</button>
+    <button type="button" data-spd="6" aria-pressed="false">6×</button>
+   </div>
+  </div>
+  <div class="card" id="stressCard">
+   <h3>Disturb the equilibrium</h3>
+   <div class="stress">
+    <button class="btn" type="button" data-stress="addM">Add NO₂</button>
+    <button class="btn" type="button" data-stress="addD">Add N₂O₄</button>
+    <button class="btn" type="button" data-stress="remD">Remove half the N₂O₄</button>
+    <button class="btn" type="button" data-stress="squeeze">Squeeze to ½ volume</button>
+    <button class="btn" type="button" data-stress="expand">Expand to full volume</button>
+    <button class="btn" type="button" data-stress="heat">Heat by 50 K</button>
+    <button class="btn" type="button" data-stress="cool">Cool by 50 K</button>
+    <button class="btn" type="button" data-stress="cat">Add a catalyst</button>
+   </div>
+   <div id="predBox" hidden>
+    <p class="q" id="predQ"></p>
+    <div class="pred">
+     <button type="button" data-pred="left">← Shifts left (more NO₂)</button>
+     <button type="button" data-pred="none">No shift</button>
+     <button type="button" data-pred="right">Shifts right (more N₂O₄) →</button>
+    </div>
+    <button class="btn small" type="button" id="predCancel">Cancel</button>
+   </div>
+   <p class="status" id="stressMsg" aria-live="polite">Wait until the amounts stop changing, then choose a change.</p>
+  </div>
+  <div class="grid2">
+   <div class="col">
+    <div class="benchhead"><span class="flabel">Graph</span>
+     <div class="seg" role="group" aria-label="Graph shows">
+      <button type="button" data-gv="conc" aria-pressed="true">Concentrations</button>
+      <button type="button" data-gv="rate" aria-pressed="false">Forward and reverse rates</button>
+     </div>
+    </div>
+    <canvas class="stage" id="graph" aria-label="Graph against time"></canvas>
+   </div>
+   <div class="col">
+    <div class="card"><dl class="readouts">
+     <div><dt>[NO₂]</dt><dd id="rM">–</dd></div>
+     <div><dt>[N₂O₄]</dt><dd id="rD">–</dd></div>
+     <div><dt>Forward per second</dt><dd id="rF">–</dd></div>
+     <div><dt>Reverse per second</dt><dd id="rR">–</dd></div>
+     <div><dt>Temperature · volume</dt><dd id="rTV">–</dd></div>
+     <div><dt>State</dt><dd id="rState">–</dd></div>
+    </dl></div>
+    <div class="formula">
+     <span class="eq">Q = [N₂O₄] / [NO₂]²</span>
+     <span class="live" id="qLive">–</span>
+     <span class="live" id="kLive">–</span>
+    </div>
+    <p class="note">Each particle stands for 0.01 mol, and the full container is 1.0 L. Energies are scaled-down model values; the directions of every shift are the same as for the real gases.</p>
+   </div>
+  </div>
+ </section>
+
+ <!-- ================= TAB 2 ================= -->
+ <section class="bench" id="p-qk" role="tabpanel" hidden>
+  <div class="benchhead">
+   <h2>Which way will it go?</h2>
+   <select class="sel" id="rxSel" aria-label="Choose a reaction"></select>
+  </div>
+  <p class="note" id="rxNote"></p>
+  <div class="grid2">
+   <div class="col">
+    <span class="flabel">Starting concentrations</span>
+    <div id="sliders" class="col"></div>
+    <div class="transport">
+     <button class="btn primary" id="goEq" type="button">Let it reach equilibrium</button>
+     <button class="btn" id="backEq" type="button">Back to start</button>
+    </div>
+   </div>
+   <div class="col">
+    <div class="formula"><span class="eq" id="kExpr"></span><span class="live" id="qSub"></span></div>
+    <canvas class="stage" id="gauge" aria-label="Q compared with K on a number line"></canvas>
+    <p class="status" id="qkMsg" aria-live="polite"></p>
+    <canvas class="stage" id="bars" aria-label="Bar chart of concentrations"></canvas>
+   </div>
+  </div>
+  <div class="tablewrap"><table id="ice"></table></div>
+  <p class="note" id="iceNote"></p>
+ </section>
+
+ <!-- ================= TAB 3 ================= -->
+ <section class="bench" id="p-chal" role="tabpanel" hidden>
+  <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
+  <p class="q" id="qText"></p>
+  <div class="opts" id="qOpts"></div>
+  <p class="status" id="qStatus" aria-live="polite" hidden></p>
+  <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
+ </section>
+
+ <footer>Designed and built by Mr Khaled. Model: two NO₂ particles join when they collide with at least Ea(forward); each N₂O₄ breaks apart at random with a chance that grows with temperature (Ea reverse is larger, so the forward reaction is exothermic). Nothing in the model is told where equilibrium is: it emerges when the two rates become equal.</footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fx=(x,d=2)=>Number(x).toFixed(d);
+const R=8.314e-3;
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+let C={};
+function readColors(){const s=getComputedStyle(root);['stage','ink','muted','line','grid','accent','a','b','prod','rose','brass','ok','bad','no2','n2o4','n2o4-line'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
+try{const t=localStorage.getItem('eql-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('eql-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='box';
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
+ ['box','qk','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
+$('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');$$('.bench').forEach(x=>x.classList.remove('fs'));
+ if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
+ $('#fsBtn').textContent=on?'Exit full screen':'Full screen';drawAll()};
+function exitFs(){$$('.bench').forEach(x=>x.classList.remove('fs'));$('#fsBtn').textContent='Full screen';try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}drawAll()}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&$('.bench.fs')){$$('.bench').forEach(x=>x.classList.remove('fs'));$('#fsBtn').textContent='Full screen';drawAll()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.bench.fs'))exitFs()});
+function segPick(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===btn))}
+
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function txt(x,s,a,b,col,size=12,align='left',base='alphabetic'){x.fillStyle=col;x.font=`500 ${size}px "IBM Plex Mono",monospace`;x.textAlign=align;x.textBaseline=base;x.fillText(s,a,b)}
+function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function hexA(col,a){const c=col.replace('#','');if(c.length<6)return col;const n=parseInt(c.slice(0,6),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}
+
+/* =========================================================
+   TAB 1 — particle model of 2NO2 ⇌ N2O4
+   Forward: NO2 + NO2 collision with ½μ(v_rel·n)² ≥ Ea_f joins them.
+   Reverse: each N2O4 splits with probability k_r·dt, k_r = A·exp(−Ea_r/RT).
+   ========================================================= */
+const BH=60,WFULL=100,RM=1.7,RD=2.4,S0=26,EAF=3,EAR=18,AR=0.1*Math.exp(EAR/(R*300)),CATDROP=1.5,PER=0.01;
+const sim={buf:[],T:300,W:WFULL,cat:false,running:true,spd:1,P:[],t:0,hist:[],marks:[],fw:[],rv:[],fl:[],gv:'conc',lastStress:-99,qlog:[]};
+const kTof=T=>(T/300)*S0*S0;
+const eaF=()=>((EAF-(sim.cat?CATDROP:0))/(R*300))*S0*S0;
+const kR=()=>AR*Math.exp(-(EAR-(sim.cat?CATDROP:0))/(R*sim.T));
+function spot(r){for(let k=0;k<300;k++){const x=r+Math.random()*(sim.W-2*r),y=r+Math.random()*(BH-2*r);if(sim.P.every(p=>(p.x-x)**2+(p.y-y)**2>(p.r+r+.3)**2))return [x,y]}return [r+Math.random()*(sim.W-2*r),r+Math.random()*(BH-2*r)]}
+function add(type,n){for(let i=0;i<n;i++){const r=type==='D'?RD:RM,m=type==='D'?2:1,[x,y]=spot(r),s=Math.sqrt(kTof(sim.T)/m);sim.P.push({type,x,y,vx:gauss()*s,vy:gauss()*s,r,m,ang:Math.random()*6.28})}}
+const nOf=t=>sim.P.reduce((s,p)=>s+(p.type===t?1:0),0);
+const vol=()=>sim.W/WFULL;
+const conc=t=>nOf(t)*PER/vol();
+function restart(){sim.P=[];sim.t=0;sim.hist=[];sim.marks=[];sim.fw=[];sim.rv=[];sim.fl=[];sim.qlog=[];sim.buf=[];sim.T=300;sim.W=WFULL;sim.cat=false;sim.lastStress=-99;
+ add('M',50);sim.hist.push([0,conc('M'),conc('D'),0,0]);$('#stressMsg').className='status';$('#stressMsg').textContent='Wait until the amounts stop changing, then choose a change.';closePred();refreshStressButtons();readouts()}
+
+function step(dt){const P=sim.P,ea=eaF(),W=sim.W;
+ for(const p of P){p.x+=p.vx*dt;p.y+=p.vy*dt;p.ang+=dt*1.5;
+  if(p.x<p.r){p.x=p.r;p.vx=Math.abs(p.vx)}else if(p.x>W-p.r){p.x=W-p.r;p.vx=-Math.abs(p.vx)}
+  if(p.y<p.r){p.y=p.r;p.vy=Math.abs(p.vy)}else if(p.y>BH-p.r){p.y=BH-p.r;p.vy=-Math.abs(p.vy)}}
+ const dead=new Set(),born=[];
+ for(let i=0;i<P.length;i++){if(dead.has(i))continue;const p=P[i];
+  for(let j=i+1;j<P.length;j++){if(dead.has(j))continue;const q=P[j];const dx=q.x-p.x,dy=q.y-p.y,rs=p.r+q.r,d2=dx*dx+dy*dy;
+   if(d2>=rs*rs||d2===0)continue;const d=Math.sqrt(d2),nx=dx/d,ny=dy/d,vn=(p.vx-q.vx)*nx+(p.vy-q.vy)*ny;
+   const ov=(rs-d)/2;
+   if(vn<=0){p.x-=nx*ov;p.y-=ny*ov;q.x+=nx*ov;q.y+=ny*ov;continue}
+   if(p.type==='M'&&q.type==='M'&&.25*vn*vn>=ea){dead.add(i);dead.add(j);sim.fw.push(sim.t);
+    born.push({type:'D',x:(p.x+q.x)/2,y:(p.y+q.y)/2,vx:(p.vx+q.vx)/2,vy:(p.vy+q.vy)/2,r:RD,m:2,ang:Math.atan2(dy,dx)});sim.fl.push({x:(p.x+q.x)/2,y:(p.y+q.y)/2,t:sim.t,f:true});break}
+   const J=2*vn/(1/p.m+1/q.m);p.vx-=J*nx/p.m;p.vy-=J*ny/p.m;q.vx+=J*nx/q.m;q.vy+=J*ny/q.m;p.x-=nx*ov;p.y-=ny*ov;q.x+=nx*ov;q.y+=ny*ov}}
+ const pr=kR()*dt;
+ for(let i=0;i<P.length;i++){const p=P[i];if(dead.has(i)||p.type!=='D')continue;if(Math.random()<pr){dead.add(i);sim.rv.push(sim.t);
+  const s=Math.sqrt(kTof(sim.T)),a=Math.random()*6.28,ux=Math.cos(a),uy=Math.sin(a);
+  for(const sg of [-1,1])born.push({type:'M',x:Math.min(W-RM,Math.max(RM,p.x+sg*ux*RM)),y:Math.min(BH-RM,Math.max(RM,p.y+sg*uy*RM)),vx:p.vx+sg*ux*s,vy:p.vy+sg*uy*s,r:RM,m:1,ang:0});
+  sim.fl.push({x:p.x,y:p.y,t:sim.t,f:false})}}
+ if(dead.size)sim.P=P.filter((_,k)=>!dead.has(k)).concat(born);
+ let ke=0;for(const p of sim.P)ke+=.5*p.m*(p.vx*p.vx+p.vy*p.vy);const n=sim.P.length;
+ if(n){const lam=Math.sqrt(1+.08*(kTof(sim.T)*n/Math.max(ke,1e-9)-1));for(const p of sim.P){p.vx*=lam;p.vy*=lam}}
+ sim.t+=dt}
+
+const WIN=4;
+function rates(){const t0=sim.t-WIN,span=Math.min(WIN,Math.max(.5,sim.t));sim.fw=sim.fw.filter(t=>t>=t0);sim.rv=sim.rv.filter(t=>t>=t0);return [sim.fw.length/span,sim.rv.length/span]}
+const Qnow=()=>{const m=conc('M');return m>0?conc('D')/(m*m):Infinity};
+function kEstimate(){const since=sim.t-sim.lastStress;if(since<20||sim.t<20)return null;const xs=sim.qlog.filter(([t])=>t>=sim.t-15);if(xs.length<10)return null;const m=xs.reduce((a,q)=>a+q[1],0)/xs.length,d=xs.reduce((a,q)=>a+q[2],0)/xs.length;return m>0?d/(m*m):null}
+function readouts(){const [f,r]=rates();$('#rM').textContent=fx(conc('M'),2)+' M';$('#rD').textContent=fx(conc('D'),2)+' M';
+ $('#rF').textContent=fx(f,1);$('#rR').textContent=fx(r,1);$('#rTV').textContent=`${sim.T} K · ${fx(vol(),1)} L`;
+ const k=kEstimate();const q=Qnow();
+ $('#qLive').textContent=`Q now = ${fx(conc('D'),2)} / (${fx(conc('M'),2)})² = ${isFinite(q)?fx(q,2):'∞'}`;
+ $('#kLive').textContent=k?`Kc at ${sim.T} K ≈ ${fx(k,2)} (from the average concentrations over the last 15 s)`:'Kc: wait until the amounts settle (about 20 s after a change).';
+ $('#rState').textContent=sim.t<3?'starting':k&&Math.abs(f-r)<=Math.max(1,.35*Math.max(f,r))?'at equilibrium':f>r?'shifting right →':'← shifting left'}
+
+function drawBox(){const c=$('#box');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);
+ const pad=10,sc=Math.min((w-2*pad)/WFULL,(h-2*pad)/BH),ox=(w-WFULL*sc)/2,oy=(h-BH*sc)/2;
+ // ghost of the full container
+ x.strokeStyle=C.line;x.setLineDash([6,6]);x.lineWidth=1.5;x.strokeRect(ox,oy,WFULL*sc,BH*sc);x.setLineDash([]);
+ const tint=Math.min(.55,conc('M')/.4*.4);x.fillStyle=hexA(C.no2,tint*.55);x.fillRect(ox,oy,sim.W*sc,BH*sc);
+ x.strokeStyle=C.muted;x.lineWidth=2;x.strokeRect(ox,oy,sim.W*sc,BH*sc);
+ if(sim.W<WFULL){x.fillStyle=C.muted;x.fillRect(ox+sim.W*sc,oy-4,6,BH*sc+8);txt(x,'piston',ox+sim.W*sc+12,oy+BH*sc/2,C.muted,12,'left','middle')}
+ txt(x,`${sim.T} K`,ox+8,oy+16,C.muted,12);if(sim.cat)txt(x,'catalyst',ox+8,oy+32,C.prod,12);
+ for(const p of sim.P){const px=ox+p.x*sc,py=oy+p.y*sc;
+  if(p.type==='M'){x.fillStyle=C.no2;x.beginPath();x.arc(px,py,RM*sc,0,7);x.fill()}
+  else{const o=RM*.8*sc,ux=Math.cos(p.ang),uy=Math.sin(p.ang);x.strokeStyle=C.ink;x.lineWidth=1.5;
+   for(const sg of [-1,1]){x.beginPath();x.arc(px+sg*ux*o,py+sg*uy*o,RM*sc,0,7);x.stroke()}
+   x.fillStyle=C.n2o4;for(const sg of [-1,1]){x.beginPath();x.arc(px+sg*ux*o,py+sg*uy*o,RM*sc-.75,0,7);x.fill()}}}
+ sim.fl=sim.fl.filter(f=>sim.t-f.t<.45*sim.spd);
+ for(const f of sim.fl){const age=(sim.t-f.t)/(.45*sim.spd),px=ox+f.x*sc,py=oy+f.y*sc;x.globalAlpha=1-age;x.strokeStyle=f.f?C.prod:C.rose;x.lineWidth=2.5;
+  x.beginPath();x.arc(px,py,(1.6+age*1.6)*sc,0,7);x.stroke();x.globalAlpha=1}}
+
+function drawGraph(){const c=$('#graph');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const L=46,Rm=12,T=14,B=30;
+ const span=60,t1=Math.max(span,sim.t),t0=t1-span;const X=t=>L+(t-t0)/span*(w-L-Rm);
+ const conc=sim.gv==='conc';let ymax=conc?.5:0;
+ if(conc){for(const r of sim.hist)if(r[0]>=t0)ymax=Math.max(ymax,r[1],r[2]);ymax=Math.ceil(ymax*10)/10}else{for(const r of sim.hist)if(r[0]>=t0)ymax=Math.max(ymax,r[3],r[4]);ymax=Math.max(4,Math.ceil(ymax/2)*2)}
+ const Y=v=>h-B-v/ymax*(h-T-B);
+ x.strokeStyle=C.grid;x.lineWidth=1;const ys=conc?(ymax>.6?.2:.1):(ymax>8?2:1);
+ for(let v=0;v<=ymax+1e-9;v+=ys){x.beginPath();x.moveTo(L,Y(v));x.lineTo(w-Rm,Y(v));x.stroke();txt(x,conc?fx(v,1):String(Math.round(v)),L-6,Y(v),C.muted,11,'right','middle')}
+ for(let t=Math.ceil(t0/10)*10;t<=t1;t+=10){x.beginPath();x.moveTo(X(t),T);x.lineTo(X(t),h-B);x.stroke();txt(x,String(t),X(t),h-B+15,C.muted,11,'center')}
+ txt(x,'time (s)',w-Rm,h-3,C.muted,11,'right');
+ for(const m of sim.marks)if(m[0]>=t0){x.strokeStyle=C.muted;x.setLineDash([4,4]);x.beginPath();x.moveTo(X(m[0]),T);x.lineTo(X(m[0]),h-B);x.stroke();x.setLineDash([]);txt(x,m[1],X(m[0])+4,T+10,C.muted,10)}
+ const line=(k,col)=>{x.strokeStyle=col;x.lineWidth=2.5;x.beginPath();let st=false;for(const r of sim.hist){if(r[0]<t0)continue;st?x.lineTo(X(r[0]),Y(r[k])):x.moveTo(X(r[0]),Y(r[k]));st=true}x.stroke()};
+ if(conc){line(1,C.no2);line(2,C['n2o4-line']);txt(x,'[NO₂] (M)',w-Rm-4,T+26,C.no2,12,'right');txt(x,'[N₂O₄] (M)',w-Rm-4,T+42,C['n2o4-line'],12,'right')}
+ else{line(3,C.prod);line(4,C.rose);txt(x,'forward per s',w-Rm-4,T+26,C.prod,12,'right');txt(x,'reverse per s',w-Rm-4,T+42,C.rose,12,'right')}}
+
+/* ---- stresses and predictions ---- */
+const STRESS={
+ addM:{q:'You are adding NO₂.',ans:'right',why:'Adding a reactant makes Q smaller than K, so the forward reaction speeds up until Q = K again. Some of the added NO₂ is used up.'},
+ addD:{q:'You are adding N₂O₄.',ans:'left',why:'Adding a product makes Q bigger than K, so the reverse reaction wins until Q = K again.'},
+ remD:{q:'You are removing half of the N₂O₄.',ans:'right',why:'Removing a product makes Q smaller than K. The forward reaction replaces some of what was removed.'},
+ squeeze:{q:'You are squeezing the gas into half the volume.',ans:'right',why:'Less volume means more pressure. The system shifts towards the side with fewer gas particles: 1 N₂O₄ instead of 2 NO₂. (All concentrations double, and because [NO₂] is squared, Q drops below K.)'},
+ expand:{q:'You are letting the gas expand to the full volume.',ans:'left',why:'Lower pressure favours the side with more gas particles, so N₂O₄ breaks up into 2 NO₂.'},
+ heat:{q:'You are heating the flask by 50 K.',ans:'left',why:'The forward reaction is exothermic, so treat heat as a product. Adding heat pushes the equilibrium left, and K itself gets smaller at the higher temperature.'},
+ cool:{q:'You are cooling the flask by 50 K.',ans:'right',why:'Removing heat favours the exothermic (forward) direction. K gets larger at the lower temperature, and the flask turns paler.'},
+ cat:{q:'You are adding a catalyst.',ans:'none',why:'A catalyst speeds up the forward and reverse reactions by the same factor. Equilibrium is reached sooner but the amounts do not change.'}};
+let pending=null;
+function refreshStressButtons(){const b=k=>$(`[data-stress="${k}"]`);b('squeeze').disabled=sim.W<WFULL;b('expand').disabled=sim.W>=WFULL;b('heat').disabled=sim.T>=450;b('cool').disabled=sim.T<=250;b('cat').disabled=sim.cat;b('remD').disabled=nOf('D')<2;b('addM').disabled=sim.P.length>110;b('addD').disabled=sim.P.length>110}
+function closePred(){pending=null;$('#predBox').hidden=true;$$('.stress button').forEach(b=>b.hidden=false)}
+function applyStress(k){const s=STRESS[k];const qBefore=Qnow();
+ if(k==='addM')add('M',16);if(k==='addD')add('D',8);
+ if(k==='remD'){const ds=sim.P.filter(p=>p.type==='D');const kill=new Set(ds.slice(0,Math.floor(ds.length/2)));sim.P=sim.P.filter(p=>!kill.has(p))}
+ if(k==='squeeze'){sim.W=WFULL/2;for(const p of sim.P){if(p.x>sim.W-p.r)p.x=p.r+Math.random()*(sim.W-2*p.r)}}
+ if(k==='expand')sim.W=WFULL;
+ if(k==='heat')sim.T+=50;if(k==='cool')sim.T-=50;if(k==='cat')sim.cat=true;
+ const labels={addM:'+NO₂',addD:'+N₂O₄',remD:'−N₂O₄',squeeze:'½V',expand:'2V',heat:'+50 K',cool:'−50 K',cat:'cat'};
+ sim.marks.push([sim.t,labels[k]]);sim.lastStress=sim.t;sim.buf=[];sim.qlog=[];refreshStressButtons();return qBefore}
+$$('[data-stress]').forEach(b=>b.onclick=()=>{const k=b.dataset.stress;
+ if($('#cPred').checked){pending=k;sim.running=false;$('#playBtn').textContent='Play';$('#predQ').textContent=STRESS[k].q+' Which way will the equilibrium shift?';$('#predBox').hidden=false;$$('.stress button').forEach(x=>x.hidden=true);$('#stressMsg').className='status';$('#stressMsg').textContent='Make your prediction. The simulation is paused.'}
+ else{const qb=applyStress(k);explain(k,null,qb)}});
+$('#predCancel').onclick=()=>{closePred();$('#stressMsg').textContent='Cancelled. Choose a change.'};
+$$('[data-pred]').forEach(b=>b.onclick=()=>{const k=pending;if(!k)return;closePred();const qb=applyStress(k);explain(k,b.dataset.pred,qb);sim.running=true;$('#playBtn').textContent='Pause'});
+function explain(k,guess,qb){const s=STRESS[k],st=$('#stressMsg');const qa=Qnow();
+ const qtxt=['addM','addD','remD','squeeze','expand'].includes(k)?` Right after the change Q went from ${isFinite(qb)?fx(qb,2):'∞'} to ${isFinite(qa)?fx(qa,2):'∞'}.`:'';
+ const word={left:'shifts left',right:'shifts right',none:'does not shift'}[s.ans];
+ if(guess===null){st.className='status';st.textContent=`It ${word}. ${s.why}${qtxt}`}
+ else if(guess===s.ans){st.className='status ok';st.textContent=`Correct, it ${word}. ${s.why}${qtxt} Watch the graph to check.`}
+ else{st.className='status bad';st.textContent=`Not this time: it ${word}. ${s.why}${qtxt} Watch the graph to see it happen.`}}
+$('#playBtn').onclick=()=>{if(pending)return;sim.running=!sim.running;$('#playBtn').textContent=sim.running?'Pause':'Play'};
+$('#resetBtn').onclick=()=>{restart();sim.running=true;$('#playBtn').textContent='Pause'};
+$$('[data-spd]').forEach(b=>b.onclick=()=>{segPick(b);sim.spd=+b.dataset.spd});
+$$('[data-gv]').forEach(b=>b.onclick=()=>{segPick(b);sim.gv=b.dataset.gv;drawGraph()});
+
+let last=performance.now(),hacc=0,racc=0;
+function loop(now){const real=Math.min(.05,(now-last)/1000);last=now;
+ if(sim.running&&tab==='box'){const dt=real*sim.spd,sub=Math.max(2,Math.ceil(dt/.004));for(let k=0;k<sub;k++)step(dt/sub);
+  hacc+=dt;if(hacc>=.25){hacc=0;const [f,r]=rates();sim.buf.push([conc('M'),conc('D')]);if(sim.buf.length>8)sim.buf.shift();
+  const av=k=>sim.buf.reduce((a,q)=>a+q[k],0)/sim.buf.length;sim.hist.push([sim.t,av(0),av(1),f,r]);sim.qlog.push([sim.t,conc('M'),conc('D')]);if(sim.hist.length>2000)sim.hist.splice(0,400);if(sim.qlog.length>400)sim.qlog.splice(0,100)}
+  racc+=real;if(racc>.2){racc=0;readouts();drawGraph();refreshStressButtons()}}
+ if(tab==='box')drawBox();
+ requestAnimationFrame(loop)}
+
+/* =========================================================
+   TAB 2 — Q vs K and ICE table
+   ========================================================= */
+const RX=[
+ {name:'H₂(g) + I₂(g) ⇌ 2HI(g)',K:49.7,T:'731 K',sp:[['H₂',-1,1.0],['I₂',-1,1.0],['HI',2,0]]},
+ {name:'N₂(g) + 3H₂(g) ⇌ 2NH₃(g)',K:6.0e-2,T:'500 °C',sp:[['N₂',-1,1.0],['H₂',-3,1.5],['NH₃',2,0]]},
+ {name:'N₂O₄(g) ⇌ 2NO₂(g)',K:4.6e-3,T:'25 °C',sp:[['N₂O₄',-1,0.5],['NO₂',2,0]]},
+ {name:'CO(g) + H₂O(g) ⇌ CO₂(g) + H₂(g)',K:5.1,T:'700 K',sp:[['CO',-1,1.0],['H₂O',-1,1.0],['CO₂',1,0],['H₂',1,0]]},
+ {name:'2SO₂(g) + O₂(g) ⇌ 2SO₃(g)',K:2.8e2,T:'1000 K',sp:[['SO₂',-2,0.5],['O₂',-1,0.5],['SO₃',2,0]]}];
+let rxq=RX[0],c0=[],xEq=null,xShow=0,anim=null;
+const supN=n=>n===1?'':String(n).split('').map(c=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+c]).join('');
+const sciT=v=>{if(!isFinite(v))return '∞';if(v===0)return '0';const e=Math.floor(Math.log10(Math.abs(v)));if(e>=-2&&e<=3)return Number(v.toPrecision(3)).toString();const m=v/Math.pow(10,e);return `${m.toFixed(2)}×10${e<0?'⁻':''}${supN(Math.abs(e))||'¹'}`};
+RX.forEach((r,i)=>{const o=document.createElement('option');o.value=i;o.textContent=r.name;$('#rxSel').appendChild(o)});
+function exprHTML(){const num=rxq.sp.filter(s=>s[1]>0).map(s=>`[${s[0]}]${s[1]>1?'<sup>'+s[1]+'</sup>':''}`).join('');const den=rxq.sp.filter(s=>s[1]<0).map(s=>`[${s[0]}]${-s[1]>1?'<sup>'+(-s[1])+'</sup>':''}`).join('');return `Kc = ${num} / ${den} = ${sciT(rxq.K)}`}
+function concAt(x){return rxq.sp.map((s,i)=>Math.max(0,c0[i]+s[1]*x))}
+function Qof(cs){let num=1,den=1;rxq.sp.forEach((s,i)=>{const v=Math.pow(cs[i],Math.abs(s[1]));if(s[1]>0)num*=v;else den*=v});return den===0?(num===0?NaN:Infinity):num/den}
+function solve(){let lo=-Infinity,hi=Infinity;rxq.sp.forEach((s,i)=>{const b=-c0[i]/s[1];if(s[1]>0)lo=Math.max(lo,b);else hi=Math.min(hi,b)});
+ if(!(hi>lo))return null;const f=x=>{let s=0;rxq.sp.forEach((sp,i)=>{s+=sp[1]*Math.log(Math.max(1e-300,c0[i]+sp[1]*x))});return s-Math.log(rxq.K)};
+ let a=lo,b=hi;for(let k=0;k<200;k++){const m=(a+b)/2;if(f(m)>0)b=m;else a=m}return (a+b)/2}
+function buildSliders(){$('#sliders').innerHTML=rxq.sp.map((s,i)=>`<div class="field"><div class="field-head"><label for="c${i}">[${s[0]}]₀ <span class="note" style="display:inline">${s[1]<0?'reactant':'product'}</span></label><output id="o${i}"></output></div><input id="c${i}" type="range" min="0" max="2" step="0.05" value="${s[2]}"></div>`).join('');
+ rxq.sp.forEach((s,i)=>$('#c'+i).addEventListener('input',()=>{readC0();xShow=0;stopAnim();updateQK()}))}
+function readC0(){c0=rxq.sp.map((s,i)=>+$('#c'+i).value);rxq.sp.forEach((s,i)=>$('#o'+i).textContent=fx(c0[i],2)+' M');xEq=solve()}
+function setRx(){rxq=RX[+$('#rxSel').value];$('#rxNote').textContent=`Kc = ${sciT(rxq.K)} at ${rxq.T}. Set the starting concentrations, compare Q with K, then let the reaction run.`;buildSliders();readC0();xShow=0;stopAnim();updateQK()}
+function stopAnim(){if(anim){cancelAnimationFrame(anim);anim=null}}
+function updateQK(){const cs=concAt(xShow),Q=Qof(cs),K=rxq.K;$('#kExpr').innerHTML=exprHTML();
+ const num=rxq.sp.map((s,i)=>[s,cs[i]]).filter(a=>a[0][1]>0).map(([s,v])=>`(${fx(v,3)})${supN(s[1])}`).join('');
+ const den=rxq.sp.map((s,i)=>[s,cs[i]]).filter(a=>a[0][1]<0).map(([s,v])=>`(${fx(v,3)})${supN(-s[1])}`).join('');
+ $('#qSub').textContent=`Q = ${num} / ${den} = ${isNaN(Q)?'undefined':sciT(Q)}`;
+ const m=$('#qkMsg');
+ if(xEq===null||isNaN(Q)){m.className='status bad';m.textContent='Nothing can react: you need either all the reactants or all the products to be present.'}
+ else if(Math.abs(Math.log(Q/K))<.02){m.className='status ok';m.textContent='Q = K: the system is at equilibrium. The forward and reverse rates are equal, so the concentrations stay the same.'}
+ else if(Q<K){m.className='status';m.innerHTML='<b>Q &lt; K</b>: too few products for equilibrium. The forward reaction is faster, so the system shifts <b>right →</b> and makes products.'}
+ else{m.className='status';m.innerHTML='<b>Q &gt; K</b>: too many products for equilibrium. The reverse reaction is faster, so the system shifts <b>← left</b> and makes reactants.'}
+ drawGauge(Q);drawBars(cs);renderICE()}
+function renderICE(){const done=xEq!==null&&Math.abs(xShow-xEq)<1e-9;const sp=rxq.sp;
+ const head=`<thead><tr><th></th>${sp.map(s=>`<th>[${s[0]}] (M)</th>`).join('')}</tr></thead>`;
+ const sx=xEq===null?0:xEq;const cl=n=>`${n<0?'−':'+'}${Math.abs(n)===1?'':Math.abs(n)}x`;
+ const rowC=done?sp.map((s,i)=>`<td>${cl(s[1])} = ${s[1]*sx>=0?'+':'−'}${fx(Math.abs(s[1]*sx),3)}</td>`).join(''):sp.map(s=>`<td>${cl(s[1])}</td>`).join('');
+ const rowE=done?sp.map((s,i)=>`<td>${fx(c0[i]+s[1]*sx,3)}</td>`).join(''):sp.map((s,i)=>`<td>${fx(c0[i],2)} ${cl(s[1])}</td>`).join('');
+ $('#ice').innerHTML=head+`<tbody><tr><td>I · initial</td>${c0.map(v=>`<td>${fx(v,2)}</td>`).join('')}</tr><tr><td>C · change</td>${rowC}</tr><tr><td>E · equilibrium</td>${rowE}</tr>`+'</tbody>';
+ $('#iceNote').textContent=done?`x = ${fx(sx,4)} M${sx<0?' (negative: the reaction went backwards, to the left)':''}. Check: putting the E row into the Kc expression gives ${sciT(Qof(concAt(sx)))} ≈ ${sciT(rxq.K)}.`:'Press “Let it reach equilibrium” to find x and fill in the table.'}
+function drawGauge(Q){const c=$('#gauge');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const L=20,Rm=20,y=h/2+6;
+ const lk=Math.log10(rxq.K),lo=lk-4,hi=lk+4;const X=v=>L+(Math.min(hi,Math.max(lo,v))-lo)/(hi-lo)*(w-L-Rm);
+ x.strokeStyle=C.line;x.lineWidth=6;x.lineCap='round';x.beginPath();x.moveTo(L,y);x.lineTo(w-Rm,y);x.stroke();x.lineCap='butt';
+ for(let e=Math.ceil(lo);e<=hi;e++){x.strokeStyle=C.muted;x.lineWidth=1;x.beginPath();x.moveTo(X(e),y+6);x.lineTo(X(e),y+11);x.stroke();if((e-Math.ceil(lo))%2===0)txt(x,'10'+(e<0?'⁻':'')+(supN(Math.abs(e))||(e===0?'⁰':'¹')),X(e),y+24,C.muted,10,'center')}
+ x.fillStyle=C.brass;x.fillRect(X(lk)-2,y-16,4,32);txt(x,'K',X(lk)-6,y-20,C.brass,13,'right');
+ if(!isNaN(Q)){const lq=Q===0?-Infinity:Math.log10(Q);const px=X(lq);x.fillStyle=C.accent;x.beginPath();x.moveTo(px,y-4);x.lineTo(px-7,y-16);x.lineTo(px+7,y-16);x.closePath();x.fill();
+  const lab='Q'+(lq<lo||lq>hi?' (off scale)':'');const right=px+10+lab.length*8<w;txt(x,lab,right?px+10:px-10,y-24,C.accent,12,right?'left':'right');
+  if(Math.abs(lq-lk)>.01){const dir=lq<lk?1:-1;x.strokeStyle=C.accent;x.lineWidth=2;const a=px+dir*12,b=X(lk)-dir*8;if((b-a)*dir>10){x.beginPath();x.moveTo(a,y-10);x.lineTo(b,y-10);x.stroke();x.beginPath();x.moveTo(b,y-10);x.lineTo(b-dir*7,y-14);x.lineTo(b-dir*7,y-6);x.closePath();x.fillStyle=C.accent;x.fill()}}}}
+function drawBars(cs){const c=$('#bars');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const n=cs.length,L=34,B=26,T=12;const ymax=Math.max(2,...cs,...c0);const bw=Math.min(70,(w-L-10)/n*.6);
+ x.strokeStyle=C.grid;for(let v=0;v<=ymax+1e-9;v+=.5){const yy=h-B-v/ymax*(h-B-T);x.beginPath();x.moveTo(L,yy);x.lineTo(w-6,yy);x.stroke();txt(x,fx(v,1),L-4,yy,C.muted,10,'right','middle')}
+ cs.forEach((v,i)=>{const cx=L+(i+.5)*(w-L-6)/n,yy=h-B-v/ymax*(h-B-T);x.fillStyle=rxq.sp[i][1]<0?C.a:C.b;x.fillRect(cx-bw/2,yy,bw,h-B-yy);
+  const y0=h-B-c0[i]/ymax*(h-B-T);x.strokeStyle=C.ink;x.setLineDash([4,3]);x.beginPath();x.moveTo(cx-bw/2-4,y0);x.lineTo(cx+bw/2+4,y0);x.stroke();x.setLineDash([]);
+  txt(x,rxq.sp[i][0],cx,h-8,C.ink,12,'center')})}
+$('#rxSel').onchange=setRx;
+$('#goEq').onclick=()=>{if(xEq===null)return;stopAnim();const from=xShow,to=xEq,t0=performance.now(),dur=1400;
+ const f=now=>{const u=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-u,3);xShow=u>=1?to:from+(to-from)*e;updateQK();if(u<1)anim=requestAnimationFrame(f);else anim=null};anim=requestAnimationFrame(f)};
+$('#backEq').onclick=()=>{stopAnim();xShow=0;updateQK()};
+
+/* =========================================================
+   TAB 3 — challenge
+   ========================================================= */
+const QS=[
+ ['What is true at chemical equilibrium?',['The forward and reverse rates are equal','The reaction has stopped','[reactants] = [products]','Only products are present'],0,'Equilibrium is dynamic: both reactions keep going at the same rate, so the amounts stay constant (but are usually not equal).'],
+ ['Which is the Kc expression for N₂(g) + 3H₂(g) ⇌ 2NH₃(g)?',['[NH₃]² / ([N₂][H₂]³)','[N₂][H₂]³ / [NH₃]²','2[NH₃] / ([N₂]·3[H₂])','[NH₃] / ([N₂][H₂])'],0,'Products over reactants, each raised to its coefficient.'],
+ ['For CaCO₃(s) ⇌ CaO(s) + CO₂(g), Kc equals…',['[CO₂]','[CaO][CO₂] / [CaCO₃]','1 / [CO₂]','[CaCO₃] / [CaO]'],0,'Pure solids and liquids are left out of the equilibrium expression.'],
+ ['Kc = 2.0 × 10⁸ for a reaction. At equilibrium the mixture contains…',['Mostly products','Mostly reactants','Equal amounts of both','No products'],0,'A very large K means the numerator (products) is much bigger than the denominator.'],
+ ['Q = 0.50 and K = 4.0. Which way does the reaction go?',['Right, towards products','Left, towards reactants','It is already at equilibrium','It cannot react'],0,'Q < K, so the forward reaction is faster until Q rises to K.'],
+ ['For 2SO₂(g) + O₂(g) ⇌ 2SO₃(g), what happens if the volume is decreased?',['Shifts right','Shifts left','No shift','K increases'],0,'Higher pressure favours fewer gas moles: 2 on the right versus 3 on the left.'],
+ ['For H₂(g) + I₂(g) ⇌ 2HI(g), what happens if the pressure is increased by squeezing?',['No shift','Shifts right','Shifts left','K doubles'],0,'2 gas moles on each side, so pressure has no effect on the position.'],
+ ['N₂(g) + 3H₂(g) ⇌ 2NH₃(g) is exothermic. Raising the temperature will…',['Shift it left and lower K','Shift it right and raise K','Not change K','Shift it right and lower K'],0,'For an exothermic forward reaction, heat acts like a product. Only temperature changes the value of K.'],
+ ['Which change alters the value of Kc?',['Changing the temperature','Adding more reactant','Adding a catalyst','Decreasing the volume'],0,'Concentration, pressure and catalysts move the position, but K is constant at a fixed temperature.'],
+ ['What does a catalyst do to a system at equilibrium?',['Nothing to the amounts; it only reaches equilibrium faster','Shifts it right','Shifts it left','Increases K'],0,'It speeds up the forward and reverse reactions equally.'],
+ ['In 2NO₂ ⇌ N₂O₄ (ΔH < 0), the flask is put in ice water. The colour becomes…',['Paler, because more colourless N₂O₄ forms','Darker brown, because more NO₂ forms','Unchanged','Green'],0,'Cooling favours the exothermic forward reaction.'],
+ ['H₂ + I₂ ⇌ 2HI, Kc = 49.7. At equilibrium [H₂] = [I₂] = 0.10 M. What is [HI]?',['0.70 M','4.97 M','0.50 M','0.010 M'],0,'[HI]² = 49.7 × 0.10 × 0.10 = 0.497, so [HI] = 0.705 M.'],
+ ['Some product is removed from an equilibrium mixture. What happens?',['More product forms to replace part of it','More reactant forms','K becomes smaller','The reaction stops'],0,'Removing product lowers Q below K, so the forward reaction speeds up.'],
+ ['Kc for A ⇌ B is 4.0. What is Kc for B ⇌ A?',['0.25','4.0','−4.0','16'],0,'Reversing a reaction gives the reciprocal: 1/4.0 = 0.25.']
+];
+let order=[],qi=-1,score=0,tries=0,answered=false;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function nextQ(){if(!order.length||qi>=order.length-1){order=shuffle([...QS.keys()]);qi=-1}qi++;answered=false;const q=QS[order[qi]];
+ $('#qText').textContent=q[0];$('#qStatus').hidden=true;const opts=shuffle(q[1].map((t,k)=>({t,k})));
+ $('#qOpts').innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;b.onclick=()=>{if(answered)return;answered=true;tries++;
+  const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
+  const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
+$('#qNext').onclick=nextQ;
+
+function drawAll(){if(!C.ink)readColors();if(tab==='box'){drawBox();drawGraph()}if(tab==='qk')updateQK()}
+addEventListener('resize',drawAll);
+readColors();restart();setRx();nextQ();themeLabel();
+requestAnimationFrame(loop);
+</script>
+</body></html>
