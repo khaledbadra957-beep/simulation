@@ -152,6 +152,57 @@ table.signs th, table.signs td { border: 1px solid var(--line); padding: 7px 8px
 table.signs th { background: var(--surface2); font-family: var(--font-mono); font-weight: 500; font-size: 12px; }
 table.signs td.on { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
 .locked { border: 1px dashed var(--line); border-radius: 10px; padding: 14px; color: var(--muted); }
+/* ---------- screens (tabs) ---------- */
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1.5px solid var(--line); margin: 0 0 18px; }
+.tab { border: 0; background: none; color: var(--muted); padding: 10px 14px; font-weight: 700; font-family: var(--font-display); font-size: 15px; border-bottom: 3px solid transparent; margin-bottom: -1.5px; }
+.tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.tab:hover { color: var(--fg); }
+/* spreading out */
+.spr-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .spr-grid { grid-template-columns: minmax(0, 1fr); } }
+.spr-main, .spr-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+#sprCv { aspect-ratio: 2 / 1; cursor: default; }
+#sCv { aspect-ratio: 3 / 1; background: var(--surface2); border-color: var(--line); }
+#mCv { aspect-ratio: 16 / 10; background: var(--surface2); border-color: var(--line); }
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.ctrls .mini { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; flex: 1 1 14rem; }
+.ctrls .mini input { flex: 1; }
+.ctrls output { font-family: var(--font-mono); min-width: 2ch; }
+.ro { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 12px; align-items: baseline; font-size: 14px; }
+.ro dt { color: var(--muted); }
+.ro dd { margin: 0; font-family: var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ro dd.big { font-size: 18px; color: var(--accent); font-weight: 500; }
+.formula { font-family: var(--font-mono); font-size: 13px; background: var(--surface2); border-radius: 8px; padding: 8px 10px; margin: 10px 0 0; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 6px 12px; font-family: var(--font-mono); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.ways { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.wcol { flex: 1 1 7.5rem; min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: var(--surface2); display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.wcol.top { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.wcol h3 { margin: 0; font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--muted); text-align: center; }
+.wcol .om { font-family: var(--font-mono); font-size: 14px; font-weight: 500; }
+.wcol svg { width: 100%; max-width: 110px; height: auto; display: block; }
+.myth { background: var(--neg-bg); border: 1px solid var(--neg); color: var(--fg); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+/* challenge */
+.chal-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .chal-grid { grid-template-columns: minmax(0, 1fr); } }
+.qtype { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+.qtext { font-size: 17px; font-weight: 600; margin: 0 0 10px; }
+.qdata { font-family: var(--font-mono); font-size: 14px; background: var(--surface2); border-radius: 8px; padding: 10px 12px; margin: 0 0 12px; overflow-wrap: anywhere; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 480px) { .opts { grid-template-columns: 1fr; } }
+.opts button { background: var(--surface2); border: 2px solid var(--line); border-radius: 10px; padding: 12px; text-align: left; font-weight: 600; }
+.opts button:hover:not(:disabled) { border-color: var(--accent); }
+.opts button.right { border-color: var(--pos); background: var(--pos-bg); color: var(--pos); }
+.opts button.wrong { border-color: var(--neg); background: var(--neg-bg); color: var(--neg); }
+.opts button:disabled { cursor: default; }
+#cMsg { margin-top: 12px; }
+#cPlot { width: 100%; height: auto; display: block; margin-top: 10px; }
+#cPlot text { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+.cases { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+.cases th, .cases td { border: 1px solid var(--line); padding: 7px 8px; text-align: center; overflow-wrap: anywhere; }
+.cases th { background: var(--surface2); font-family: var(--font-mono); font-weight: 500; font-size: 12px; }
 [hidden] { display: none !important; }
 @media (prefers-reduced-motion: no-preference) { .chip, .btn, .pick button { transition: border-color .15s, background .15s; } }
 </style>
@@ -161,11 +212,64 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
   <header class="top">
     <div>
       <h1>Entropy Lab</h1>
-      <p class="lede">Compare the particles before and after a change. Predict whether the number of ways to arrange them goes up or down, then see how ΔH and temperature decide if the change happens.</p>
+      <p class="lede">See why particles spread out: count the ways to arrange them. Then predict ΔS for real changes, and use ΔG = ΔH − TΔS to decide when a change happens on its own.</p>
     </div>
     <div class="score" id="score" aria-live="polite">Predictions right: 0 of 0</div>
   </header>
 
+  <div class="tabs" role="tablist" aria-label="Screens">
+    <button type="button" class="tab" role="tab" data-tab="spr" aria-selected="true">1 · Spreading out</button>
+    <button type="button" class="tab" role="tab" data-tab="chg" aria-selected="false">2 · Changes &amp; ΔG</button>
+    <button type="button" class="tab" role="tab" data-tab="chal" aria-selected="false">3 · Spontaneous?</button>
+  </div>
+
+  <section id="p-spr" aria-label="Spreading out">
+    <div class="spr-grid">
+      <div class="spr-main">
+        <canvas id="sprCv" role="img" aria-label="Gas particles in a box with a removable wall"></canvas>
+        <div class="ctrls">
+          <button type="button" class="btn primary" id="wallBtn">Remove the wall</button>
+          <button type="button" class="btn" id="sprReset">Start again: all on the left</button>
+          <label class="mini" for="nRange">Particles <input type="range" id="nRange" min="2" max="40" step="1" value="10"><output id="nOut" for="nRange">10</output></label>
+        </div>
+        <div class="card">
+          <p class="eyebrow">Entropy over time · S = k ln Ω</p>
+          <canvas id="sCv" role="img" aria-label="Graph of entropy against time"></canvas>
+          <p class="fine" id="sNote" style="margin-top:6px">Remove the wall and watch S climb to the dashed line (the most spread-out split), then wobble there. It never goes back down on its own.</p>
+        </div>
+      </div>
+      <aside class="spr-side">
+        <div class="card">
+          <p class="eyebrow">Right now</p>
+          <dl class="ro">
+            <dt>Left · Right</dt><dd id="rLR">10 · 0</dd>
+            <dt>Ways to arrange, Ω</dt><dd class="big" id="rW">1</dd>
+            <dt>Entropy, S / k = ln Ω</dt><dd id="rS">0.00</dd>
+            <dt>Most possible ways</dt><dd id="rMax">252</dd>
+            <dt>Chance all are back on the left</dt><dd id="rP">1 in 1,024</dd>
+          </dl>
+          <p class="formula">Ω = N! ÷ (N<sub>left</sub>! × N<sub>right</sub>!)</p>
+        </div>
+        <div class="card">
+          <p class="eyebrow">How likely is each split?</p>
+          <canvas id="mCv" role="img" aria-label="Bar chart of the number of ways for each split"></canvas>
+          <p class="fine" style="margin-top:6px">Bars: share of all arrangements with that many particles on the left. Dots: how often the box was really in that split (counted from 4 s after you removed the wall, once the gas has spread).</p>
+        </div>
+      </aside>
+    </div>
+
+    <section class="card" id="waysCard" style="margin-top:18px" aria-labelledby="wTitle">
+      <p class="eyebrow">Count the ways</p>
+      <h2 id="wTitle">Every arrangement of a few labelled particles</h2>
+      <p class="hint" style="margin:4px 0 10px;color:var(--muted)">Each small box is one arrangement (a microstate). Columns group them by how many are on the left (the macrostate).
+        <span class="seg" id="wSeg" role="group" aria-label="Number of particles" style="margin-left:6px;vertical-align:middle"><button type="button" data-w="2">2</button><button type="button" data-w="3">3</button><button type="button" data-w="4" aria-pressed="true">4</button><button type="button" data-w="5">5</button></span></p>
+      <div class="ways" id="ways"></div>
+      <p class="fine" id="waysNote" style="margin-top:10px;font-size:14px;color:var(--fg)"></p>
+      <p class="myth" style="margin-top:10px"><b>Not “messiness”.</b> Entropy is not about looking untidy. It counts how many arrangements of particles (and their energy) give the same thing we observe. The spread-out state wins because it has the most ways, not because nature likes mess.</p>
+    </section>
+  </section>
+
+  <div id="p-chg" hidden>
   <div class="app">
     <nav class="picker" aria-label="Choose a change">
       <p class="eyebrow">Choose a change</p>
@@ -244,6 +348,35 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
       </section>
     </section>
   </div>
+  </div>
+
+  <section id="p-chal" hidden aria-label="Spontaneous? challenge">
+    <div class="chal-grid">
+      <div class="card">
+        <p class="qtype" id="cType">Question</p>
+        <p class="qtext" id="cQ"></p>
+        <div class="qdata" id="cData" hidden></div>
+        <div class="opts" id="cOpts"></div>
+        <div class="banner" id="cMsg" hidden aria-live="polite"></div>
+        <svg id="cPlot" viewBox="0 0 360 170" role="img" aria-label="ΔG against temperature" hidden></svg>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">
+          <button type="button" class="btn primary" id="cNext">Next question →</button>
+          <span class="score" id="cScore">Score 0 / 0 · streak 0</span>
+        </div>
+      </div>
+      <aside class="card">
+        <p class="eyebrow">Reference</p>
+        <p class="formula" style="margin-top:0">ΔG = ΔH − TΔS<br>ΔS in J/K ÷ 1000 → kJ/K<br>ΔG &lt; 0 → spontaneous</p>
+        <table class="cases" style="margin-top:12px">
+          <tr><th></th><th>ΔS &gt; 0</th><th>ΔS &lt; 0</th></tr>
+          <tr><th>ΔH &lt; 0</th><td>always</td><td>low T only</td></tr>
+          <tr><th>ΔH &gt; 0</th><td>high T only</td><td>never</td></tr>
+        </table>
+        <p class="fine" style="margin-top:10px">Switch point (when ΔH and ΔS have the same sign): T = ΔH ÷ ΔS, with ΔH in J.</p>
+        <p class="fine" style="margin-top:8px">ΔS &gt; 0 clues: solid → liquid → gas, a solid dissolving, more moles of gas in the products.</p>
+      </aside>
+    </div>
+  </section>
 </div>
 
 <script>
@@ -654,6 +787,323 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
   });
   if (reduce) $("#playBtn").textContent = "Play";
   select(0);
+})();
+</script>
+
+<script>
+/* ---------- screens, spreading out (microstates), spontaneity challenge ---------- */
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  /* tabs */
+  var current = "spr";
+  document.querySelectorAll(".tab").forEach(function (b) {
+    b.addEventListener("click", function () {
+      current = b.dataset.tab;
+      document.querySelectorAll(".tab").forEach(function (x) { x.setAttribute("aria-selected", x === b ? "true" : "false"); });
+      ["spr", "chg", "chal"].forEach(function (t) { $("#p-" + t).hidden = t !== current; });
+      $("#score").hidden = current !== "chg";
+      if (current === "spr") fitSpr();
+      window.dispatchEvent(new Event("resize"));
+    });
+  });
+
+  /* ---- maths ---- */
+  var LF = [0]; for (var i = 1; i <= 60; i++) LF[i] = LF[i - 1] + Math.log(i);
+  function lnW(N, l) { return LF[N] - LF[l] - LF[N - l]; }
+  function W(N, l) { return Math.round(Math.exp(lnW(N, l))); }
+  function big(x) { return x < 1e7 ? Math.round(x).toLocaleString("en-US") : x.toExponential(2).replace("e+", " × 10^"); }
+
+  /* ---- particle box ---- */
+  var BW = 800, BH = 400, MID = 400, R = 13;
+  var S = { N: 10, wall: true, p: [], hist: [], freq: [], samples: 0, t: 0, acc: 0, everOpen: false };
+  var cv = $("#sprCv"), ctx = cv.getContext("2d"), sCv = $("#sCv"), sx = sCv.getContext("2d"), mCv = $("#mCv"), mx = mCv.getContext("2d");
+  function reset() {
+    S.N = +$("#nRange").value; S.p = []; S.hist = []; S.freq = []; S.samples = 0; S.t = 0; S.wall = true; S.everOpen = false;
+    for (var k = 0; k <= S.N; k++) S.freq[k] = 0;
+    var cols = Math.ceil(Math.sqrt(S.N * 0.9)), rows = Math.ceil(S.N / cols);
+    for (var j = 0; j < S.N; j++) {
+      var c = j % cols, r = Math.floor(j / cols), a = Math.random() * 6.283, v = 150 + Math.random() * 70;
+      S.p.push({ x: 40 + (c + 0.5) * (MID - 80) / cols + (Math.random() - .5) * 8, y: 30 + (r + 0.5) * (BH - 60) / rows + (Math.random() - .5) * 8, vx: Math.cos(a) * v, vy: Math.sin(a) * v });
+    }
+    $("#wallBtn").textContent = "Remove the wall";
+    readout();
+  }
+  function nLeft() { var n = 0; S.p.forEach(function (q) { if (q.x < MID) n++; }); return n; }
+  function step(dt) {
+    var ps = S.p, n = ps.length;
+    ps.forEach(function (q) {
+      q.x += q.vx * dt; q.y += q.vy * dt;
+      if (q.y < R) { q.y = R; q.vy = Math.abs(q.vy); } if (q.y > BH - R) { q.y = BH - R; q.vy = -Math.abs(q.vy); }
+      if (q.x < R) { q.x = R; q.vx = Math.abs(q.vx); } if (q.x > BW - R) { q.x = BW - R; q.vx = -Math.abs(q.vx); }
+      if (S.wall) {
+        if (q.side === undefined) q.side = q.x < MID ? 0 : 1;
+        if (q.side === 0 && q.x > MID - 4 - R) { q.x = MID - 4 - R; q.vx = -Math.abs(q.vx); }
+        if (q.side === 1 && q.x < MID + 4 + R) { q.x = MID + 4 + R; q.vx = Math.abs(q.vx); }
+      }
+    });
+    for (var a = 0; a < n; a++) for (var b = a + 1; b < n; b++) {
+      var p = ps[a], q = ps[b], dx = q.x - p.x, dy = q.y - p.y, d2 = dx * dx + dy * dy;
+      if (d2 < 4 * R * R && d2 > 0.01) {
+        var d = Math.sqrt(d2), nx = dx / d, ny = dy / d, rel = (p.vx - q.vx) * nx + (p.vy - q.vy) * ny;
+        if (rel > 0) { p.vx -= rel * nx; p.vy -= rel * ny; q.vx += rel * nx; q.vy += rel * ny; }
+        var o = (2 * R - d) / 2; p.x -= nx * o; p.y -= ny * o; q.x += nx * o; q.y += ny * o;
+      }
+    }
+  }
+  function toggleWall() {
+    S.wall = !S.wall;
+    if (S.wall) S.p.forEach(function (q) { q.side = q.x < MID ? 0 : 1; });
+    else { S.everOpen = true; S.openT = S.t; S.p.forEach(function (q) { q.side = undefined; }); }
+    $("#wallBtn").textContent = S.wall ? "Remove the wall" : "Put the wall back";
+  }
+  function readout() {
+    var l = nLeft(), N = S.N, m = Math.floor(N / 2);
+    $("#rLR").textContent = l + " · " + (N - l);
+    $("#rW").textContent = big(W(N, l));
+    $("#rS").textContent = lnW(N, l).toFixed(2);
+    $("#rMax").textContent = big(W(N, m)) + "  (S/k = " + lnW(N, m).toFixed(2) + ")";
+    $("#rP").textContent = "1 in " + big(Math.pow(2, N));
+  }
+  function fitOne(c, ratio) {
+    var w = Math.max(200, c.getBoundingClientRect().width), d = window.devicePixelRatio || 1;
+    c.width = Math.round(w * d); c.height = Math.round(w / ratio * d);
+  }
+  function fitSpr() { if ($("#p-spr").hidden) return; fitOne(cv, 2); fitOne(sCv, 3); fitOne(mCv, 1.6); drawAll(); }
+
+  function drawBox() {
+    var k = cv.width / BW; ctx.setTransform(k, 0, 0, k, 0, 0);
+    ctx.fillStyle = "#0B1220"; ctx.fillRect(0, 0, BW, BH);
+    ctx.fillStyle = "rgba(255,255,255,.03)"; ctx.fillRect(MID, 0, MID, BH);
+    if (S.wall) { ctx.fillStyle = "#8FA3BF"; ctx.fillRect(MID - 4, 0, 8, BH); }
+    else { ctx.strokeStyle = "rgba(143,163,191,.35)"; ctx.setLineDash([8, 8]); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(MID, 0); ctx.lineTo(MID, BH); ctx.stroke(); ctx.setLineDash([]); }
+    S.p.forEach(function (q) {
+      var g = ctx.createRadialGradient(q.x - 3, q.y - 3, 1, q.x, q.y, R);
+      g.addColorStop(0, "#E9FBFF"); g.addColorStop(.4, "#4CC3E6"); g.addColorStop(1, "#0D4E66");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(q.x, q.y, R, 0, 6.283); ctx.fill();
+    });
+    var l = nLeft();
+    ctx.font = "600 22px 'IBM Plex Mono', monospace"; ctx.textAlign = "center"; ctx.fillStyle = "rgba(231,236,244,.85)";
+    ctx.fillText("left: " + l, MID / 2, BH - 14); ctx.fillText("right: " + (S.N - l), MID * 1.5, BH - 14);
+    if (!S.everOpen && S.wall) { ctx.font = "500 17px 'Public Sans', sans-serif"; ctx.fillStyle = "rgba(231,236,244,.55)"; ctx.fillText("empty (vacuum)", MID * 1.5, BH / 2); }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  function drawS() {
+    var w = sCv.width, h = sCv.height, d = window.devicePixelRatio || 1, ml = 34 * d, mb = 16 * d, mt = 8 * d, mr = 8 * d;
+    sx.clearRect(0, 0, w, h);
+    var smax = Math.max(1, lnW(S.N, Math.floor(S.N / 2))) * 1.15, span = 30;
+    var X = function (t) { return ml + (t - Math.max(0, S.t - span)) / span * (w - ml - mr); };
+    var Y = function (s) { return h - mb - s / smax * (h - mb - mt); };
+    sx.strokeStyle = css("--line"); sx.lineWidth = d; sx.beginPath(); sx.moveTo(ml, mt); sx.lineTo(ml, h - mb); sx.lineTo(w - mr, h - mb); sx.stroke();
+    sx.fillStyle = css("--muted"); sx.font = (10 * d) + "px 'IBM Plex Mono', monospace"; sx.textAlign = "right";
+    sx.fillText("S/k", ml - 4 * d, mt + 8 * d); sx.fillText("0", ml - 4 * d, h - mb); sx.textAlign = "left"; sx.fillText("time →", ml + 4 * d, h - 3 * d);
+    var top = lnW(S.N, Math.floor(S.N / 2));
+    sx.strokeStyle = css("--muted"); sx.setLineDash([5 * d, 5 * d]); sx.beginPath(); sx.moveTo(ml, Y(top)); sx.lineTo(w - mr, Y(top)); sx.stroke(); sx.setLineDash([]);
+    sx.textAlign = "right"; sx.fillText(top.toFixed(1), ml - 4 * d, Y(top) + 3 * d);
+    sx.strokeStyle = css("--accent"); sx.lineWidth = 2.2 * d; sx.beginPath();
+    S.hist.forEach(function (pt, i) { var x = X(pt[0]), y = Y(pt[1]); if (x < ml) return; i && X(S.hist[i - 1][0]) >= ml ? sx.lineTo(x, y) : sx.moveTo(x, y); });
+    sx.stroke();
+  }
+  function drawM() {
+    var w = mCv.width, h = mCv.height, d = window.devicePixelRatio || 1, ml = 8 * d, mb = 18 * d, mt = 10 * d, N = S.N, l = nLeft();
+    mx.clearRect(0, 0, w, h);
+    var tot = Math.pow(2, N), pmax = W(N, Math.floor(N / 2)) / tot, fmax = 0;
+    S.freq.forEach(function (f) { if (S.samples) fmax = Math.max(fmax, f / S.samples); });
+    var top = Math.max(pmax, fmax) * 1.08, bw = (w - 2 * ml) / (N + 1);
+    for (var k = 0; k <= N; k++) {
+      var p = W(N, k) / tot, bh = p / top * (h - mb - mt), x = ml + k * bw;
+      mx.fillStyle = k === l ? css("--accent") : css("--muted"); mx.globalAlpha = k === l ? 1 : .45;
+      mx.fillRect(x + bw * .12, h - mb - bh, bw * .76, Math.max(1, bh)); mx.globalAlpha = 1;
+      if (S.samples) { var f = S.freq[k] / S.samples, fy = h - mb - f / top * (h - mb - mt); mx.fillStyle = css("--pos"); mx.beginPath(); mx.arc(x + bw / 2, fy, Math.max(2.5 * d, Math.min(5 * d, bw * .25)), 0, 6.283); mx.fill(); }
+    }
+    mx.fillStyle = css("--muted"); mx.font = (10 * d) + "px 'IBM Plex Mono', monospace"; mx.textAlign = "center";
+    var every = N > 20 ? 10 : N > 10 ? 5 : 1;
+    for (var j = 0; j <= N; j += every) mx.fillText(j, ml + j * bw + bw / 2, h - 5 * d);
+    mx.textAlign = "right"; mx.fillText("on the left →", w - ml, mt + 2 * d);
+  }
+  function drawAll() { drawBox(); drawS(); drawM(); }
+
+  var last = 0;
+  function loop(ts) {
+    var dt = Math.min(0.04, (ts - last) / 1000 || 0.016); last = ts;
+    if (!$("#p-spr").hidden) {
+      var sub = 3; for (var s = 0; s < sub; s++) step(dt / sub);
+      S.t += dt; S.acc += dt;
+      if (S.acc > 0.1) {
+        S.acc = 0; var l = nLeft(); S.hist.push([S.t, lnW(S.N, l)]);
+        while (S.hist.length && S.hist[0][0] < S.t - 31) S.hist.shift();
+        if (S.everOpen && !S.wall && S.t - S.openT > 4) { S.freq[l]++; S.samples++; }
+        readout();
+      }
+      drawAll();
+    }
+    requestAnimationFrame(loop);
+  }
+  $("#wallBtn").addEventListener("click", toggleWall);
+  $("#sprReset").addEventListener("click", reset);
+  $("#nRange").addEventListener("input", function () { $("#nOut").textContent = this.value; reset(); });
+  window.addEventListener("resize", fitSpr);
+  if (window.ResizeObserver) new ResizeObserver(fitSpr).observe($(".spr-grid"));
+
+  /* ---- count the ways ---- */
+  var PC = ["#E45757", "#3D7BE0", "#F2B640", "#3FA34D", "#B76BE0"];
+  function ways(n) {
+    var html = "", tot = Math.pow(2, n), best = Math.floor(n / 2);
+    for (var l = n; l >= 0; l--) {
+      var boxes = "";
+      for (var m = 0; m < tot; m++) {
+        var bits = 0; for (var b = 0; b < n; b++) if (m >> b & 1) bits++;
+        if (bits !== l) continue;
+        var dots = "", li = 0, ri = 0;
+        for (var b2 = 0; b2 < n; b2++) {
+          var left = m >> b2 & 1, idx = left ? li++ : ri++;
+          var x = (left ? 6 : 58) + (idx % 3) * 15 + 7, y = 9 + Math.floor(idx / 3) * 15;
+          dots += '<circle cx="' + x + '" cy="' + y + '" r="6.2" fill="' + PC[b2] + '"/><text x="' + x + '" y="' + (y + 3.5) + '" font-size="8.5" text-anchor="middle" fill="#10202A" font-family="IBM Plex Mono,monospace" font-weight="700">' + (b2 + 1) + "</text>";
+        }
+        boxes += '<svg viewBox="0 0 110 34" aria-hidden="true"><rect x="1" y="1" width="108" height="32" rx="5" fill="#0B1220" stroke="#26334D"/><line x1="55" y1="2" x2="55" y2="32" stroke="#8FA3BF" stroke-dasharray="3 3"/>' + dots + "</svg>";
+      }
+      var isTop = l === best || l === n - best;
+      html += '<div class="wcol' + (isTop ? " top" : "") + '"><h3>' + l + " left · " + (n - l) + ' right</h3><div class="om">Ω = ' + W(n, l) + "</div>" + boxes + "</div>";
+    }
+    $("#ways").innerHTML = html;
+    var pb = W(n, best);
+    $("#waysNote").innerHTML = "<b>" + tot + " arrangements in all.</b> All " + n + " on the left: only <b>1</b> way (chance 1 in " + tot + "). " +
+      (n % 2 ? "Split " + best + " / " + (n - best) + " or " + (n - best) + " / " + best : "Split evenly " + best + " / " + best) +
+      ": <b>" + pb + "</b> ways" + (n % 2 ? " each" : "") + ". With 10²³ particles the even split wins by so much that the gas is never seen gathering back on one side.";
+    document.querySelectorAll("#wSeg button").forEach(function (b) { b.setAttribute("aria-pressed", +b.dataset.w === n ? "true" : "false"); });
+  }
+  document.querySelectorAll("#wSeg button").forEach(function (b) { b.addEventListener("click", function () { ways(+b.dataset.w); }); });
+
+  /* ---- challenge ---- */
+  var RX = [
+    { eq: "CaCO₃(s) → CaO(s) + CO₂(g)", n: "making lime in a kiln", H: 178.3, S: 160.6 },
+    { eq: "N₂(g) + 3H₂(g) → 2NH₃(g)", n: "the Haber process", H: -92.2, S: -198.7 },
+    { eq: "H₂O(s) → H₂O(l)", n: "ice melting", H: 6.01, S: 22.0, Ts: [253, 263, 283, 298] },
+    { eq: "H₂O(l) → H₂O(g)", n: "water boiling", H: 40.7, S: 109.0, Ts: [298, 353, 393, 423] },
+    { eq: "2H₂O₂(l) → 2H₂O(l) + O₂(g)", n: "hydrogen peroxide decomposing", H: -196.0, S: 125.7, Ts: [278, 298, 330] },
+    { eq: "3O₂(g) → 2O₃(g)", n: "making ozone", H: 285.4, S: -137.5 },
+    { eq: "2SO₂(g) + O₂(g) → 2SO₃(g)", n: "the contact process", H: -197.8, S: -187.9 },
+    { eq: "NH₄NO₃(s) → NH₄⁺(aq) + NO₃⁻(aq)", n: "a cold pack dissolving", H: 25.7, S: 108.7, Ts: [213, 278, 298, 330] },
+    { eq: "CH₄(g) + 2O₂(g) → CO₂(g) + 2H₂O(l)", n: "methane burning", H: -890.3, S: -243.0 }
+  ];
+  var SG = [
+    ["2SO₂(g) + O₂(g) → 2SO₃(g)", -1, "3 mol of gas become 2 mol of gas: fewer ways to arrange."],
+    ["CaCO₃(s) → CaO(s) + CO₂(g)", 1, "a gas is made from a solid."],
+    ["H₂O(g) → H₂O(l)", -1, "a gas condenses into a liquid."],
+    ["NaCl(s) → Na⁺(aq) + Cl⁻(aq)", 1, "a solid lattice breaks up into ions that move freely in water."],
+    ["Ag⁺(aq) + Cl⁻(aq) → AgCl(s)", -1, "free ions lock into a solid (a precipitate)."],
+    ["I₂(s) → I₂(g)", 1, "a solid turns straight into a gas (sublimation)."],
+    ["2H₂(g) + O₂(g) → 2H₂O(l)", -1, "3 mol of gas become a liquid."],
+    ["C₆H₁₂O₆(s) + 6O₂(g) → 6CO₂(g) + 6H₂O(g)", 1, "6 mol of gas become 12 mol of gas."],
+    ["N₂O₄(g) → 2NO₂(g)", 1, "1 mol of gas becomes 2 mol of gas."],
+    ["Gas in one flask spreads into a second, empty flask", 1, "the same particles now have twice the space: many more arrangements."]
+  ];
+  var MY = [
+    ["Every exothermic reaction is spontaneous.", false, "Not always. The Haber process (ΔH < 0, ΔS < 0) stops being spontaneous above about 464 K, because −TΔS becomes bigger than ΔH."],
+    ["A spontaneous reaction must be fast.", false, "Spontaneity says nothing about the rate. Diamond turning into graphite is spontaneous but takes millions of years."],
+    ["Ice melting at 25 °C is spontaneous even though it absorbs heat.", true, "At 298 K, TΔS (298 × 0.022 = 6.56 kJ) is bigger than ΔH (6.01 kJ), so ΔG < 0."],
+    ["If ΔS of the system is negative, the change can never be spontaneous.", false, "Water freezes on its own below 0 °C even though ΔS < 0: the large negative ΔH wins at low temperature."],
+    ["A gas spreading into an empty container has ΔS > 0 even though ΔH ≈ 0.", true, "Nothing pushes the gas: it spreads only because there are vastly more ways to be spread out."],
+    ["Raising the temperature makes TΔS more important in deciding ΔG.", true, "T multiplies ΔS, so at high temperature the entropy term dominates."]
+  ];
+  var CASE = ["Spontaneous at all temperatures", "Never spontaneous", "Spontaneous only at low temperatures", "Spontaneous only at high temperatures"];
+  function caseOf(r) { return r.H < 0 && r.S > 0 ? 0 : r.H > 0 && r.S < 0 ? 1 : r.H < 0 ? 2 : 3; }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function f1(v) { return (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(Math.abs(v) < 10 ? 2 : 1); }
+  var C = { right: 0, n: 0, streak: 0, q: null, lastKind: "" };
+
+  function makeQ() {
+    var kinds = ["sign", "spont", "case", "cross", "myth"], kind;
+    do { kind = pick(kinds); } while (kind === C.lastKind);
+    C.lastKind = kind;
+    var q = { kind: kind };
+    if (kind === "sign") {
+      var s = pick(SG); q.type = "Sign of ΔS"; q.text = "Does the entropy of the system go up or down?"; q.data = s[0];
+      q.opts = ["ΔS > 0 (entropy increases)", "ΔS < 0 (entropy decreases)"]; q.ans = s[1] > 0 ? 0 : 1;
+      q.why = (s[1] > 0 ? "ΔS > 0: " : "ΔS < 0: ") + s[2];
+    } else if (kind === "spont") {
+      var r = pick(RX), Tc = r.H / r.S * 1000, Ts = r.Ts || [298, 298, 1000, 1500];
+      if (!r.Ts && (r.H > 0) === (r.S > 0)) Ts = Ts.concat([Math.round(Tc * 0.6), Math.round(Tc * 1.4)]);
+      var T = pick(Ts.filter(function (t) { return t > 50 && t < 5000 && Math.abs(r.H - t * r.S / 1000) > 0.15; }));
+      var G = r.H - T * r.S / 1000;
+      q.type = "Spontaneous or not?"; q.text = "Is " + r.n + " spontaneous at " + T + " K?";
+      q.data = r.eq + "<br>ΔH = " + f1(r.H) + " kJ · ΔS = " + f1(r.S) + " J/K · T = " + T + " K";
+      q.opts = ["Yes: ΔG < 0", "No: ΔG > 0"]; q.ans = G < 0 ? 0 : 1; q.plot = [r, T];
+      q.why = "ΔG = ΔH − TΔS = " + f1(r.H) + " kJ − " + T + " K × " + (r.S < 0 ? "(−" + (-r.S / 1000).toFixed(4) + ")" : (r.S / 1000).toFixed(4)) + " kJ/K = <b>" + f1(G) + " kJ</b>, so it is " + (G < 0 ? "spontaneous." : "not spontaneous.");
+    } else if (kind === "case") {
+      var r2 = pick(RX); q.type = "Which temperatures?"; q.text = "Using only the signs, when is " + r2.n + " spontaneous?";
+      q.data = r2.eq + "<br>ΔH " + (r2.H < 0 ? "< 0" : "> 0") + " · ΔS " + (r2.S < 0 ? "< 0" : "> 0");
+      q.opts = CASE.slice(); q.ans = caseOf(r2); q.plot = [r2, null];
+      q.why = ["ΔH < 0 and ΔS > 0: both terms make ΔG negative at every temperature.", "ΔH > 0 and ΔS < 0: both terms make ΔG positive at every temperature.", "ΔH < 0 and ΔS < 0: ΔH wins while T is small; −TΔS wins (ΔG > 0) when T is large.", "ΔH > 0 and ΔS > 0: −TΔS only beats ΔH when T is large."][q.ans];
+    } else if (kind === "cross") {
+      var same = RX.filter(function (r) { return (r.H > 0) === (r.S > 0); }), r3 = pick(same), Tc2 = r3.H * 1000 / r3.S;
+      var above = r3.H > 0;
+      q.type = "Switch temperature"; q.text = "At what temperature does " + r3.n + " switch between spontaneous and not?";
+      q.data = r3.eq + "<br>ΔH = " + f1(r3.H) + " kJ · ΔS = " + f1(r3.S) + " J/K";
+      var vals = [Tc2, Tc2 / 1000, Tc2 * 1.6 + 40, Tc2 > 400 ? Tc2 - 273.15 : Tc2 + 273.15];
+      var labels = vals.map(function (v) { return (v < 10 ? v.toFixed(2) : Math.round(v)) + " K"; });
+      var order = shuffle([0, 1, 2, 3]); q.opts = order.map(function (k) { return labels[k]; }); q.ans = order.indexOf(0);
+      q.plot = [r3, null];
+      q.why = "At the switch ΔG = 0, so T = ΔH ÷ ΔS = " + (r3.H * 1000).toFixed(0).replace("-", "−") + " J ÷ " + r3.S.toFixed(1).replace("-", "−") + " J/K = <b>" + Math.round(Tc2) + " K</b>. It is spontaneous " + (above ? "above" : "below") + " this temperature. (Forgetting kJ → J gives the tiny wrong answer.)";
+    } else {
+      var m = pick(MY); q.type = "True or false?"; q.text = m[0]; q.opts = ["True", "False"]; q.ans = m[1] ? 0 : 1; q.why = m[2];
+    }
+    return q;
+  }
+  function plot(r, T) {
+    var svg = $("#cPlot"), Wd = 360, Hh = 170, ml = 44, mr = 10, mt = 10, mb = 22, Tc0 = r.H * 1000 / r.S;
+    var need = Math.max(1500, (T || 0) * 1.15, Tc0 > 0 && Tc0 < 6000 ? Tc0 * 1.25 : 0), step = need > 3000 ? 1000 : 500, x1 = Math.ceil(need / step) * step;
+    function G(t) { return r.H - t * r.S / 1000; }
+    var g0 = G(0), g1 = G(x1), hi = Math.max(g0, g1, 0), lo = Math.min(g0, g1, 0);
+    if (hi < 0.25 * (hi - lo)) hi = 0.3 * (hi - lo); if (-lo < 0.25 * (hi - lo)) lo = -0.3 * (hi - lo);
+    var pad = (hi - lo) * 0.06 || 1; hi += pad; lo -= pad;
+    var X = function (t) { return ml + t / x1 * (Wd - ml - mr); }, Y = function (g) { return mt + (hi - g) / (hi - lo) * (Hh - mt - mb); };
+    var acc = css("--accent"), pos = css("--pos"), neg = css("--neg"), fg = css("--fg"), line = css("--line");
+    var s = '<rect x="' + ml + '" y="' + mt + '" width="' + (Wd - ml - mr) + '" height="' + (Y(0) - mt) + '" fill="' + neg + '" opacity=".10"/>' +
+      '<rect x="' + ml + '" y="' + Y(0) + '" width="' + (Wd - ml - mr) + '" height="' + (Hh - mb - Y(0)) + '" fill="' + pos + '" opacity=".12"/>' +
+      '<line x1="' + ml + '" y1="' + Y(0) + '" x2="' + (Wd - mr) + '" y2="' + Y(0) + '" stroke="' + fg + '"/>' +
+      '<line x1="' + ml + '" y1="' + mt + '" x2="' + ml + '" y2="' + (Hh - mb) + '" stroke="' + line + '"/>' +
+      '<text x="' + (ml + 4) + '" y="' + (mt + 10) + '">not spontaneous (ΔG &gt; 0)</text><text x="' + (ml + 4) + '" y="' + (Hh - mb - 4) + '">spontaneous (ΔG &lt; 0)</text>';
+    for (var t = 0; t <= x1; t += step) s += '<text x="' + X(t) + '" y="' + (Hh - 6) + '" text-anchor="' + (t === x1 ? "end" : t ? "middle" : "start") + '">' + t + ' K</text>';
+    s += '<text x="' + (ml - 4) + '" y="' + (Y(0) + 3) + '" text-anchor="end">0</text><text x="' + (ml - 4) + '" y="' + (mt + 8) + '" text-anchor="end">ΔG</text><text x="' + (Wd - mr) + '" y="' + (Hh - 6) + '" text-anchor="end"></text>';
+    s += '<line x1="' + X(0) + '" y1="' + Y(g0) + '" x2="' + X(x1) + '" y2="' + Y(g1) + '" stroke="' + acc + '" stroke-width="2.6"/>';
+    var Tc = r.H * 1000 / r.S;
+    if (Tc > 0 && Tc < x1) s += '<circle cx="' + X(Tc) + '" cy="' + Y(0) + '" r="4.5" fill="none" stroke="' + fg + '" stroke-width="1.6"/><text x="' + X(Tc) + '" y="' + (Y(0) - 8) + '" text-anchor="middle" style="fill:' + fg + '">' + Math.round(Tc) + ' K</text>';
+    if (T) s += '<line x1="' + X(T) + '" y1="' + mt + '" x2="' + X(T) + '" y2="' + (Hh - mb) + '" stroke="' + acc + '" stroke-dasharray="3 3" opacity=".6"/><circle cx="' + X(T) + '" cy="' + Y(G(T)) + '" r="5" fill="' + acc + '" stroke="#fff" stroke-width="1.5"/>';
+    svg.innerHTML = s; svg.removeAttribute("hidden");
+  }
+  function show() {
+    var q = C.q = makeQ();
+    $("#cType").textContent = q.type; $("#cQ").textContent = q.text;
+    $("#cData").hidden = !q.data; $("#cData").innerHTML = q.data || "";
+    $("#cMsg").hidden = true; $("#cPlot").setAttribute("hidden", ""); $("#cNext").disabled = true;
+    $("#cOpts").innerHTML = "";
+    q.opts.forEach(function (o, k) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = o; b.dataset.k = k;
+      b.addEventListener("click", function () { answer(k); }); $("#cOpts").appendChild(b);
+    });
+  }
+  function answer(k) {
+    var q = C.q, ok = k === q.ans, bs = document.querySelectorAll("#cOpts button");
+    bs.forEach(function (b, i) { b.disabled = true; if (i === q.ans) b.classList.add("right"); else if (i === k) b.classList.add("wrong"); });
+    C.n++; if (ok) { C.right++; C.streak++; } else C.streak = 0;
+    var m = $("#cMsg"); m.hidden = false; m.className = "banner " + (ok ? "pos" : "neg");
+    m.innerHTML = (ok ? "Correct!" : "Not quite.") + "<small>" + q.why + "</small>";
+    if (q.plot) plot(q.plot[0], q.plot[1]);
+    $("#cScore").textContent = "Score " + C.right + " / " + C.n + " · streak " + C.streak;
+    $("#cNext").disabled = false;
+  }
+  $("#cNext").addEventListener("click", show);
+
+  /* expose a tiny hook for tests */
+  window.__ENT = { S: S, C: C, toggleWall: toggleWall, reset: reset, nLeft: nLeft, lnW: lnW, W: W };
+
+  $("#score").hidden = true;
+  reset(); ways(4); show(); fitSpr();
+  requestAnimationFrame(loop);
 })();
 </script>
 

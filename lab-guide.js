@@ -56,16 +56,17 @@
     'entropy-lab.html': {
       big: 'Entropy measures how many ways particles and energy can be arranged. Spreading out (melting, boiling, dissolving, more gas moles) usually means ΔS > 0.',
       tryThis: [
-        'Watch Ice melts. Predict the sign of ΔS before you choose.',
-        'Use Next change → to try at least four different changes.',
-        'Find a change where ΔS < 0. What happened to the number of gas particles?',
-        'Change the temperature: when does a change with ΔH > 0 and ΔS > 0 become spontaneous?'
+        'Spreading out: remove the wall. Does the gas ever all go back to the left on its own?',
+        'Try 4 particles, then 40. How does the chance of “all on the left” change?',
+        'Changes & ΔG: predict the sign of ΔS for at least four changes. Find one where ΔS < 0.',
+        'Move the temperature: when does a change with ΔH > 0 and ΔS > 0 become spontaneous?',
+        'Spontaneous?: get a streak of 5 using ΔG = ΔH − TΔS.'
       ],
-      words: [['Entropy S', 'number of possible arrangements'], ['ΔS', 'change in entropy'], ['Spontaneous', 'happens without continuous outside help'], ['ΔG = ΔH − TΔS', 'decides spontaneity']],
+      words: [['Microstate', 'one exact arrangement of the particles'], ['Ω', 'number of microstates for what we observe'], ['Entropy S', 'S = k ln Ω: grows with the number of arrangements'], ['ΔS', 'change in entropy'], ['Spontaneous', 'happens without continuous outside help'], ['ΔG = ΔH − TΔS', 'decides spontaneity']],
       goals: ['Predict the sign of ΔS from changes of state, dissolving and moles of gas.', 'Use ΔG = ΔH − TΔS to decide when a change is spontaneous.'],
       flow: [['3 min', 'Predict', 'A messy room vs a tidy room: which has more arrangements?'], ['6 min', 'Explore', 'Students try every change and record the sign of ΔS.'], ['3 min', 'Explain', 'Sort the changes into ΔS > 0 and ΔS < 0 on the board.'], ['3 min', 'Apply', 'Temperature slider: find the temperature where ice melts.']],
       mis: [['Entropy is “disorder” you can see.', 'Count arrangements of particles and energy, not messiness.'], ['Spontaneous means fast.', 'Spontaneity says nothing about the rate.']],
-      qs: ['Why does dissolving salt usually increase entropy?', 'Why does water freeze below 0 °C even though ΔS < 0?']
+      qs: ['Why is it almost impossible for all the air in the room to gather in one corner?', 'Why does dissolving salt usually increase entropy?', 'Why does water freeze below 0 °C even though ΔS < 0?']
     },
     'esterification-lab.html': {
       big: 'Acid + alcohol ⇌ ester + water is slow, limited and athermic. The class of the alcohol sets the yield; excess reagent or removing water raises it.',
@@ -380,7 +381,7 @@
     'esterification-lab.html': { hide: ['label:has(#cHide)'] },
     'torque-lab.html': {},
     'keplers-laws.html': { hide: ['#step'] },
-    'entropy-lab.html': {},
+    'entropy-lab.html': { hide: ['#waysCard .seg'], start: '#wallBtn' },
     'five-types-of-chemical-reactions.html': {}
   };
   var cfg = CFG[file] || {};
@@ -419,7 +420,8 @@
     'titration-lab.html': { intro: '[data-tab="dil"]', game: '[data-tab="chal"]' },
     'torque-lab.html': { intro: '[data-tab="door"]', game: '[data-tab="chal"]' },
     'wave-speed-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
-    'five-types-of-chemical-reactions.html': { intro: '[data-tab="build"]', game: '[data-tab="game"]' }
+    'five-types-of-chemical-reactions.html': { intro: '[data-tab="build"]', game: '[data-tab="game"]' },
+    'entropy-lab.html': { intro: '[data-tab="spr"]', game: '[data-tab="chal"]', gameName: 'Spontaneous?' }
   };
   var ph = PH[file] || {};
   var tabBar = document.querySelector('[role="tablist"], .tabs');
