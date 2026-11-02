@@ -152,9 +152,12 @@
         'Hide the name and guess first; then compare with the steps.',
         'Name challenge: get five in a row.',
         'Isomer hunt: find all isomers of C₅H₁₂.',
-        'Mystery compounds: identify one bottle with as few tests as possible.'
+        'Mystery compounds: identify one bottle with as few tests as possible.',
+        '3D model: build butane and turn it. Why is the chain a zig-zag and not a straight line?',
+        'Load benzene. With resonance off, compare the 1.34 Å and 1.54 Å bonds, then press Flip.',
+        'Turn resonance on. What happens to the bond lengths and to the π electrons?'
       ],
-      words: [['Parent chain', 'the longest carbon chain'], ['Substituent', 'a branch or group on the chain'], ['Functional group', 'the reactive part, e.g. –OH, –COOH'], ['Isomers', 'same formula, different structure']],
+      words: [['Resonance hybrid', 'the real structure: an average of the Kekulé structures'], ['Delocalised', 'π electrons spread over the whole ring'], ['Parent chain', 'the longest carbon chain'], ['Substituent', 'a branch or group on the chain'], ['Functional group', 'the reactive part, e.g. –OH, –COOH'], ['Isomers', 'same formula, different structure']],
       goals: ['Name and draw alkanes, alkenes, alkynes, rings and compounds with functional groups.', 'Recognise structural and functional isomers.', 'Use lab tests to identify a family.'],
       flow: [['2 min', 'Predict', 'Show two structures with the same formula. Same compound?'], ['6 min', 'Explore', 'Build & name in pairs.'], ['4 min', 'Explain', 'Isomer hunt on the board.'], ['3 min', 'Apply', 'Mystery compounds.']],
       mis: [['The longest chain is the one drawn straight.', 'The builder counts bends too.'], ['Numbering always starts from the left.', 'Lowest locants decide the direction.']],

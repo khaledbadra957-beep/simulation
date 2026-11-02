@@ -1,4 +1,21 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+/* 3D model card */
+.card.o3d{margin-top:16px}
+.o3dhead{flex-wrap:wrap;gap:8px 12px;align-items:center}
+.o3dhead .btn[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.o3dwrap{position:relative;margin-top:10px}
+.o3dhost{width:100%;height:clamp(300px,46vw,480px);border:1px solid var(--line);border-radius:12px;background:var(--sunk);overflow:hidden;cursor:grab}
+.o3dkey{position:absolute;left:10px;bottom:10px;display:flex;gap:8px;flex-wrap:wrap;font:600 12px var(--mono);background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 8px;border-radius:8px;pointer-events:none}
+.o3dkey i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+#o3dRes{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+#o3dRes[hidden]{display:none}
+.o3dstrip{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.o3dstrip svg.kek line,.o3dstrip svg.kek circle{stroke:var(--ink);stroke-width:2.2}
+.o3dstrip svg.kek{border-radius:10px;border:2px solid transparent}
+.o3dstrip svg.kek.on{border-color:var(--accent);background:var(--mark)}
+.o3dstrip .dharrow,.o3dstrip .eqs{font:600 22px var(--mono);color:var(--muted)}
+.o3dinfo{margin:10px 0 0;line-height:1.55}
+</style></head><body>
 <title>Organic Naming Lab</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -252,6 +269,28 @@ body.fs-on{overflow:hidden}
         <h3 class="explain">How the name is built</h3>
         <ol class="steps explain" id="bSteps"></ol>
       </div>
+    </div>
+    <div class="card o3d">
+      <div class="row o3dhead">
+        <h3 style="margin:0">3D model</h3>
+        <div class="row" role="group" aria-label="Model style"><button class="btn small" id="o3dBS" aria-pressed="true">Ball-and-stick</button><button class="btn small" id="o3dSF" aria-pressed="false">Space-filling</button></div>
+        <label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="o3dH" checked> Show H atoms</label>
+        <button class="btn small" id="o3dRot">Auto-rotate: on</button><button class="btn small" id="o3dReset">Reset view</button>
+        <button class="btn small" id="o3dBenz">Load benzene</button>
+      </div>
+      <div class="o3dwrap"><div id="o3dHost" class="o3dhost" aria-label="3D model of the molecule in the builder. Drag to turn, scroll or pinch to zoom."></div>
+        <div class="o3dkey" aria-hidden="true"><span><i style="background:#3C4248"></i>C</span><span><i style="background:#F2F2F2;border:1px solid #999"></i>H</span><span><i style="background:#D8322A"></i>O</span><span><i style="background:#2F5FD0"></i>N</span><span><i style="background:#2EA44F"></i>Cl</span><span><i style="background:#9A3A1C"></i>Br</span></div></div>
+      <div id="o3dRes" hidden>
+        <div class="row o3dhead">
+          <span class="flabel">Resonance</span>
+          <div class="row" role="group" aria-label="Resonance"><button class="btn small" id="o3dResOff" aria-pressed="true">Off: Kekulé</button><button class="btn small" id="o3dResOn" aria-pressed="false">On: hybrid</button></div>
+          <button class="btn small" id="o3dFlip">Flip the double bonds</button>
+          <label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="o3dP" checked> p orbitals</label>
+          <label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="o3dL" checked> Bond lengths</label>
+        </div>
+        <div class="o3dstrip" id="o3dStrip"></div>
+      </div>
+      <p class="note o3dinfo" id="o3dInfo" aria-live="polite"></p>
     </div>
   </section>
 
@@ -1074,7 +1113,9 @@ function updateBuild(){
   $('bWarn').innerHTML = !hide && chainTurns(R, st) ? '<p class="warn">The longest chain is not the straight row you drew: it turns into a side group. Always look for the longest chain before naming.</p>' : '';
   $('bSteps').innerHTML = hide ? '<li><b class="t">Your turn</b>Find the main group, the longest chain and the numbering, then type the name.</li>' : steps(R);
   build.render();
+  if (window.Organic3D) window.Organic3D.update(st);
 }
+window.Organic3DLoadBenzene = function(){ build.set(BZ()); };
 $('bGuess').addEventListener('change', function(){ bSolved = false; $('bAns').value = ''; $('bMsg').className = 'verdict wait'; $('bMsg').textContent = 'Type your answer, then check.'; updateBuild(); });
 function checkAnswer(st, R, ans){
   var a = normAnswer(ans); if (!a) return { ok: false, msg: 'Type a name first.' };
@@ -1694,4 +1735,7 @@ if (window.matchMedia) { try { window.matchMedia('(prefers-color-scheme: dark)')
 
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="organic-3d.js"></script>
+<script>if (window.Organic3D) window.Organic3D.update(build.st);</script>
 <script src="lab-guide.js" defer></script>
