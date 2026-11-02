@@ -144,7 +144,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   <div>
    <p class="eyebrow">Grade 12 Chemistry · Electrochemistry · Galvanic cells</p>
    <h1>Galvanic Cell Lab</h1>
-   <p class="lede">Build a cell from two metals, close the circuit and watch electrons flow through the wire while ions move through the salt bridge. Zoom in to the electrode surfaces, then turn the atoms around in 3D.</p>
+   <p class="lede">Build a cell from two metals, tap the switch to close the circuit and watch electrons flow through the wire while ions move through the salt bridge. Zoom in to the electrode surfaces, then turn the atoms around in 3D.</p>
   </div>
   <div class="tools">
    <button class="btn" id="fsBtn" type="button">Full screen</button>
@@ -231,6 +231,10 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
     <button class="btn small" id="t3Play" type="button">Pause</button>
     <button class="btn small" id="t3Rot" type="button">Auto-rotate: on</button>
     <button class="btn small" id="t3Reset" type="button">Reset view</button>
+   </div>
+   <div class="transport">
+    <div class="seg" role="group" aria-label="Model style"><button type="button" data-rep="sf" aria-pressed="true">Space-filling</button><button type="button" data-rep="bs" aria-pressed="false">Ball-and-stick</button></div>
+    <label class="checks" style="display:flex"><span style="display:flex;gap:7px;align-items:center;font-weight:700"><input type="checkbox" id="c3Lab" checked style="width:18px;height:18px;margin:0;accent-color:var(--accent)"> Ion labels</span></label>
    </div>
   </div>
   <div class="stagewrap">
@@ -419,7 +423,7 @@ function stepParticles(dt){const flow=cell.I>0&&cell.dev!=='volt';const rate=flo
  if(flow){tElec+=dt*.12*Math.min(2.5,rate)}if(cell.dev==='motor'&&flow)spinA+=dt*12*Math.min(2,rate)}
 
 function drawCell(){const c=$('#cv');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const s=Math.min(w/VW,h/VH),ox=(w-VW*s)/2,oy=(h-VH*s)/2;
- x.save();x.translate(ox,oy);x.scale(s,s);const fs=v=>Math.max(9/s,v);
+ CVT={s,ox,oy};x.save();x.translate(ox,oy);x.scale(s,s);const fs=v=>Math.max(9/s,v);
  const font=(sz,wt=600)=>`${wt} ${fs(sz)}px "IBM Plex Mono",monospace`;
  const lab=$('#cLab').checked,show=cell.answered&&!cell.same,conc_=conc();
  // beakers + solutions
@@ -434,7 +438,10 @@ function drawCell(){const c=$('#cv');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);c
   for(const xx of [BR.L,BR.R]){x.fillStyle='#F4F1E8';x.fillRect(xx-17,BR.bot-14,34,16)}
   if($('#cIons').checked)for(const b of bridgeIons){const [bx,by]=bridgePt(b.s);const jx=Math.sin(b.j)*7,jy=Math.cos(b.j*1.3)*7;ion(bx+jx,by+jy,b.type)}
   if(lab){x.fillStyle=C.ink;x.font=font(15);x.textAlign='center';x.fillText('salt bridge',500,BR.top+60);x.font=font(13,500);x.fillStyle=C.muted;x.fillText('KNO₃ (K⁺ + NO₃⁻)',500,BR.top+80)}};
- if(cell.bridge)bridge();else if(lab){x.fillStyle=C.bad;x.font=font(15);x.textAlign='center';x.fillText('salt bridge removed',500,BR.top+10)}
+ if(cell.bridge||bDrag<0){x.save();x.translate(0,bDrag);if(bDrag<-60)x.globalAlpha=.85;bridge();x.restore()}
+ if(!cell.bridge&&bDrag===0){x.setLineDash([10,8]);x.strokeStyle=C.muted;x.lineWidth=2;x.lineJoin='round';x.beginPath();x.moveTo(BR.L-18,BR.bot);x.lineTo(BR.L-18,BR.top-18);x.lineTo(BR.R+18,BR.top-18);x.lineTo(BR.R+18,BR.bot);x.lineTo(BR.R-18,BR.bot);x.lineTo(BR.R-18,BR.top+18);x.lineTo(BR.L+18,BR.top+18);x.lineTo(BR.L+18,BR.bot);x.closePath();x.stroke();x.setLineDash([]);
+  x.fillStyle=C.bad;x.font=font(15);x.textAlign='center';x.fillText('salt bridge removed',500,BR.top+60);x.fillStyle=C.muted;x.font=font(13,500);x.fillText('tap here to put it back',500,BR.top+80)}
+ else if(lab&&bDrag===0&&cell.bridge&&!cell.closed){x.fillStyle=C.muted;x.font=font(12,500);x.textAlign='center';x.fillText('drag the bridge up to remove it',500,BR.top+100)}
  // ions
  function ion(px,py,type,m){const r=type==='cat'?11:type==='an'?10:7.5;let col,txt;
   if(type==='cat'){col=m.ion;txt=m.z===1?'+':m.z+'+'}else if(type==='an'){col=m.an==='NO₃⁻'?'#E08A3C':'#E07AA8';txt='−'}else if(type==='K'){col='#9B6BD3';txt='+'}else{col='#E08A3C';txt='−'}
@@ -457,7 +464,7 @@ function drawCell(){const c=$('#cv');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);c
  const swX=330;x.lineTo(swX-24,72);x.stroke();x.beginPath();x.moveTo(swX+24,72);x.lineTo(500-48,72);x.moveTo(500+48,72);x.lineTo(...ep[2]);x.lineTo(...ep[3]);x.stroke();
  // switch
  x.fillStyle=C.ink;x.beginPath();x.arc(swX-24,72,5,0,7);x.arc(swX+24,72,5,0,7);x.fill();x.strokeStyle=C.ink;x.lineWidth=5;x.lineCap='round';x.beginPath();x.moveTo(swX-24,72);
- if(cell.closed)x.lineTo(swX+24,72);else x.lineTo(swX+18,44);x.stroke();x.lineCap='butt';if(lab){x.font=font(12,500);x.fillStyle=C.muted;x.textAlign='center';x.fillText(cell.closed?'switch closed':'switch open',swX,100)}
+ if(cell.closed)x.lineTo(swX+24,72);else x.lineTo(swX+18,44);x.stroke();x.lineCap='butt';if(lab){x.font=font(12,500);x.fillStyle=C.muted;x.textAlign='center';x.fillText(cell.closed?'switch closed (tap)':'switch open (tap)',swX,100)}
  // device
  drawDevice(x,500,72,font);
  // electrons + current
@@ -525,12 +532,31 @@ function lens(x,X0,Y0,W,H,which,show){const m=which==='A'?cell.A:cell.K;const R=
  if(show){x.font='500 12px "IBM Plex Mono",monospace';x.fillStyle=C.muted;const e=m.z===1?'e⁻':m.z+'e⁻';x.fillText(which==='A'?`${m.s} → ${ionOf(m)} + ${e}`:`${ionOf(m)} + ${e} → ${m.s}`,X0+10,Y0+H-10)}
  if(!(cell.I>0&&cell.dev!=='volt')){x.fillStyle=C.muted;x.font='500 12px "IBM Plex Mono",monospace';x.textAlign='right';x.fillText(W<300?'no current':'no current: nothing happens',X0+W-10,Y0+18)}}
 
+/* ---------- direct manipulation on the stage ---------- */
+let CVT={s:1,ox:0,oy:0},bDrag=0,drag=null;
+function toV(e){const r=$('#cv').getBoundingClientRect();return [(e.clientX-r.left-CVT.ox)/CVT.s,(e.clientY-r.top-CVT.oy)/CVT.s]}
+function segD(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,t=Math.max(0,Math.min(1,((px-ax)*dx+(py-ay)*dy)/(dx*dx+dy*dy||1)));return Math.hypot(px-ax-t*dx,py-ay-t*dy)}
+function onBridge(vx,vy){const P=[[BR.L,BR.bot],[BR.L,BR.top],[BR.R,BR.top],[BR.R,BR.bot]];let d=1e9;for(let i=1;i<4;i++)d=Math.min(d,segD(vx,vy,...P[i-1],...P[i]));return d<26}
+const onSwitch=(vx,vy)=>Math.abs(vx-330)<46&&Math.abs(vy-70)<40;
+function syncBridge(){$('#bridgeBtn').textContent=cell.bridge?'Remove the salt bridge':'Put the salt bridge back'}
+function syncSwitch(){$('#swBtn').textContent=cell.closed?'Open the switch':'Close the switch'}
+$('#cv').addEventListener('pointerdown',e=>{const [vx,vy]=toV(e);
+ if(onSwitch(vx,vy)){cell.closed=!cell.closed;syncSwitch();return}
+ if(cell.bridge&&onBridge(vx,vy)){drag={y0:vy,id:e.pointerId};$('#cv').setPointerCapture(e.pointerId);e.preventDefault();return}
+ if(!cell.bridge&&onBridge(vx,vy)){cell.bridge=true;syncBridge()}});
+$('#cv').addEventListener('pointermove',e=>{const [vx,vy]=toV(e);const c=$('#cv');
+ if(drag&&drag.id===e.pointerId){bDrag=Math.max(-170,Math.min(0,vy-drag.y0));cell.bridge=bDrag>-60;return}
+ c.style.cursor=onSwitch(vx,vy)?'pointer':onBridge(vx,vy)?(cell.bridge?'grab':'pointer'):'default'});
+const endDrag=()=>{if(!drag)return;drag=null;cell.bridge=bDrag>-60;bDrag=0;syncBridge()};
+$('#cv').addEventListener('pointerup',endDrag);$('#cv').addEventListener('pointercancel',endDrag);
+$('#cv').style.touchAction='pan-y';
+
 /* ---------- controls ---------- */
 ['#mL','#mR'].forEach(s=>$(s).onchange=()=>{zoomReset();setup();T3.rebuild()});
 ['#sCL','#sCR'].forEach(s=>$(s).addEventListener('input',()=>{if(cell.xi===0){cell.cL0=Math.pow(10,+$('#sCL').value);cell.cR0=Math.pow(10,+$('#sCR').value);initParticles()}else{setup()}readouts()}));
 $('#cPred').onchange=()=>setup();
-$('#swBtn').onclick=()=>{cell.closed=!cell.closed;$('#swBtn').textContent=cell.closed?'Open the switch':'Close the switch'};
-$('#bridgeBtn').onclick=()=>{cell.bridge=!cell.bridge;$('#bridgeBtn').textContent=cell.bridge?'Remove the salt bridge':'Put the salt bridge back'};
+$('#swBtn').onclick=()=>{cell.closed=!cell.closed;syncSwitch()};
+$('#bridgeBtn').onclick=()=>{cell.bridge=!cell.bridge;syncBridge()};
 $('#resetBtn').onclick=()=>{zoomReset();setup()};
 $$('[data-dev]').forEach(b=>b.onclick=()=>{segPick(b);cell.dev=b.dataset.dev});
 $$('[data-spd]').forEach(b=>b.onclick=()=>{segPick(b);cell.spd=+b.dataset.spd});
@@ -539,13 +565,13 @@ $$('#p-cell .checks input').forEach(i=>i.addEventListener('change',drawAll));
 /* =========================================================
    TAB 2 — 3-D view (three.js, no add-ons)
    ========================================================= */
-const T3={ready:false,side:'anode',play:true,rot:true,
+const T3={ready:false,side:'anode',play:true,rot:true,rep:'sf',labels:true,
  init(){if(this.ready){this.resize();return}const host=$('#three');if(!window.THREE){host.innerHTML='<p class="note" style="padding:20px">The 3D view needs an internet connection the first time (it loads three.js). Check the connection and reload the page.</p>';return}
   const THREE=window.THREE;this.T=THREE;const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setPixelRatio(Math.min(2,window.devicePixelRatio||1));host.appendChild(r.domElement);this.r=r;
   this.scene=new THREE.Scene();this.cam=new THREE.PerspectiveCamera(40,1,.1,200);this.target=new THREE.Vector3(0,2.2,0);this.th=.75;this.ph=1.05;this.dist=17;
   this.scene.add(new THREE.HemisphereLight(0xffffff,0x445566,.75));const dl=new THREE.DirectionalLight(0xffffff,.85);dl.position.set(6,12,8);this.scene.add(dl);const dl2=new THREE.DirectionalLight(0xffffff,.3);dl2.position.set(-8,4,-6);this.scene.add(dl2);
   this.g={atom:new THREE.SphereGeometry(.5,28,20),ion:new THREE.SphereGeometry(.42,24,18),O:new THREE.SphereGeometry(.3,18,14),H:new THREE.SphereGeometry(.18,14,10),e:new THREE.SphereGeometry(.16,12,10),S:new THREE.SphereGeometry(.34,18,14),O2:new THREE.SphereGeometry(.26,16,12)};
-  this.mat={O:new THREE.MeshStandardMaterial({color:0xE0473A,roughness:.45}),H:new THREE.MeshStandardMaterial({color:0xF4F4F4,roughness:.5}),e:new THREE.MeshStandardMaterial({color:0xFFD23F,emissive:0xFFB300,emissiveIntensity:.9}),S:new THREE.MeshStandardMaterial({color:0xE07AA8,roughness:.4})};
+  this.g.bond=new THREE.CylinderGeometry(.07,.07,1,10);this.mat={bond:new THREE.MeshStandardMaterial({color:0xB8C0C8,roughness:.5}),O:new THREE.MeshStandardMaterial({color:0xE0473A,roughness:.45}),H:new THREE.MeshStandardMaterial({color:0xF4F4F4,roughness:.5}),e:new THREE.MeshStandardMaterial({color:0xFFD23F,emissive:0xFFB300,emissiveIntensity:.9}),S:new THREE.MeshStandardMaterial({color:0xE07AA8,roughness:.4})};
   // controls
   const el=r.domElement;let drag=null,pinch=null;el.style.touchAction='none';
   el.addEventListener('pointerdown',e=>{el.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,id:e.pointerId};this.rot=false;$('#t3Rot').textContent='Auto-rotate: off'});
@@ -560,7 +586,11 @@ const T3={ready:false,side:'anode',play:true,rot:true,
  resize(){if(!this.ready)return;const host=$('#three');const w=host.clientWidth,h=host.clientHeight;this.r.setSize(w,h,false);this.r.domElement.style.width='100%';this.r.domElement.style.height='100%';this.cam.aspect=w/Math.max(1,h);this.cam.updateProjectionMatrix()},
  metalMat(m){return new this.T.MeshStandardMaterial({color:new this.T.Color(m.metal),metalness:.35,roughness:.38})},
  ionMat(m){return new this.T.MeshStandardMaterial({color:new this.T.Color(m.ion==='#EEF0F4'||m.ion==='#DDE6EE'||m.ion==='#E2E2E8'||m.ion==='#E6EEF2'||m.ion==='#E8E4F0'?'#B9A6E8':m.ion),roughness:.35,emissive:new this.T.Color('#221133'),emissiveIntensity:.25})},
- water(){const T=this.T,g=new T.Group();const o=new T.Mesh(this.g.O,this.mat.O);g.add(o);for(const s of [-1,1]){const h=new T.Mesh(this.g.H,this.mat.H);h.position.set(.24*s,.0,.24);g.add(h)}return g},
+ bond(g,a,b){const T=this.T;const d=new T.Vector3().subVectors(b,a);const c=new T.Mesh(this.g.bond,this.mat.bond);c.position.copy(a).addScaledVector(d,.5);c.scale.y=d.length();c.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.clone().normalize());g.add(c)},
+ water(){const T=this.T,g=new T.Group();const bs=this.rep==='bs';const o=new T.Mesh(this.g.O,this.mat.O);if(bs)o.scale.setScalar(.62);g.add(o);
+  for(const s of [-1,1]){const h=new T.Mesh(this.g.H,this.mat.H);const hp=bs?new T.Vector3(.36*s,0,.36):new T.Vector3(.24*s,0,.24);h.position.copy(hp);if(bs){h.scale.setScalar(.7);this.bond(g,new T.Vector3(),hp)}g.add(h)}return g},
+ label(text){const T=this.T;const c=document.createElement('canvas');c.width=192;c.height=96;const x=c.getContext('2d');x.fillStyle='rgba(16,32,42,.78)';x.beginPath();x.roundRect?x.roundRect(20,14,152,68,18):x.rect(20,14,152,68);x.fill();
+  x.fillStyle='#FFFFFF';x.font='700 44px "IBM Plex Mono",monospace';x.textAlign='center';x.textBaseline='middle';x.fillText(text,96,50);const sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),depthTest:false,transparent:true}));sp.scale.set(1.3,.65,1);sp.renderOrder=9;return sp},
  rebuild(){if(!this.ready)return;const T=this.T;if(this.world)this.scene.remove(this.world);const W=new T.Group();this.world=W;this.scene.add(W);
   const m=this.side==='anode'?(cell.same?cell.L:cell.A):(cell.same?cell.R:cell.K);this.m=m;this.mm=this.metalMat(m);this.im=this.ionMat(m);
   // slab 7×7×3, top layer y = 0
@@ -571,13 +601,13 @@ const T3={ready:false,side:'anode',play:true,rot:true,
   this.waters=[];for(let i=0;i<30;i++){const w=this.water();w.position.set((Math.random()-.5)*8,1.2+Math.random()*5,(Math.random()-.5)*8);w.rotation.set(Math.random()*6,Math.random()*6,0);w.userData.v=new T.Vector3((Math.random()-.5)*.3,(Math.random()-.5)*.3,(Math.random()-.5)*.3);W.add(w);this.waters.push(w)}
   // sulfate / nitrate
   this.anions=[];for(let i=0;i<3;i++){const g=new T.Group();const s=new T.Mesh(this.g.S,m.an==='NO₃⁻'?new T.MeshStandardMaterial({color:0x4C7DE0}):this.mat.S);g.add(s);
-   const dirs=m.an==='NO₃⁻'?[[1,0,0],[-.5,.866,0],[-.5,-.866,0]]:[[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]];for(const d of dirs){const o=new T.Mesh(this.g.O2,this.mat.O);const v=new T.Vector3(...d).normalize().multiplyScalar(.6);o.position.copy(v);g.add(o)}
+   const bs=this.rep==='bs';if(bs)s.scale.setScalar(.7);const dirs=m.an==='NO₃⁻'?[[1,0,0],[-.5,.866,0],[-.5,-.866,0]]:[[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]];for(const d of dirs){const o=new T.Mesh(this.g.O2,this.mat.O);const v=new T.Vector3(...d).normalize().multiplyScalar(bs?.75:.6);o.position.copy(v);if(bs){o.scale.setScalar(.66);this.bond(g,new T.Vector3(),v)}g.add(o)}
    g.position.set((Math.random()-.5)*7,2+Math.random()*4,(Math.random()-.5)*7);W.add(g);this.anions.push(g)}
   // hydrated ions already in solution
   this.ions=[];for(let i=0;i<4;i++){const h=this.hydrated();h.position.set((Math.random()-.5)*7,2.8+Math.random()*3,(Math.random()-.5)*7);W.add(h);this.ions.push(h)}
   this.ev=null;this.evT=0;this.newSites=[];this.legend();this.text()},
  hydrated(){const T=this.T,g=new T.Group();const c=new T.Mesh(this.g.ion,this.im);g.add(c);g.userData.core=c;const sh=new T.Group();
-  const dirs=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];for(const d of dirs){const w=this.water();const v=new T.Vector3(...d);w.position.copy(v.clone().multiplyScalar(1.05));w.lookAt(v.clone().multiplyScalar(3));sh.add(w)}g.add(sh);g.userData.shell=sh;return g},
+  const dirs=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];for(const d of dirs){const w=this.water();const v=new T.Vector3(...d);w.position.copy(v.clone().multiplyScalar(1.05));w.lookAt(v.clone().multiplyScalar(3));sh.add(w)}g.add(sh);g.userData.shell=sh;const lb=this.label(ionOf(this.m));lb.position.set(0,1.75,0);lb.visible=this.labels;g.add(lb);g.userData.lab=lb;return g},
  legend(){const m=this.m;const ionC=this.im.color.getStyle();$('#legend3').innerHTML=`<span><i style="background:${m.metal}"></i>${m.s} atom</span><span><i style="background:${ionC}"></i>${ionOf(m)} ion</span><span><i style="background:#E0473A"></i>O</span><span><i style="background:#F4F4F4;border:1px solid #999"></i>H (water)</span><span><i style="background:#FFD23F"></i>electron</span><span><i style="background:${m.an==='NO₃⁻'?'#4C7DE0':'#E07AA8'}"></i>${m.an==='NO₃⁻'?'N in NO₃⁻':'S in SO₄²⁻'}</span>`},
  text(){const m=this.m,e=m.z===1?'e⁻':m.z+'e⁻';const an=this.side==='anode';
   $('#t3Eq').textContent=an?`Anode (−), oxidation: ${m.s}(s) → ${ionOf(m)}(aq) + ${e}`:`Cathode (+), reduction: ${ionOf(m)}(aq) + ${e} → ${m.s}(s)`;
@@ -592,7 +622,7 @@ const T3={ready:false,side:'anode',play:true,rot:true,
   this.r.render(this.scene,c)},
  startEv(){const T=this.T;this.evT=0;
   if(this.side==='anode'){const cand=this.slab.filter(a=>a.visible&&!a.userData.gone);if(!cand.length){this.rebuild();return}cand.sort((p,q)=>Math.abs(p.position.x)+Math.abs(p.position.z)-Math.abs(q.position.x)-Math.abs(q.position.z));
-   const a=cand[Math.floor(Math.random()*Math.min(12,cand.length))];a.userData.gone=true;const h=this.hydrated();h.position.copy(a.position);h.userData.shell.scale.setScalar(.01);h.userData.core.material=this.mm;h.userData.busy=true;this.world.add(h);a.visible=false;
+   const a=cand[Math.floor(Math.random()*Math.min(12,cand.length))];a.userData.gone=true;const h=this.hydrated();h.position.copy(a.position);h.userData.shell.scale.setScalar(.01);h.userData.core.material=this.mm;h.userData.lab.visible=false;h.userData.busy=true;this.world.add(h);a.visible=false;
    const es=[];for(let k=0;k<this.m.z;k++){const e=new T.Mesh(this.g.e,this.mat.e);e.position.copy(a.position);this.world.add(e);es.push(e)}this.ev={h,es,t:0,start:a.position.clone()}}
   else{let site=null;for(let i=0;i<7&&!site;i++)for(let k=0;k<7;k++){const key=i+','+k;if(!this.newSites.includes(key)&&Math.random()<.35){site=key;break}}
    if(!site){if(this.newSites.length>=49){this.rebuild();return}for(let i=0;i<7&&!site;i++)for(let k=0;k<7;k++){const key=i+','+k;if(!this.newSites.includes(key)){site=key;break}}}
@@ -602,16 +632,18 @@ const T3={ready:false,side:'anode',play:true,rot:true,
  runEv(dt){const ev=this.ev;ev.t+=dt;const T=this.T,u=Math.min(1,ev.t/3.2);
   if(this.side==='anode'){// electrons dive into the slab, atom rises and gets hydrated
    ev.es.forEach((e,k)=>{const eu=Math.min(1,ev.t/1.2);e.position.set(ev.start.x+(k-.5)*.5,ev.start.y-eu*2.4,ev.start.z);e.visible=eu<1});
-   if(ev.t>.8){const uu=Math.min(1,(ev.t-.8)/2.4);ev.h.position.set(ev.start.x,ev.start.y+uu*3.6,ev.start.z);ev.h.userData.core.material=uu>.15?this.im:this.mm;ev.h.userData.shell.scale.setScalar(Math.max(.01,Math.min(1,uu*1.6)));ev.h.rotation.y+=dt}
+   if(ev.t>.8){const uu=Math.min(1,(ev.t-.8)/2.4);ev.h.position.set(ev.start.x,ev.start.y+uu*3.6,ev.start.z);ev.h.userData.core.material=uu>.15?this.im:this.mm;ev.h.userData.lab.visible=this.labels&&uu>.3;ev.h.userData.shell.scale.setScalar(Math.max(.01,Math.min(1,uu*1.6)));ev.h.rotation.y+=dt}
    if(ev.t>3.4){ev.es.forEach(e=>this.world.remove(e));ev.h.userData.busy=false;this.ions.push(ev.h);if(this.ions.length>9){const old=this.ions.shift();this.world.remove(old)}this.ev=null}}
   else{const p=ev.h.position;p.lerpVectors(ev.start,ev.tgt,Math.min(1,ev.t/2.2));ev.h.userData.shell.scale.setScalar(Math.max(.01,1-Math.max(0,(ev.t-1.4)/1)));
    ev.es.forEach((e,k)=>{const eu=Math.min(1,ev.t/2.4);e.position.y=-1.8+eu*(ev.tgt.y+1.8);e.visible=eu<1});
-   if(ev.t>2.4){ev.h.userData.core.material=this.mm}
+   if(ev.t>2.4){ev.h.userData.core.material=this.mm;ev.h.userData.lab.visible=false}
    if(ev.t>3){ev.es.forEach(e=>this.world.remove(e));const a=new T.Mesh(this.g.atom,this.mm);a.position.copy(ev.tgt);this.world.add(a);this.world.remove(ev.h);this.ions=this.ions.filter(q=>q!==ev.h);this.ev=null}}}};
 $$('[data-side]').forEach(b=>b.onclick=()=>{segPick(b);T3.side=b.dataset.side;T3.rebuild()});
 $('#t3Play').onclick=()=>{T3.play=!T3.play;$('#t3Play').textContent=T3.play?'Pause':'Play'};
 $('#t3Rot').onclick=()=>{T3.rot=!T3.rot;$('#t3Rot').textContent='Auto-rotate: '+(T3.rot?'on':'off')};
 $('#t3Reset').onclick=()=>{T3.th=.75;T3.ph=1.05;T3.dist=17};
+$$('[data-rep]').forEach(b=>b.onclick=()=>{segPick(b);T3.rep=b.dataset.rep;T3.rebuild()});
+$('#c3Lab').onchange=e=>{T3.labels=e.target.checked;if(T3.ready)T3.world.traverse(o=>{if(o.parent&&o.parent.userData&&o.parent.userData.lab===o)o.visible=T3.labels&&!o.parent.userData.busy})};
 
 /* =========================================================
    TAB 3 — axis of tendency
