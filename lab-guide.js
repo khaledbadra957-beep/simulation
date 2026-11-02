@@ -390,7 +390,7 @@
     'html.lg-simple p.note.lg-open,html.lg-simple p.caption.lg-open{display:block}' +
     'html.lg-simple .status,html.lg-simple .verdict{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;cursor:pointer;position:relative}' +
     'html.lg-simple .status.lg-open,html.lg-simple .verdict.lg-open{display:block;-webkit-line-clamp:unset}' +
-    'html.lg-simple .lg-more{padding-bottom:1.7em!important}html.lg-simple .lg-more::after{content:"Why? ▾";position:absolute;right:10px;bottom:4px;font-size:.85em;font-weight:700;text-decoration:underline}' +
+    'html.lg-simple .lg-more::after{content:"… Why? ▾";position:absolute;right:0;bottom:0;padding:0 10px 0 2.2em;font-weight:700;background:linear-gradient(90deg,transparent,var(--lg-bg,Canvas) 1.8em)}' +
     '.lg-mode{display:inline-flex;border:1.5px solid currentColor;border-radius:999px;overflow:hidden;font:700 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif;opacity:.9;vertical-align:middle}' +
     '.lg-mode button{border:0!important;background:none!important;color:inherit!important;padding:8px 12px!important;font:inherit!important;cursor:pointer;margin:0!important;width:auto!important;border-radius:0!important;text-transform:none!important;letter-spacing:normal!important}' +
     '.lg-mode button[aria-pressed="true"]{background:#0A6A88!important;color:#fff!important}' +
@@ -425,7 +425,8 @@
     if (mode !== 'simple') return;
     document.querySelectorAll('.status,.verdict,p.note,p.caption').forEach(function (el) {
       if (el.classList.contains('lg-open')) return;
-      el.classList.toggle('lg-more', el.scrollHeight > el.clientHeight + 2);
+      var more = el.scrollHeight > el.clientHeight + 2; el.classList.toggle('lg-more', more);
+      if (more && !el.style.getPropertyValue('--lg-bg')) { var n = el, bg = 'rgba(0, 0, 0, 0)'; while (n && (bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent')) { bg = getComputedStyle(n).backgroundColor; n = n.parentElement; } el.style.setProperty('--lg-bg', bg === 'rgba(0, 0, 0, 0)' ? 'Canvas' : bg); }
     });
   }
   document.addEventListener('click', function (e) {

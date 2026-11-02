@@ -61,7 +61,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visib
 .note{color:var(--muted);font-size:.9rem;margin:0}
 .mono{font-family:var(--data)}
 canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
-#beaker{height:clamp(240px,30vw,300px)}
+#beaker{height:clamp(300px,34vw,340px)}
+.mkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:.85rem;color:var(--muted)}.mkey i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 #kg{height:260px}
 #eg{height:250px;cursor:crosshair}
 .pred{display:flex;gap:6px;flex-wrap:wrap}
@@ -121,7 +122,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .runs span{font-family:var(--data);font-size:.8rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
-</style></head><body>
+</style><script src="lab-viz.js"></script></head><body>
 
 <div class="wrap">
 <style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
@@ -152,6 +153,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   <div class="grid2">
    <div class="col">
     <canvas class="stage" id="beaker" aria-label="Beaker of the reaction mixture; the colour darkens as iodine forms"></canvas>
+    <p class="mkey"><span><i style="background:#D8322A"></i>H₂O₂ (two O, two H)</span><span><i style="background:#8E5BC8"></i>I⁻</span><span><i style="background:#6B3A1E"></i>I₂ (gives the brown colour)</span><span><i style="background:#1E8A55"></i>a reacting collision</span></p>
     <div class="transport">
      <button class="btn primary" id="runBtn" type="button">Mix and start</button>
      <button class="btn" id="resetBtn" type="button">Empty the beaker</button>
@@ -344,20 +346,43 @@ function readouts(){const r=lab.run;$('#rt').textContent=fx(r.t,1)+' min';$('#rI
  const done=r.y>=r.ymax*.995;$('#rEnd').textContent=r.t===0?'not started':done?`Yes: n(I₂) = n(I₂)max = ${f5(r.ymax)}×10⁻⁵ mol`:`No: n(I₂) = ${f5(r.y)} < n(I₂)max = ${f5(r.ymax)} (×10⁻⁵ mol)`}
 
 function drawBeaker(){const c=$('#beaker');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const r=lab.run;
- const bw=Math.min(w*.36,190),bh=Math.min(h*.78,230),bx=w*.08,by=(h-bh)/2+6;
+ const bw=Math.min(w*.34,190),bh=Math.min(h*.74,230),bx=w*.06,by=(h-bh)/2+4;
  const Vt=r.p.V1+r.p.V2+VACID,level=bh*Math.min(.92,Vt/50);
  const conc=r.y/r.V;// mol/L of I2
  const a=Math.min(.92,.08+conc/.006*.8);
- const col=conc<.0015?`rgba(230,190,40,${a})`:`rgba(${Math.round(200-60*Math.min(1,conc/.008))},${Math.round(120-60*Math.min(1,conc/.008))},20,${a})`;
- x.fillStyle=r.t>0?col:'rgba(150,190,220,.25)';x.fillRect(bx+3,by+bh-level,bw-6,level-3);
- x.strokeStyle=C.ink;x.lineWidth=2.5;x.beginPath();x.moveTo(bx-6,by);x.lineTo(bx,by+4);x.lineTo(bx,by+bh);x.lineTo(bx+bw,by+bh);x.lineTo(bx+bw,by+4);x.lineTo(bx+bw+6,by);x.stroke();
- for(let k=1;k<5;k++){const yy=by+bh-bh*k/5;x.beginPath();x.moveTo(bx+bw-14,yy);x.lineTo(bx+bw,yy);x.lineWidth=1.5;x.stroke();txt(x,String(k*10),bx+bw+4,yy+4,C.muted,10)}
+ const col=r.t===0?'rgba(150,190,220,.35)':conc<.0015?`rgba(230,190,40,${a})`:`rgba(${Math.round(200-60*Math.min(1,conc/.008))},${Math.round(120-60*Math.min(1,conc/.008))},20,${a})`;
+ // magnetic stirrer under the beaker
+ x.fillStyle=LabViz.dark()?'#2B3A41':'#D5DDE1';x.fillRect(bx-10,by+bh+2,bw+20,14);x.fillStyle=C.muted;x.fillRect(bx+bw*.15,by+bh+6,10,6);
+ const path=x=>{x.beginPath();x.moveTo(bx-6,by);x.lineTo(bx,by+4);x.lineTo(bx,by+bh-4);x.quadraticCurveTo(bx,by+bh,bx+4,by+bh);x.lineTo(bx+bw-4,by+bh);x.quadraticCurveTo(bx+bw,by+bh,bx+bw,by+bh-4);x.lineTo(bx+bw,by+4);x.lineTo(bx+bw+6,by);x.closePath()};
+ const outline=x=>{path(x);x.beginPath();x.moveTo(bx-6,by);x.lineTo(bx,by+4);x.lineTo(bx,by+bh-4);x.quadraticCurveTo(bx,by+bh,bx+4,by+bh);x.lineTo(bx+bw-4,by+bh);x.quadraticCurveTo(bx+bw,by+bh,bx+bw,by+bh-4);x.lineTo(bx+bw,by+4);x.lineTo(bx+bw+6,by)};
+ LabViz.glass(x,path,{left:bx,right:bx+bw,top:by,bottom:by+bh,liquidY:by+bh-level,liquid:col,outline});
+ // stir bar spinning while the reaction runs
+ const sa=lab.running?performance.now()/120:0,sl=bw*.18;x.save();x.translate(bx+bw/2,by+bh-6);x.scale(1,.35);x.rotate(sa);x.fillStyle='#F4F4F4';x.strokeStyle='#888';x.lineWidth=1.5;x.beginPath();if(x.roundRect)x.roundRect(-sl,-4,2*sl,8,4);else x.rect(-sl,-4,2*sl,8);x.fill();x.stroke();x.restore();
+ x.strokeStyle=C.ink;for(let k=1;k<5;k++){const yy=by+bh-bh*k/5;x.beginPath();x.moveTo(bx+bw-14,yy);x.lineTo(bx+bw,yy);x.lineWidth=1.5;x.stroke();txt(x,String(k*10),bx+bw+4,yy+4,C.muted,10)}
  txt(x,'mL',bx+bw+4,by+14,C.muted,10);
- const tx=bx+bw+34,fs=w<420?11:12;txt(x,`${fx(r.t,1)} min`,tx,by+26,C.ink,w<420?18:22);txt(x,`${r.p.T} °C${r.p.cat?' · catalyst':''}`,tx,by+50,C.muted,fs);
- txt(x,`V = ${Vt} mL`,tx,by+72,C.muted,fs);
- txt(x,`[I₂] = ${fx(conc*1000,2)}`,tx,by+94,C.muted,fs);txt(x,'mmol/L',tx,by+110,C.muted,fs);
- if(r.t===0)txt(x,w<420?'Press Mix':'Press “Mix and start”',tx,by+136,C.accent,13);
- else if(r.y>=r.ymax*.995)txt(x,'Finished',tx,by+136,C.ok,13)}
+ const tx=bx+bw+30,fs=w<420?11:12;txt(x,`${fx(r.t,1)} min`,tx,by+22,C.ink,w<420?17:22);txt(x,`${r.p.T} °C${r.p.cat?' · catalyst':''}`,tx,by+42,C.muted,fs);
+ txt(x,`[I₂] = ${fx(conc*1000,2)} mmol/L`,tx,by+60,C.muted,fs);
+ if(r.t===0)txt(x,w<420?'Press Mix':'Press “Mix and start”',tx,by+80,C.accent,13);
+ else if(r.y>=r.ymax*.995)txt(x,'Finished',tx,by+80,C.ok,13);
+ // macro → micro: what the particles are doing
+ const R=Math.max(0,Math.min(84,(h-by-96)/2,(w-tx)/2-6)),cx=Math.min(w-R-8,tx+R+(w-tx-2*R)/2),cy=h-R-10;
+ LabViz.lens(x,cx,cy,R,(x,cx,cy,R)=>drawMicro(x,cx,cy,R,col),{from:[bx+bw*.7,by+bh-level*.45],title:'molecules'})}
+/* particles: about 8 H2O2 at the start; I⁻ and I2 follow the real amounts */
+const KSL=(()=>{const a=[];let sd=11;const rnd=()=>(sd=(sd*9301+49297)%233280)/233280;for(let i=0;i<34;i++){let p,ok,k=0;do{p=[rnd()*1.7-.85,rnd()*1.7-.85];ok=Math.hypot(p[0],p[1])<.8&&a.every(q=>Math.hypot(q[0]-p[0],q[1]-p[1])>.27);k++}while(!ok&&k<300);a.push(p)}return a})();
+let microFlash=[];
+function drawMicro(x,cx,cy,R,col){const r=lab.run,k=8/Math.max(r.n1,r.n2/2),t=performance.now()/1000;const rr=R*.085;
+ x.fillStyle=col.replace(/[\d.]+\)$/,m=>Math.min(.25,parseFloat(m)*.35)+')');x.fillRect(cx-R,cy-R,2*R,2*R);
+ const n=[['H',Math.round((r.n1-r.y)*k)],['I',Math.min(16,Math.round((r.n2-2*r.y)*k))],['I2',Math.round(r.y*k)]];const list=[];n.forEach(([s,c])=>{for(let i=0;i<c;i++)list.push(s)});
+ const sp=lab.running?1:0;
+ list.forEach((s,i)=>{const p=KSL[i%KSL.length],px=cx+p[0]*R+Math.sin(t*1.6*(1+sp)+i*1.3)*3,py=cy+p[1]*R+Math.cos(t*1.3*(1+sp)+i)*3,ang=t*.8+i;
+  if(s==='H'){const dx=Math.cos(ang)*rr*.9,dy=Math.sin(ang)*rr*.9;LabViz.ball(x,px-dx,py-dy,rr,'#D8322A');LabViz.ball(x,px+dx,py+dy,rr,'#D8322A');LabViz.ball(x,px-dx*1.9,py-dy*1.9+rr*.6,rr*.6,'#F2F2F2');LabViz.ball(x,px+dx*1.9,py+dy*1.9-rr*.6,rr*.6,'#F2F2F2')}
+  else if(s==='I'){LabViz.ball(x,px,py,rr*1.25,'#8E5BC8');x.fillStyle='#fff';x.font=`700 ${Math.max(8,rr)}px "IBM Plex Mono",monospace`;x.textAlign='center';x.textBaseline='middle';x.fillText('I⁻',px,py+.5)}
+  else{const dx=Math.cos(ang)*rr,dy=Math.sin(ang)*rr;LabViz.ball(x,px-dx,py-dy,rr*1.25,'#6B3A1E');LabViz.ball(x,px+dx,py+dy,rr*1.25,'#6B3A1E')}});
+ x.textBaseline='alphabetic';
+ // a reacting collision now and then, more often when the rate is high
+ if(lab.running&&r.y<r.ymax*.99&&Math.random()<r.f(r.y)/r.f(0)*.08*lab.spd)microFlash.push({p:KSL[Math.floor(Math.random()*Math.min(list.length,KSL.length))]||[0,0],t:t});
+ microFlash=microFlash.filter(f=>t-f.t<.6);microFlash.forEach(f=>{const u=(t-f.t)/.6,px=cx+f.p[0]*R,py=cy+f.p[1]*R;x.strokeStyle=`rgba(30,138,85,${1-u})`;x.lineWidth=3;x.beginPath();for(let q=0;q<8;q++){const a2=q*Math.PI/4;x.moveTo(px+Math.cos(a2)*rr*(1.5+u*2),py+Math.sin(a2)*rr*(1.5+u*2));x.lineTo(px+Math.cos(a2)*rr*(2.5+u*3),py+Math.sin(a2)*rr*(2.5+u*3))}x.stroke()});
+}
 
 function frame(c,tmax,ymax){const {x,w,h}=fit(c);const L=50,Rm=12,T=14,B=34;return {x,w,h,L,Rm,T,B,X:t=>L+t/tmax*(w-L-Rm),Y:v=>h-B-v/ymax*(h-T-B),tmax,ymax}}
 function axes(g,xs,ys,ylab){const {x,w,h,L,Rm,T,B,X,Y,tmax,ymax}=g;x.clearRect(0,0,w,h);x.strokeStyle=C.grid;x.lineWidth=1;
@@ -373,6 +398,7 @@ function drawGraph(){const r=lab.run,c=$('#kg');let tmax=Math.max(24,Math.ceil(r
  if(prod){lab.kept.forEach((k,i)=>line(k.hist.map(([t,y])=>[t,y/E5]),RUNCOL()[i%3],2,[6,4]));
   if($('#cMax').checked){x.strokeStyle=C.brass;x.setLineDash([5,5]);x.lineWidth=1.5;x.beginPath();x.moveTo(L,Y(r.ymax/E5));x.lineTo(w-Rm,Y(r.ymax/E5));x.stroke();x.setLineDash([]);txt(x,`n(I₂)max = ${f5(r.ymax)}`,w-Rm-4,Y(r.ymax/E5)-6,C.brass,11,'right')}
   line(r.hist.map(([t,y])=>[t,y/E5]),C.accent,3);
+  lab.gf={X,Y,L,Rm,w,h:g.h,T:g.T,B:g.B,tmax,ym};if(r.t>0){const lp=r.hist[r.hist.length-1];LabViz.tracer(x,X(lp[0]),Y(lp[1]/E5),C.accent)}
   for(const [t,y] of r.samples){x.fillStyle=C.ink;x.beginPath();x.arc(X(t),Y(y/E5),4,0,7);x.fill()}
   if($('#cHalf').checked){const th=tHalf(r);const yh=r.ymax/2/E5;x.strokeStyle=C.rose;x.setLineDash([4,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(L,Y(yh));x.lineTo(th?X(th):w-Rm,Y(yh));if(th){x.lineTo(X(th),Y(0))}x.stroke();x.setLineDash([]);
    txt(x,th?`t½ = ${fx(th,1)} min`:'n(I₂)max/2: not reached yet',th?X(th)+6:L+6,th?Y(0)-8:Y(yh)-6,C.rose,12)}
@@ -382,7 +408,10 @@ function drawGraph(){const r=lab.run,c=$('#kg');let tmax=Math.max(24,Math.ceil(r
     x.fillStyle=C.rose;x.beginPath();x.arc(X(tau),Y(y/E5),5,0,7);x.fill();out.hidden=false;
     out.textContent=`slope of the tangent at t = ${fx(tau,1)} min\nr(I₂) = dn(I₂)/dt = ${sci(s)} mol/min\nATSR: r(I⁻)/2 = r(I₂)/1 = r(H₂O₂)/1 = r(H₂O)/4\n  r(I⁻) disappearing = ${sci(2*s)} mol/min\n  r(H₂O₂) disappearing = ${sci(s)} mol/min\n  r(H₂O) forming = ${sci(4*s)} mol/min`}}else $('#tanOut').hidden=true}
  else{line(r.hist.map(([t,y])=>[t,(r.n1-y)/E5]),C.a,3);line(r.hist.map(([t,y])=>[t,(r.n2-2*y)/E5]),C.b,3);
-  const lx=X(Math.min(r.t,tmax)),la=lx>w*.6?'right':'left',ox=la==='right'?-6:6;txt(x,'n(H₂O₂)',lx+ox,Y((r.n1-r.y)/E5)-8,C.a,12,la);txt(x,'n(I⁻) = n₀ − 2n(I₂)',lx+ox,Y((r.n2-2*r.y)/E5)-8,C.b,12,la);$('#tanOut').hidden=true}}
+  const lx=X(Math.min(r.t,tmax)),la=lx>w*.6?'right':'left',ox=la==='right'?-6:6;txt(x,'n(H₂O₂)',lx+ox,Y((r.n1-r.y)/E5)-8,C.a,12,la);txt(x,'n(I⁻) = n₀ − 2n(I₂)',lx+ox,Y((r.n2-2*r.y)/E5)-8,C.b,12,la);$('#tanOut').hidden=true}
+ LabViz.drawReadout(x,c)}
+LabViz.readout($('#kg'),(px)=>{const g=lab.gf,r=lab.run;if(!g||r.hist.length<2||lab.view!=='p')return null;const t=(px-g.L)/(g.w-g.L-g.Rm)*g.tmax;if(t<0||t>r.t)return null;const y=yAt(r,t);
+ return {x:g.X(t),y:g.Y(y/E5),top:g.T,bottom:g.h-g.B,col:C.rose,text:`t = ${fx(t,1)} min|n(I₂) = ${f5(y)}×10⁻⁵ mol`}},()=>drawGraph());
 
 let last=performance.now(),acc=0;
 function loop(now){const real=Math.min(.05,(now-last)/1000);last=now;const r=lab.run;
@@ -390,7 +419,7 @@ function loop(now){const real=Math.min(.05,(now-last)/1000);last=now;const r=lab
   const nextT=(r.samples.length)*lab.every;if(r.t>=nextT){r.samples.push([nextT,yAt(r,nextT)]);renderTable()}
   if(r.t>=60){lab.running=false;$('#runBtn').textContent='Start again'}
   acc+=real;if(acc>.15){acc=0;readouts();drawGraph()}}
- if(tab==='lab')drawBeaker();
+ if(tab==='lab')try{drawBeaker()}catch(e){console.warn(e)}
  requestAnimationFrame(loop)}
 
 /* =========================================================
