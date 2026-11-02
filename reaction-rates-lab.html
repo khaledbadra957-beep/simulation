@@ -214,6 +214,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
    </div>
   </div>
   <canvas class="stage" id="graph" aria-label="Graph of the concentration of A against time"></canvas>
+  <div class="checks"><label><input type="checkbox" id="cCtrl" checked> Show the control run (dashed: 300 K, [A] = [B] = 0.20 M, no catalyst<span id="ctrlExtra"></span>)</label></div>
   <div class="runs" id="runs" aria-label="Kept runs"></div>
   <p class="note">Each particle stands for 0.01 mol/L, so 20 particles of A in the box is [A] = 0.20 M. The energies are scaled-down model values so you can see reactions happen; the patterns are the same as in real reactions.</p>
  </section>
@@ -259,6 +260,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
      <div><dt>Ea with catalyst</dt><dd id="eCat">–</dd></div>
      <div><dt>ΔH with catalyst</dt><dd id="eCatH">–</dd></div>
     </dl></div>
+    <div class="transport"><button class="btn primary" id="edStep" type="button">Step through one collision</button><span class="note" id="edCap"></span></div>
    </div>
   </div>
   <ol class="steps">
@@ -472,6 +474,7 @@ function drawGraph(){const g=graphFrame(),{x,w,h,L,Rm,T,B,tmax,ymax,X,Y}=g;x.cle
  const stp=tmax<=40?5:tmax<=100?10:20;for(let t=0;t<=tmax;t+=stp){x.beginPath();x.moveTo(X(t),T);x.lineTo(X(t),h-B);x.stroke();txt(x,String(t),X(t),h-B+16,C.muted,11,'center')}
  txt(x,'time (s)',w-Rm,h-4,C.muted,11,'right');x.save();x.translate(12,(T+h-B)/2);x.rotate(-Math.PI/2);txt(x,'[A] (M)',0,0,C.muted,11,'center','middle');x.restore();
  const line=(hist,col,wid)=>{if(hist.length<2)return;x.strokeStyle=col;x.lineWidth=wid;x.beginPath();hist.forEach(([t,n],k)=>{k?x.lineTo(X(t),Y(n*PER)):x.moveTo(X(t),Y(n*PER))});x.stroke()};
+ if($('#cCtrl').checked&&sim.control){x.setLineDash([7,5]);line(sim.control,C.muted,2);x.setLineDash([]);const lc=sim.control[Math.min(sim.control.length-1,Math.floor(sim.control.length*.55))];txt(x,'control',X(lc[0])+4,Y(lc[1]*PER)-6,C.muted,11)}
  sim.kept.forEach((r,k)=>line(r.hist,RUNCOL()[k%4],2));
  line(sim.hist,C.a,3);
  for(const [t,v] of sim.meas){x.fillStyle=C.ink;x.beginPath();x.arc(X(t),Y(v),5,0,7);x.fill()}
@@ -492,7 +495,13 @@ $('#sT').addEventListener('input',()=>{sim.T=+$('#sT').value;showSet()});
 ['#sA','#sB'].forEach(s=>$(s).addEventListener('change',()=>{if(sim.t<.5)newRun()}));
 $('#cCat').onchange=e=>{sim.cat=e.target.checked;updateReadouts()};
 $('#cFlash').onchange=e=>{sim.flash=e.target.checked};
-$$('[data-mode]').forEach(b=>b.onclick=()=>{segPick(b);sim.mode=b.dataset.mode;$('#fA').hidden=sim.mode==='solid';$('#fS').hidden=sim.mode!=='solid';sim.kept=[];renderRuns();newRun()});
+$$('[data-mode]').forEach(b=>b.onclick=()=>{segPick(b);sim.mode=b.dataset.mode;$('#fA').hidden=sim.mode==='solid';$('#fS').hidden=sim.mode!=='solid';sim.kept=[];renderRuns();makeControl();newRun()});
+$('#cCtrl').onchange=drawGraph;
+function makeControl(){// run the control experiment off-screen with fixed conditions, then restore the user's settings
+ const keep={T:$('#sT').value,A:$('#sA').value,B:$('#sB').value,cat:sim.cat,pieces:sim.pieces};
+ $('#sT').value=300;$('#sA').value=20;$('#sB').value=20;sim.cat=false;if(sim.mode==='solid')sim.pieces=1;newRun();const H=[[0,countA()]];
+ for(let i=1;i<=240;i++){for(let k=0;k<31;k++)step(0.25/31);H.push([sim.t,countA()])}sim.control=H;
+ $('#sT').value=keep.T;$('#sA').value=keep.A;$('#sB').value=keep.B;sim.cat=keep.cat;sim.pieces=keep.pieces;$('#ctrlExtra').textContent=sim.mode==='solid'?', one lump':'';showSet()}
 $$('[data-pieces]').forEach(b=>b.onclick=()=>{segPick(b);sim.pieces=+b.dataset.pieces;newRun()});
 $$('[data-spd]').forEach(b=>b.onclick=()=>{segPick(b);sim.spd=+b.dataset.spd});
 $('#playBtn').onclick=()=>{sim.running=!sim.running;$('#playBtn').textContent=sim.running?'Pause':'Play'};
@@ -556,7 +565,18 @@ function drawED(){const c=$('#ed');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);con
  if(cat)arr(X(.13),Y(0),Y(Ec),C.prod,'Ea cat');
  if(dH!==0)arr(X(.9),Y(0),Y(dH),dH<0?C.bad:C.a,'ΔH');
  txt(x,'reactants',X(.01),Y(0)+16,C.ink,12);txt(x,'products',X(.98),dH<0?Y(dH)+16:Y(dH)-8,C.ink,12,'right');
- txt(x,'activated complex',X(.5),Y(Ef)-10,C.ink,12,'center')}
+ txt(x,'activated complex',X(.5),Y(Ef)-10,C.ink,12,'center');
+ if(ED.u!==null){const f=.04+ED.u*.92;let v;if(f<.2)v=0;else if(f>.8)v=dH;else{const u=(f-.2)/.6;v=dH*(3*u*u-2*u*u*u)+(Ef-dH*.5)*Math.pow(Math.sin(Math.PI*u),2)}
+  const px=X(f),py=Y(v);const stage=f<.2?0:f<.47?1:f<.53?2:f<.8?3:4;
+  const r=7,gx=px,gy=py+34;const sep=stage===0?14:stage===1?10:stage===3?10:14;
+  const dot=(dx,dy,col)=>{x.fillStyle=col;x.beginPath();x.arc(gx+dx,gy+dy,r,0,7);x.fill()};
+  if(stage<=1){dot(-sep-r,0,'#C0392B');dot(-sep+r*.8,0,'#2F6FD0');dot(sep-r*.8,0,'#E6B422');dot(sep+r,0,'#3FA34D')}
+  else if(stage===2){x.setLineDash([3,3]);x.strokeStyle=C.muted;x.lineWidth=1.5;x.beginPath();x.arc(gx,gy,24,0,7);x.stroke();x.setLineDash([]);dot(-10,-6,'#C0392B');dot(10,-6,'#2F6FD0');dot(-10,8,'#E6B422');dot(10,8,'#3FA34D')}
+  else{dot(-sep-r,0,'#C0392B');dot(-sep+r*.8,0,'#E6B422');dot(sep-r*.8,0,'#2F6FD0');dot(sep+r,0,'#3FA34D')}
+  x.fillStyle=C.accent;x.beginPath();x.arc(px,py,7,0,7);x.fill();x.strokeStyle=C.stage;x.lineWidth=2;x.stroke();
+  $('#edCap').textContent=['Reactants AB + CD approach.','Climbing: kinetic energy is used to stretch and break the old bonds (energy absorbed).','Top of the hump: the activated complex. Old bonds half broken, new bonds half formed.',dH<0?'Going down: new bonds form and release energy, more than was absorbed.':'Going down: new bonds form and release energy, but less than was absorbed.',`Products AC + BD. ΔH = ${dH>0?'+':''}${dH} kJ/mol: ${dH<0?'exothermic, energy given out':dH>0?'endothermic, energy taken in':'no net change'}.`][stage]}}
+const ED={u:null,id:null};
+$('#edStep').onclick=()=>{cancelAnimationFrame(ED.id);const t0=performance.now();const go=now=>{ED.u=Math.min(1,(now-t0)/6000);drawED();if(ED.u<1)ED.id=requestAnimationFrame(go)};ED.id=requestAnimationFrame(go)};
 
 ['#sT1','#sT2','#sEa','#cCat2','#sDH','#sEf'].forEach(s=>$(s).addEventListener('input',()=>{drawMB();drawED()}));
 $('#cCat2').addEventListener('change',()=>{drawMB();drawED()});
@@ -633,7 +653,7 @@ $('#qNext').onclick=nextQ;
 /* ---------- boot ---------- */
 function drawAll(){if(!C.ink)readColors();if(tab==='box'){drawBox();drawGraph()}if(tab==='energy'){drawMB();drawED()}}
 addEventListener('resize',drawAll);
-readColors();showSet();showXY();newRun();setRxn();nextQ();themeLabel();
+readColors();showSet();showXY();makeControl();newRun();setRxn();nextQ();themeLabel();
 requestAnimationFrame(loop);
 </script>
 <script src="lab-guide.js" defer></script>
