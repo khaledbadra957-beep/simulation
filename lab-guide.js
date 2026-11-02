@@ -229,6 +229,8 @@
         'Push the door near the hinge, then at the knob with the same force. Compare τ.',
         'Change the angle to 45°, then to 0°. What happens to the lever arm?',
         'Seesaw: a heavy child and a light child. Where must each sit to balance?',
+        'Lever lab: put bricks on the plank, predict which side goes down, then remove the supports.',
+        'Lever lab: find the mass of mystery brick A by balancing it with known bricks.',
         'Challenge: solve one question before showing the solution.'
       ],
       words: [['Torque τ', 'turning effect, N·m'], ['Lever arm', 'perpendicular distance from pivot to the force line'], ['Pivot', 'the axis of rotation'], ['Equilibrium', 'clockwise τ = counter-clockwise τ']],

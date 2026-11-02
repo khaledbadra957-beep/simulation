@@ -56,6 +56,8 @@ svg.stage{width:100%;height:auto;background:var(--stage);border:1.5px solid var(
 input[type=range]{width:100%;accent-color:var(--accent)}
 .presets{display:flex;gap:6px;flex-wrap:wrap}
 .presets .btn{font-size:.85rem;padding:6px 10px}
+.presets .btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.presets label{display:flex;align-items:center;gap:6px}
 .read{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .cell{background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0}
 .cell .k{font-size:.78rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
@@ -91,7 +93,8 @@ footer{color:var(--muted);font-size:.85rem}
  <div class="tabs" role="tablist">
   <button class="tab" role="tab" aria-selected="true" data-tab="door" id="tab-door">1 · Turn the door</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="see" id="tab-see">2 · Balance the seesaw</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="chal" id="tab-chal">3 · Challenge</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="lever" id="tab-lever">3 · Lever lab: predict</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="chal" id="tab-chal">4 · Challenge</button>
  </div>
 
  <!-- ===== TAB 1: DOOR ===== -->
@@ -146,7 +149,41 @@ footer{color:var(--muted);font-size:.85rem}
   </div>
  </section>
 
- <!-- ===== TAB 3: CHALLENGE ===== -->
+ <!-- ===== TAB 3: LEVER LAB ===== -->
+ <section class="bench" id="p-lever" hidden>
+  <div class="benchhead"><h2>Will it tip? Predict, then remove the supports</h2><span class="note">Drag bricks from the shelf onto the marks. Drag a brick off the plank to take it away.</span></div>
+  <svg class="stage" id="levSvg" viewBox="0 0 800 430" aria-label="Plank on a pivot with two supports, marks every 0.25 m and a shelf of bricks"></svg>
+  <div class="grid2">
+   <div class="ctrl">
+    <div class="presets">
+     <button class="btn primary" id="supBtn" type="button">Remove the supports</button>
+     <button class="btn" id="levClear" type="button">Clear the plank</button>
+     <button class="btn" id="levMyst" type="button">New mystery bricks</button>
+    </div>
+    <div class="presets" role="group" aria-label="Show">
+     <label class="note"><input type="checkbox" id="lvRuler" checked> Distances</label>
+     <label class="note"><input type="checkbox" id="lvForce" checked> Weight arrows</label>
+     <label class="note"><input type="checkbox" id="lvSum"> Torque sums</label>
+    </div>
+    <div id="predBox">
+     <p class="q" style="font-size:1rem;margin:0 0 6px">With the supports in place, predict what happens when you remove them:</p>
+     <div class="presets"><button class="btn" type="button" data-pr="L">Left side goes down</button><button class="btn" type="button" data-pr="0">Stays balanced</button><button class="btn" type="button" data-pr="R">Right side goes down</button></div>
+    </div>
+    <div class="status" id="levMsg">Put some bricks on the plank, make a prediction, then remove the supports.</div>
+   </div>
+   <div class="ctrl">
+    <div class="read">
+     <div class="cell"><div class="k">Left torque Στ</div><div class="v" id="lvL" style="color:var(--ccw)"></div></div>
+     <div class="cell"><div class="k">Right torque Στ</div><div class="v" id="lvR" style="color:var(--cw)"></div></div>
+    </div>
+    <div class="ans"><label for="mystIn" class="note">Mystery brick A mass</label><input id="mystIn" inputmode="decimal" autocomplete="off"><span class="note">kg</span><button class="btn" id="mystChk" type="button">Check</button></div>
+    <div class="status" id="mystMsg" hidden></div>
+    <p class="note">Balance the mystery brick with known bricks, then use m₁ r₁ = m₂ r₂ to find its mass.</p>
+   </div>
+  </div>
+ </section>
+
+ <!-- ===== TAB 4: CHALLENGE ===== -->
  <section class="bench" id="p-chal" hidden>
   <div class="benchhead"><h2>Challenge</h2><span class="note" id="score">Score 0 / 0</span></div>
   <p class="q" id="cq"></p>
@@ -171,11 +208,11 @@ function curDark(){const t=root.getAttribute('data-theme');return t?t==='dark':m
 function setThemeLabel(){$('#themeBtn').textContent=curDark()?'Light mode':'Dark mode'}
 try{const t=localStorage.getItem('tq-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
 setThemeLabel();
-$('#themeBtn').onclick=()=>{const n=curDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('tq-theme',n)}catch(e){}setThemeLabel();drawDoor();drawSee()};
+$('#themeBtn').onclick=()=>{const n=curDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('tq-theme',n)}catch(e){}setThemeLabel();drawDoor();drawSee();drawLev()};
 // tabs
 let tab='door';
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
- ['door','see','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if(tab==='see')drawSee();if(tab==='door')drawDoor()});
+ ['door','see','lever','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if(tab==='see')drawSee();if(tab==='door')drawDoor();if(tab==='lever')drawLev()});
 // full screen on the active bench
 $('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');document.querySelectorAll('.bench').forEach(x=>x.classList.remove('fs'));
  if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
@@ -287,6 +324,63 @@ seeSvg.addEventListener('pointermove',ev=>{if(!S.drag)return;let d=Math.round((S
  if(S.drag==='L'){S.d1=d;$('#d1').value=d}else{S.d2=d;$('#d2').value=d}drawSee()});
 seeSvg.addEventListener('pointerup',()=>S.drag=null);
 drawSee();
+
+/* ===== LEVER LAB (predict-then-test, after PhET Balancing Act; on-stage torque sums after W. Fendt) ===== */
+const LV={items:[],sup:true,ang:0,vel:0,pred:null,drag:null,myst:{}};const LX=400,LY=230,LP=170;
+const SHELF=[{k:'b5',m:5,c:'#C0503A'},{k:'b10',m:10,c:'#B5762F'},{k:'b20',m:20,c:'#7A5C2E'},{k:'A',m:0,c:'#6A5ACD',myst:true},{k:'B',m:0,c:'#2E8B57',myst:true}];
+function newMyst(){LV.myst={A:5*Math.floor(2+Math.random()*7),B:5*Math.floor(1+Math.random()*6)};LV.items=LV.items.filter(i=>!i.myst);$('#mystMsg').hidden=true;$('#mystIn').value='';drawLev()}
+const massOf=it=>it.myst?LV.myst[it.k]:it.m;
+function torques(){let L=0,R=0;for(const it of LV.items){const t=massOf(it)*9.8*Math.abs(it.d);if(it.d<0)L+=t;else R+=t}return [L,R]}
+function lvSvgPt(ev){const svg=$('#levSvg'),r=svg.getBoundingClientRect();return [(ev.clientX-r.left)/r.width*800,(ev.clientY-r.top)/r.height*430]}
+function brick(g,x,y,it,label){const m=massOf(it),w=24+Math.sqrt(m)*5,h=18+Math.sqrt(m)*3;const b=el('g',{transform:`translate(${x},${y})`,style:'cursor:grab','data-it':it.id||'','data-shelf':it.shelf||''},g);
+ el('rect',{x:-w/2,y:-h,width:w,height:h,rx:3,fill:it.c,stroke:'#00000055','stroke-width':1.5},b);el('text',{x:0,y:-h/2+5,'text-anchor':'middle',fill:'#fff','font-family':'IBM Plex Mono','font-size':13,'font-weight':600},b).textContent=label;return {b,h}}
+function drawLev(){const s=$('#levSvg');s.innerHTML='';const ink=css('--ink'),muted=css('--muted');
+ el('rect',{x:0,y:LY+90,width:800,height:110,fill:css('--grid')},s);
+ // pivot
+ el('path',{d:`M${LX-30},${LY+90} L${LX},${LY+8} L${LX+30},${LY+90}Z`,fill:css('--steel')},s);
+ // supports
+ if(LV.sup||Math.abs(LV.ang)<0.01){}
+ if(LV.sup)for(const sx of [-1.75,1.75]){el('rect',{x:LX+sx*LP-12,y:LY+8,width:24,height:82,fill:css('--steel'),opacity:.85,rx:3},s)}
+ const g=el('g',{transform:`rotate(${LV.ang} ${LX} ${LY})`},s);
+ el('rect',{x:LX-2.1*LP,y:LY-7,width:4.2*LP,height:14,rx:5,fill:css('--wood'),stroke:css('--wood-dark'),'stroke-width':2},g);
+ for(let i=-8;i<=8;i++){if(!i)continue;const x=LX+i*0.25*LP;el('line',{x1:x,y1:LY-7,x2:x,y2:LY+(i%4?3:7),stroke:css('--wood-dark'),'stroke-width':2},g);
+  if($('#lvRuler').checked&&i%2===0)el('text',{x,y:LY+24,'text-anchor':'middle',fill:muted,'font-family':'IBM Plex Mono','font-size':11},g).textContent=Math.abs(i*0.25)+''}
+ if($('#lvRuler').checked)el('text',{x:LX+2.1*LP-4,y:LY+38,'text-anchor':'end',fill:muted,'font-family':'IBM Plex Mono','font-size':11},g).textContent='distance from pivot (m)';
+ // stacked items per position
+ const stacks={};for(const it of LV.items){const k=it.d.toFixed(2);const y0=stacks[k]||0;const {h}=brick(g,LX+it.d*LP,LY-7-y0,it,it.myst?it.k:massOf(it)+' kg');stacks[k]=y0+h;
+  if($('#lvForce').checked&&y0===0){const tot=LV.items.filter(q=>q.d===it.d).reduce((a,q)=>a+massOf(q),0);const L=20+tot*1.6;const ra=LV.ang*Math.PI/180,dx=it.d*LP,x=LX+dx*Math.cos(ra)-7*Math.sin(ra),y=LY+dx*Math.sin(ra)+7*Math.cos(ra);el('line',{x1:x,y1:y,x2:x,y2:y+L,stroke:css('--force'),'stroke-width':3},s);arrowHead(s,x,y,x,y+L,css('--force'),1);el('text',{x:x+6,y:y+L,fill:css('--force'),'font-family':'IBM Plex Mono','font-size':11},s).textContent=LV.items.some(q=>q.myst&&q.d===it.d)?'? N':Math.round(tot*9.8)+' N'}}
+ // shelf
+ el('text',{x:24,y:LY+118,fill:muted,'font-family':'Atkinson Hyperlegible','font-size':13,'font-weight':700},s).textContent='Shelf (drag up):';
+ SHELF.forEach((it,i)=>{brick(s,170+i*110,LY+185,{...it,shelf:it.k},it.myst?it.k+' = ?':it.m+' kg')});
+ // torque sums on the stage
+ const [Lt,Rt]=torques();
+ if($('#lvSum').checked){const fmt=side=>{const its=LV.items.filter(q=>side<0?q.d<0:q.d>0);if(!its.length)return '0';return its.map(q=>`${q.myst?q.k:massOf(q)}×9.8×${Math.abs(q.d)}`).join(' + ')};
+  el('text',{x:20,y:28,fill:css('--ccw'),'font-family':'IBM Plex Mono','font-size':13,'font-weight':600},s).textContent=`left Στ = ${fmt(-1)}${LV.items.some(q=>q.myst&&q.d<0)?'':' = '+f1(Lt,1)+' N·m'}`;
+  el('text',{x:780,y:52,'text-anchor':'end',fill:css('--cw'),'font-family':'IBM Plex Mono','font-size':13,'font-weight':600},s).textContent=`right Στ = ${fmt(1)}${LV.items.some(q=>q.myst&&q.d>0)?'':' = '+f1(Rt,1)+' N·m'}`}
+ const hid=LV.items.some(q=>q.myst);$('#lvL').textContent=hid&&LV.items.some(q=>q.myst&&q.d<0)?'? (mystery)':f1(Lt,1)+' N·m';$('#lvR').textContent=hid&&LV.items.some(q=>q.myst&&q.d>0)?'? (mystery)':f1(Rt,1)+' N·m';
+ $('#supBtn').textContent=LV.sup?'Remove the supports':'Put the supports back';$('#predBox').hidden=!LV.sup}
+let idc=0;
+$('#levSvg').addEventListener('pointerdown',ev=>{const t=ev.target.closest('[data-it],[data-shelf]');if(!t)return;ev.preventDefault();$('#levSvg').setPointerCapture(ev.pointerId);
+ if(t.dataset.shelf){const base=SHELF.find(q=>q.k===t.dataset.shelf);LV.drag={it:{...base,id:'i'+(++idc)},fresh:true}}else{const it=LV.items.find(q=>q.id===t.dataset.it);LV.items=LV.items.filter(q=>q!==it);LV.drag={it}}
+ if(LV.drag.it.myst&&LV.items.some(q=>q.k===LV.drag.it.k))LV.drag=null;drawLev()});
+$('#levSvg').addEventListener('pointermove',ev=>{if(!LV.drag)return;const [x,y]=lvSvgPt(ev);LV.drag.x=x;LV.drag.y=y;drawLev();const s=$('#levSvg');brick(s,x,y+12,LV.drag.it,LV.drag.it.myst?LV.drag.it.k:LV.drag.it.m+' kg').b.setAttribute('opacity','.75')});
+$('#levSvg').addEventListener('pointerup',ev=>{if(!LV.drag)return;const [x,y]=lvSvgPt(ev);const d=Math.round((x-LX)/LP/0.25)*0.25;
+ if(y<LY+80&&Math.abs(d)>=0.25&&Math.abs(d)<=2){LV.drag.it.d=d;LV.items.push(LV.drag.it);if(!LV.sup){LV.sup=true;LV.ang=0;LV.vel=0}LV.pred=null;$$pr();$('#levMsg').className='status';$('#levMsg').textContent='Make a prediction, then remove the supports.'}
+ LV.drag=null;drawLev()});
+function $$pr(){document.querySelectorAll('[data-pr]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pr===LV.pred))}
+document.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{LV.pred=b.dataset.pr;$$pr();$('#levMsg').className='status';$('#levMsg').textContent='Prediction saved. Now remove the supports.'});
+$('#supBtn').onclick=()=>{LV.sup=!LV.sup;if(LV.sup){LV.ang=0;LV.vel=0;drawLev();return}
+ const [L,R]=torques(),net=R-L,res=Math.abs(net)<1e-6?'0':net>0?'R':'L';const word={L:'the left side goes down',R:'the right side goes down','0':'it stays balanced'}[res];
+ const m=$('#levMsg');const why=`Left Στ = ${f1(L,1)} N·m, right Στ = ${f1(R,1)} N·m.`;
+ if(LV.pred===null){m.className='status';m.textContent=`It tips: ${word}. ${why} (Next time predict first!)`}else{const ok=LV.pred===res;m.className='status'+(ok?' ok':'');m.textContent=`${ok?'Your prediction was right':'Not what you predicted'}: ${word}. ${why}`}
+ LV.target=res==='0'?0:res==='R'?14:-14;anim()};
+function anim(){const step=()=>{if(LV.sup)return;LV.vel+=(LV.target-LV.ang)*0.02;LV.vel*=0.86;LV.ang+=LV.vel;drawLev();if(Math.abs(LV.vel)>0.01||Math.abs(LV.target-LV.ang)>0.05)requestAnimationFrame(step)};requestAnimationFrame(step)}
+$('#levClear').onclick=()=>{LV.items=[];LV.sup=true;LV.ang=0;LV.pred=null;$$pr();drawLev()};
+$('#levMyst').onclick=newMyst;
+['lvRuler','lvForce','lvSum'].forEach(id=>$('#'+id).onchange=drawLev);
+$('#mystChk').onclick=()=>{const v=parseFloat(($('#mystIn').value||'').replace(',','.'));const m=$('#mystMsg');m.hidden=false;const ok=Math.abs(v-LV.myst.A)<0.01;m.className='status'+(ok?' ok':'');
+ m.textContent=ok?`Correct! Brick A is ${LV.myst.A} kg.`:'Not yet. Balance A against known bricks (supports removed, plank stays level), then m_A × r_A = m × r.'};
+LV.items=[{k:'b10',m:10,c:'#B5762F',id:'i0',d:-1.5},{k:'b20',m:20,c:'#7A5C2E',id:'i00',d:0.75}];newMyst();window.__LV=LV;
 
 /* ===== CHALLENGE ===== */
 let C=null,score=0,tries=0;
