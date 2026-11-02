@@ -206,6 +206,23 @@
       mis: [['Any frequency makes a standing wave.', 'Only the peaks of the curve do.'], ['Nodes are where the string is fixed only.', 'Higher harmonics have nodes in the middle too.']],
       qs: ['Why does pressing a guitar string raise the pitch?', 'Why can soldiers break a bridge by marching in step?']
     },
+    'titration-lab.html': {
+      big: 'During a dilution the moles of solute stay the same (C₀V₀ = CV). In a titration the reagents react in their stoichiometric ratio at the equivalence point, so a measured volume gives an unknown concentration.',
+      tryThis: [
+        'Dilution: choose an Erlenmeyer flask on purpose and press Check. Why is it refused?',
+        'Find a pipette and flask that give the dilution factor, then do the protocol without a wrong step.',
+        'Fill to the line drop by drop in the magnifier without going over.',
+        'Prepare a solution from a solid: calculate m = C × V × M, weigh it, follow the steps.',
+        'Titration: do a fast rough trial, then two accurate trials that agree within 0.10 mL.',
+        'Try methyl orange with CH₃COOH. Why does it change colour too early?',
+        'Redox: titrate Fe²⁺ with KMnO₄. What tells you the end point without an indicator?'
+      ],
+      words: [['Dilution factor f', 'C₀ / C = V / V₀'], ['Volumetric flask', 'holds exactly V at the line'], ['Equivalence point', 'reagents in stoichiometric ratio'], ['End point', 'where the indicator changes colour'], ['Concordant', 'trials within 0.10 mL']],
+      goals: ['Choose suitable glassware for a dilution and justify the choice with f = V / V₀.', 'Describe the protocols for dilution, preparation from a solid, and titration in the right order.', 'Read a burette at the bottom of the meniscus and record concordant results.', 'Use ATSR at the equivalence point to find an unknown concentration (acid–base and redox).', 'Choose an indicator from the pH curve.'],
+      flow: [['3 min', 'Predict', 'Show three glassware sets from the Challenge tab; students vote which one dilutes correctly.'], ['5 min', 'Explore', 'Tab 1 in pairs: dilution with the protocol.'], ['5 min', 'Explain', 'Tab 3 on the board: a rough trial, then an accurate one; point at the pH curve and the indicator range.'], ['2 min', 'Apply', 'Students calculate the unknown and press Check.']],
+      mis: [['Any flask with a 250 mL mark is fine for a dilution.', 'The lab refuses Erlenmeyer flasks and beakers and explains why.'], ['The end point is always at pH 7.', 'The weak-acid curve shows equivalence near pH 8.7.'], ['Rinsing the pipette with water is cleaner.', 'Step feedback: rinse with the stock so it is not diluted.'], ['More indicator makes the result more accurate.', 'Indicator range vs. equivalence pH is what matters.']],
+      qs: ['Why does the pink colour disappear when you swirl, until the very end?', 'Why must the flask be filled drop by drop at the end?', 'How would forgetting to rinse the burette with NaOH change your result?']
+    },
     'torque-lab.html': {
       big: 'Torque is the turning effect of a force: τ = F r sin θ. Push far from the pivot and at 90° for the biggest torque. Balanced torques give rotational equilibrium.',
       tryThis: [
