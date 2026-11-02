@@ -402,23 +402,98 @@
     '@media print{.lg-mode{display:none}}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
-  var KEY = 'lg:view', root = document.documentElement;
-  function get() { try { return localStorage.getItem(KEY) || 'simple'; } catch (e) { return 'simple'; } }
-  function set(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
-  var mode = get();
-  root.classList.toggle('lg-simple', mode === 'simple');
+  /* ---------- PhET-style phases: home screen + bottom navigation bar ----------
+     Intro: the first tab only, the essential controls (the "simple" hide list), a "Start here" hint.
+     Lab: every tab and every control.  Challenge: the lab's quiz / game tab on its own. */
+  var root = document.documentElement, mode = 'simple';
+  var PH = {  // intro tab, challenge tab (null = none), names
+    'chemical-change-lab.html': { intro: '[data-tab="signs"]', game: '[data-tab="bal"]', gameName: 'Balance it' },
+    'chemical-equilibrium-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
+    'enthalpy-lab.html': { intro: '#t-heat', game: null },
+    'esterification-lab.html': { intro: '[data-tab="build"]', game: '[data-tab="chal"]' },
+    'galvanic-cell-lab.html': { intro: '[data-tab="cell"]', game: '[data-tab="chal"]' },
+    'keplers-laws.html': { intro: '#t-retro', game: null },
+    'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
+    'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
+    'reaction-rates-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
+    'titration-lab.html': { intro: '[data-tab="dil"]', game: '[data-tab="chal"]' },
+    'torque-lab.html': { intro: '[data-tab="door"]', game: '[data-tab="chal"]' },
+    'wave-speed-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' }
+  };
+  var ph = PH[file] || {};
+  var tabBar = document.querySelector('[role="tablist"], .tabs');
+  var hasTabs = !!(tabBar && ph.intro);
+  var title = (document.querySelector('h1') || {}).textContent || document.title;
+  var PHASES = [
+    { id: 'intro', name: 'Intro', desc: 'Start here: the main idea with only a few controls.' },
+    { id: 'lab', name: 'Lab', desc: hasTabs ? 'Every tab, tool and option. Explore freely.' : 'Every tool and option, with explanations and teacher notes.' }
+  ];
+  if (ph.game) PHASES.push({ id: 'game', name: ph.gameName || 'Challenge', desc: 'Test yourself: questions with feedback and a score.' });
+  var ICON = {
+    intro: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect width="120" height="80" rx="10" fill="#E3F1F5"/><circle cx="60" cy="40" r="18" fill="#0A6A88"/><path d="M54 30 L70 40 L54 50 Z" fill="#fff"/></svg>',
+    lab: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect width="120" height="80" rx="10" fill="#FCEFD9"/><path d="M48 14 h16 M52 14 v20 L36 64 q-2 4 3 4 h34 q5 0 3-4 L60 34 V14" fill="#fff" stroke="#8A5A12" stroke-width="3" stroke-linejoin="round"/><path d="M41 56 h30 l4 8 q1 4 -3 4 H40 q-4 0 -3-4z" fill="#F59E5B"/><circle cx="88" cy="26" r="9" fill="none" stroke="#8A5A12" stroke-width="3"/><path d="M88 13 v-4 M88 43 v-4 M75 26 h-4 M105 26 h-4" stroke="#8A5A12" stroke-width="3"/><path d="M84 52 h16 M84 60 h10" stroke="#8A5A12" stroke-width="3" stroke-linecap="round"/></svg>',
+    game: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect width="120" height="80" rx="10" fill="#EDE5FA"/><path d="M46 16 h28 v14 q0 16 -14 16 q-14 0 -14 -16z" fill="#F2B640" stroke="#7A5A10" stroke-width="2.5"/><path d="M46 20 h-8 q0 12 10 12 M74 20 h8 q0 12 -10 12" fill="none" stroke="#7A5A10" stroke-width="2.5"/><path d="M60 46 v10 M50 64 h20 v-8 h-20z" fill="#F2B640" stroke="#7A5A10" stroke-width="2.5"/><path d="M92 18 l3 6 6 1 -4.5 4 1 6 -5.5-3 -5.5 3 1-6 -4.5-4 6-1z" fill="#8E5BC8"/></svg>'
+  };
+  css = '.lg-nav{position:fixed;left:0;right:0;bottom:0;z-index:58;display:flex;align-items:center;gap:6px;padding:6px max(12px,env(safe-area-inset-right,0px)) max(6px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:#13232B;color:#F5F6F2;box-shadow:0 -4px 16px rgba(0,0,0,.18);font:600 14px/1.1 system-ui,-apple-system,"Segoe UI",sans-serif}' +
+    '.lg-nav .ttl{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:28vw;margin-right:auto}' +
+    '.lg-nav button.ph{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;color:#C9D4D8;padding:4px 8px;border-radius:8px;cursor:pointer;font:600 12px system-ui,sans-serif;width:auto;margin:0;text-transform:none;letter-spacing:normal}' +
+    '.lg-nav button.ph svg{width:46px;height:30px;border-radius:5px;opacity:.75;border:2px solid transparent}' +
+    '.lg-nav button.ph[aria-current="true"]{color:#F59E5B}.lg-nav button.ph[aria-current="true"] svg{opacity:1;border-color:#F59E5B}' +
+    '.lg-nav button.ph:focus-visible{outline:3px solid #F59E5B;outline-offset:1px}' +
+    '.lg-nav .lg-btn{position:static!important;box-shadow:none;margin-left:6px!important;padding:9px 13px}' +
+    '.lg-nav .home svg{width:26px;height:26px;opacity:1;border:0}' +
+    '@media (max-width:560px){.lg-nav .ttl{display:none}.lg-nav{justify-content:center}.lg-nav button.ph svg{width:38px;height:25px}.lg-nav .lg-btn .gtxt{display:none}}' +
+    'body{padding-bottom:78px!important}' +
+    '.lg-home{position:fixed;inset:0;z-index:80;background:#0E171B;color:#F5F6F2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,4vh,40px);padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));overflow:auto;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}' +
+    '.lg-home h1{margin:0;font:800 clamp(30px,6vw,56px)/1.05 "Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;text-align:center;letter-spacing:-.02em}' +
+    '.lg-home .sub{margin:0;color:#B8C8CE;font-size:15px;text-align:center}' +
+    '.lg-home .cards{display:flex;flex-wrap:wrap;gap:18px;justify-content:center}' +
+    '.lg-home .card{width:min(250px,80vw);background:#1D3038;border:3px solid transparent;border-radius:16px;padding:14px;color:inherit;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:8px;font:inherit;margin:0;transition:transform .12s,border-color .12s}' +
+    '.lg-home .card:hover,.lg-home .card:focus-visible{border-color:#F59E5B;transform:translateY(-3px);outline:none}' +
+    '.lg-home .card svg{width:100%;height:auto;border-radius:10px}' +
+    '.lg-home .card b{font-size:22px}.lg-home .card span{color:#B8C8CE;font-size:14px;line-height:1.4}' +
+    '.lg-home .back{color:#B8C8CE;font-size:14px}' +
+    '@media (prefers-reduced-motion: reduce){.lg-home .card{transition:none}}' +
+    '@media print{.lg-nav,.lg-home{display:none}}' +
+    (hasTabs ? 'html[data-phase="intro"] ' + (tabBar.className ? '.' + tabBar.className.trim().split(/\s+/)[0] : '[role=tablist]') + ',html[data-phase="game"] ' + (tabBar.className ? '.' + tabBar.className.trim().split(/\s+/)[0] : '[role=tablist]') + '{display:none!important}' : '') +
+    (ph.game ? 'html[data-phase="lab"] ' + ph.game + '{display:none!important}' : '');
+  st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
-  var box = document.createElement('div'); box.className = 'lg-mode'; box.setAttribute('role', 'group'); box.setAttribute('aria-label', 'How much to show');
-  box.innerHTML = '<button type="button" data-v="simple" title="Only the main controls">Simple</button><button type="button" data-v="full" title="All controls, explanations and teacher notes">Full</button>';
-  var tools = document.querySelector('header .tools, .head-actions, .toprow .row, header .row');
-  if (tools) tools.insertBefore(box, tools.firstChild); else { box.classList.add('float'); document.body.appendChild(box); }
-  function sync() { box.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === mode)); }); }
-  sync();
-  box.addEventListener('click', function (e) {
-    var b = e.target.closest('button[data-v]'); if (!b) return;
-    mode = b.dataset.v; set(mode); root.classList.toggle('lg-simple', mode === 'simple'); sync(); mark();
-    window.dispatchEvent(new Event('resize'));
-  });
+  var nav = document.createElement('nav'); nav.className = 'lg-nav'; nav.setAttribute('aria-label', 'Screens');
+  nav.innerHTML = '<span class="ttl">' + title.replace(/[<>&]/g, '') + '</span><button type="button" class="ph home" data-ph="home" aria-label="Home screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 L12 3 L21 11 V21 H14 V14 H10 V21 H3 Z" fill="#F5F6F2"/></svg>Home</button>' +
+    PHASES.map(function (q) { return '<button type="button" class="ph" data-ph="' + q.id + '">' + ICON[q.id] + q.name + '</button>'; }).join('');
+  document.body.appendChild(nav);
+  function moveGuide() { var g = document.querySelector('.lg-btn'); if (g && g.parentNode !== nav) { nav.appendChild(g); if (!g.querySelector('.gtxt')) g.innerHTML = g.innerHTML.replace('Guide', '<span class="gtxt">Guide</span>'); } }
+  moveGuide(); setTimeout(moveGuide, 0);
+
+  function clickTab(sel) { var b = sel && document.querySelector(sel); if (b) b.click(); }
+  function setPhase(id, push) {
+    var home = document.querySelector('.lg-home'); if (home) home.remove();
+    root.setAttribute('data-phase', id);
+    mode = id === 'intro' ? 'simple' : 'full';
+    root.classList.toggle('lg-simple', mode === 'simple');
+    if (id === 'intro' && hasTabs) clickTab(ph.intro);
+    if (id === 'lab' && hasTabs) { var cur = tabBar.querySelector('[aria-selected="true"]'); if (!cur || (ph.game && cur.matches(ph.game))) clickTab(ph.intro); }
+    if (id === 'game') clickTab(ph.game);
+    nav.querySelectorAll('[data-ph]').forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.ph === id)); });
+    if (push !== false) { try { history.replaceState(null, '', location.pathname + location.search + '#' + id); } catch (e) {} }
+    window.scrollTo(0, 0); mark(); window.dispatchEvent(new Event('resize'));
+  }
+  function showHome() {
+    var h = document.createElement('div'); h.className = 'lg-home'; h.setAttribute('role', 'dialog'); h.setAttribute('aria-label', title + ': choose a screen');
+    h.innerHTML = '<h1>' + title.replace(/[<>&]/g, '') + '</h1><p class="sub">Choose a screen</p><div class="cards">' +
+      PHASES.map(function (q) { return '<button type="button" class="card" data-ph="' + q.id + '">' + ICON[q.id] + '<b>' + q.name + '</b><span>' + q.desc + '</span></button>'; }).join('') +
+      '</div><a class="back" href="index.html">← All simulations</a>';
+    document.body.appendChild(h);
+    h.querySelectorAll('[data-ph]').forEach(function (b) { b.onclick = function () { setPhase(b.dataset.ph); }; });
+    var first = h.querySelector('.card'); if (first) first.focus();
+    nav.querySelectorAll('[data-ph]').forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.ph === 'home')); });
+  }
+  nav.addEventListener('click', function (e) { var b = e.target.closest('[data-ph]'); if (!b) return; if (b.dataset.ph === 'home') showHome(); else setPhase(b.dataset.ph); });
+  // a lab tab clicked inside the page while in Lab keeps you in Lab; the old Simple/Full switch is gone
+  var start = (location.hash || '').slice(1);
+  if (PHASES.some(function (q) { return q.id === start; })) setPhase(start, false); else { root.setAttribute('data-phase', 'intro'); root.classList.add('lg-simple'); showHome(); }
+  window.addEventListener('hashchange', function () { var h = (location.hash || '').slice(1); if (PHASES.some(function (q) { return q.id === h; }) && root.getAttribute('data-phase') !== h) setPhase(h, false); });
 
   // short feedback: mark the ones that are cut off, open them on tap
   function mark() {
