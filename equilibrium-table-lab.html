@@ -1,0 +1,586 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Equilibrium Table Lab</title>
+<meta name="description" content="Grade 11 chemistry: build and calculate the table of progress of a reaction (initial, during, final state), x max, limiting reactant, x f, degree of progress tau and the equilibrium constant K.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench look as the other chemistry labs. Reactant columns are blue, product columns green,
+   brass marks x_max and the equilibrium point x_f. Everything a student must calculate sits in the table. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --re:#2F6FD0; --re-bg:#E3EDFB; --pr:#1E8A55; --pr-bg:#DDF2E7;
+  --brass:#B8913A; --brass-bg:#F6ECD3;
+  --ok:#1E8A55; --ok-bg:#DDF2E7; --bad:#C0392B; --bad-bg:#FBE1DD;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --re:#7FB0FF; --re-bg:#16263D; --pr:#4ACB8A; --pr-bg:#12301F;
+  --brass:#E0BC5E; --brass-bg:#33290F;
+  --ok:#4ACB8A; --ok-bg:#12301F; --bad:#FF8A7A; --bad-bg:#3D1914; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --re:#7FB0FF; --re-bg:#16263D; --pr:#4ACB8A; --pr-bg:#12301F;
+  --brass:#E0BC5E; --brass-bg:#33290F;
+  --ok:#4ACB8A; --ok-bg:#12301F; --bad:#FF8A7A; --bad-bg:#3D1914; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1180px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:20px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.2rem;text-wrap:balance}
+.lede{margin:0;max-width:66ch;color:var(--muted);font-size:1.04rem}
+button,input,select{font:inherit;color:var(--ink)}
+button{cursor:pointer}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.stmt{background:var(--surface);border-left:4px solid var(--accent);border-radius:8px;padding:10px 12px;margin:0}
+.row{display:flex;gap:8px 10px;flex-wrap:wrap;align-items:center}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:.85rem;font-weight:700;color:var(--muted)}
+input[type=number],input[type=text],select{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 8px;min-width:0}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.fine{margin:0;font-size:.86rem;color:var(--muted)}
+.mono{font-family:var(--data)}
+.rem{margin:0;font-size:.92rem}
+/* the table of progress */
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;border:1.5px solid var(--line)}
+table.adv{border-collapse:collapse;width:100%;min-width:520px;font-family:var(--data);font-size:.92rem;background:var(--stage)}
+table.adv th,table.adv td{border:1px solid var(--line);padding:8px 8px;text-align:center;vertical-align:middle}
+table.adv thead th{font-family:var(--body);font-weight:700;font-size:.8rem;color:var(--muted);background:var(--surface)}
+table.adv tr.eqrow th{font-family:var(--data);font-size:1rem;color:var(--ink);background:var(--surface)}
+table.adv th.op{border-left:0;border-right:0;width:1.6em;padding:8px 0;color:var(--muted)}
+table.adv td.op{border-left:0;border-right:0;padding:0}
+table.adv .sp-r{color:var(--re)} table.adv .sp-p{color:var(--pr)}
+table.adv td.r{background:var(--re-bg)} table.adv td.p{background:var(--pr-bg)}
+table.adv td.state{font-family:var(--body);font-weight:700;text-align:left;white-space:nowrap}
+table.adv td.state small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+table.adv td.x{font-weight:600;background:var(--brass-bg)}
+table.adv td.solv{color:var(--muted);font-style:italic}
+table.adv .hid{visibility:hidden}
+table.adv tr.now td{box-shadow:inset 0 0 0 2px var(--accent)}
+table.adv input{width:100%;min-width:5.2em;text-align:center;font-family:var(--data);font-size:.9rem;padding:5px 4px}
+input.ok{border-color:var(--ok)!important;background:var(--ok-bg)!important}
+input.bad{border-color:var(--bad)!important;background:var(--bad-bg)!important}
+select.ok{border-color:var(--ok)!important;background:var(--ok-bg)!important}
+select.bad{border-color:var(--bad)!important;background:var(--bad-bg)!important}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:10px}
+.res{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.res b{font-family:var(--data);font-size:.78rem;color:var(--muted);font-weight:500}
+.res span{font-family:var(--data);font-size:1.05rem;overflow-wrap:break-word}
+.res span.txt{font-family:var(--body);font-size:.95rem;font-weight:700}
+.res.key{border-color:var(--brass);background:var(--brass-bg)}
+.res input,.res select{width:100%}
+.explain{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px}
+.explain h3{margin:0 0 4px;font-family:var(--display);font-size:1.05rem}
+.explain p{margin:4px 0}
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.steps li{padding-left:2px}
+.steps li b.t{font-family:var(--display)}
+.calc{font-family:var(--data);font-size:.9rem;overflow-wrap:anywhere}
+.verdict{border-radius:9px;padding:9px 12px;font-weight:700;border:1.5px solid var(--line)}
+.verdict.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.verdict.bad{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.verdict.info{border-color:var(--brass);background:var(--brass-bg);color:var(--ink)}
+.verdict small{display:block;font-weight:400;color:var(--ink)}
+#bars,#cBars{width:100%;height:auto;display:block}
+.chip{display:inline-block;font-family:var(--data);font-size:.75rem;border:1.5px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--muted)}
+table.ed{border-collapse:collapse;width:100%;font-size:.9rem}
+table.ed th{font-size:.75rem;color:var(--muted);text-align:left;padding:4px}
+table.ed td{padding:3px 4px}
+table.ed input,table.ed select{width:100%}
+table.ed .del{border:0;background:none;color:var(--bad);font-weight:700;font-size:1.1rem;padding:2px 6px}
+.edwrap{overflow-x:auto}
+.score{font-family:var(--data);font-size:.85rem;background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;white-space:nowrap}
+details.model summary{cursor:pointer;font-weight:700;color:var(--accent)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+@media print{.tabs,.mk-home,header .tools,.lg-nav{display:none!important}}
+</style></head><body>
+
+<div class="wrap">
+<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+ <header>
+  <div>
+   <p class="eyebrow">Grade 11 Chemistry · Chemical equilibrium · Table of progress (tableau d’avancement · جدول التقدّم)</p>
+   <h1>Equilibrium Table Lab</h1>
+   <p class="lede">Every equilibrium problem uses the same table: the initial state, the state during the reaction, and the final state. Find x<sub>max</sub> and the limiting reactant, use the data to find x<sub>f</sub>, then calculate τ and K.</p>
+  </div>
+  <div class="tools"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
+ </header>
+
+ <div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-tab="step" aria-controls="p-step">1 · Step by step</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="calc" aria-controls="p-calc">2 · Table calculator</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">3 · You calculate</button>
+ </div>
+
+ <!-- ============ 1 · STEP BY STEP ============ -->
+ <section id="p-step" role="tabpanel" class="grid2">
+  <div class="col">
+   <div class="card">
+    <div class="row">
+     <label class="f" style="flex:1 1 16rem">Choose a problem<select id="stSel"></select></label>
+    </div>
+    <p class="stmt" id="stText"></p>
+    <div class="tblwrap"><table class="adv" id="stTable"></table></div>
+    <div class="results" id="stRes"></div>
+    <div class="row">
+     <button class="btn" id="stPrev" type="button">← Back</button>
+     <button class="btn primary" id="stNext" type="button">Next step →</button>
+     <button class="btn" id="stAll" type="button">Show all</button>
+     <span class="chip" id="stCount">Step 0 of 7</span>
+    </div>
+   </div>
+   <div class="explain" id="stExplain" aria-live="polite"></div>
+  </div>
+  <div class="col">
+   <div class="card">
+    <h2>Watch the amounts change</h2>
+    <svg id="bars" viewBox="0 0 380 250" role="img" aria-label="Amount of each species as the progress x changes"></svg>
+    <label class="f">Progress x (mol): <output class="mono" id="xOut">0</output><input type="range" id="xRange" min="0" max="1000" value="0"></label>
+    <div class="fine" id="xNote">Drag x. Reactants lose a·x, products gain c·x. The brass line is where the reaction really stops (x<sub>f</sub>).</div>
+    <div class="legend"><span><i style="background:var(--re)"></i>reactant</span><span><i style="background:var(--pr)"></i>product</span><span><i style="background:var(--brass)"></i>x<sub>f</sub> (final state)</span></div>
+   </div>
+   <div class="card">
+    <h2>Remember</h2>
+    <p class="rem"><b>x<sub>max</sub></b>: the progress if the reaction were total. The reactant that gives the smallest value is the limiting reactant.</p>
+    <p class="rem"><b>τ = x<sub>f</sub> ÷ x<sub>max</sub></b>: τ = 1 → total (complete) reaction. τ &lt; 1 → limited reaction, the final state is an equilibrium.</p>
+    <p class="rem"><b>K</b> uses the final (equilibrium) concentrations, each raised to its coefficient. Solids and the solvent water are left out.</p>
+   </div>
+  </div>
+ </section>
+
+ <!-- ============ 2 · CALCULATOR ============ -->
+ <section id="p-calc" role="tabpanel" class="grid2" hidden>
+  <div class="col">
+   <div class="card">
+    <div class="row">
+     <label class="f" style="flex:1 1 14rem">Start from<select id="cPreset"></select></label>
+     <label class="f" style="width:8.5rem">Volume V (L)<input type="number" id="cV" min="0" step="any" placeholder="none"></label>
+    </div>
+    <div class="edwrap"><table class="ed" id="cEd"></table></div>
+    <div class="row">
+     <button class="btn" id="cAddR" type="button">+ reactant</button>
+     <button class="btn" id="cAddP" type="button">+ product</button>
+    </div>
+    <div class="row">
+     <label class="f" style="flex:1 1 12rem">What do we know at the end?<select id="cKnown">
+      <option value="n">Amount n of one species (mol)</option>
+      <option value="c">Concentration of one species (mol/L)</option>
+      <option value="K">The constant K</option>
+      <option value="tau">The degree of progress τ</option>
+      <option value="pH">The pH (uses H₃O⁺)</option>
+      <option value="total">It is a total reaction</option>
+     </select></label>
+     <label class="f" id="cKSpL" style="flex:1 1 8rem">Species<select id="cKSp"></select></label>
+     <label class="f" id="cKValL" style="width:9rem">Value<input type="text" id="cKVal" inputmode="decimal"></label>
+    </div>
+    <p class="fine">Leave V empty when every species is in the same mixture and the volume cancels (esterification). Numbers like 3.2e-5 or 3.2×10^-5 are fine.</p>
+   </div>
+   <div class="card">
+    <div class="tblwrap"><table class="adv" id="cTable"></table></div>
+    <div class="results" id="cRes"></div>
+    <div id="cMsg"></div>
+   </div>
+  </div>
+  <div class="col">
+   <div class="card">
+    <div class="row" style="justify-content:space-between"><h2>Model answer</h2><button class="btn" id="cCopy" type="button">Copy</button></div>
+    <ol class="steps" id="cSteps"></ol>
+   </div>
+   <div class="card">
+    <svg id="cBars" viewBox="0 0 380 250" role="img" aria-label="Amounts at the final state"></svg>
+   </div>
+  </div>
+ </section>
+
+ <!-- ============ 3 · YOU CALCULATE ============ -->
+ <section id="p-chal" role="tabpanel" class="grid2" hidden>
+  <div class="col">
+   <div class="card">
+    <div class="row" style="justify-content:space-between">
+     <span class="chip" id="qTag">Problem</span>
+     <span class="score" id="qScore">Tables right: 0 / 0 · streak 0</span>
+    </div>
+    <p class="stmt" id="qText"></p>
+    <p class="fine">Fill every white box. Give amounts in mol. You may write 2.5e-4 or 2.5×10^-4. Answers within 3 % are accepted.</p>
+    <div class="tblwrap"><table class="adv" id="qTable"></table></div>
+    <div class="results" id="qRes"></div>
+    <div class="row">
+     <button class="btn primary" id="qCheck" type="button">Check my table</button>
+     <button class="btn" id="qHint" type="button">Show the “During” row</button>
+     <button class="btn" id="qNext" type="button">New problem →</button>
+    </div>
+    <div id="qMsg" aria-live="polite"></div>
+   </div>
+  </div>
+  <div class="col">
+   <div class="card">
+    <h2>Method</h2>
+    <ol class="steps">
+     <li>Initial row: n₀ = m ÷ M, or n₀ = C × V.</li>
+     <li>During row: reactant n₀ − a·x, product n₀ + c·x.</li>
+     <li>x<sub>max</sub>: set each reactant to 0, keep the smallest x. That reactant is limiting.</li>
+     <li>x<sub>f</sub>: use the data given for the final state.</li>
+     <li>Final row: put x<sub>f</sub> into the During row.</li>
+     <li>τ = x<sub>f</sub> ÷ x<sub>max</sub>.</li>
+     <li>K from the final concentrations ([X] = n ÷ V).</li>
+    </ol>
+   </div>
+   <div class="card" id="qModelCard" hidden>
+    <details class="model" id="qModel"><summary>Show the model answer</summary><ol class="steps" id="qSteps" style="margin-top:10px"></ol></details>
+   </div>
+  </div>
+ </section>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const root=document.documentElement;
+
+/* ---------- theme + tabs ---------- */
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+function themeLabel(){$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';drawStepBars();drawCalcBars()}
+try{const t=localStorage.getItem('etl-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('etl-theme',n)}catch(e){}themeLabel()};
+$$('.tab').forEach(b=>b.addEventListener('click',()=>{$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b?'true':'false'));
+  ['step','calc','chal'].forEach(t=>$('#p-'+t).hidden=t!==b.dataset.tab)}));
+const css=v=>getComputedStyle(root).getPropertyValue(v).trim();
+
+/* ---------- numbers ---------- */
+const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+const sup=n=>String(n).split('').map(c=>SUP[c]||c).join('');
+function fmt(v,sig){sig=sig||3;if(v===null||v===undefined||isNaN(v))return '—';if(!isFinite(v))return '∞';if(Math.abs(v)<1e-15)return '0';
+  const a=Math.abs(v);let s;
+  if(a>=1e-3&&a<1e5)s=v.toPrecision(sig);else{const e=Math.floor(Math.log10(a));let m=v/Math.pow(10,e);s=m.toPrecision(sig)+' × 10'+sup(e)}
+  if(/e/.test(s)){s=Number(s).toString()}
+  return s.replace('-','−')}
+function parseNum(str){if(str===null||str===undefined)return NaN;let s=String(str).trim().replace(/\s+/g,'').replace(/[−–]/g,'-').replace(/,/g,'.');
+  if(!s)return NaN;s=s.replace(/[×x\*]10\^?\(?([+-]?\d+)\)?$/i,'e$1').replace(/^10\^\(?([+-]?\d+)\)?$/,'1e$1');
+  s=s.replace(/%$/,'');const v=Number(s);return isFinite(v)?v:NaN}
+const coefTxt=c=>c===1?'':String(c);
+const prettyCoef=(c,x)=>(c===1?'':c)+x;
+
+/* ---------- the engine ---------- */
+/* problem P = { sp:[{f,c,side:'r'|'p',st:'g'|'l'|'aq'|'s'|'solv',n0,how}], V (L or null), known:{type,sp,v} } */
+const active=s=>s.st!=='solv';
+const inK=s=>active(s)&&s.st!=='s';
+function nAt(s,x){return s.n0+(s.side==='r'?-1:1)*s.c*x}
+function Qof(P,x){let num=1,den=1;P.sp.forEach(s=>{if(!inK(s))return;let n=nAt(s,x);if(n<0)n=0;const c=Math.pow(P.V?n/P.V:n,s.c);if(s.side==='p')num*=c;else den*=c});return den===0?Infinity:num/den}
+function solve(P){
+  const S=P.sp,out={ok:true,warn:''};
+  let xmax=Infinity,lims=[];
+  S.forEach((s,i)=>{if(s.side!=='r'||!active(s))return;const xm=s.n0/s.c;
+    if(xm<xmax*(1-1e-9)){xmax=xm;lims=[i]}else if(Math.abs(xm-xmax)<=1e-9*Math.max(xm,1e-12))lims.push(i)});
+  if(!isFinite(xmax)){out.ok=false;out.warn='Add at least one reactant with an amount.';return out}
+  let xlo=-Infinity;S.forEach(s=>{if(s.side==='p'&&active(s))xlo=Math.max(xlo,-s.n0/s.c)});if(!isFinite(xlo))xlo=-xmax;
+  out.xmax=xmax;out.lims=lims;out.xlo=xlo;
+  const k=P.known||{type:'total'};let xf=null;
+  if(k.type==='total')xf=xmax;
+  else if(k.type==='tau')xf=k.v*xmax;
+  else if(k.type==='n'||k.type==='c'){const s=S[k.sp];if(!s||!active(s)){out.ok=false;out.warn='Choose a species (not the solvent).';return out}
+    const n=k.type==='c'?(P.V?k.v*P.V:NaN):k.v;if(isNaN(n)){out.ok=false;out.warn='A concentration needs the volume V.';return out}
+    xf=s.side==='p'?(n-s.n0)/s.c:(s.n0-n)/s.c;out.knownN=n}
+  else if(k.type==='pH'){const i=S.findIndex(s=>/H₃O⁺|H3O\+/.test(s.f));if(i<0||!P.V){out.ok=false;out.warn='The pH needs an H₃O⁺ species and a volume V.';return out}
+    const s=S[i];const n=Math.pow(10,-k.v)*P.V;xf=s.side==='p'?(n-s.n0)/s.c:(s.n0-n)/s.c;out.knownN=n;out.hIdx=i}
+  else if(k.type==='K'){if(!(k.v>0)){out.ok=false;out.warn='K must be a positive number.';return out}
+    const lnK=Math.log(k.v),span=xmax-xlo,f=x=>Math.log(Qof(P,x))-lnK;
+    let lo=xlo+span*1e-12,hi=xmax-span*1e-12;
+    if(f(hi)<0)xf=xmax;else if(f(lo)>0)xf=xlo;else{for(let it=0;it<200;it++){const m=(lo+hi)/2;if(f(m)>0)hi=m;else lo=m}xf=(lo+hi)/2}}
+  if(xf===null||isNaN(xf)){out.ok=false;out.warn='Check the data.';return out}
+  if(xf>xmax*(1+1e-6)){out.ok=false;out.warn='These data give x_f = '+fmt(xf)+' mol, larger than x_max = '+fmt(xmax)+' mol. Check the numbers.';return out}
+  if(xf<xlo-1e-12){out.ok=false;out.warn='These data give a negative amount. Check the numbers.';return out}
+  if(Math.abs(xf-xmax)<=1e-6*xmax)xf=xmax;
+  out.xf=xf;out.nf=S.map(s=>active(s)?nAt(s,xf):null);
+  out.tau=xmax>0?xf/xmax:NaN;out.total=Math.abs(out.tau-1)<1e-6;
+  out.Qi=Qof(P,0);
+  const zeroInK=S.some(s=>inK(s)&&nAt(s,xf)<=1e-15*Math.max(1,s.n0));
+  out.K=zeroInK?Infinity:Qof(P,xf);
+  if(k.type==='K')out.K=k.v;
+  return out}
+
+/* ---------- text helpers ---------- */
+const name=s=>s.f+(s.st==='solv'?'(l)':'('+s.st+')');
+function expr(s,xs){xs=xs||'x';if(!active(s))return 'excess';const a=s.c===1?xs:(/^x/.test(xs)?s.c+xs:s.c+' × '+xs);
+  if(s.side==='r')return fmt(s.n0)+' − '+a;return Math.abs(s.n0)<1e-15?a:fmt(s.n0)+' + '+a}
+function Kexpr(P){const t=s=>(P.V?'['+s.f+']':'n('+s.f+')')+(s.c>1?sup(s.c):'');
+  const num=P.sp.filter(s=>s.side==='p'&&inK(s)).map(t).join(' · ')||'1',den=P.sp.filter(s=>s.side==='r'&&inK(s)).map(t).join(' · ')||'1';
+  return 'K = '+num+' ÷ ('+den+')'}
+function Knums(P,sol){const t=(s,i)=>{const n=sol.nf[i];return '('+(P.V?fmt(n)+'/'+fmt(P.V,2):fmt(n))+')'+(s.c>1?sup(s.c):'')};
+  const num=[],den=[];P.sp.forEach((s,i)=>{if(!inK(s))return;(s.side==='p'?num:den).push(t(s,i))});
+  return (num.join(' · ')||'1')+' ÷ ['+(den.join(' · ')||'1')+']'}
+function steps(P,sol){
+  const S=P.sp,act=S.map((s,i)=>[s,i]).filter(a=>active(a[0])),L=[];
+  // 1 initial
+  L.push({t:'Initial state (x = 0)',h:act.map(([s])=>'n₀('+s.f+') = '+(s.how?s.how+' = ':'')+fmt(s.n0)+' mol').join('<br>')+(S.some(s=>!active(s))?'<br>Water is the solvent: it is in excess and is not counted.':'')});
+  // 2 during
+  L.push({t:'During the reaction (progress x)',h:'A reactant with coefficient a loses a·x; a product with coefficient c gains c·x.<br>'+act.map(([s])=>'n('+s.f+') = '+expr(s)).join('<br>')});
+  // 3 xmax
+  const rs=act.filter(([s])=>s.side==='r');
+  L.push({t:'Maximum progress x<sub>max</sub> and limiting reactant',h:rs.map(([s])=>'If '+s.f+' runs out: '+expr(s,'x<sub>max</sub>')+' = 0 → x<sub>max</sub> = '+fmt(s.n0/s.c)+' mol').join('<br>')+
+    '<br><b>x<sub>max</sub> = '+fmt(sol.xmax)+' mol</b>; '+(sol.lims.length>1?'the reactants are in stoichiometric proportions (both run out together).':'limiting reactant: <b>'+S[sol.lims[0]].f+'</b>'+(rs.length>1?' (the other reactant is in excess).':'.'))});
+  // 4 xf
+  const k=P.known||{type:'total'};let h='';
+  if(k.type==='total')h='The reaction is total, so x<sub>f</sub> = x<sub>max</sub> = <b>'+fmt(sol.xf)+' mol</b>.';
+  else if(k.type==='tau')h='x<sub>f</sub> = τ × x<sub>max</sub> = '+fmt(k.v)+' × '+fmt(sol.xmax)+' = <b>'+fmt(sol.xf)+' mol</b>';
+  else if(k.type==='n'||k.type==='c'){const s=S[k.sp];h=(k.type==='c'?'n('+s.f+') = ['+s.f+'] × V = '+fmt(k.v)+' × '+fmt(P.V,2)+' = '+fmt(sol.knownN)+' mol<br>':'')+
+    'Final state: '+expr(s,'x<sub>f</sub>')+' = '+fmt(sol.knownN)+' → <b>x<sub>f</sub> = '+fmt(sol.xf)+' mol</b>'}
+  else if(k.type==='pH'){const s=S[sol.hIdx];h='[H₃O⁺] = 10<sup>−pH</sup> = 10<sup>−'+fmt(k.v)+'</sup> = '+fmt(Math.pow(10,-k.v))+' mol/L<br>n(H₃O⁺) = [H₃O⁺] × V = '+fmt(sol.knownN)+' mol = '+expr(s,'x<sub>f</sub>')+' → <b>x<sub>f</sub> = '+fmt(sol.xf)+' mol</b>'}
+  else if(k.type==='K')h=Kexpr(P)+' = '+fmt(k.v)+'<br>Write every amount with x<sub>f</sub> and solve. Keep the root between 0 and x<sub>max</sub>:<br><b>x<sub>f</sub> = '+fmt(sol.xf)+' mol</b>';
+  L.push({t:'Final progress x<sub>f</sub>',h:h});
+  // 5 final amounts
+  L.push({t:'Final state',h:act.map(([s,i])=>'n<sub>f</sub>('+s.f+') = '+expr(s,fmt(sol.xf))+' = <b>'+fmt(sol.nf[i])+' mol</b>').join('<br>')});
+  // 6 tau
+  L.push({t:'Degree of progress τ',h:'τ = x<sub>f</sub> ÷ x<sub>max</sub> = '+fmt(sol.xf)+' ÷ '+fmt(sol.xmax)+' = <b>'+fmt(sol.tau)+'</b> ('+fmt(sol.tau*100)+' %)<br>'+
+    (sol.total?'τ = 1: the reaction is <b>total (complete)</b>; the limiting reactant has disappeared.':'τ &lt; 1: the reaction is <b>limited</b>. The final state is a <b>chemical equilibrium</b>: reactants and products are all present.')});
+  // 7 K
+  let kh;
+  if(!isFinite(sol.K))kh='A reactant in K has completely disappeared: K is <b>very large</b>. A total reaction has no equilibrium to describe.';
+  else{kh=Kexpr(P)+(P.V?'':'<br>(All species share the same volume V, which cancels, so we can use amounts.)')+'<br>K = '+Knums(P,sol)+' = <b>'+fmt(sol.K)+'</b>';
+    if(k.type==='K')kh=Kexpr(P)+' = '+fmt(k.v)+' (given). Check with the final amounts: '+Knums(P,sol)+' = '+fmt(Qof(P,sol.xf));
+    kh+='<br>Initially Q<sub>r,i</sub> = '+fmt(sol.Qi)+(sol.Qi<sol.K?' &lt; K → the system evolves in the <b>forward (direct)</b> direction.':' &gt; K → the system evolves in the reverse direction.')}
+  L.push({t:'Equilibrium constant K',h:kh});
+  return L}
+
+/* ---------- table renderer ---------- */
+/* mode: 'show' (numbers), 'quiz' (inputs), upto = last step revealed (0..7) */
+function tableHTML(P,sol,opt){
+  opt=opt||{};const S=P.sp,upto=opt.upto===undefined?99:opt.upto,quiz=opt.quiz,hint=opt.hint;
+  const vis=k=>upto>=k?'':' hid';
+  let h='<thead><tr class="eqrow"><th colspan="2">Equation</th>';
+  S.forEach((s,i)=>{if(i>0)h+='<th class="op">'+(S[i-1].side==='r'&&s.side==='p'?(P.total?'→':'⇌'):'+')+'</th>';
+    h+='<th class="sp-'+s.side+'">'+prettyCoef(s.c,s.f)+'<span style="font-size:.75em">'+(s.st==='solv'?'(l)':'('+s.st+')')+'</span></th>'});
+  h+='</tr><tr><th>State</th><th>Progress (mol)</th><th colspan="'+(S.length*2-1)+'">Amounts of matter (mol)</th></tr></thead><tbody>';
+  const row=(cls,label,sub,xcell,cells)=>{let r='<tr class="'+cls+'"><td class="state">'+label+'<small>'+sub+'</small></td><td class="x">'+xcell+'</td>';
+    S.forEach((s,i)=>{if(i>0)r+='<td class="op"></td>';r+=cells(s,i)});return r+'</tr>'};
+  const cellCls=s=>(active(s)?s.side:'solv');
+  // initial
+  h+=row('ri'+(opt.now===1?' now':''),'Initial','x = 0','<span class="'+vis(1)+'">0</span>',(s,i)=>'<td class="'+cellCls(s)+'">'+(!active(s)?'<span class="'+vis(1)+'">excess</span>':quiz?'<input data-q="n0" data-i="'+i+'" type="text" inputmode="decimal" aria-label="initial '+s.f+'">':'<span class="'+vis(1)+'">'+fmt(s.n0)+'</span>')+'</td>');
+  // during
+  h+=row('rd'+(opt.now===2?' now':''),'During','in progress','<span class="'+(quiz&&!hint?' hid':vis(2))+'">x</span>',(s,i)=>'<td class="'+cellCls(s)+'"><span class="'+(quiz&&!hint?' hid':vis(2))+'">'+(quiz&&!hint?'?':expr(s))+'</span></td>');
+  // final
+  h+=row('rf'+(opt.now===4||opt.now===5?' now':''),'Final',sol&&sol.total?'reaction total':'equilibrium',quiz?'<input data-q="xf" type="text" inputmode="decimal" aria-label="x f">':'<span class="'+vis(4)+'">x<sub>f</sub> = '+(sol?fmt(sol.xf):'?')+'</span>',
+    (s,i)=>'<td class="'+cellCls(s)+'">'+(!active(s)?'<span class="'+vis(5)+'">excess</span>':quiz?'<input data-q="nf" data-i="'+i+'" type="text" inputmode="decimal" aria-label="final '+s.f+'">':'<span class="'+vis(5)+'">'+(sol?fmt(sol.nf[i]):'')+'</span>')+'</td>');
+  if(P.V&&!quiz&&sol)h+=row('rc','Final conc.','mol/L','<span class="'+vis(7)+'">—</span>',(s,i)=>'<td class="'+cellCls(s)+'"><span class="'+vis(7)+'">'+(!active(s)?'':s.st==='s'?'solid':fmt(sol.nf[i]/P.V))+'</span></td>');
+  return h+'</tbody>'}
+function resultsHTML(P,sol,upto){upto=upto===undefined?99:upto;const S=P.sp;
+  const box=(k,lab,val,key,txt)=>'<div class="res'+(key?' key':'')+'"'+(upto>=k?'':' hidden')+'><b>'+lab+'</b><span'+(txt?' class="txt"':'')+'>'+val+'</span></div>';
+  return box(3,'x_max (mol)',fmt(sol.xmax))+box(3,'Limiting reactant',sol.lims.length>1?'none (all run out together)':S[sol.lims[0]].f,false,true)+
+    box(6,'τ = x_f ÷ x_max',fmt(sol.tau)+' · '+(sol.total?'total':'limited'),true)+box(7,'K',isFinite(sol.K)?fmt(sol.K):'very large',true)}
+
+/* ---------- bar picture ---------- */
+function bars(svg,P,sol,x){
+  if(!sol||!sol.ok){svg.innerHTML='';return}
+  const S=P.sp.map((s,i)=>[s,i]).filter(a=>active(a[0])),W=380,H=250,ml=14,mr=14,mt=26,mb=56,n=S.length;
+  let max=0;S.forEach(([s])=>{max=Math.max(max,nAt(s,0),nAt(s,sol.xmax),nAt(s,sol.xf))});max=max||1;
+  const bw=(W-ml-mr)/n,re=css('--re'),pr=css('--pr'),ink=css('--ink'),mu=css('--muted'),br=css('--brass'),ln=css('--line');
+  let g='<line x1="'+ml+'" y1="'+(H-mb)+'" x2="'+(W-mr)+'" y2="'+(H-mb)+'" stroke="'+ln+'" stroke-width="1.5"/>';
+  S.forEach(([s],k)=>{const v=Math.max(0,nAt(s,x)),hgt=v/max*(H-mb-mt),bx=ml+k*bw+bw*.18,w=bw*.64,col=s.side==='r'?re:pr;
+    const vf=Math.max(0,nAt(s,sol.xf)),yf=H-mb-vf/max*(H-mb-mt);
+    g+='<rect x="'+bx+'" y="'+(H-mb-hgt)+'" width="'+w+'" height="'+Math.max(0,hgt)+'" rx="4" fill="'+col+'" opacity=".9"/>';
+    g+='<line x1="'+(bx-4)+'" x2="'+(bx+w+4)+'" y1="'+yf+'" y2="'+yf+'" stroke="'+br+'" stroke-width="2.5" stroke-dasharray="5 3"/>';
+    g+='<text x="'+(bx+w/2)+'" y="'+(H-mb-hgt-6)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11" fill="'+ink+'">'+fmt(v)+'</text>';
+    g+='<text x="'+(bx+w/2)+'" y="'+(H-mb+15)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="12" fill="'+col+'">'+s.f+'</text>'});
+  // progress axis
+  const ax0=ml+10,ax1=W-mr-10,ay=H-16,X=v=>ax0+(v/sol.xmax)*(ax1-ax0);
+  g+='<line x1="'+ax0+'" x2="'+ax1+'" y1="'+ay+'" y2="'+ay+'" stroke="'+mu+'" stroke-width="2"/>';
+  if(!sol.total&&ax1-X(sol.xf)>8)g+='<rect x="'+X(sol.xf)+'" y="'+(ay-5)+'" width="'+(ax1-X(sol.xf))+'" height="10" fill="'+mu+'" opacity=".18"/><text x="'+((X(sol.xf)+ax1)/2)+'" y="'+(ay-8)+'" text-anchor="middle" font-size="9.5" font-family="IBM Plex Mono,monospace" fill="'+mu+'">'+(ax1-X(sol.xf)>70?'never reached':'')+'</text>';
+  g+='<text x="'+ax0+'" y="'+(ay+13)+'" font-size="10" font-family="IBM Plex Mono,monospace" fill="'+mu+'" text-anchor="middle">0</text>';
+  g+='<line x1="'+ax1+'" x2="'+ax1+'" y1="'+(ay-7)+'" y2="'+(ay+7)+'" stroke="'+ink+'" stroke-width="2"/><text x="'+ax1+'" y="'+(ay+14)+'" font-size="10" font-family="IBM Plex Mono,monospace" fill="'+ink+'" text-anchor="end">x_max</text>';
+  g+='<line x1="'+X(sol.xf)+'" x2="'+X(sol.xf)+'" y1="'+(ay-8)+'" y2="'+(ay+8)+'" stroke="'+br+'" stroke-width="3"/>'+(sol.total||ax1-X(sol.xf)<34?'':'<text x="'+X(sol.xf)+'" y="'+(ay+14)+'" font-size="10" font-family="IBM Plex Mono,monospace" fill="'+br+'" text-anchor="middle">x_f</text>');
+  const xv=Math.min(Math.max(x,0),sol.xmax);g+='<circle cx="'+X(xv)+'" cy="'+ay+'" r="6" fill="'+css('--accent')+'" stroke="'+css('--stage')+'" stroke-width="2"/>';
+  g+='<text x="'+(W/2)+'" y="15" text-anchor="middle" font-size="11.5" font-family="IBM Plex Mono,monospace" fill="'+ink+'">x = '+fmt(xv)+' mol'+(xv>sol.xf+1e-12?'  (past the equilibrium!)':'')+'</text>';
+  svg.innerHTML=g}
+
+/* ---------- presets (Lebanese-style exercises) ---------- */
+const sp=(f,c,side,st,n0,how)=>({f,c,side,st,n0,how});
+const PRE=[
+ {id:'hi',title:'H₂ + I₂ ⇌ 2HI (amount of HI given)',text:'In a closed 1.0 L flask at 450 °C, we introduce 1.00 mol of H₂ and 1.00 mol of I₂. At equilibrium the flask contains 1.56 mol of HI.',
+  sp:[sp('H₂',1,'r','g',1),sp('I₂',1,'r','g',1),sp('HI',2,'p','g',0)],V:1,known:{type:'n',sp:2,v:1.56}},
+ {id:'ester',title:'Esterification, equimolar mixture',text:'A mixture of 1.00 mol of ethanoic acid and 1.00 mol of ethanol is heated with a few drops of sulfuric acid. At equilibrium, a titration shows that 0.333 mol of acid remains.',
+  sp:[sp('CH₃COOH',1,'r','l',1),sp('C₂H₅OH',1,'r','l',1),sp('CH₃COOC₂H₅',1,'p','l',0),sp('H₂O',1,'p','l',0)],V:null,known:{type:'n',sp:0,v:0.333}},
+ {id:'ester2',title:'Esterification with excess acid (K = 4 given)',text:'2.00 mol of ethanoic acid are mixed with 1.00 mol of ethanol. The equilibrium constant is K = 4. Find the composition of the equilibrium mixture and the yield.',
+  sp:[sp('CH₃COOH',1,'r','l',2),sp('C₂H₅OH',1,'r','l',1),sp('CH₃COOC₂H₅',1,'p','l',0),sp('H₂O',1,'p','l',0)],V:null,known:{type:'K',v:4}},
+ {id:'so3',title:'2SO₂ + O₂ ⇌ 2SO₃ (limiting reactant)',text:'0.40 mol of SO₂ and 0.30 mol of O₂ are placed in a 2.0 L vessel. At equilibrium, the vessel contains 0.30 mol of SO₃.',
+  sp:[sp('SO₂',2,'r','g',0.4),sp('O₂',1,'r','g',0.3),sp('SO₃',2,'p','g',0)],V:2,known:{type:'n',sp:2,v:0.3}},
+ {id:'n2o4',title:'N₂O₄ ⇌ 2NO₂ (concentration given)',text:'0.040 mol of N₂O₄ is placed in a closed 1.0 L flask. At equilibrium, [NO₂] = 0.024 mol/L.',
+  sp:[sp('N₂O₄',1,'r','g',0.04),sp('NO₂',2,'p','g',0)],V:1,known:{type:'c',sp:1,v:0.024}},
+ {id:'acid',title:'Ethanoic acid in water (pH given)',text:'We prepare V = 100 mL of an ethanoic acid solution of concentration C = 0.010 mol/L. Its pH is 3.4.',
+  sp:[sp('CH₃COOH',1,'r','aq',0.001,'C × V = 0.010 × 0.100'),sp('H₂O',1,'r','solv',null),sp('CH₃COO⁻',1,'p','aq',0),sp('H₃O⁺',1,'p','aq',0)],V:0.1,known:{type:'pH',v:3.4}},
+ {id:'nh3',title:'N₂ + 3H₂ ⇌ 2NH₃ (τ given)',text:'1.0 mol of N₂ and 3.0 mol of H₂ are placed in a 10 L vessel. The final degree of progress is τ = 0.40.',
+  sp:[sp('N₂',1,'r','g',1),sp('H₂',3,'r','g',3),sp('NH₃',2,'p','g',0)],V:10,known:{type:'tau',v:0.4}},
+ {id:'pcl5',title:'PCl₅ ⇌ PCl₃ + Cl₂ (K given)',text:'0.50 mol of PCl₅ is heated in a closed 2.0 L vessel. At this temperature K = 0.040.',
+  sp:[sp('PCl₅',1,'r','g',0.5),sp('PCl₃',1,'p','g',0),sp('Cl₂',1,'p','g',0)],V:2,known:{type:'K',v:0.04}},
+ {id:'agcl',title:'Ag⁺ + Cl⁻ → AgCl (total reaction)',text:'We mix 20.0 mL of silver nitrate solution (0.10 mol/L) with 30.0 mL of sodium chloride solution (0.10 mol/L). The test for Ag⁺ ions in the final mixture is negative.',
+  sp:[sp('Ag⁺',1,'r','aq',0.002,'0.10 × 0.0200'),sp('Cl⁻',1,'r','aq',0.003,'0.10 × 0.0300'),sp('AgCl',1,'p','s',0)],V:0.05,known:{type:'n',sp:0,v:0},total:true}
+];
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+/* ---------- 1 · step by step ---------- */
+const ST={P:null,sol:null,step:0,x:0};const NSTEP=7;
+const EXPL=['Read the problem. Write the balanced equation on the first line of the table. Then press Next step.'];
+PRE.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p.title;$('#stSel').appendChild(o)});
+function stLoad(i){ST.P=clone(PRE[i]);ST.sol=solve(ST.P);ST.step=0;ST.x=0;ST.L=steps(ST.P,ST.sol);$('#stText').textContent=ST.P.text;stRender()}
+function stRender(){const s=ST.step;
+  $('#stTable').innerHTML=tableHTML(ST.P,ST.sol,{upto:s,now:s});
+  $('#stRes').innerHTML=resultsHTML(ST.P,ST.sol,s);
+  $('#stCount').textContent='Step '+s+' of '+NSTEP;$('#stPrev').disabled=s===0;$('#stNext').disabled=s>=NSTEP;
+  $('#stExplain').innerHTML=s===0?'<h3>Start</h3><p>'+EXPL[0]+'</p>':'<h3>Step '+s+' · '+ST.L[s-1].t+'</h3><p class="calc">'+ST.L[s-1].h+'</p>';
+  const target=s>=4?ST.sol.xf:s===3?ST.sol.xmax:0;animX(target)}
+let anim=0;
+function animX(to){cancelAnimationFrame(anim);const from=ST.x,t0=performance.now(),d=matchMedia('(prefers-reduced-motion: reduce)').matches?0:700;
+  const tick=t=>{const u=d?Math.min(1,(t-t0)/d):1;ST.x=from+(to-from)*(1-Math.pow(1-u,3));syncX();if(u<1)anim=requestAnimationFrame(tick)};anim=requestAnimationFrame(tick)}
+function syncX(){$('#xRange').value=Math.round(ST.x/ST.sol.xmax*1000);$('#xOut').textContent=fmt(ST.x);drawStepBars()}
+function drawStepBars(){if(ST.sol)bars($('#bars'),ST.P,ST.sol,ST.x)}
+$('#xRange').addEventListener('input',e=>{cancelAnimationFrame(anim);ST.x=e.target.value/1000*ST.sol.xmax;$('#xOut').textContent=fmt(ST.x);drawStepBars();
+  $('#xNote').innerHTML=ST.x>ST.sol.xf*(1+1e-6)?'<b>The reaction never gets here.</b> It stops at x<sub>f</sub> = '+fmt(ST.sol.xf)+' mol because the reverse reaction balances the forward one.':'Drag x. Reactants lose a·x, products gain c·x. The brass line is where the reaction really stops (x<sub>f</sub>).'});
+$('#stSel').addEventListener('change',e=>stLoad(+e.target.value));
+$('#stNext').addEventListener('click',()=>{if(ST.step<NSTEP){ST.step++;stRender()}});
+$('#stPrev').addEventListener('click',()=>{if(ST.step>0){ST.step--;stRender()}});
+$('#stAll').addEventListener('click',()=>{ST.step=NSTEP;stRender();
+  $('#stExplain').innerHTML='<h3>Full solution</h3><ol class="steps">'+ST.L.map(l=>'<li><b class="t">'+l.t+'</b><div class="calc">'+l.h+'</div></li>').join('')+'</ol>'});
+
+/* ---------- 2 · calculator ---------- */
+const CP={P:null};
+PRE.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p.title;$('#cPreset').appendChild(o)});
+{const o=document.createElement('option');o.value='blank';o.textContent='Blank: my own reaction';$('#cPreset').appendChild(o)}
+function cLoad(v){CP.P=v==='blank'?{sp:[sp('A',1,'r','aq',1),sp('B',1,'r','aq',1),sp('C',1,'p','aq',0)],V:1,known:{type:'n',sp:2,v:0.5}}:clone(PRE[+v]);cForm();cCompute()}
+function cForm(){const P=CP.P;
+  $('#cV').value=P.V?P.V:'';
+  let h='<tr><th></th><th>Formula</th><th>Coef.</th><th>State</th><th>n₀ (mol)</th><th></th></tr>';
+  P.sp.forEach((s,i)=>{h+='<tr><td><span class="chip" style="color:var(--'+(s.side==='r'?'re':'pr')+')">'+(s.side==='r'?'reactant':'product')+'</span></td>'+
+    '<td><input type="text" data-e="f" data-i="'+i+'" value="'+s.f+'" aria-label="formula"></td>'+
+    '<td style="width:4.2rem"><input type="number" min="1" max="9" step="1" data-e="c" data-i="'+i+'" value="'+s.c+'" aria-label="coefficient"></td>'+
+    '<td style="width:6.5rem"><select data-e="st" data-i="'+i+'" aria-label="state">'+[['g','gas'],['aq','aq'],['l','liquid'],['s','solid'],['solv','solvent']].map(o=>'<option value="'+o[0]+'"'+(s.st===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+'</select></td>'+
+    '<td style="width:7.5rem"><input type="text" inputmode="decimal" data-e="n0" data-i="'+i+'" value="'+(s.st==='solv'?'':s.n0)+'"'+(s.st==='solv'?' disabled placeholder="excess"':'')+' aria-label="initial amount"></td>'+
+    '<td><button class="del" type="button" data-del="'+i+'" aria-label="remove">×</button></td></tr>'});
+  $('#cEd').innerHTML=h;
+  $('#cKnown').value=P.known.type;cKnownUI()}
+function cKnownUI(){const P=CP.P,t=$('#cKnown').value;
+  $('#cKSp').innerHTML=P.sp.map((s,i)=>active(s)?'<option value="'+i+'"'+(P.known.sp===i?' selected':'')+'>'+s.f+'</option>':'').join('');
+  $('#cKSpL').hidden=!(t==='n'||t==='c');$('#cKValL').hidden=t==='total';
+  if(document.activeElement!==$('#cKVal'))$('#cKVal').value=P.known.v===undefined?'':P.known.v}
+function cRead(){const P=CP.P;P.V=parseNum($('#cV').value);if(!(P.V>0))P.V=null;
+  $$('#cEd [data-e]').forEach(el=>{const s=P.sp[+el.dataset.i],e=el.dataset.e;
+    if(e==='f')s.f=el.value.trim()||'?';else if(e==='c')s.c=Math.max(1,Math.round(+el.value||1));else if(e==='st')s.st=el.value;else if(e==='n0')s.n0=s.st==='solv'?null:(parseNum(el.value)||0)});
+  P.known={type:$('#cKnown').value,sp:+$('#cKSp').value,v:parseNum($('#cKVal').value)};P.total=P.known.type==='total'}
+function cCompute(){const P=CP.P,sol=solve(P);CP.sol=sol;
+  if(!sol.ok||(P.known.type!=='total'&&isNaN(P.known.v))){$('#cTable').innerHTML=tableHTML(P,null,{upto:2});$('#cRes').innerHTML='';$('#cSteps').innerHTML='';
+    $('#cMsg').innerHTML='<div class="verdict info">'+(sol.warn||'Type the value we know at the end.')+'</div>';bars($('#cBars'),P,null,0);return}
+  $('#cMsg').innerHTML='';$('#cTable').innerHTML=tableHTML(P,sol);$('#cRes').innerHTML=resultsHTML(P,sol);
+  CP.L=steps(P,sol);$('#cSteps').innerHTML=CP.L.map(l=>'<li><b class="t">'+l.t+'</b><div class="calc">'+l.h+'</div></li>').join('');drawCalcBars()}
+function drawCalcBars(){if(CP.sol&&CP.sol.ok)bars($('#cBars'),CP.P,CP.sol,CP.sol.xf)}
+$('#cPreset').addEventListener('change',e=>cLoad(e.target.value));
+$('#p-calc').addEventListener('input',e=>{if(e.target.id==='cPreset')return;cRead();if(e.target.dataset.e==='st'){cForm()}if(e.target.id==='cKnown'){cKnownUI()}cCompute()});
+$('#p-calc').addEventListener('change',e=>{if(e.target.dataset.e==='st'||e.target.id==='cKnown'){cRead();cForm();cCompute()}});
+$('#cEd').addEventListener('click',e=>{const d=e.target.closest('[data-del]');if(!d)return;const P=CP.P;if(P.sp.length<=2)return;P.sp.splice(+d.dataset.del,1);if(P.known.sp>=P.sp.length)P.known.sp=0;cForm();cCompute()});
+function addSp(side){cRead();const P=CP.P;if(P.sp.length>=6)return;const s=sp(side==='r'?'D':'E',1,side,'aq',side==='r'?1:0);
+  if(side==='r'){const k=P.sp.findIndex(x=>x.side==='p');P.sp.splice(k<0?P.sp.length:k,0,s)}else P.sp.push(s);cForm();cCompute()}
+$('#cAddR').addEventListener('click',()=>addSp('r'));$('#cAddP').addEventListener('click',()=>addSp('p'));
+$('#cCopy').addEventListener('click',()=>{const txt=(CP.L||[]).map((l,i)=>(i+1)+'. '+l.t.replace(/<[^>]+>/g,'')+'\n   '+l.h.replace(/<br>/g,'\n   ').replace(/<sub>/g,'_').replace(/<sup>/g,'^').replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>')).join('\n');
+  const done=()=>{$('#cCopy').textContent='Copied ✓';setTimeout(()=>$('#cCopy').textContent='Copy',1500)};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done,()=>{});else{const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();try{document.execCommand('copy');done()}catch(e){}t.remove()}});
+
+/* ---------- 3 · you calculate ---------- */
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const r3=v=>Number(v.toPrecision(3));
+function eqWith(P,K){const t=clone(P);t.known={type:'K',v:K};return solve(t)}
+const GEN=[
+ ()=>{const a=pick([0.50,1.00,1.50,2.00]),b=pick([0.50,1.00,1.50,2.00]),V=pick([1.0,2.0]);
+  const P={sp:[sp('H₂',1,'r','g',a),sp('I₂',1,'r','g',b),sp('HI',2,'p','g',0)],V};const s=eqWith(P,49);const nHI=r3(s.nf[2]);
+  P.known={type:'n',sp:2,v:nHI};P.text='In a closed '+V.toFixed(1)+' L flask at 450 °C, we introduce '+a.toFixed(2)+' mol of H₂ and '+b.toFixed(2)+' mol of I₂. At equilibrium, the flask contains '+fmt(nHI)+' mol of HI.';P.tag='H₂ + I₂ ⇌ 2HI';return P},
+ ()=>{const ma=pick([3.0,6.0,12.0]),mb=pick([2.3,4.6,9.2]);
+  const P={sp:[sp('CH₃COOH',1,'r','l',ma/60,'m ÷ M = '+ma.toFixed(1)+' ÷ 60'),sp('C₂H₅OH',1,'r','l',mb/46,'m ÷ M = '+mb.toFixed(1)+' ÷ 46'),sp('CH₃COOC₂H₅',1,'p','l',0),sp('H₂O',1,'p','l',0)],V:null};
+  const s=eqWith(P,4),left=r3(s.nf[0]);P.known={type:'n',sp:0,v:left};
+  P.text='We heat '+ma.toFixed(1)+' g of ethanoic acid (M = 60 g/mol) with '+mb.toFixed(1)+' g of ethanol (M = 46 g/mol) and a few drops of sulfuric acid. At equilibrium, a titration shows that '+fmt(left)+' mol of acid remains.';P.tag='Esterification';return P},
+ ()=>{const a=pick([0.20,0.40,0.60]),b=pick([0.10,0.20,0.30]),V=pick([1.0,2.0]),tau=pick([0.6,0.7,0.8,0.9]);
+  const P={sp:[sp('SO₂',2,'r','g',a),sp('O₂',1,'r','g',b),sp('SO₃',2,'p','g',0)],V};const xm=Math.min(a/2,b),n=r3(2*tau*xm);
+  P.known={type:'n',sp:2,v:n};P.text=a.toFixed(2)+' mol of SO₂ and '+b.toFixed(2)+' mol of O₂ are placed in a '+V.toFixed(1)+' L vessel. At equilibrium, the vessel contains '+fmt(n)+' mol of SO₃.';P.tag='2SO₂ + O₂ ⇌ 2SO₃';return P},
+ ()=>{const n0=pick([0.020,0.040,0.060,0.100]),V=pick([0.50,1.0,2.0]),tau=pick([0.2,0.25,0.3,0.4,0.5]);const c=r3(2*tau*n0/V);
+  const P={sp:[sp('N₂O₄',1,'r','g',n0),sp('NO₂',2,'p','g',0)],V,known:{type:'c',sp:1,v:c}};
+  P.text=n0.toFixed(3)+' mol of N₂O₄ is placed in a closed '+V.toFixed(2)+' L flask. At equilibrium, [NO₂] = '+fmt(c)+' mol/L.';P.tag='N₂O₄ ⇌ 2NO₂';return P},
+ ()=>{const C=pick([0.010,0.050,0.10]),V=pick([0.050,0.100,0.200]);
+  const P={sp:[sp('CH₃COOH',1,'r','aq',C*V,'C × V = '+fmt(C,2)+' × '+V.toFixed(3)),sp('H₂O',1,'r','solv',null),sp('CH₃COO⁻',1,'p','aq',0),sp('H₃O⁺',1,'p','aq',0)],V};
+  const s=eqWith(P,1.8e-5),pH=Math.round(-Math.log10(s.nf[3]/V)*100)/100;P.known={type:'pH',v:pH};
+  P.text='We prepare V = '+Math.round(V*1000)+' mL of ethanoic acid solution of concentration C = '+fmt(C,2)+' mol/L. Its pH is '+pH.toFixed(2)+'.';P.tag='Weak acid in water';return P},
+ ()=>{const c1=pick([0.10,0.20]),v1=pick([10.0,20.0,30.0]),c2=pick([0.10,0.20]),v2=pick([10.0,20.0,30.0]);const n1=c1*v1/1000,n2=c2*v2/1000;
+  if(Math.abs(n1-n2)<1e-9)return GEN[5]();const lim=n1<n2?0:1;
+  const P={sp:[sp('Ag⁺',1,'r','aq',n1,c1.toFixed(2)+' × '+(v1/1000).toFixed(4)),sp('Cl⁻',1,'r','aq',n2,c2.toFixed(2)+' × '+(v2/1000).toFixed(4)),sp('AgCl',1,'p','s',0)],V:(v1+v2)/1000,known:{type:'n',sp:lim,v:0},total:true};
+  P.text='We mix '+v1.toFixed(1)+' mL of silver nitrate solution ('+c1.toFixed(2)+' mol/L) with '+v2.toFixed(1)+' mL of sodium chloride solution ('+c2.toFixed(2)+' mol/L). The test for '+(lim?'Cl⁻':'Ag⁺')+' ions in the final mixture is negative.';P.tag='Precipitation';return P},
+ ()=>{const a=pick([1.0,2.0]),b=pick([3.0,4.5,6.0]),V=pick([5.0,10.0]),tau=pick([0.2,0.3,0.4,0.5]);
+  const P={sp:[sp('N₂',1,'r','g',a),sp('H₂',3,'r','g',b),sp('NH₃',2,'p','g',0)],V,known:{type:'tau',v:tau}};
+  P.text=a.toFixed(1)+' mol of N₂ and '+b.toFixed(1)+' mol of H₂ are placed in a '+V.toFixed(1)+' L vessel. The final degree of progress is τ = '+tau+'.';P.tag='N₂ + 3H₂ ⇌ 2NH₃';return P},
+ ()=>{const n0=pick([0.20,0.50,1.00]),V=pick([1.0,2.0]),tau=pick([0.2,0.3,0.4,0.6]),ncl=r3(tau*n0);
+  const P={sp:[sp('PCl₅',1,'r','g',n0),sp('PCl₃',1,'p','g',0),sp('Cl₂',1,'p','g',0)],V,known:{type:'n',sp:2,v:ncl}};
+  P.text=n0.toFixed(2)+' mol of PCl₅ is heated in a closed '+V.toFixed(1)+' L vessel. At equilibrium, the vessel contains '+fmt(ncl)+' mol of Cl₂.';P.tag='PCl₅ ⇌ PCl₃ + Cl₂';return P}
+];
+const Q={P:null,sol:null,right:0,n:0,streak:0,last:-1,checked:false,hint:false};
+function qNew(){let g;do{g=Math.floor(Math.random()*GEN.length)}while(g===Q.last&&GEN.length>1);Q.last=g;
+  Q.P=GEN[g]();Q.sol=solve(Q.P);Q.checked=false;Q.hint=false;Q.counted=false;
+  $('#qTag').textContent=Q.P.tag;$('#qText').textContent=Q.P.text;
+  $('#qTable').innerHTML=tableHTML(Q.P,Q.sol,{quiz:true});
+  const S=Q.P.sp,kGiven=Q.P.known.type==='K';
+  $('#qRes').innerHTML='<label class="res"><b>x_max (mol)</b><input data-q="xmax" type="text" inputmode="decimal"></label>'+
+    '<label class="res"><b>Limiting reactant</b><select data-q="lim"><option value="">choose…</option>'+S.map((s,i)=>s.side==='r'&&active(s)?'<option value="'+i+'">'+s.f+'</option>':'').join('')+'<option value="both">none (all run out together)</option></select></label>'+
+    '<label class="res key"><b>τ = x_f ÷ x_max</b><input data-q="tau" type="text" inputmode="decimal"></label>'+
+    (Q.P.total?'<div class="res key"><b>K</b><span>very large (total)</span></div>':'<label class="res key"><b>K</b><input data-q="K" type="text" inputmode="decimal"'+(kGiven?' value="'+Q.P.known.v+'" disabled':'')+'></label>');
+  $('#qMsg').innerHTML='';$('#qModelCard').hidden=true;$('#qModel').open=false;$('#qHint').disabled=false}
+function close(v,t){if(isNaN(v))return false;if(Math.abs(t)<1e-12)return Math.abs(v)<1e-9;return Math.abs(v-t)<=0.03*Math.abs(t)+1e-15}
+function qCheck(){const P=Q.P,sol=Q.sol,S=P.sp;let good=0,tot=0;const bad=[];
+  const mark=(el,ok,label,want)=>{tot++;el.classList.toggle('ok',ok);el.classList.toggle('bad',!ok);if(ok)good++;else bad.push(label+': '+want)};
+  $$('#qTable [data-q="n0"]').forEach(el=>{const s=S[+el.dataset.i];mark(el,close(parseNum(el.value),s.n0),'n₀('+s.f+')',fmt(s.n0)+' mol')});
+  $$('#qTable [data-q="nf"]').forEach(el=>{const i=+el.dataset.i,s=S[i];mark(el,close(parseNum(el.value),sol.nf[i]),'n_f('+s.f+')',fmt(sol.nf[i])+' mol')});
+  const g=q=>$('[data-q="'+q+'"]');
+  mark(g('xf'),close(parseNum(g('xf').value),sol.xf),'x_f',fmt(sol.xf)+' mol');
+  mark(g('xmax'),close(parseNum(g('xmax').value),sol.xmax),'x_max',fmt(sol.xmax)+' mol');
+  const limWant=sol.lims.length>1?'both':String(sol.lims[0]);mark(g('lim'),g('lim').value===limWant,'limiting reactant',sol.lims.length>1?'none (all run out together)':S[sol.lims[0]].f);
+  const tv=parseNum(g('tau').value);mark(g('tau'),close(tv,sol.tau)||close(tv/100,sol.tau)&&/%/.test(g('tau').value),'τ',fmt(sol.tau));
+  if(g('K')&&!g('K').disabled)mark(g('K'),close(parseNum(g('K').value),sol.K),'K',fmt(sol.K));
+  const all=good===tot;
+  if(!Q.counted){Q.counted=true;Q.n++;if(all){Q.right++;Q.streak++}else Q.streak=0}
+  else if(all&&!Q.fixed){Q.fixed=true}
+  $('#qScore').textContent='Tables right: '+Q.right+' / '+Q.n+' · streak '+Q.streak;
+  $('#qMsg').innerHTML=all?'<div class="verdict ok">Perfect table! '+good+' / '+tot+' correct.<small>'+(sol.total?'τ = 1: a total reaction.':'τ = '+fmt(sol.tau)+' &lt; 1: a limited reaction that reaches equilibrium.')+' Press New problem for another one.</small></div>':
+    '<div class="verdict bad">'+good+' / '+tot+' correct.<small>Fix the red boxes and check again. (The first check counts for the score.)<br>'+(Q.revealed?bad.join(' · '):'Press Check again after fixing, or open the model answer.')+'</small></div>';
+  $('#qModelCard').hidden=false;$('#qSteps').innerHTML=steps(P,sol).map(l=>'<li><b class="t">'+l.t+'</b><div class="calc">'+l.h+'</div></li>').join('');
+  $('#qModel').ontoggle=()=>{if($('#qModel').open)Q.revealed=true}}
+$('#qCheck').addEventListener('click',qCheck);
+$('#qNext').addEventListener('click',()=>{Q.revealed=false;Q.fixed=false;qNew()});
+$('#qHint').addEventListener('click',()=>{Q.hint=true;const vals={};$$('#qTable input').forEach(el=>vals[el.dataset.q+(el.dataset.i||'')]=el.value);
+  $('#qTable').innerHTML=tableHTML(Q.P,Q.sol,{quiz:true,hint:true});$$('#qTable input').forEach(el=>el.value=vals[el.dataset.q+(el.dataset.i||'')]||'');$('#qHint').disabled=true});
+
+/* test hook */
+window.__ETL={solve,PRE,GEN,Q,ST,CP,parseNum,fmt,qNew};
+
+stLoad(0);cLoad(0);qNew();themeLabel();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+})();
+</script>
+<script src="lab-guide.js" defer></script>
+</body></html>

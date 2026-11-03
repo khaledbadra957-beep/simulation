@@ -68,6 +68,22 @@
       mis: [['Entropy is “disorder” you can see.', 'Count arrangements of particles and energy, not messiness.'], ['Spontaneous means fast.', 'Spontaneity says nothing about the rate.']],
       qs: ['Why is it almost impossible for all the air in the room to gather in one corner?', 'Why does dissolving salt usually increase entropy?', 'Why does water freeze below 0 °C even though ΔS < 0?']
     },
+    'equilibrium-table-lab.html': {
+      big: 'One table solves every equilibrium problem: initial state, during (with x), final state. x_max comes from the limiting reactant, x_f from the data, then τ = x_f ÷ x_max tells you if the reaction is total (τ = 1) or limited (τ < 1, equilibrium), and K uses the final concentrations.',
+      tryThis: [
+        'Step by step: open H₂ + I₂ ⇌ 2HI and press Next step until the table is full.',
+        'Drag x past x_f. Why does the reaction never get there?',
+        'Compare the two esterification problems: how does an excess of acid change τ (the yield)?',
+        'Open SO₂ + O₂: which reactant is limiting, and why is it not the one with the smaller amount?',
+        'Calculator: type a problem from your book and compare with your own answer.',
+        'You calculate: get three perfect tables in a row.'
+      ],
+      words: [['Progress x', 'how far the reaction has gone (mol)'], ['x_max', 'progress if the reaction were total'], ['Limiting reactant', 'the one that gives the smallest x_max'], ['x_f', 'the real final progress'], ['τ = x_f ÷ x_max', 'final degree of progress'], ['K', 'products over reactants at equilibrium']],
+      goals: ['Build the table of progress (initial, during, final) for a balanced equation.', 'Find x_max and the limiting reactant.', 'Use data at the final state (amount, concentration, pH, τ or K) to find x_f.', 'Calculate τ and decide whether a reaction is total or limited.', 'Write K and calculate it from the final concentrations.'],
+      flow: [['3 min', 'Predict', 'Does every reaction use up its limiting reactant? Vote before the lab.'], ['6 min', 'Explore', 'Step by step with two problems; students copy each row into their notebooks.'], ['3 min', 'Explain', 'Compare τ for the precipitation (τ = 1) and the esterification (τ ≈ 0.67).'], ['5 min', 'Apply', 'You calculate: pairs solve two random tables.']],
+      mis: [['The reactant with the smaller amount is always limiting.', 'Divide each amount by its coefficient first (SO₂ in 2SO₂ + O₂).'], ['At equilibrium the amounts of reactants and products are equal.', 'They are constant, not equal: compare the final row.'], ['x_f is always x_max.', 'Only for a total reaction; at equilibrium x_f < x_max.'], ['Water always appears in K.', 'Leave out the solvent and solids; water made in esterification stays in.']],
+      qs: ['Why can a limited reaction never reach x_max?', 'What does τ = 0.67 mean for the yield of an ester?', 'How could you increase τ for an esterification?']
+    },
     'esterification-lab.html': {
       big: 'Acid + alcohol ⇌ ester + water is slow, limited and athermic. The class of the alcohol sets the yield; excess reagent or removing water raises it.',
       tryThis: [
@@ -382,6 +398,7 @@
     'torque-lab.html': {},
     'keplers-laws.html': { hide: ['#step'] },
     'entropy-lab.html': { hide: ['#waysCard .seg'], start: '#wallBtn' },
+    'equilibrium-table-lab.html': { hide: ['#stAll'], start: '#stNext' },
     'five-types-of-chemical-reactions.html': {}
   };
   var cfg = CFG[file] || {};
@@ -421,7 +438,8 @@
     'torque-lab.html': { intro: '[data-tab="door"]', game: '[data-tab="chal"]' },
     'wave-speed-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'five-types-of-chemical-reactions.html': { intro: '[data-tab="build"]', game: '[data-tab="game"]' },
-    'entropy-lab.html': { intro: '[data-tab="spr"]', game: '[data-tab="chal"]', gameName: 'Spontaneous?' }
+    'entropy-lab.html': { intro: '[data-tab="spr"]', game: '[data-tab="chal"]', gameName: 'Spontaneous?' },
+    'equilibrium-table-lab.html': { intro: '[data-tab="step"]', game: '[data-tab="chal"]', gameName: 'You calculate' }
   };
   var ph = PH[file] || {};
   var tabBar = document.querySelector('[role="tablist"], .tabs');
