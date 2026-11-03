@@ -344,18 +344,18 @@ function readouts(){const [f,r]=rates();$('#rM').textContent=fx(conc('M'),2)+' M
  $('#rState').textContent=sim.t<3?'starting':k&&Math.abs(f-r)<=Math.max(1,.35*Math.max(f,r))?'at equilibrium':f>r?'shifting right →':'← shifting left'}
 
 function drawBox(){const c=$('#box');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);
- const pad=10,sc=Math.min((w-2*pad)/WFULL,(h-2*pad)/BH),ox=(w-WFULL*sc)/2,oy=(h-BH*sc)/2;
+ const pad=24,sc=Math.min((w-2*pad)/WFULL,(h-2*pad)/BH),ox=(w-WFULL*sc)/2,oy=(h-BH*sc)/2;
  // ghost of the full container
- x.strokeStyle=C.line;x.setLineDash([6,6]);x.lineWidth=1.5;x.strokeRect(ox,oy,WFULL*sc,BH*sc);x.setLineDash([]);
+ LabViz.chamber(x,ox,oy,WFULL*sc,BH*sc,'back');if(sim.W<WFULL){x.fillStyle=LabViz.dark()?'rgba(0,0,0,.35)':'rgba(120,140,150,.18)';x.fillRect(ox+sim.W*sc,oy,(WFULL-sim.W)*sc,BH*sc)}
  const tint=Math.min(.55,conc('M')/.4*.4);x.fillStyle=hexA(C.no2,tint*.55);x.fillRect(ox,oy,sim.W*sc,BH*sc);
- x.strokeStyle=C.muted;x.lineWidth=2;x.strokeRect(ox,oy,sim.W*sc,BH*sc);
- if(sim.W<WFULL){x.fillStyle=C.muted;x.fillRect(ox+sim.W*sc,oy-4,6,BH*sc+8);txt(x,'piston',ox+sim.W*sc+12,oy+BH*sc/2,C.muted,12,'left','middle')}
+
  txt(x,`${sim.T} K`,ox+8,oy+16,C.muted,12);if(sim.cat)txt(x,'catalyst',ox+8,oy+32,C.prod,12);
  for(const p of sim.P){const px=ox+p.x*sc,py=oy+p.y*sc;
   if(p.type==='M')LabViz.ball(x,px,py,RM*sc,C.no2);
   else{const o=RM*.8*sc,ux=Math.cos(p.ang),uy=Math.sin(p.ang);x.strokeStyle=C.ink;x.lineWidth=1.5;
    for(const sg of [-1,1]){x.beginPath();x.arc(px+sg*ux*o,py+sg*uy*o,RM*sc,0,7);x.stroke()}
    for(const sg of [-1,1])LabViz.ball(x,px+sg*ux*o,py+sg*uy*o,RM*sc-.75,C.n2o4)}}
+ LabViz.chamber(x,ox,oy,WFULL*sc,BH*sc,'front',{noRight:true});LabViz.piston(x,ox+sim.W*sc,oy,BH*sc,ox+WFULL*sc+6);if(sim.W<WFULL)txt(x,'piston',ox+sim.W*sc+16,oy+BH*sc/2-14,C.muted,12,'left','middle');
  sim.fl=sim.fl.filter(f=>sim.t-f.t<.45*sim.spd);
  for(const f of sim.fl){const age=(sim.t-f.t)/(.45*sim.spd),px=ox+f.x*sc,py=oy+f.y*sc;x.globalAlpha=1-age;{const gr=x.createRadialGradient(px,py,0,px,py,(3+age*5)*sc);gr.addColorStop(0,f.f?'rgba(74,203,138,.45)':'rgba(255,111,168,.45)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.beginPath();x.arc(px,py,(3+age*5)*sc,0,7);x.fill()}x.strokeStyle=f.f?C.prod:C.rose;x.lineWidth=2.5;
   x.beginPath();x.arc(px,py,(1.6+age*1.6)*sc,0,7);x.stroke();x.globalAlpha=1}}

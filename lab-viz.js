@@ -133,6 +133,43 @@
     if (lines) paper(x, cx, base - h * .38, w * .82, h * .3, lines);
   }
 
+  /* sealed glass reaction chamber. Call with phase 'back' before the particles and 'front' after them. */
+  function chamber(x, X, Y, W, H, phase, o) {
+    o = o || {}; var dk = dark();
+    if (phase === 'back') {
+      var g = x.createLinearGradient(0, Y, 0, Y + H); g.addColorStop(0, dk ? 'rgba(28,46,56,.9)' : 'rgba(240,247,250,.95)'); g.addColorStop(1, dk ? 'rgba(14,26,32,.95)' : 'rgba(214,229,235,.95)');
+      x.fillStyle = g; x.fillRect(X, Y, W, H);
+      x.strokeStyle = dk ? 'rgba(255,255,255,.03)' : 'rgba(40,80,95,.05)'; x.lineWidth = 1; for (var gx = X + 30; gx < X + W; gx += 30) { x.beginPath(); x.moveTo(gx, Y); x.lineTo(gx, Y + H); x.stroke(); }
+      return;
+    }
+    var t = Math.max(5, Math.min(11, Math.min(W, H) * .028));
+    var sideG = function (x0, x1) { var gg = x.createLinearGradient(x0, 0, x1, 0); gg.addColorStop(0, dk ? 'rgba(190,225,238,.45)' : 'rgba(120,165,182,.55)'); gg.addColorStop(.45, 'rgba(255,255,255,' + (dk ? .25 : .7) + ')'); gg.addColorStop(1, dk ? 'rgba(190,225,238,.1)' : 'rgba(150,190,205,.2)'); return gg; };
+    var topG = function (y0, y1) { var gg = x.createLinearGradient(0, y0, 0, y1); gg.addColorStop(0, dk ? 'rgba(190,225,238,.45)' : 'rgba(120,165,182,.55)'); gg.addColorStop(.45, 'rgba(255,255,255,' + (dk ? .25 : .7) + ')'); gg.addColorStop(1, dk ? 'rgba(190,225,238,.1)' : 'rgba(150,190,205,.2)'); return gg; };
+    x.fillStyle = topG(Y - t, Y + t * .2); x.fillRect(X, Y - t, W, t); x.fillStyle = topG(Y + H + t, Y + H - t * .2); x.fillRect(X, Y + H, W, t);
+    if (!o.noLeft) { x.fillStyle = sideG(X - t, X); x.fillRect(X - t, Y - t, t, H + 2 * t); }
+    if (!o.noRight) { x.fillStyle = sideG(X + W + t, X + W); x.fillRect(X + W, Y - t, t, H + 2 * t); }
+    x.strokeStyle = dk ? 'rgba(200,230,240,.55)' : 'rgba(45,75,88,.75)'; x.lineWidth = 1.4; x.strokeRect(X - t, Y - t, W + 2 * t, H + 2 * t);
+    x.strokeStyle = 'rgba(255,255,255,' + (dk ? .2 : .65) + ')'; x.lineWidth = 1; x.strokeRect(X + .5, Y + .5, W - 1, H - 1);
+    // a soft reflection across the front pane
+    x.save(); x.beginPath(); x.rect(X, Y, W, H); x.clip(); var rg = x.createLinearGradient(X, Y, X + W * .35, Y + H); rg.addColorStop(0, 'rgba(255,255,255,0)'); rg.addColorStop(.45, 'rgba(255,255,255,' + (dk ? .05 : .16) + ')'); rg.addColorStop(.55, 'rgba(255,255,255,0)');
+    x.fillStyle = rg; x.beginPath(); x.moveTo(X + W * .06, Y); x.lineTo(X + W * .2, Y); x.lineTo(X + W * .08, Y + H); x.lineTo(X - W * .06, Y + H); x.fill(); x.restore();
+    // steel end flanges with bolts
+    var fw = Math.max(8, t * 1.6);
+    [[X - t - fw, 1], [X + W + t, -1]].forEach(function (f, i) {
+      if ((i === 0 && o.noLeft) || (i === 1 && o.noRight)) return;
+      chrome(x, f[0], Y - t - 6, fw, H + 2 * t + 12);
+      x.strokeStyle = 'rgba(0,0,0,.35)'; x.lineWidth = 1; x.strokeRect(f[0], Y - t - 6, fw, H + 2 * t + 12);
+      [Y - t + 2, Y + H / 2, Y + H + t - 2].forEach(function (by) { var bx = f[0] + fw / 2, br = Math.max(2.4, fw * .26); var bg = x.createRadialGradient(bx - br * .3, by - br * .3, .5, bx, by, br); bg.addColorStop(0, '#F4F6F7'); bg.addColorStop(1, '#4C555B'); x.fillStyle = bg; x.beginPath(); x.arc(bx, by, br, 0, 7); x.fill(); });
+    });
+  }
+  /* steel piston plate at px with its rod running to rodEnd */
+  function piston(x, px, Y, H, rodEnd) {
+    var pw = Math.max(9, H * .05); chrome(x, px, Y, pw, H); x.strokeStyle = 'rgba(0,0,0,.35)'; x.lineWidth = 1; x.strokeRect(px, Y, pw, H);
+    x.fillStyle = '#2B3236'; x.fillRect(px - 2, Y + 3, 3, H - 6);
+    var ry = Y + H / 2 - 4; var rg = x.createLinearGradient(0, ry, 0, ry + 8); rg.addColorStop(0, '#59636A'); rg.addColorStop(.4, '#EEF2F4'); rg.addColorStop(1, '#4C555B'); x.fillStyle = rg; x.fillRect(px + pw, ry, Math.max(0, rodEnd - px - pw), 8);
+    var kx = rodEnd, kg = x.createRadialGradient(kx - 3, ry + 1, 1, kx, ry + 4, 12); kg.addColorStop(0, '#5A6066'); kg.addColorStop(1, '#111417'); x.fillStyle = kg; rr(x, kx - 4, ry - 10, 14, 28, 6); x.fill();
+  }
+
   function ball(x, cx, cy, r, col, alpha) {
     if (!(r > 0.5)) return;
     var c = parse(col), g = x.createRadialGradient(cx - r * .35, cy - r * .4, r * .12, cx, cy, r);
@@ -194,5 +231,5 @@
     var k = .5 + .5 * Math.sin((t || performance.now()) / 220);
     x.fillStyle = col; x.globalAlpha = .25 + .2 * k; x.beginPath(); x.arc(px, py, 9 + 3 * k, 0, 7); x.fill(); x.globalAlpha = 1; ball(x, px, py, 5, col);
   }
-  window.LabViz = { rr: rr, hex: hex, bench: bench, contact: contact, chrome: chrome, stirrer: stirrer, stirBar: stirBar, lcd: lcd, drop: drop, paper: paper, stand: stand, bottle: bottle, glass: glass, ball: ball, lens: lens, readout: readout, drawReadout: drawReadout, tracer: tracer, parse: parse, dark: dark };
+  window.LabViz = { chamber: chamber, piston: piston, rr: rr, hex: hex, bench: bench, contact: contact, chrome: chrome, stirrer: stirrer, stirBar: stirBar, lcd: lcd, drop: drop, paper: paper, stand: stand, bottle: bottle, glass: glass, ball: ball, lens: lens, readout: readout, drawReadout: drawReadout, tracer: tracer, parse: parse, dark: dark };
 })();

@@ -445,10 +445,9 @@ function updateReadouts(){const nA=countA();
  $('#rEa').textContent=fx(sim.cat?EA_CAT:EA,1)+' kJ/mol';$('#rAlab').textContent=sim.mode==='solid'?'Solid A left (as M)':'[A] now'}
 
 function drawBox(){const c=$('#box');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);
- const pad=8,sc=Math.min((w-2*pad)/BW,(h-2*pad)/BH),ox=(w-BW*sc)/2,oy=(h-BH*sc)/2;
+ const pad=22,sc=Math.min((w-2*pad)/BW,(h-2*pad)/BH),ox=(w-BW*sc)/2,oy=(h-BH*sc)/2;
  // water bath tint shows temperature
- const hot=(sim.T-250)/350;x.fillStyle=`rgba(${Math.round(60+180*hot)},${Math.round(130-60*hot)},${Math.round(220-160*hot)},0.07)`;x.fillRect(ox,oy,BW*sc,BH*sc);
- x.strokeStyle=C.muted;x.lineWidth=2;x.strokeRect(ox,oy,BW*sc,BH*sc);
+ const hot=(sim.T-250)/350;x.fillStyle=`rgba(${Math.round(60+180*hot)},${Math.round(130-60*hot)},${Math.round(220-160*hot)},0.07)`;LabViz.chamber(x,ox,oy,BW*sc,BH*sc,'back');x.fillRect(ox,oy,BW*sc,BH*sc);
  txt(x,`${sim.T} K`,ox+8,oy+16,C.muted,12);
  if(sim.cat){txt(x,'catalyst added',ox+BW*sc-8,oy+16,C.prod,12,'right')}
  const ea=eaModel(),glow=$('#cFast').checked,trail=$('#cTrail').checked;
@@ -465,6 +464,7 @@ function drawBox(){const c=$('#box');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);
    x.strokeStyle=C.ink;x.lineWidth=2.5;x.beginPath();x.arc(ax,ay,RAD*sc,0,7);x.stroke();x.beginPath();x.arc(bx,by,RAD*sc,0,7);x.stroke();
    LabViz.ball(x,ax,ay,RAD*sc,C.a);LabViz.ball(x,bx,by,RAD*sc,C.b)}
   else LabViz.ball(x,px,py,p.r*sc,p.type==='A'?C.a:C.b)}
+ LabViz.chamber(x,ox,oy,BW*sc,BH*sc,'front');
  if(sim.flash){sim.flashes=sim.flashes.filter(f=>sim.t-f.t<(f.ok?.9:.4));
   for(const f of sim.flashes){const life=f.ok?.9:.4,age=(sim.t-f.t)/life,px=ox+f.x*sc,py=oy+f.y*sc;
    x.globalAlpha=1-age;
