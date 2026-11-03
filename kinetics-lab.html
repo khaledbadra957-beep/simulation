@@ -346,18 +346,18 @@ function readouts(){const r=lab.run;$('#rt').textContent=fx(r.t,1)+' min';$('#rI
  const done=r.y>=r.ymax*.995;$('#rEnd').textContent=r.t===0?'not started':done?`Yes: n(I₂) = n(I₂)max = ${f5(r.ymax)}×10⁻⁵ mol`:`No: n(I₂) = ${f5(r.y)} < n(I₂)max = ${f5(r.ymax)} (×10⁻⁵ mol)`}
 
 function drawBeaker(){const c=$('#beaker');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const r=lab.run;
- const bw=Math.min(w*.34,190),bh=Math.min(h*.74,230),bx=w*.06,by=(h-bh)/2+4;
+ const bw=Math.min(w*.34,190),bh=Math.min(h*.68,220),bx=w*.06,by=(h-bh-34)/2+6;
  const Vt=r.p.V1+r.p.V2+VACID,level=bh*Math.min(.92,Vt/50);
  const conc=r.y/r.V;// mol/L of I2
  const a=Math.min(.92,.08+conc/.006*.8);
  const col=r.t===0?'rgba(150,190,220,.35)':conc<.0015?`rgba(230,190,40,${a})`:`rgba(${Math.round(200-60*Math.min(1,conc/.008))},${Math.round(120-60*Math.min(1,conc/.008))},20,${a})`;
  // magnetic stirrer under the beaker
- x.fillStyle=LabViz.dark()?'#2B3A41':'#D5DDE1';x.fillRect(bx-10,by+bh+2,bw+20,14);x.fillStyle=C.muted;x.fillRect(bx+bw*.15,by+bh+6,10,6);
+ LabViz.bench(x,w,h,by+bh+32);LabViz.stirrer(x,bx+bw/2,by+bh,bw+26,lab.running,32);
  const path=x=>{x.beginPath();x.moveTo(bx-6,by);x.lineTo(bx,by+4);x.lineTo(bx,by+bh-4);x.quadraticCurveTo(bx,by+bh,bx+4,by+bh);x.lineTo(bx+bw-4,by+bh);x.quadraticCurveTo(bx+bw,by+bh,bx+bw,by+bh-4);x.lineTo(bx+bw,by+4);x.lineTo(bx+bw+6,by);x.closePath()};
  const outline=x=>{path(x);x.beginPath();x.moveTo(bx-6,by);x.lineTo(bx,by+4);x.lineTo(bx,by+bh-4);x.quadraticCurveTo(bx,by+bh,bx+4,by+bh);x.lineTo(bx+bw-4,by+bh);x.quadraticCurveTo(bx+bw,by+bh,bx+bw,by+bh-4);x.lineTo(bx+bw,by+4);x.lineTo(bx+bw+6,by)};
  LabViz.glass(x,path,{left:bx,right:bx+bw,top:by,bottom:by+bh,liquidY:by+bh-level,liquid:col,outline});
  // stir bar spinning while the reaction runs
- const sa=lab.running?performance.now()/120:0,sl=bw*.18;x.save();x.translate(bx+bw/2,by+bh-6);x.scale(1,.35);x.rotate(sa);x.fillStyle='#F4F4F4';x.strokeStyle='#888';x.lineWidth=1.5;x.beginPath();if(x.roundRect)x.roundRect(-sl,-4,2*sl,8,4);else x.rect(-sl,-4,2*sl,8);x.fill();x.stroke();x.restore();
+ const sa=lab.running?performance.now()/120:0;LabViz.stirBar(x,bx+bw/2,by+bh-8,bw*.18,sa);
  x.strokeStyle=C.ink;for(let k=1;k<5;k++){const yy=by+bh-bh*k/5;x.beginPath();x.moveTo(bx+bw-14,yy);x.lineTo(bx+bw,yy);x.lineWidth=1.5;x.stroke();txt(x,String(k*10),bx+bw+4,yy+4,C.muted,10)}
  txt(x,'mL',bx+bw+4,by+14,C.muted,10);
  const tx=bx+bw+30,fs=w<420?11:12;txt(x,`${fx(r.t,1)} min`,tx,by+22,C.ink,w<420?17:22);txt(x,`${r.p.T} °C${r.p.cat?' · catalyst':''}`,tx,by+42,C.muted,fs);
