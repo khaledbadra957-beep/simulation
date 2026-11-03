@@ -205,6 +205,7 @@ footer{color:var(--muted);font-size:.85rem}
 <footer>Interactive lab by Mr Khaled · Inspire Science Grade 7, Module 2 Lesson 2 (pp. 133–155)</footer>
 </div>
 
+<script src="lab-svg.js"></script>
 <script>
 (function(){
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
@@ -273,7 +274,7 @@ function svgGlassBack(bx,by,bw,bh){const dk=document.documentElement.getAttribut
  <linearGradient id="ghl" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".4" stop-color="#fff" stop-opacity="${dk?.2:.6}"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
  <ellipse cx="${bx+bw/2}" cy="${by+bh+8}" rx="${bw*.62}" ry="9" fill="url(#gsh)"/>
  <path d="M${bx} ${by-6} L${bx} ${by+bh} Q${bx} ${by+bh+6} ${bx+8} ${by+bh+6} L${bx+bw-8} ${by+bh+6} Q${bx+bw} ${by+bh+6} ${bx+bw} ${by+bh} L${bx+bw} ${by-6}Z" fill="url(#gtint)"/>`}
-function svgGlassFront(bx,by,bw,bh){return `<rect x="${bx+bw*.07}" y="${by+bh*.06}" width="${bw*.12}" height="${bh*.82}" rx="6" fill="url(#ghl)"/><rect x="${bx+bw*.86}" y="${by+bh*.1}" width="${bw*.035}" height="${bh*.6}" rx="3" fill="#fff" opacity=".28"/>`}
+function svgGlassFront(bx,by,bw,bh){return `<rect x="${bx}" y="${by}" width="${bw}" height="${bh+6}" fill="url(#lsv-liq)" opacity=".7"/><rect x="${bx+2}" y="${by+bh}" width="${bw-4}" height="6" rx="3" fill="#fff" opacity=".35"/><rect x="${bx+bw*.07}" y="${by+bh*.06}" width="${bw*.12}" height="${bh*.82}" rx="6" fill="url(#ghl)"/><rect x="${bx+bw*.86}" y="${by+bh*.1}" width="${bw*.035}" height="${bh*.6}" rx="3" fill="#fff" opacity=".28"/>`}
 /* ---- macro → micro lens: what the particles do in the beaker ---- */
 const MICRO={
  soda:{a:['acid','#C9D17A'],b:['HCO₃⁻','#E9E4D8'],p:['CO₂','#4A4F55'],p2:['H₂O','#5B9BD5'],gas:true,say:'Acid + hydrogencarbonate → new molecules: CO₂ gas escapes'},
@@ -319,7 +320,7 @@ function temp1(){const e=cur1;if(e.scene!=='beaker')return null;return lerp(e.t0
 function draw1(){
   const e=cur1,ink=css('--ink'),muted=css('--muted'),glass=css('--glass'),line=css('--line'),r=rng(7);let s='';
   const tm=temp1();$('#tempV').textContent=(tm==null?(e.scene==='plate'?(t1>0?'hot':'22.0 °C'):(t1>0?'very hot':'22.0 °C')):tm.toFixed(1)+' °C');$('#timeV').textContent=Math.round(t1*60)+' s';
-  s+=`<line x1="0" y1="392" x2="800" y2="392" stroke="${line}" stroke-width="2"/>`;
+  s+=LabSVG.defs()+LabSVG.bench(800,440,392);
   if(e.scene==='beaker'){
     const bx=300,by=150,bw=200,bh=240,pour=clamp(t1/.22,0,1),rxt=clamp((t1-.2)/.8,0,1);
     const lvl0=110,lvl=lvl0+(e.bPowder?10:40)*pour, ytop=by+bh-lvl;
@@ -348,11 +349,11 @@ function draw1(){
     s+=svgGlassFront(bx,by,bw,bh);
     for(let k=1;k<5;k++)s+=`<line x1="${bx+bw-30}" y1="${by+bh-k*45}" x2="${bx+bw-6}" y2="${by+bh-k*45}" stroke="${glass}" stroke-width="2"/>`;
     // thermometer
-    const tm2=tm==null?22:tm,th=lerp(40,150,(tm2-10)/30);s+=`<rect x="${bx+bw-58}" y="${by-60}" width="12" height="230" rx="6" fill="${css('--stage')}" stroke="${muted}" stroke-width="2"/><rect x="${bx+bw-55}" y="${by+170-th}" width="6" height="${th}" rx="3" fill="${css('--hot')}"/><circle cx="${bx+bw-52}" cy="${by+176}" r="10" fill="${css('--hot')}"/>`;
+    const tm2=tm==null?22:tm;s+=LabSVG.thermometer(bx+bw-58,by-60,250,tm2,0,40,10,true);
     // second container pouring
     const ang=lerp(0,-118,ease(pour<1?Math.min(1,pour*1.4):1-clamp((t1-.25)/.15,0,1)));
     const cx=560,cy=120;
-    s+=`<g transform="translate(${cx} ${cy}) rotate(${ang})"><path d="M-36 -50 L-36 40 Q-36 48 -28 48 L28 48 Q36 48 36 40 L36 -50" fill="${css('--stage')}" stroke="${glass}" stroke-width="3.5"/>`;
+    s+=`<g transform="translate(${cx} ${cy}) rotate(${ang})"><path d="M-36 -50 L-36 40 Q-36 48 -28 48 L28 48 Q36 48 36 40 L36 -50" fill="url(#lsv-tint)" stroke="${glass}" stroke-width="3"/><rect x="-28" y="-40" width="7" height="76" rx="3" fill="url(#lsv-hl)"/>`;
     if(pour<1){if(e.bPowder)s+=`<rect x="-30" y="16" width="60" height="${26*(1-pour)}" fill="${e.powderC||'#FFFFFF'}" stroke="${muted}" stroke-opacity=".6"/>`;
       else if(e.dye)s+=`<rect x="-30" y="${38-20*(1-pour)}" width="60" height="${20*(1-pour)+6}" fill="${e.dropC}"/>`;
       else s+=`<rect x="-30" y="${46-70*(1-pour)}" width="60" height="${70*(1-pour)}" fill="${e.liq}" opacity=".95"/>`}
@@ -362,7 +363,7 @@ function draw1(){
     s+=`<text x="${cx}" y="${cy+82}" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="15" fill="${muted}" opacity="${1-pour}">${e.b}</text>`;
   } else if(e.scene==='plate'){
     const on=t1>0,heat=clamp(t1/.2,0,1),k=ease(clamp((t1-.2)/.75,0,1));
-    s+=`<rect x="250" y="330" width="300" height="56" rx="10" fill="${css('--steel')}"/><rect x="270" y="318" width="260" height="16" rx="6" fill="${on?css('--hot'):muted}" opacity="${on?(.5+.5*heat):.6}"/><circle cx="510" cy="358" r="9" fill="${css('--stage')}" stroke="${ink}" stroke-opacity=".4"/>`;
+    s+=LabSVG.hotplate(400,392,290,on?heat:0,74);
     s+=`<ellipse cx="400" cy="312" rx="130" ry="12" fill="${css('--stage')}" stroke="${muted}" stroke-width="2"/>`;
     if(e.item==='ice'){const sz=lerp(70,0,k);s+=`<ellipse cx="400" cy="306" rx="${lerp(10,110,k)}" ry="${lerp(3,8,k)}" fill="${css('--water')}" stroke="${css('--glass')}"/>`;
       if(sz>2)s+=`<rect x="${400-sz/2}" y="${304-sz*.9}" width="${sz}" height="${sz*.9}" rx="${8*sz/70}" fill="#DDEFFC" stroke="${css('--glass')}" stroke-width="2"/><path d="M${400-sz/3} ${300-sz*.6} l${sz/4} ${-sz/6}" stroke="#FFFFFF" stroke-width="3"/>`;
@@ -373,13 +374,12 @@ function draw1(){
     s+=`<text x="400" y="420" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="17" font-weight="700" fill="${ink}">${e.item==='ice'?'Ice cube on a dish':'Raw egg in a pan'} · hot plate ${on?'ON':'OFF'}</text>`;
   } else {
     const lit=clamp((t1-.15)/.1,0,1),burn=clamp((t1-.2)/.7,0,1),glow=lit*(1-clamp((t1-.92)/.08,0,1));
-    s+=`<rect x="140" y="300" width="40" height="86" rx="6" fill="${css('--steel')}"/><rect x="120" y="380" width="80" height="12" rx="4" fill="${css('--steel')}"/>`;
-    s+=`<path d="M160 300 Q140 260 160 215 Q180 260 160 300 Z" fill="${css('--flame')}" opacity=".9"/><path d="M160 300 Q150 275 160 250 Q170 275 160 300 Z" fill="#7FB3FF" opacity=".9"/>`;
-    s+=`<line x1="560" y1="150" x2="300" y2="226" stroke="${css('--steel')}" stroke-width="6" stroke-linecap="round"/><line x1="560" y1="162" x2="300" y2="232" stroke="${css('--steel')}" stroke-width="6" stroke-linecap="round"/>`;
+    s+=LabSVG.burner(160,392,true,200);
+    s+=`<line x1="560" y1="150" x2="300" y2="226" stroke="url(#lsv-steelH)" stroke-width="7" stroke-linecap="round"/><line x1="560" y1="162" x2="300" y2="232" stroke="url(#lsv-steelH)" stroke-width="7" stroke-linecap="round"/><path d="M560 150 Q600 140 640 156 L560 162" fill="none" stroke="#3B4449" stroke-width="7" stroke-linecap="round"/>`;
     const L=lerp(140,0,burn);if(L>1)s+=`<line x1="300" y1="229" x2="${300-L*.87}" y2="${229+L*.5}" stroke="#9AA3AB" stroke-width="7" stroke-linecap="round"/>`;
     const tipx=300-L*.87,tipy=229+L*.5;
-    s+=`<ellipse cx="230" cy="384" rx="80" ry="10" fill="${css('--stage')}" stroke="${muted}" stroke-width="2"/>`;
-    for(let i=0;i<70*burn;i++)s+=`<circle cx="${(170+r()*120).toFixed(1)}" cy="${(380-r()*8).toFixed(1)}" r="2.6" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".5"/>`;
+    s+=LabSVG.shadow(300,388,80)+`<ellipse cx="300" cy="384" rx="74" ry="10" fill="${css('--stage')}" stroke="${muted}" stroke-width="2"/>`;
+    for(let i=0;i<70*burn;i++)s+=`<circle cx="${(240+r()*110).toFixed(1)}" cy="${(380-r()*8).toFixed(1)}" r="2.6" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".5"/>`;
     if(glow>0){s+=`<defs><radialGradient id="gl"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset=".35" stop-color="#FFFFFF" stop-opacity=".85"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient></defs><circle cx="${tipx}" cy="${tipy}" r="${110+20*Math.sin(t1*60)}" fill="url(#gl)" opacity="${glow}"/><circle cx="${tipx}" cy="${tipy}" r="16" fill="#FFFFFF" opacity="${glow}"/>`}
     s+=`<text x="400" y="420" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="17" font-weight="700" fill="${ink}">Magnesium ribbon held in tongs over a burner</text>`;
   }
@@ -426,13 +426,12 @@ function draw2(){
   const m=mass2();$('#mN').textContent=m.toFixed(1)+' g';
   const tip=clamp(t2/.2,0,1),rx=clamp((t2-.2)/.8,0,1);
   // balance
-  s+=`<rect x="170" y="330" width="460" height="70" rx="12" fill="${css('--steel')}"/><rect x="150" y="318" width="500" height="16" rx="6" fill="${muted}"/>`;
-  s+=`<rect x="320" y="346" width="160" height="40" rx="6" fill="#0F1A12"/><text x="470" y="374" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="24" font-weight="600" fill="#7CFF9B">${m.toFixed(1)} g</text>`;
+  s+=LabSVG.defs()+LabSVG.bench(800,440,372)+LabSVG.balance(400,372,480,m.toFixed(1)+' g');
   // flask
   const fx=400,base=316;
-  s+=`<path d="M${fx-22} 150 L${fx-22} 200 L${fx-95} ${base-6} Q${fx-100} ${base} ${fx-90} ${base} L${fx+90} ${base} Q${fx+100} ${base} ${fx+95} ${base-6} L${fx+22} 200 L${fx+22} 150" fill="${css('--stage')}" stroke="${glass}" stroke-width="4" stroke-linejoin="round"/>`;
+  s+=`<path d="M${fx-22} 150 L${fx-22} 200 L${fx-95} ${base-6} Q${fx-100} ${base} ${fx-90} ${base} L${fx+90} ${base} Q${fx+100} ${base} ${fx+95} ${base-6} L${fx+22} 200 L${fx+22} 150" fill="url(#lsv-tint)" stroke="${glass}" stroke-width="3" stroke-linejoin="round"/>`;
   const lv=46+(R.powder?0:24*tip);
-  s+=`<defs><clipPath id="fk"><path d="M${fx-22} 150 L${fx-22} 200 L${fx-95} ${base-6} Q${fx-100} ${base} ${fx-90} ${base} L${fx+90} ${base} Q${fx+100} ${base} ${fx+95} ${base-6} L${fx+22} 200 L${fx+22} 150 Z"/></clipPath></defs><rect clip-path="url(#fk)" x="${fx-100}" y="${base-lv}" width="200" height="${lv}" fill="${R.liq}"/>`;
+  s+=`<defs><clipPath id="fk"><path d="M${fx-22} 150 L${fx-22} 200 L${fx-95} ${base-6} Q${fx-100} ${base} ${fx-90} ${base} L${fx+90} ${base} Q${fx+100} ${base} ${fx+95} ${base-6} L${fx+22} 200 L${fx+22} 150 Z"/></clipPath></defs><rect clip-path="url(#fk)" x="${fx-100}" y="${base-lv}" width="200" height="${lv}" fill="${R.liq}"/><rect clip-path="url(#fk)" x="${fx-100}" y="${base-lv}" width="200" height="${lv}" fill="url(#lsv-liq)"/><rect clip-path="url(#fk)" x="${fx-100}" y="${base-lv}" width="200" height="${lv}" fill="url(#lsv-depth)"/><path d="M${fx-72} ${base-12} L${fx-15} 206" stroke="url(#lsv-hl)" stroke-width="8" stroke-linecap="round"/>`;
   if(rx2==='solid'&&rx>0){for(let i=0;i<90;i++){const x=fx-80+r()*160,y=lerp(base-lv+6+r()*(lv-12),base-10-r()*8,ease(clamp((rx-.3)/.7,0,1)));s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.4" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".5" opacity="${clamp(rx*3,0,1)}"/>`}}
   if(rx2==='gas'&&rx>0){const act=Math.sin(Math.PI*clamp(rx*1.05,0,1));for(let i=0;i<60;i++){const ph=(r()+rx*3)%1;const y=base-8-ph*(lv-6);if(r()<act)s+=`<circle cx="${(fx-75+r()*150).toFixed(1)}" cy="${y.toFixed(1)}" r="${(2+r()*3).toFixed(1)}" fill="none" stroke="${ink}" stroke-opacity=".5"/>`}
     if(ct2==='open'){for(let i=0;i<16;i++){const ph=(r()+rx*2)%1;if(r()<act)s+=`<circle cx="${(fx-15+r()*30+ph*40*(r()-.5)).toFixed(1)}" cy="${(150-ph*120).toFixed(1)}" r="${(3+r()*3).toFixed(1)}" fill="none" stroke="${muted}" stroke-opacity="${(1-ph)*.7}"/>`}
@@ -442,7 +441,7 @@ function draw2(){
       s+=`<g transform="translate(${fx} 150) rotate(${lean})"><rect x="-24" y="-12" width="48" height="16" rx="5" fill="#E05A8A"/><ellipse cx="0" cy="${-12-bh/2}" rx="${bw}" ry="${bh/2}" fill="#E05A8A" opacity=".9"/>${tip<1?`<ellipse cx="0" cy="-30" rx="18" ry="10" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".6"/>`:''}</g>`;
       if(tip>0&&tip<1)for(let i=0;i<14;i++)s+=`<circle cx="${(fx+r()*10-5).toFixed(1)}" cy="${lerp(150,base-lv,r()).toFixed(1)}" r="2.4" fill="#FFFFFF" stroke="${muted}"/>`;
       s+=`<text x="${fx+110}" y="110" font-family="Atkinson Hyperlegible,sans-serif" font-size="15" fill="${muted}">balloon holds the baking soda</text>`}
-    else{const ang=lerp(0,-100,ease(tip<1?tip:1-clamp((t2-.25)/.1,0,1)));s+=`<g transform="translate(540 270) rotate(${ang})"><path d="M-26 -30 L-20 30 L20 30 L26 -30 Z" fill="${css('--stage')}" stroke="${glass}" stroke-width="3"/>${tip<1?`<rect x="-20" y="${10-14*(1-tip)}" width="40" height="${14*(1-tip)+18}" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".5"/>`:''}</g>`;
+    else{const ang=lerp(0,-100,ease(tip<1?tip:1-clamp((t2-.25)/.1,0,1)));s+=`<g transform="translate(540 270) rotate(${ang})"><path d="M-26 -30 L-20 30 L20 30 L26 -30 Z" fill="url(#lsv-tint)" stroke="${glass}" stroke-width="2.5"/><rect x="-18" y="-24" width="6" height="48" rx="3" fill="url(#lsv-hl)"/>${tip<1?`<rect x="-20" y="${10-14*(1-tip)}" width="40" height="${14*(1-tip)+18}" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".5"/>`:''}</g>`;
       if(tip>0.2&&tip<1)for(let i=0;i<16;i++)s+=`<circle cx="${lerp(500,fx+10,r()).toFixed(1)}" cy="${lerp(200,150,r()).toFixed(1)}" r="2.4" fill="#FFFFFF" stroke="${muted}"/>`;
       s+=`<text x="540" y="230" text-anchor="middle" font-family="Atkinson Hyperlegible,sans-serif" font-size="14" fill="${muted}">baking soda</text>`}
     if(rx>0&&R.powder)for(let i=0;i<30*(1-rx);i++)s+=`<circle cx="${(fx-30+r()*60).toFixed(1)}" cy="${(base-8-r()*6).toFixed(1)}" r="2.4" fill="#FFFFFF" stroke="${muted}" stroke-opacity=".5"/>`;

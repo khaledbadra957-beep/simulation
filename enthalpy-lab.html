@@ -323,6 +323,7 @@ table.data td.nm{font-family:var(--body);color:var(--muted)}
   <p class="foot">Values follow the tables in Inspire Chemistry (Module 14) rounded as the book does; the “type any equation” tool uses the fuller ΔH°<sub>f</sub> table (Wikipedia/CRC). Worked examples follow the book's Analyze → Solve → Evaluate format. Answers are given to three significant figures.</p>
 </div>
 
+<script src="lab-svg.js"></script>
 <script>
 (function(){
 'use strict';
@@ -399,16 +400,8 @@ function sampleState(k){
   var qmax = cm * (100 - T0), q = Math.min(heat.q, qmax);
   return { s: s, m: m, q: q, T: T0 + q / cm, full: heat.q >= qmax };
 }
-function thermo(x, y, h, T, lo, hi){
-  var f = Math.max(0, Math.min(1, (T - lo) / (hi - lo))), fh = (h - 18) * f;
-  var col = T > 60 ? 's-hot' : 's-cold';
-  var ticks = '';
-  for (var t = lo; t <= hi; t += 20){ var ty = y + h - 18 - (h - 18) * (t - lo) / (hi - lo);
-    ticks += '<line x1="' + (x + 10) + '" x2="' + (x + 16) + '" y1="' + ty + '" y2="' + ty + '" class="s-inkline" stroke-width="1"/><text x="' + (x + 19) + '" y="' + (ty + 4) + '" class="s-small">' + t + '</text>'; }
-  return '<rect x="' + (x - 6) + '" y="' + y + '" width="12" height="' + (h - 12) + '" rx="6" class="s-sunk s-inkline" stroke-width="1.5"/>' +
-    '<rect x="' + (x - 3) + '" y="' + (y + h - 18 - fh) + '" width="6" height="' + (fh + 8) + '" class="' + col + '"/>' +
-    '<circle cx="' + x + '" cy="' + (y + h - 6) + '" r="10" class="' + col + '"/>' + ticks;
-}
+var MCOL = { 'Ice (solid)': '#D7ECF6', 'Aluminum': '#C9CED3', 'Granite': '#8E8780', 'Iron': '#7E848A', 'Copper': '#C27740', 'Silver': '#D3D7DB', 'Lead': '#6B737B', 'Gold': '#D4AF37', 'Unknown metal X': '#9AA0A6' };
+function thermo(x, y, h, T, lo, hi){ return LabSVG.thermometer(x, y, h, T, lo, hi, 20); }
 /* particle lens: the particles jiggle harder as the temperature rises (same heat, different speed-up) */
 function heatLens(cx, cy, R, S, k){
   var t = performance.now() / 1000, amp = 0.6 + Math.max(0, S.T - 10) / 90 * 6, hot = Math.min(1, Math.max(0, (S.T - 20) / 80));
@@ -428,31 +421,29 @@ function heatLens(cx, cy, R, S, k){
 }
 function drawHeat(){
   var A = sampleState(0), B = sampleState(1), out = '';
+  out += LabSVG.defs() + LabSVG.bench(640, 330, 290);
   [A, B].forEach(function(S, k){
-    var cx = k ? 470 : 150, base = 250;
-    // burner + flame
-    out += '<rect x="' + (cx - 60) + '" y="' + (base + 20) + '" width="120" height="14" rx="4" class="s-metal"/>';
-    if (heat.on && !S.full){ for (var f = -2; f <= 2; f++) out += '<path d="M' + (cx + f * 20 - 6) + ' ' + (base + 18) + ' q6 -' + (16 + (f % 2 ? 4 : 0)) + ' 12 0 z" class="s-hot"/>'; }
+    var cx = k ? 470 : 150, base = 226, tnow = performance.now() / 1000;
+    out += LabSVG.burner(cx, 290, heat.on && !S.full, 230, tnow + k * 3);
+    out += LabSVG.tripod(cx, base, 290, 128);
     // sample: beaker of liquid or a solid block, size grows with mass
     var size = 34 + Math.sqrt(S.m) * 3.2;
     var glow = Math.min(1, (S.T - T0) / 80);
     if (S.s.liquid){
-      out += '<ellipse cx="' + cx + '" cy="' + (base + 2) + '" rx="66" ry="6" fill="url(#hsh)"/><path d="M' + (cx - 55) + ' ' + (base - 120) + ' v118 h110 v-118z" fill="url(#htint)"/>';
-      out += '<path d="M' + (cx - 55) + ' ' + (base - 120) + ' v118 h110 v-118" fill="none" class="s-inkline" stroke-width="2"/>';
-      var lh = Math.min(112, size * 0.9);
-      out += '<rect x="' + (cx - 53) + '" y="' + (base - 2 - lh) + '" width="106" height="' + lh + '" class="s-water"/>';
-      out += '<rect x="' + (cx - 53) + '" y="' + (base - 2 - lh) + '" width="106" height="' + lh + '" class="s-hot" opacity="' + (glow * 0.45).toFixed(2) + '"/>';
-      out += '<rect x="' + (cx - 46) + '" y="' + (base - 112) + '" width="12" height="100" rx="5" fill="url(#hhl)"/>';
+      var lh = Math.min(112, size * 0.9), inner = '';
+      if (glow > .05) inner += '<rect x="' + (cx - 55) + '" y="' + (base - 4 - lh) + '" width="110" height="' + (lh + 6) + '" fill="#FF8A4A" opacity="' + (glow * 0.28).toFixed(2) + '"/>';
+      if (heat.on && !S.full && glow > .1) for (var bb = 0; bb < Math.round(10 * glow); bb++){ var ph = (tnow * (0.5 + (bb % 3) * .2) + bb * .37) % 1; inner += '<circle cx="' + (cx - 40 + (bb * 37 % 80)) + '" cy="' + (base - 6 - ph * (lh - 6)).toFixed(1) + '" r="' + (1.5 + bb % 3) + '" fill="none" stroke="#fff" stroke-opacity=".8"/>'; }
+      out += LabSVG.beaker(cx, base - 1, 110, 122, { level: lh, liq: S.s.n.indexOf('Ethanol') >= 0 ? '#E8F1F6' : '#A9D2EE', alpha: .8, inner: inner, shadow: false });
     } else {
-      out += '<rect x="' + (cx - size / 2) + '" y="' + (base - size) + '" width="' + size + '" height="' + size + '" rx="4" class="s-metal"/>';
-      out += '<rect x="' + (cx - size / 2) + '" y="' + (base - size) + '" width="' + size + '" height="' + size + '" rx="4" class="s-hot" opacity="' + (glow * 0.75).toFixed(2) + '"/>';
+      out += LabSVG.block(cx - size / 2, base - 1 - size, size, size, MCOL[S.s.n] || '#8D939A', 0);
+      out += LabSVG.shimmer(cx, base - size - 14, size, glow, tnow);
     }
     out += thermo(cx + 92, 40, 200, S.T, 0, 100);
     out += '<path d="M' + (cx - 72) + ' 108 L' + (cx - 20) + ' ' + (base - 40) + '" class="s-inkline" stroke-width="1.5" stroke-dasharray="4 4" fill="none" opacity=".5"/>';
     out += heatLens(cx - 100, 84, 38, S, k);
     out += '<text x="' + cx + '" y="22" text-anchor="middle" class="s-text" font-weight="700">' + (k ? 'B' : 'A') + ': ' + esc(S.s.n) + ', ' + S.m + ' g</text>';
-    out += '<text x="' + cx + '" y="' + (base + 54) + '" text-anchor="middle" class="s-mono">q = ' + sf(S.q) + ' J · T = ' + fx(S.T, 1) + ' °C</text>';
-    out += '<text x="' + cx + '" y="' + (base + 72) + '" text-anchor="middle" class="s-small">' + (S.full ? 'reached 100 °C, heating stopped' : 'c = ' + S.s.c + ' J/(g·°C)') + '</text>';
+    out += '<text x="' + cx + '" y="306" text-anchor="middle" class="s-mono">q = ' + sf(S.q) + ' J · T = ' + fx(S.T, 1) + ' °C</text>';
+    out += '<text x="' + cx + '" y="323" text-anchor="middle" class="s-small">' + (S.full ? 'reached 100 °C, heating stopped' : 'c = ' + S.s.c + ' J/(g·°C)') + '</text>';
   });
   out = '<defs><radialGradient id="hsh"><stop offset="0" stop-color="#000" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><linearGradient id="htint" x1="0" x2="1"><stop offset="0" stop-color="#BEDCEB" stop-opacity=".35"/><stop offset=".5" stop-color="#E1F0F8" stop-opacity=".1"/><stop offset="1" stop-color="#AACDE1" stop-opacity=".35"/></linearGradient><linearGradient id="hhl" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".45" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>' + out;
   $('svgHeat').innerHTML = out;
@@ -522,18 +513,21 @@ function calTemps(I, t){ var k = Math.exp(-t / TAU); return { m: I.Tf + (I.Tm - 
 function drawCal(){
   var I = calIn(), t = cal.t, inCup = cal.run || cal.done, T = inCup ? calTemps(I, t) : { m: I.Tm, w: I.Tw }, out = '';
   // cup
-  out += '<path d="M40 120 L58 300 H202 L220 120" fill="none" class="s-inkline" stroke-width="3"/>';
-  out += '<path d="M44 160 L55 296 H205 L216 160 Z" class="s-water"/>';
-  out += '<rect x="30" y="108" width="200" height="12" rx="3" class="s-metal"/>';
+  out += LabSVG.defs() + LabSVG.bench(640, 330, 302);
+  var calInner = '', stirA = (cal.run ? performance.now() / 300 : 0);
+  if (cal.run) for (var cb = 0; cb < 6; cb++){ var cp = (performance.now() / 1400 + cb * .17) % 1; calInner += '<circle cx="' + (80 + cb * 20) + '" cy="' + (290 - cp * 120).toFixed(1) + '" r="1.6" fill="#fff" opacity=".7"/>'; }
+  out += LabSVG.cup(130, 122, 300, 184, 148, { cutaway: true, level: 134, liq: '#A9D2EE', inner: calInner });
   out += '<text x="130" y="320" text-anchor="middle" class="s-small">insulated cup, ' + I.mw + ' g water</text>';
+  out += '<rect x="' + (64 + Math.sin(stirA) * 4).toFixed(1) + '" y="70" width="4" height="214" rx="2" fill="url(#lsv-steelV)"/><ellipse cx="' + (66 + Math.sin(stirA) * 4).toFixed(1) + '" cy="282" rx="14" ry="3" fill="#B8C1C7" stroke="#59636A"/>';
   // metal block
   var by = inCup ? Math.min(250, 40 + t * 600) : 40;
   var glow = Math.max(0, Math.min(1, (T.m - 25) / 120));
-  out += '<rect x="105" y="' + by + '" width="50" height="40" rx="4" class="s-metal"/>';
-  out += '<rect x="105" y="' + by + '" width="50" height="40" rx="4" class="s-hot" opacity="' + (glow * 0.8).toFixed(2) + '"/>';
+  if (!inCup) out += '<path d="M130 0 V' + (by - 10) + '" stroke="#555" stroke-width="1.2"/>';
+  out += LabSVG.block(105, by, 50, 40, MCOL[I.M.n] || '#9AA0A6', glow * .8);
+  if (!inCup) out += LabSVG.shimmer(135, by - 16, 50, glow, performance.now() / 1000);
   out += '<text x="130" y="' + (by - 6) + '" text-anchor="middle" class="s-small">' + esc(I.M.n) + ', ' + I.mm + ' g</text>';
   // thermometer in water
-  out += thermo(244, 60, 230, T.w, 0, 100);
+  out += LabSVG.thermometer(204, 46, 246, T.w, 0, 100, 20, true);
   out += '<text x="' + 330 + '" y="312" class="s-mono">water ' + fx(T.w, 1) + ' °C · metal ' + fx(T.m, 1) + ' °C</text>';
   // graph
   var gx = 330, gy = 40, gw = 290, gh = 230, Tmax = Math.max(I.Tm, 60), X = function(s){ return gx + s / TEND * gw; }, Y = function(v){ return gy + gh - v / Tmax * gh; };
