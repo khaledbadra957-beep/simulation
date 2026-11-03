@@ -262,28 +262,37 @@ input[type="range"] { accent-color: var(--spring2); }
       ctx.globalAlpha = 1; ctx.setLineDash([]);
     }
 
+    // a coiled spring seen from the side: back half of each turn darker, front half lighter
+    function coil(xa, xb, yf, rad, wire, col) {
+      var L = px(xb) - px(xa), turns = Math.max(4, L / Math.max(7, rad * 1.1)), m = Math.ceil(turns * 18), k, u, xx, phi, pts = [];
+      for (k = 0; k <= m; k++) { u = k / m; xx = xa + (xb - xa) * u; phi = 2 * Math.PI * turns * u; pts.push([px(xx) + rad * 0.45 * Math.cos(phi), yf(xx) + rad * Math.sin(phi), Math.cos(phi)]); }
+      ctx.lineCap = "round";
+      [[-1, 0.55], [1, 1]].forEach(function (pass) {
+        ctx.strokeStyle = col; ctx.globalAlpha = pass[1]; ctx.lineWidth = wire;
+        ctx.beginPath(); var on = false;
+        for (k = 1; k < pts.length; k++) { var front = pts[k][2] * -1 >= 0; if ((pass[0] > 0) === front) { if (!on) { ctx.moveTo(pts[k - 1][0], pts[k - 1][1]); on = true; } ctx.lineTo(pts[k][0], pts[k][1]); } else on = false; }
+        ctx.stroke();
+        if (pass[0] > 0) { ctx.strokeStyle = "rgba(255,255,255,.55)"; ctx.lineWidth = Math.max(.8, wire * .35); ctx.beginPath(); on = false;
+          for (k = 1; k < pts.length; k++) { var fr = pts[k][2] * -1 >= 0.35; if (fr) { if (!on) { ctx.moveTo(pts[k - 1][0], pts[k - 1][1] - wire * .2); on = true; } ctx.lineTo(pts[k][0], pts[k][1] - wire * .2); } else on = false; } ctx.stroke(); }
+      });
+      ctx.globalAlpha = 1;
+    }
+    var y1f = function (xx) { return base - A * (G(t - xx / V1) + d.R * G(t + xx / V1)); };
+    var y2f = function (xx) { return base - A * d.T * G(t - xx / d.v2); };
     // spring 2 (or the wall)
     if (st.wall) {
-      var wx = px(0), ww = Math.max(12, W * 0.016);
-      ctx.fillStyle = colors.muted;
-      ctx.fillRect(wx, base - H * 0.36, ww, H * 0.64);
-    } else {
-      ctx.strokeStyle = colors.spring2; ctx.lineWidth = w2; ctx.beginPath();
-      for (i = 0; i <= n; i++) { x = X1 * i / n; y = base - A * d.T * G(t - x / d.v2); i ? ctx.lineTo(px(x), y) : ctx.moveTo(px(x), y); }
-      ctx.stroke();
-    }
+      var wx = px(0), ww = Math.max(14, W * 0.018), wg = ctx.createLinearGradient(wx, 0, wx + ww * 2.2, 0);
+      wg.addColorStop(0, "#59636A"); wg.addColorStop(.3, "#C9CED2"); wg.addColorStop(1, "#4C555B");
+      ctx.fillStyle = wg; ctx.fillRect(wx, base - H * 0.36, ww * 2.2, H * 0.64);
+      ctx.strokeStyle = "rgba(0,0,0,.25)"; ctx.lineWidth = 1; for (var hk = 0; hk < 14; hk++) { var hy = base - H * 0.36 + hk * H * 0.046; ctx.beginPath(); ctx.moveTo(wx + 3, hy + 8); ctx.lineTo(wx + ww * 2.2 - 3, hy); ctx.stroke(); }
+    } else coil(0, X1, y2f, Math.max(4, w2 * 1.7), Math.max(1.2, w2 * .42), colors.spring2);
     // spring 1
-    ctx.strokeStyle = colors.spring1; ctx.lineWidth = w1; ctx.beginPath();
-    for (i = 0; i <= n; i++) {
-      x = X0 + (0 - X0) * i / n;
-      y = base - A * (G(t - x / V1) + d.R * G(t + x / V1));
-      i ? ctx.lineTo(px(x), y) : ctx.moveTo(px(x), y);
-    }
-    ctx.stroke();
+    coil(X0, 0, y1f, w1 * 1.7, Math.max(1.4, w1 * .42), colors.spring1);
     // the join
     if (!st.wall) {
       var yb = base - A * d.T * G(t);
-      ctx.fillStyle = colors.reflect; ctx.beginPath(); ctx.arc(px(0), yb, small ? 6 : 8, 0, Math.PI * 2); ctx.fill();
+      var jr = small ? 7 : 9, jg = ctx.createRadialGradient(px(0) - jr * .3, yb - jr * .3, 1, px(0), yb, jr); jg.addColorStop(0, "#FFF1B8"); jg.addColorStop(1, "#9A7A2C");
+      ctx.fillStyle = jg; ctx.beginPath(); ctx.arc(px(0), yb, jr, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = colors.reflect; ctx.lineWidth = 2; ctx.stroke();
     }
 
     // captions under the springs

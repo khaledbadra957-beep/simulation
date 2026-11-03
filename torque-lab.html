@@ -202,6 +202,21 @@ const $=s=>document.querySelector(s), NS='http://www.w3.org/2000/svg';
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const f1=(x,d=2)=>Number(x).toFixed(d);
 function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+const dkT=()=>{const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+function rdefs(s){const d=el('defs',{},s),dk=dkT(),i=s.id;
+ d.innerHTML=`<linearGradient id="${i}W" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E2B57C"/><stop offset=".5" stop-color="#C38E52"/><stop offset="1" stop-color="#8E5E2D"/></linearGradient>
+ <linearGradient id="${i}S" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#59636A"/><stop offset=".4" stop-color="#E8EDF0"/><stop offset=".6" stop-color="#B8C1C7"/><stop offset="1" stop-color="#4C555B"/></linearGradient>
+ <linearGradient id="${i}SV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#59636A"/><stop offset=".4" stop-color="#E8EDF0"/><stop offset=".6" stop-color="#B8C1C7"/><stop offset="1" stop-color="#4C555B"/></linearGradient>
+ <radialGradient id="${i}K" cx=".35" cy=".35" r=".7"><stop offset="0" stop-color="#F4F6F7"/><stop offset="1" stop-color="#4C555B"/></radialGradient>
+ <linearGradient id="${i}G" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+ <pattern id="${i}F" width="160" height="40" patternUnits="userSpaceOnUse"><rect width="160" height="40" fill="${dk?'#1C262D':'#EADFCB'}"/><rect y="20" width="160" height="20" fill="${dk?'#1F2A31':'#E4D7BF'}"/><path d="M0 .5H160M0 20.5H160M60 0V20M140 20V40" stroke="${dk?'#2B3942':'#D2C1A2'}" stroke-width="1"/></pattern>
+ <pattern id="${i}H" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="${dk?'#3A444A':'#C4C8CA'}"/><path d="M0 8L8 0" stroke="${dk?'#4D585F':'#A2A8AB'}" stroke-width="1.2"/></pattern>
+ <linearGradient id="${i}SKY" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${dk?'#0E2030':'#B9E0F6'}"/><stop offset="1" stop-color="${dk?'#1B3245':'#ECF7FC'}"/></linearGradient>
+ <linearGradient id="${i}GR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${dk?'#2E4A2A':'#93C873'}"/><stop offset="1" stop-color="${dk?'#1A2C17':'#5C9845'}"/></linearGradient>
+ <linearGradient id="${i}WALL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${dk?'#15262D':'#F6F9F8'}"/><stop offset="1" stop-color="${dk?'#0E1A1F':'#E1E9E8'}"/></linearGradient>
+ <linearGradient id="${i}BEN" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${dk?'#2A3C44':'#CBD3D1'}"/><stop offset=".15" stop-color="${dk?'#1C2A30':'#B9C4C2'}"/><stop offset="1" stop-color="${dk?'#0F181C':'#A3AEAC'}"/></linearGradient>`}
+function grain(g,x,y,w,h,n,seed){for(let k=0;k<n;k++){const yy=y+h*(k+.5)/n,a=1.2+((k*37+seed)%5)*.4;let d=`M${x+2} ${yy}`;for(let j=1;j<=8;j++)d+=` Q${x+w*(j-.5)/8} ${yy+(j%2?a:-a)} ${x+w*j/8-2} ${yy}`;el('path',{d,fill:'none',stroke:'#6E4A22','stroke-opacity':.28,'stroke-width':1},g)}}
+
 // theme
 const root=document.documentElement;
 function curDark(){const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
@@ -226,22 +241,22 @@ const HX=170,HY=330,LEN=340; // hinge position, door length in px for 1.0 m (doo
 const PXM=LEN/1.0;
 function arrowHead(g,x1,y1,x2,y2,col,w){const a=Math.atan2(y2-y1,x2-x1),h=14+w;el('path',{d:`M${x2},${y2} L${x2-h*Math.cos(a-0.4)},${y2-h*Math.sin(a-0.4)} L${x2-h*Math.cos(a+0.4)},${y2-h*Math.sin(a+0.4)}Z`,fill:col},g)}
 function drawDoor(){
- const s=$('#doorSvg');s.innerHTML='';const grid=css('--grid'),ink=css('--ink'),muted=css('--muted');
- for(let x=0;x<=800;x+=40)el('line',{x1:x,y1:0,x2:x,y2:500,stroke:grid,'stroke-width':1},s);
- for(let y=0;y<=500;y+=40)el('line',{x1:0,y1:y,x2:800,y2:y,stroke:grid,'stroke-width':1},s);
+ const s=$('#doorSvg');s.innerHTML='';const grid=css('--grid'),ink=css('--ink'),muted=css('--muted');rdefs(s);el('rect',{x:0,y:0,width:800,height:500,fill:'url(#doorSvgF)'},s);
+ for(let x=0;x<=800;x+=40)el('line',{x1:x,y1:0,x2:x,y2:500,stroke:ink,'stroke-opacity':.06,'stroke-width':1},s);
+ for(let y=0;y<=500;y+=40)el('line',{x1:0,y1:y,x2:800,y2:y,stroke:ink,'stroke-opacity':.06,'stroke-width':1},s);
  // wall
- el('rect',{x:20,y:HY+14,width:100,height:22,fill:css('--steel'),rx:3},s);el('rect',{x:HX+0.9*PXM+20,y:HY+14,width:800-(HX+0.9*PXM+20),height:22,fill:css('--steel'),rx:3},s);
+ el('rect',{x:0,y:HY+12,width:HX-14,height:26,fill:'url(#doorSvgH)',stroke:'rgba(0,0,0,.3)'},s);el('rect',{x:HX+0.9*PXM+20,y:HY+12,width:800-(HX+0.9*PXM+20),height:26,fill:'url(#doorSvgH)',stroke:'rgba(0,0,0,.3)'},s);el('rect',{x:HX-14,y:HY+12,width:0.9*PXM+34,height:26,fill:'url(#doorSvgH)',opacity:.35},s);
  el('text',{x:24,y:HY+56,fill:muted,'font-family':'Atkinson Hyperlegible','font-size':14},s).textContent='wall';
  // door swing arc
  el('path',{d:`M${HX+0.9*PXM},${HY} A${0.9*PXM},${0.9*PXM} 0 0 0 ${HX},${HY-0.9*PXM}`,fill:'none',stroke:grid,'stroke-width':2,'stroke-dasharray':'6 6'},s);
  const a=-D.ang*Math.PI/180; // door angle (opens upward = counter-clockwise on screen)
  const g=el('g',{transform:`rotate(${-D.ang} ${HX} ${HY})`},s);
- el('rect',{x:HX,y:HY-9,width:0.9*PXM,height:18,rx:4,fill:css('--wood'),stroke:css('--wood-dark'),'stroke-width':2},g);
- el('circle',{cx:HX+0.82*PXM,cy:HY-14,r:6,fill:css('--steel')},g);
+ el('rect',{x:HX+4,y:HY-5,width:0.9*PXM,height:18,rx:3,fill:'rgba(0,0,0,.18)'},g);el('rect',{x:HX,y:HY-9,width:0.9*PXM,height:18,rx:3,fill:'url(#doorSvgW)',stroke:css('--wood-dark'),'stroke-width':1.5},g);grain(g,HX,HY-9,0.9*PXM,18,4,3);el('rect',{x:HX,y:HY-9,width:0.9*PXM,height:18,rx:3,fill:'url(#doorSvgG)',opacity:.6},g);
+ el('rect',{x:HX+0.8*PXM-8,y:HY-12,width:16,height:24,rx:3,fill:'url(#doorSvgS)',stroke:'rgba(0,0,0,.35)'},g);el('rect',{x:HX+0.8*PXM-30,y:HY-22,width:40,height:7,rx:3.5,fill:'url(#doorSvgSV)',stroke:'rgba(0,0,0,.35)'},g);el('rect',{x:HX+0.8*PXM-30,y:HY+15,width:40,height:7,rx:3.5,fill:'url(#doorSvgSV)',stroke:'rgba(0,0,0,.35)'},g);
  // tick marks
  for(let i=1;i<=9;i++){el('line',{x1:HX+i*0.1*PXM,y1:HY+9,x2:HX+i*0.1*PXM,y2:HY+(i%5?14:20),stroke:css('--wood-dark'),'stroke-width':2},g)}
  // hinge
- el('circle',{cx:HX,cy:HY,r:11,fill:css('--surface'),stroke:ink,'stroke-width':3},s);el('circle',{cx:HX,cy:HY,r:3,fill:ink},s);
+ el('rect',{x:HX-4,y:HY-14,width:26,height:28,rx:2,fill:'url(#doorSvgS)',stroke:'rgba(0,0,0,.4)'},s);el('circle',{cx:HX,cy:HY,r:11,fill:'url(#doorSvgK)',stroke:'rgba(0,0,0,.5)','stroke-width':1.5},s);el('circle',{cx:HX,cy:HY,r:3,fill:ink},s);
  el('text',{x:HX-36,y:HY-22,fill:muted,'font-family':'Atkinson Hyperlegible','font-size':14,'font-weight':700},s).textContent='hinge (axis)';
  // force application point in world coords
  const px=HX+D.r*PXM*Math.cos(a),py=HY+D.r*PXM*Math.sin(a);
@@ -293,10 +308,11 @@ function drawSee(){
  const s=$('#seeSvg');s.innerHTML='';const ink=css('--ink'),muted=css('--muted');
  const g1=S.m1*9.8*S.d1,g2=S.m2*9.8*S.d2,net=g1-g2; // + = counter-clockwise (left down)
  const tilt=Math.max(-11,Math.min(11,net/40)); // degrees, left down = negative screen rotation
- el('rect',{x:0,y:CY+70,width:800,height:60,fill:css('--grid')},s);
- el('path',{d:`M${CX-34},${CY+70} L${CX},${CY+8} L${CX+34},${CY+70}Z`,fill:css('--steel')},s);
+ rdefs(s);el('rect',{x:0,y:0,width:800,height:CY+70,fill:'url(#seeSvgSKY)'},s);el('rect',{x:0,y:CY+70,width:800,height:80,fill:'url(#seeSvgGR)'},s);
+ for(let k=0;k<70;k++){const gx=(k*113)%800,gy=CY+72+((k*37)%40);el('path',{d:`M${gx} ${gy} l-2 -7 M${gx+3} ${gy} l1 -9 M${gx+6} ${gy} l3 -6`,stroke:dkT()?'#3E6A38':'#4F8A3A','stroke-width':1.3,'stroke-linecap':'round'},s)}
+ el('ellipse',{cx:CX,cy:CY+72,rx:60,ry:6,fill:'rgba(0,0,0,.25)'},s);el('path',{d:`M${CX-36},${CY+70} L${CX-6},${CY+6} L${CX+6},${CY+6} L${CX+36},${CY+70}Z`,fill:'url(#seeSvgS)',stroke:'rgba(0,0,0,.4)'},s);el('circle',{cx:CX,cy:CY,r:8,fill:'url(#seeSvgK)',stroke:'rgba(0,0,0,.5)'},s);
  const g=el('g',{transform:`rotate(${-tilt} ${CX} ${CY})`},s);
- el('rect',{x:CX-1.9*PX2,y:CY-6,width:3.8*PX2,height:14,rx:6,fill:css('--wood'),stroke:css('--wood-dark'),'stroke-width':2},g);
+ el('rect',{x:CX-1.9*PX2,y:CY-6,width:3.8*PX2,height:14,rx:6,fill:'url(#seeSvgW)',stroke:css('--wood-dark'),'stroke-width':1.5},g);grain(g,CX-1.9*PX2,CY-6,3.8*PX2,14,3,7);el('rect',{x:CX-1.9*PX2,y:CY-6,width:3.8*PX2,height:14,rx:6,fill:'url(#seeSvgG)',opacity:.6},g);
  for(let i=-18;i<=18;i++){if(i%2)continue;el('line',{x1:CX+i/10*PX2,y1:CY+8,x2:CX+i/10*PX2,y2:CY+(i%10?13:18),stroke:css('--wood-dark'),'stroke-width':1.5},g)}
  const kid=(x,m,col,side)=>{const kg=el('g',{transform:`translate(${x},${CY-6})`,style:'cursor:grab','data-side':side},g);
   const sc=0.75+m/160;el('circle',{cx:0,cy:-62*sc,r:13*sc,fill:col},kg);el('rect',{x:-12*sc,y:-48*sc,width:24*sc,height:42*sc,rx:8*sc,fill:col},kg);
@@ -333,16 +349,16 @@ const massOf=it=>it.myst?LV.myst[it.k]:it.m;
 function torques(){let L=0,R=0;for(const it of LV.items){const t=massOf(it)*9.8*Math.abs(it.d);if(it.d<0)L+=t;else R+=t}return [L,R]}
 function lvSvgPt(ev){const svg=$('#levSvg'),r=svg.getBoundingClientRect();return [(ev.clientX-r.left)/r.width*800,(ev.clientY-r.top)/r.height*430]}
 function brick(g,x,y,it,label){const m=massOf(it),w=24+Math.sqrt(m)*5,h=18+Math.sqrt(m)*3;const b=el('g',{transform:`translate(${x},${y})`,style:'cursor:grab','data-it':it.id||'','data-shelf':it.shelf||''},g);
- el('rect',{x:-w/2,y:-h,width:w,height:h,rx:3,fill:it.c,stroke:'#00000055','stroke-width':1.5},b);el('text',{x:0,y:-h/2+5,'text-anchor':'middle',fill:'#fff','font-family':'IBM Plex Mono','font-size':13,'font-weight':600},b).textContent=label;return {b,h}}
+ el('rect',{x:-w/2,y:-h,width:w,height:h,rx:3,fill:it.c,stroke:'#00000055','stroke-width':1.5},b);el('rect',{x:-w/2,y:-h,width:w,height:h,rx:3,fill:'url(#levSvgG)'},b);el('rect',{x:-w/2+3,y:-h+2,width:w-6,height:2,rx:1,fill:'#fff',opacity:.45},b);el('text',{x:0,y:-h/2+5,'text-anchor':'middle',fill:'#fff','font-family':'IBM Plex Mono','font-size':13,'font-weight':600},b).textContent=label;return {b,h}}
 function drawLev(){const s=$('#levSvg');s.innerHTML='';const ink=css('--ink'),muted=css('--muted');
- el('rect',{x:0,y:LY+90,width:800,height:110,fill:css('--grid')},s);
+ rdefs(s);el('rect',{x:0,y:0,width:800,height:LY+90,fill:'url(#levSvgWALL)'},s);el('rect',{x:0,y:LY+90,width:800,height:140,fill:'url(#levSvgBEN)'},s);el('rect',{x:0,y:LY+90,width:800,height:1.5,fill:'rgba(255,255,255,.7)'},s);
  // pivot
- el('path',{d:`M${LX-30},${LY+90} L${LX},${LY+8} L${LX+30},${LY+90}Z`,fill:css('--steel')},s);
+ el('ellipse',{cx:LX,cy:LY+91,rx:44,ry:5,fill:'rgba(0,0,0,.25)'},s);el('path',{d:`M${LX-32},${LY+90} L${LX-5},${LY+8} L${LX+5},${LY+8} L${LX+32},${LY+90}Z`,fill:'url(#levSvgS)',stroke:'rgba(0,0,0,.4)'},s);
  // supports
  if(LV.sup||Math.abs(LV.ang)<0.01){}
- if(LV.sup)for(const sx of [-1.75,1.75]){el('rect',{x:LX+sx*LP-12,y:LY+8,width:24,height:82,fill:css('--steel'),opacity:.85,rx:3},s)}
+ if(LV.sup)for(const sx of [-1.75,1.75]){el('rect',{x:LX+sx*LP-12,y:LY+8,width:24,height:82,fill:'url(#levSvgS)',stroke:'rgba(0,0,0,.35)',rx:3},s)}
  const g=el('g',{transform:`rotate(${LV.ang} ${LX} ${LY})`},s);
- el('rect',{x:LX-2.1*LP,y:LY-7,width:4.2*LP,height:14,rx:5,fill:css('--wood'),stroke:css('--wood-dark'),'stroke-width':2},g);
+ el('rect',{x:LX-2.1*LP,y:LY-7,width:4.2*LP,height:14,rx:5,fill:'url(#levSvgW)',stroke:css('--wood-dark'),'stroke-width':1.5},g);grain(g,LX-2.1*LP,LY-7,4.2*LP,14,3,11);el('rect',{x:LX-2.1*LP,y:LY-7,width:4.2*LP,height:14,rx:5,fill:'url(#levSvgG)',opacity:.6},g);
  for(let i=-8;i<=8;i++){if(!i)continue;const x=LX+i*0.25*LP;el('line',{x1:x,y1:LY-7,x2:x,y2:LY+(i%4?3:7),stroke:css('--wood-dark'),'stroke-width':2},g);
   if($('#lvRuler').checked&&i%2===0)el('text',{x,y:LY+24,'text-anchor':'middle',fill:muted,'font-family':'IBM Plex Mono','font-size':11},g).textContent=Math.abs(i*0.25)+''}
  if($('#lvRuler').checked)el('text',{x:LX+2.1*LP-4,y:LY+38,'text-anchor':'end',fill:muted,'font-family':'IBM Plex Mono','font-size':11},g).textContent='distance from pivot (m)';

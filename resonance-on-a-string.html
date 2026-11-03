@@ -268,6 +268,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="lab-viz.js"></script>
 <script>
 (function(){
 'use strict';
@@ -460,28 +461,31 @@ function drawStage(st, tg){
   }
 
   // clamp at the fixed end
-  c.strokeStyle = T.steel; c.lineWidth = 2;
-  c.beginPath(); c.moveTo(xL + 2, cy + 22); c.lineTo(xL + 2, yr); c.stroke();
-  c.fillStyle = T.steel;
-  roundRect(c, xL - 3, cy - 22, 10, 44, 3); c.fill();
+  LabViz.chrome(c, xL - 1, cy + 22, 6, yr - cy - 26);
+  LabViz.chrome(c, xL - 5, cy - 22, 14, 44); c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = 1; c.strokeRect(xL - 5, cy - 22, 14, 44);
+  c.fillStyle = '#C9A34A'; c.beginPath(); c.arc(xL + 2, cy - 14, 3.2, 0, 6.2832); c.fill(); c.beginPath(); c.arc(xL + 2, cy + 14, 3.2, 0, 6.2832); c.fill();
   c.fillStyle = T.muted; c.font = '11px ' + SANS; c.textBaseline = 'alphabetic';
   if (xL > w - 44){ c.textAlign = 'right'; c.fillText('fixed end', xL + 8, cy - 28); }
   else { c.textAlign = 'center'; c.fillText('fixed end', xL + 2, cy - 28); }
 
   // driver
   var bh = Apx + 22;
-  c.strokeStyle = T.steel; c.lineWidth = 1.5;
-  roundRect(c, x0 - 30, cy - bh, 28, 2 * bh, 5); c.stroke();
-  c.fillStyle = T.brass;
-  roundRect(c, x0 - 25, cy - y[0] * Apx - 13, 18, 26, 4); c.fill();
+  var hg = c.createLinearGradient(x0 - 46, 0, x0 - 8, 0); hg.addColorStop(0, '#22292D'); hg.addColorStop(.5, '#4E5A61'); hg.addColorStop(1, '#1E2427');
+  c.fillStyle = hg; roundRect(c, x0 - 46, cy - bh - 8, 38, 2 * bh + 16, 6); c.fill();
+  c.fillStyle = '#11161A'; for (var gk = -3; gk <= 3; gk++){ c.beginPath(); c.arc(x0 - 34, cy + gk * (bh / 3.6), 2, 0, 6.2832); c.fill(); }
+  c.fillStyle = '#0B0F12'; roundRect(c, x0 - 17, cy - bh, 5, 2 * bh, 2); c.fill();
+  var py0 = cy - y[0] * Apx;
+  LabViz.chrome(c, x0 - 20, py0 - 3, 20, 6); c.fillStyle = '#C9A34A'; c.beginPath(); c.arc(x0, py0, 4.5, 0, 6.2832); c.fill();
+  c.fillStyle = S.f > 0 ? '#47E07A' : '#3C4A44'; c.beginPath(); c.arc(x0 - 38, cy - bh - 1, 2.4, 0, 6.2832); c.fill();
   c.fillStyle = T.muted; c.textAlign = 'center';
-  c.fillText('driver', x0 - 16, cy + bh + 14);
+  c.fillText('driver', x0 - 27, cy + bh + 24);
 
   // the string
-  c.lineJoin = 'round'; c.lineCap = 'round'; c.lineWidth = 3.2;
-  c.beginPath();
-  for (i = 0; i <= N; i++){ var sx = x0 + i / N * span, sy = cy - y[i] * Apx; if (i) c.lineTo(sx, sy); else c.moveTo(sx, sy); }
-  c.strokeStyle = T.accent; c.stroke();
+  c.lineJoin = 'round'; c.lineCap = 'round';
+  var strPath = function(dy){ c.beginPath(); for (var k = 0; k <= N; k++){ var sx = x0 + k / N * span, sy = cy - y[k] * Apx + dy; if (k) c.lineTo(sx, sy); else c.moveTo(sx, sy); } };
+  strPath(0); c.lineWidth = 5; c.strokeStyle = 'rgba(0,0,0,.22)'; c.stroke();
+  strPath(0); c.lineWidth = 3.2; c.strokeStyle = T.accent; c.stroke();
+  strPath(-1); c.lineWidth = 1; c.strokeStyle = 'rgba(255,255,255,.5)'; c.stroke(); strPath(0); c.lineWidth = 3.2;
   c.globalAlpha = glow; c.strokeStyle = T.res; c.stroke(); c.globalAlpha = 1;
 
   // nodes and antinodes
