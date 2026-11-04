@@ -1305,7 +1305,7 @@ function labNew(){
 }
 var LET = 'ABCDEF';
 function labRender(){
-  $('lBottles').innerHTML = lab.set.map(function(c, i){ return '<button class="bottle" data-b="' + i + '" aria-pressed="' + (i === lab.sel) + '"><svg viewBox="0 0 34 46" aria-hidden="true"><rect x="12" y="2" width="10" height="8" rx="2" fill="var(--muted)"/><path d="M8 12 h18 v28 a4 4 0 0 1 -4 4 h-10 a4 4 0 0 1 -4 -4z" fill="var(--glass)" stroke="var(--glass-line)" stroke-width="1.5"/><rect x="10" y="24" width="14" height="10" rx="1.5" fill="var(--surface)" stroke="var(--line)"/></svg><b>' + LET[i] + '</b><small>Unknown</small></button>'; }).join('');
+  $('lBottles').innerHTML = lab.set.map(function(c, i){ return '<button class="bottle" data-b="' + i + '" aria-pressed="' + (i === lab.sel) + '"><svg viewBox="0 0 34 46" aria-hidden="true"><rect x="12" y="2" width="10" height="8" rx="2" fill="#2B3136"/><rect x="13" y="3" width="2" height="6" fill="#fff" opacity=".25"/><path d="M8 12 h18 v28 a4 4 0 0 1 -4 4 h-10 a4 4 0 0 1 -4 -4z" fill="var(--glass)" stroke="var(--glass-line)" stroke-width="1.5"/><path d="M8.8 27 h16.4 v13 a3.3 3.3 0 0 1 -3.3 3.3 h-9.8 a3.3 3.3 0 0 1 -3.3 -3.3z" fill="#B9D9EC" opacity=".75"/><rect x="10" y="20" width="14" height="10" rx="1.5" fill="#FFFBEE" stroke="#CFC6A8"/><rect x="10.5" y="14" width="2.5" height="27" rx="1.2" fill="#fff" opacity=".6"/></svg><b>' + LET[i] + '</b><small>Unknown</small></button>'; }).join('');
   var head = '<tr><th>Bottle</th>' + TESTS.map(function(t){ return '<th>' + t.short + '</th>'; }).join('') + '<th>Your identification</th></tr>';
   var rows = lab.set.map(function(c, i){
     return '<tr><td>' + LET[i] + '</td>' + TESTS.map(function(t){ var r = lab.res[i + ':' + t.id]; return '<td class="' + (r ? (r.pos ? 'pos' : 'neg') : '') + '">' + (r ? esc(r.s) : '') + '</td>'; }).join('') +
@@ -1349,22 +1349,26 @@ $('lCheck').addEventListener('click', function(){
 function drawTube(t, r){
   var svg = $('lTube'), v = r ? r.v : { liq: CLEAR }, start = t ? t.start : CLEAR, o = '';
   o += '<defs><clipPath id="tubeClip"><path d="M38 24 V176 a22 22 0 0 0 44 0 V24 Z"/></clipPath>' +
+    '<linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#9FC4D8" stop-opacity=".55"/><stop offset=".2" stop-color="#E6F3F9" stop-opacity=".12"/><stop offset=".8" stop-color="#E6F3F9" stop-opacity=".12"/><stop offset="1" stop-color="#9FC4D8" stop-opacity=".6"/></linearGradient>' +
+    '<linearGradient id="tl" x1="0" x2="1"><stop offset="0" stop-color="#001018" stop-opacity=".28"/><stop offset=".3" stop-color="#001018" stop-opacity="0"/><stop offset=".75" stop-color="#001018" stop-opacity="0"/><stop offset="1" stop-color="#001018" stop-opacity=".3"/></linearGradient>' +
+    '<linearGradient id="th" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
     '<linearGradient id="silver" x1="0" x2="1"><stop offset="0" stop-color="#8E979F"/><stop offset=".5" stop-color="#E7EBEE"/><stop offset="1" stop-color="#8E979F"/></linearGradient></defs>';
   if (v.smell) o += [0, 1, 2].map(function(k){ return '<path class="wisp" style="animation-delay:' + (k * .6) + 's" d="M' + (48 + k * 12) + ' 16 q-6 -8 0 -16 q6 -8 0 -16" fill="none" stroke="' + (v.foul ? '#8A7B2E' : 'var(--muted)') + '" stroke-width="2" stroke-linecap="round"/>'; }).join('');
-  o += '<path d="M38 24 V176 a22 22 0 0 0 44 0 V24" fill="var(--glass)" stroke="var(--glass-line)" stroke-width="2.5"/>';
+  o += '<ellipse cx="60" cy="226" rx="30" ry="3" fill="#000" opacity=".15"/><path d="M38 24 V176 a22 22 0 0 0 44 0 V24" fill="url(#tg)" stroke="var(--glass-line)" stroke-width="2.2"/>';
   o += '<g clip-path="url(#tubeClip)"><rect class="liq" id="liq" x="30" y="104" width="60" height="100" fill="' + start + '" opacity=".9"/>';
   if (v.oil) o += '<rect x="30" y="104" width="60" height="12" fill="#E8C547" opacity=".95"/>';
   if (v.ppt) o += '<rect x="30" y="178" width="60" height="30" fill="' + v.ppt + '"><animate attributeName="opacity" from="0" to="1" dur="1.4s" fill="freeze"/></rect>';
   if (v.mirror) o += '<rect x="38" y="90" width="44" height="120" fill="url(#silver)" opacity=".85"><animate attributeName="opacity" from="0" to=".85" dur="1.6s" fill="freeze"/></rect>';
   if (v.bubbles) o += [0, 1, 2, 3, 4, 5].map(function(k){ return '<circle class="bub" style="animation-delay:' + (k * .23) + 's" cx="' + (46 + (k * 7) % 28) + '" cy="' + (190 - (k % 3) * 6) + '" r="' + (2 + k % 2) + '" fill="none" stroke="var(--ink)" stroke-width="1.2"/>'; }).join('');
-  o += '</g>';
+  o += '<rect x="30" y="104" width="60" height="100" fill="url(#tl)"/><path d="M38 102 Q60 108 82 102" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.3"/></g>';
+  o += '<rect x="43" y="34" width="6" height="150" rx="3" fill="url(#th)"/><rect x="74" y="44" width="2.5" height="110" rx="1.2" fill="#fff" opacity=".4"/><rect x="34" y="20" width="52" height="6" rx="3" fill="url(#tg)" stroke="var(--glass-line)" stroke-width="1.5"/>';
   if (v.litmus){
     var redTo = v.litmus === 'base' ? '#2F5FD0' : '#D2453B', blueTo = v.litmus === 'acid' ? '#D2453B' : '#2F5FD0';
     o += '<rect x="46" y="60" width="9" height="70" rx="2" fill="#D2453B"><animate attributeName="fill" to="' + redTo + '" begin=".3s" dur="1.2s" fill="freeze"/></rect>' +
          '<rect x="65" y="60" width="9" height="70" rx="2" fill="#2F5FD0"><animate attributeName="fill" to="' + blueTo + '" begin=".3s" dur="1.2s" fill="freeze"/></rect>';
   }
   if (t && t.id === 'naoh') o += '<rect x="54" y="4" width="12" height="26" rx="2" fill="#D2453B">' + (v.gas ? '<animate attributeName="fill" to="#2F5FD0" begin=".8s" dur="1.4s" fill="freeze"/>' : '') + '</rect>';
-  if (t && t.heat) o += '<path d="M60 228 c-10 -8 -6 -18 0 -24 c6 6 10 16 0 24z" fill="#F08A1C" opacity=".9"/>';
+  if (t && t.heat) o += '<ellipse cx="60" cy="214" rx="14" ry="14" fill="#FFB25A" opacity=".18"/><path d="M60 230 c-9 -6 -8 -18 0 -30 c8 12 9 24 0 30z" fill="#4F86FF" opacity=".75"/><path d="M60 230 c-4 -3 -4 -9 0 -15 c4 6 4 12 0 15z" fill="#A9E4FF"/>';
   svg.innerHTML = o;
   if (r){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ var l = document.getElementById('liq'); if (l) l.setAttribute('fill', v.liq); }); }); }
 }
