@@ -81,14 +81,14 @@ button{font:inherit;cursor:pointer}
 .exp[data-state=add] .bits{opacity:.55}
 .exp[data-state=stir] .bits,.exp[data-state=mix] .bits,.exp[data-state=wait] .bits,.exp[data-state=result] .bits{opacity:1}
 .exp[data-state=add] .tool{animation:wig .5s ease-in-out infinite alternate}
-.exp[data-state=stir] .rod,.exp[data-state=mix] .rod,.exp[data-state=wait] .rod,.exp[data-state=result] .rod{animation:stir .55s ease-in-out infinite alternate}
+.exp[data-state=stir] .rod,.exp[data-state=mix] .rod,.exp[data-state=wait] .rod,.exp[data-state=result] .rod{animation:stir .8s linear infinite}
 .exp[data-state=stir] .bits>*{animation:drift 1.1s ease-in-out infinite alternate}
 .exp .fall .p{animation:fall 1s linear infinite}
 .exp .fall .stream{animation:dash .35s linear infinite}
 .exp .rot{animation:pulse .9s ease-in-out infinite alternate}
 .exp .hand{animation:spin 2.4s linear infinite;transform-origin:200px 108px}
 @keyframes wig{from{transform:translateY(0)}to{transform:translateY(3px)}}
-@keyframes stir{from{transform:translateX(-9px) rotate(-2deg)}to{transform:translateX(9px) rotate(2deg)}}
+@keyframes stir{0%,100%{transform:translate(-9px,0)}25%{transform:translate(0,-3px)}50%{transform:translate(9px,0)}75%{transform:translate(0,3px)}}
 @keyframes drift{from{transform:translate(-5px,2px)}to{transform:translate(5px,-3px)}}
 @keyframes fall{from{transform:translateY(0);opacity:1}85%{opacity:1}to{transform:translateY(var(--d,70px));opacity:0}}
 @keyframes dash{to{stroke-dashoffset:-9}}
@@ -290,6 +290,11 @@ function twigs(cx,n,seed,y0,y1,w){const r=rng(seed);let s='';
 function speck(cx,n,seed,y0,y1,w,col){const r=rng(seed);let s='';
   for(let i=0;i<n;i++)s+=`<circle cx="${(cx-w+r()*2*w).toFixed(1)}" cy="${(y0+r()*(y1-y0)).toFixed(1)}" r="${(.8+r()*1.2).toFixed(1)}" fill="${col}"/>`;return s;}
 
+const SKIN='fill="#f2c7a3" stroke="#bd8559" stroke-width="1.3"';
+/* a human fist gripping something at (x,y); the lab-coat forearm leaves in direction a (degrees) */
+function fist(x,y,a){return `<g transform="translate(${x} ${y}) rotate(${a})"><rect x="16" y="-11" width="120" height="22" rx="4" fill="#e4edf7" stroke="#8fa3b8" stroke-width="1.3"/>
+  <rect x="13" y="-12.5" width="9" height="25" rx="3" fill="#cbd9ea" stroke="#8fa3b8"/><rect x="-11" y="-10" width="27" height="20" rx="8" ${SKIN}/>
+  <path d="M-4 -9 v9 M2 -9.5 v9 M8 -9 v9" stroke="#bd8559" stroke-width="1.1" stroke-linecap="round"/><ellipse cx="-2" cy="6" rx="8" ry="4" ${SKIN}/></g>`;}
 function expSVG(k){
   const e=EXPS[k], L=95, R=305, beaker=e.cont==='beaker', top=beaker?118:156;
   const surf=cx=>beaker?`<ellipse cx="${cx}" cy="${top}" rx="42" ry="3.5" fill="#fff" opacity=".4"/>`:'';
@@ -307,24 +312,24 @@ function expSVG(k){
   if(e.tool==='spatula'){
     tool=`<path d="M${L-88} 26 L${L-58} 41" stroke="#7a4a22" stroke-width="7" stroke-linecap="round"/><path d="M${L-58} 41 L${L-28} 56" stroke="#9aa3ad" stroke-width="4" stroke-linecap="round"/>
       <ellipse cx="${L-19}" cy="60" rx="13" ry="5.5" transform="rotate(26 ${L-19} 60)" fill="#c9d0d8" stroke="#7f8893"/>
-      <g fill="${e.addCol}"><circle cx="${L-23}" cy="56" r="2.6"/><circle cx="${L-18}" cy="58" r="2.8"/><circle cx="${L-13}" cy="61" r="2.4"/><circle cx="${L-20}" cy="60" r="2"/></g>`;
+      <g fill="${e.addCol}"><circle cx="${L-23}" cy="56" r="2.6"/><circle cx="${L-18}" cy="58" r="2.8"/><circle cx="${L-13}" cy="61" r="2.4"/><circle cx="${L-20}" cy="60" r="2"/></g>`+fist(L-76,32,-153);
     for(let i=0;i<7;i++)fall+=`<circle class="p" cx="${fx+6+(i%3)*4-4}" cy="${fy+(i%2)*3}" r="${2+(i%2)*.6}" fill="${e.addCol}" style="--d:${62+i*4}px;animation-delay:${(i*.15).toFixed(2)}s"/>`;
   }else if(e.tool==='hand'){
-    tool=`<g transform="translate(${L-66} 24)"><rect x="-22" y="-6" width="26" height="22" rx="5" fill="#3d6fb5" stroke="#274b80"/>
+    tool=`<g transform="translate(${L-66} 24)"><rect x="-70" y="-7" width="68" height="24" rx="4" fill="#e4edf7" stroke="#8fa3b8" stroke-width="1.3"/><rect x="-8" y="-8.5" width="9" height="27" rx="3" fill="#cbd9ea" stroke="#8fa3b8"/>
       <path d="M0 6 q0 -9 10 -9 h26 q12 0 14 12 l4 14 q2 8 -5 9 q-5 0 -7 -6 l-2 -6 -2 10 q-1 7 -7 6 q-5 -1 -5 -7 v-8 l-3 9 q-2 6 -8 4 q-5 -2 -4 -8 l2 -9 h-5 q-8 0 -8 -8z" fill="#f2c7a3" stroke="#bd8559" stroke-width="1.4" stroke-linejoin="round"/></g>`;
     for(let i=0;i<6;i++){const x=L-36+i*6,d=`--d:${88+(i%3)*5}px;animation-delay:${(i*.17).toFixed(2)}s`;
       fall+= k===2?`<ellipse class="p" cx="${x}" cy="${fy+(i%2)*4}" rx="4.4" ry="3.2" fill="${e.addCol}" stroke="#7c5222" stroke-width=".8" style="${d}"/>`
                   :`<path class="p" d="M${x-6} ${fy+(i%2)*4-3} l12 5 m-6 -2 l3 -4" stroke="${e.addCol}" stroke-width="2.2" stroke-linecap="round" fill="none" style="${d}"/>`;}
   }else{
     const ink=e.tool==='ink', mx=L-14,my=64;
-    tool=`<g transform="translate(${mx} ${my}) rotate(-62)">`+(ink
+    tool=`<g transform="translate(${mx} ${my}) rotate(-62)"><rect x="-12" y="-170" width="24" height="112" rx="4" fill="#e4edf7" stroke="#8fa3b8" stroke-width="1.3"/><rect x="-13.5" y="-66" width="27" height="9" rx="3" fill="#cbd9ea" stroke="#8fa3b8"/><rect x="-20" y="-60" width="40" height="34" rx="9" ${SKIN}/>`+(ink
       ?`<rect x="-5" y="-11" width="10" height="11" fill="#30343c" stroke="#111"/><rect x="-15" y="-48" width="30" height="38" rx="4" fill="#191b21" stroke="#000"/><rect x="-12" y="-40" width="24" height="18" rx="2" fill="#f4f1e6"/><path d="M-7 -31 h14 M-7 -27 h9" stroke="#333" stroke-width="1.4"/>`
-      :`<rect x="-4" y="-10" width="8" height="10" fill="#f3d5dd" stroke="#b0768a"/><path d="M-13 -12 h26 v26 q0 6 -6 6 h-14 q-6 0 -6 -6z" transform="translate(0 -32)" fill="${e.addCol}" stroke="#9a1440" stroke-width="1.4"/><path d="M-9 -40 v18" stroke="#fff" stroke-width="2.5" opacity=".55" stroke-linecap="round"/>`)+`</g>`;
+      :`<rect x="-4" y="-10" width="8" height="10" fill="#f3d5dd" stroke="#b0768a"/><path d="M-13 -12 h26 v26 q0 6 -6 6 h-14 q-6 0 -6 -6z" transform="translate(0 -32)" fill="${e.addCol}" stroke="#9a1440" stroke-width="1.4"/><path d="M-9 -40 v18" stroke="#fff" stroke-width="2.5" opacity=".55" stroke-linecap="round"/>`)+`<g ${SKIN}><rect x="-19" y="-47" width="27" height="6.5" rx="3.2"/><rect x="-19" y="-40" width="29" height="6.5" rx="3.2"/><rect x="-19" y="-33" width="27" height="6.5" rx="3.2"/><ellipse cx="14" cy="-44" rx="5" ry="8"/></g></g>`;
     fall=`<path class="stream" d="M${mx+1} ${my} q5 6 4 18 V${top+4}" stroke="${e.addCol}" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-dasharray="6 3"/>`;
     for(let i=0;i<3;i++)fall+=`<circle class="p" cx="${mx+5}" cy="${top}" r="3" fill="${e.addCol}" style="--d:${26+i*10}px;animation-delay:${(i*.3).toFixed(2)}s"/>`;
   }
   const rx1=beaker?L+30:L+52, ry1=beaker?34:62, rx2=beaker?L+8:L+16, ry2=beaker?184:182;
-  const rod=`<g class="rod" style="transform-origin:${rx1}px ${ry1}px"><line x1="${rx1}" y1="${ry1}" x2="${rx2}" y2="${ry2}" stroke="#8fb6c9" stroke-width="5" stroke-linecap="round"/><line x1="${rx1}" y1="${ry1}" x2="${rx2}" y2="${ry2}" stroke="#eefaff" stroke-width="1.8" stroke-linecap="round"/></g>`;
+  const rod=`<g class="rod" style="transform-origin:${rx1}px ${ry1}px"><line x1="${rx1}" y1="${ry1}" x2="${rx2}" y2="${ry2}" stroke="#8fb6c9" stroke-width="5" stroke-linecap="round"/><line x1="${rx1}" y1="${ry1}" x2="${rx2}" y2="${ry2}" stroke="#eefaff" stroke-width="1.8" stroke-linecap="round"/>${fist(rx1-(rx1-rx2)*.1,ry1+(ry2-ry1)*.1,-42)}</g>`;
   const ax=rx1-4, ay=ry1+22;
   const rot=`<g class="rot" fill="none" stroke="#e23d3d" stroke-width="2.4" stroke-linecap="round"><path d="M${ax-17} ${ay+2} a17 6.5 0 1 0 14 -8"/><path d="M${ax-9} ${ay-11} l7 5 -8 4" stroke-linejoin="round"/></g>`;
   /* ---- AFTER (right) ---- */
@@ -340,10 +345,11 @@ function expSVG(k){
       <circle cx="200" cy="108" r="13" fill="#fff" stroke="#1f4f85" stroke-width="2.2"/><path d="M200 97 v2 M200 117 v2 M189 108 h2 M209 108 h2" stroke="#1f4f85" stroke-width="1.4"/>
       <line class="hand" x1="200" y1="108" x2="200" y2="99" stroke="#e23d3d" stroke-width="2" stroke-linecap="round"/><circle cx="200" cy="108" r="1.8" fill="#1f4f85"/>`:'')+`</g>`;
   const lbl=(x,y,t,c)=>`<rect x="${x-24}" y="${y-10}" width="48" height="13" rx="6.5" fill="${c}"/><text x="${x}" y="${y}" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">${t}</text>`;
-  return `<svg viewBox="0 0 400 232" role="img" aria-label="Experiment ${k}: ${e.add} + ${e.base}">
-    <text x="6" y="15" font-size="12.5" font-weight="700" fill="#33475b">${e.add}</text>
+  return `<svg viewBox="0 -24 400 256" role="img" aria-label="Experiment ${k}: ${e.add} + ${e.base}">
+    
     ${container(e.cont,L,inL)}
     <g class="fall">${fall}</g><g class="tool">${tool}</g>${rod}${rot}
+    <text x="${e.tool==='hand'?150:120}" y="-9" text-anchor="middle" font-size="12.5" font-weight="700" fill="#33475b" stroke="#fff" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">${e.add}</text>
     <text x="${L}" y="210" text-anchor="middle" font-size="12.5" font-weight="700" fill="#33475b">${e.base}</text>
     ${lbl(L,227,'BEFORE','#7b8da0')}
     ${arrow}
@@ -430,8 +436,8 @@ const SCENES=[
 {tab:'Page 19 lab',title:'Full view of page 19 & interactive lab',steps:[
  {sub:'Page 19 — the six experiments, side by side.',
   narration:'Here is the full view of page nineteen, with all six experiments, each one before and after.'},
- {sub:'👆 <b>Click any experiment ① to ⑥</b> to replay it in close-up.',
-  narration:'Your turn! Click any experiment, from one to six, to replay its animation in close-up.'}
+ {sub:'👆 <b>Click any experiment ① to ⑥</b> and do it yourself: add, stir, wait.',
+  narration:'Your turn! Click any experiment, from one to six, and do it yourself, one gesture at a time: add, stir, then wait.'}
 ]},
 {tab:'Worksheet 2.4',title:'Working on worksheet 2.4 · Summary table',steps:[
  {sub:'Worksheet 2.4 — complete the table for experiments ① to ⑥.',
@@ -503,10 +509,10 @@ board.innerHTML=[
   </div></div>`,
 /* 5 */stitle(5,SCENES[4].title)+`<div class="row">${expCard(5,'style="flex:1"')}${expCard(6,'style="flex:1"')}</div>
   <div class="misc" data-show="4">${spk(T.miscSay)}<span>${T.miscHTML}</span></div>`,
-/* 6 */stitle(6,SCENES[5].title,'<span class="hint" data-show="1">👆 Click an experiment to replay it in close-up</span>')+
+/* 6 */stitle(6,SCENES[5].title,'<span class="hint" data-show="1">👆 Click an experiment to do it yourself</span>')+
   `<div class="grid6">${[1,2,3,4,5,6].map(k=>expCard(k,'data-default="result" tabindex="0" role="button"')).join('')}</div>
   <div id="closeup"><div class="box"><div id="cuHost" style="flex:1;display:flex;min-height:0"></div>
-    <div class="bar"><span class="phase" id="cuPhase"></span><button class="btn" id="cuReplay">↻ Replay</button><button class="btn alt" id="cuClose">✕ Close</button></div></div></div>`,
+    <div class="bar"><span class="phase" id="cuPhase"></span><button class="btn green" id="cuDo"></button><button class="btn" id="cuReplay">▶ Watch the demo</button><button class="btn alt" id="cuClose">✕ Close</button></div></div></div>`,
 /* 7 */stitle(7,SCENES[6].title)+`<div class="tools"><button class="btn" id="bFiche">Switch to Answer mode (all answers shown)</button>
     <button class="btn green" id="bCheck" data-show="1">✔ Check my answers</button><button class="btn alt" id="bReset">↺ Reset</button><span id="score"></span>
     <span style="margin-left:auto;font-weight:700;color:#55708c" id="ficheMode">Exercise mode (to be completed by the student)</span></div>
@@ -630,21 +636,42 @@ document.addEventListener('keydown',e=>{
    SCENE 6 — close-up replay
    ===================================================================== */
 const CU=[['idle','Ready…',0],['add','1 · Adding',500],['stir','2 · Stirring with the glass rod',3200],['wait','3 · Waiting',6200],['result','4 · Final result — before / after',8200]];
-let cuK=0;
+let cuK=0,cuStage=0;
 function closeCloseup(){cuTimers.forEach(clearTimeout);cuTimers=[];const c=$('#closeup');if(c){c.classList.remove('open');$('#cuHost').innerHTML=''}}
+function cuSet(s,label){const x=$('#cuHost .exp');if(x)x.dataset.state=s;$('#cuPhase').textContent=label}
+/* hands-on: the student performs each gesture */
+function cuButton(){
+  const e=EXPS[cuK],b=$('#cuDo');
+  const acts=[`✋ 1 · Add the ${e.add.toLowerCase()}`,'🥢 2 · Stir with the glass rod',e.wait?'⏱ 3 · Wait 5 min':'👀 3 · Observe the result','↺ Start again'];
+  b.textContent=acts[cuStage]; b.disabled=false;
+}
 function openCloseup(k){
-  closeCloseup(); cuK=k;
+  closeCloseup(); cuK=k; cuStage=0;
   $('#cuHost').innerHTML=expCard(k,'style="flex:1"');
   $('#closeup').classList.add('open');
-  const x=$('#cuHost .exp');
+  cuSet('idle','🧑‍🔬 Your turn! Do the experiment yourself, one gesture at a time.'); cuButton();
+}
+function cuDo(){
+  const e=EXPS[cuK];
+  cuTimers.forEach(clearTimeout);cuTimers=[];
+  if(cuStage===0){cuSet('add',`You are adding the ${e.add.toLowerCase()} to the ${e.base.toLowerCase()}…`);cuStage=1}
+  else if(cuStage===1){cuSet('stir','You are stirring with the glass rod…');cuStage=2}
+  else if(cuStage===2){cuSet('wait',e.wait?'Waiting… 5 min later':'Look closely…');cuStage=3;$('#cuDo').disabled=true;
+    cuTimers.push(setTimeout(()=>{cuSet('result','Final result — compare before and after. What do you see?');cuButton()},2200));return}
+  else{openCloseup(cuK);return}
+  cuButton();
+}
+function cuDemo(){
+  cuTimers.forEach(clearTimeout);cuTimers=[];cuStage=3;$('#cuDo').disabled=true;
   CU.forEach(([s,label,t])=>cuTimers.push(setTimeout(()=>{
-    x.dataset.state=s;
-    $('#cuPhase').textContent=(s==='wait'&&!EXPS[k].wait)?'3 · After mixing →':label;
+    cuSet(s,(s==='wait'&&!EXPS[cuK].wait)?'3 · After mixing →':label);
+    if(s==='result')cuButton();
   },t)));
 }
 $('.grid6').addEventListener('click',e=>{if(e.target.closest('.spk'))return;const x=e.target.closest('.exp');if(x){pause();openCloseup(+x.dataset.exp)}});
 $('#cuClose').onclick=closeCloseup;
-$('#cuReplay').onclick=()=>openCloseup(cuK);
+$('#cuReplay').onclick=cuDemo;
+$('#cuDo').onclick=cuDo;
 $('#closeup').addEventListener('click',e=>{if(e.target.id==='closeup')closeCloseup()});
 
 /* =====================================================================
