@@ -121,13 +121,17 @@
     k.mapX = function (x) { return k.W / 2 + ((1 - x) * k.W - k.W / 2) * REACH; }; k.mapY = function (y) { return k.H / 2 + (y * k.H - k.H / 2) * REACH; };
     function feedHand(h, lms, now) {
       if (h.ptr) { h.lms = lms || null; return; }      // a mouse or finger on the screen wins over the camera
-      if (!lms) { h.lms = null; if (h.pinch && now - h.seen > 450) setPinch(h, false); if (now - h.seen > 1200 && st.mode === 'cam') h.cur.has = false; return; }
+      var firm = !!(h.held && h.held.userData.firm);   // firm items (a flask being turned over) are not dropped by a short tracking hiccup
+      if (!lms) { h.lms = null; if (h.pinch && now - h.seen > (firm ? 1500 : 450)) setPinch(h, false); if (now - h.seen > 1200 && st.mode === 'cam') h.cur.has = false; return; }
       h.lms = lms; h.seen = now;
       var px = function (i) { return (1 - lms[i].x) * k.W; }, py = function (i) { return lms[i].y * k.H; };
       var tx = (k.mapX(lms[4].x) + k.mapX(lms[8].x)) / 2, ty = (k.mapY(lms[4].y) + k.mapY(lms[8].y)) / 2, a = h.cur.has ? .5 : 1;
       setCursor(h, h.cur.sx + (tx - h.cur.sx) * a, h.cur.sy + (ty - h.cur.sy) * a);
       var size = Math.hypot(px(0) - px(9), py(0) - py(9)) || 1; h.ratio = Math.hypot(px(4) - px(8), py(4) - py(8)) / size;
-      setPinch(h, h.pinch ? h.ratio < .55 : h.ratio < .33);
+      h.ang = Math.atan2(px(9) - px(0), py(0) - py(9));
+      var want = h.pinch ? h.ratio < (firm ? .6 : .55) : h.ratio < .33;
+      if (h.pinch && !want && firm) { if (!h.openT) h.openT = now; if (now - h.openT < 450) want = true; } else h.openT = 0;
+      setPinch(h, want);
     }
     k.feed = function (lms, now) { feedHand(hands[0], lms, now); };
     /* list: [{ lms, label }] from the tracker. With two hands, each keeps its own slot: the one on the left of the screen is hand 0. */
@@ -151,43 +155,130 @@
     stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up);
     k.release = function (h) { setPinch(h, false); };
 
-    /* ---------- 3-D hands: a gloved hand built from the 21 tracked points (or a posed one for mouse and touch) ---------- */
+    /* ---------- 3-D hands: a human hand (hand-model.js, modelled in Blender) that bends with the 21 tracked points.
+       It is drawn as your own hand seen from behind, reaching into the lab. Mouse and touch get a posed hand.
+       If hand-model.js is missing, a simple jointed hand is drawn instead. ---------- */
     var BONES = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20]];
     var OPEN = [[0, 0, 0], [-.34, .2, .1], [-.6, .46, .16], [-.76, .7, .18], [-.86, .93, .18], [-.28, .95, 0], [-.31, 1.35, .02], [-.32, 1.6, .05], [-.33, 1.82, .08], [-.02, 1.0, 0], [-.02, 1.45, .02], [-.02, 1.74, .05], [-.02, 1.98, .08], [.22, .95, 0], [.25, 1.36, .02], [.27, 1.61, .05], [.28, 1.81, .08], [.42, .82, 0], [.5, 1.12, .02], [.55, 1.33, .05], [.58, 1.5, .08]];
-    var PINCH = OPEN.map(function (p) { return p.slice(); }); [[1, -.3, .22, .2], [2, -.5, .52, .34], [3, -.56, .82, .4], [4, -.5, 1.05, .4], [6, -.37, 1.27, .22], [7, -.47, 1.3, .38], [8, -.5, 1.1, .42]].forEach(function (q) { PINCH[q[0]] = [q[1], q[2], q[3]]; });
+    var PINCH = OPEN.map(function (p) { return p.slice(); }); [[1, -.3, .22, .2], [2, -.5, .52, .34], [3, -.56, .82, .4], [4, -.5, 1.05, .4], [6, -.37, 1.27, .22], [7, -.47, 1.3, .38], [8, -.5, 1.1, .42], [10, -.03, 1.38, .2], [11, -.05, 1.5, .45], [12, -.07, 1.38, .62], [14, .24, 1.3, .2], [15, .25, 1.4, .43], [16, .25, 1.28, .58], [18, .48, 1.08, .17], [19, .5, 1.16, .36], [20, .5, 1.06, .48]].forEach(function (q) { PINCH[q[0]] = [q[1], q[2], q[3]]; });
     var glove = new T.MeshStandardMaterial({ color: 0x3E8FCB, roughness: .5, metalness: .05, envMapIntensity: .6 }), cuffMat = new T.MeshStandardMaterial({ color: 0xF4F6F7, roughness: .85 });
     var sph = new T.SphereGeometry(1, 14, 10), cyl = new T.CylinderGeometry(1, 1, 1, 12), ZH = 1.7, UP = new T.Vector3(0, 1, 0), tv = new T.Vector3(), tq = new T.Quaternion();
     k.gloveMat = glove; k.sleeves = false;
+
+    /* one frame per bone: side, along the bone, palm side, and where the bone starts. The palm side is carried along each finger so a curled finger does not twist. */
+    function frames(P, chi, s, F, unit, L0) {
+      var ax = P[17].x - P[0].x, ay = P[17].y - P[0].y, az = P[17].z - P[0].z, bx = P[5].x - P[0].x, by = P[5].y - P[0].y, bz = P[5].z - P[0].z;
+      var nx = (ay * bz - az * by) * chi, ny = (az * bx - ax * bz) * chi, nz = (ax * by - ay * bx) * chi, nl = Math.hypot(nx, ny, nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+      for (var f = 0; f < 5; f++) {
+        var zx = nx, zy = ny, zz = nz, px = 0, py = 1, pz = 0;
+        for (var j = 0; j < 4; j++) {
+          var bi = f * 4 + j, A = P[j ? f * 4 + j : 0], B = P[f * 4 + j + 1], dx = B.x - A.x, dy = B.y - A.y, dz = B.z - A.z, len = Math.hypot(dx, dy, dz) || 1e-5, yx = dx / len, yy = dy / len, yz = dz / len;
+          if (j) { var c = px * yx + py * yy + pz * yz; if (c > -.995) { var wx = py * yz - pz * yy, wy = pz * yx - px * yz, wz = px * yy - py * yx, wd = (wx * zx + wy * zy + wz * zz) / (1 + c), rx = zx * c + (wy * zz - wz * zy) + wx * wd, ry = zy * c + (wz * zx - wx * zz) + wy * wd, rz = zz * c + (wx * zy - wy * zx) + wz * wd; zx = rx; zy = ry; zz = rz; } }
+          var d = zx * yx + zy * yy + zz * yz; zx -= d * yx; zy -= d * yy; zz -= d * yz; var zl = Math.hypot(zx, zy, zz);
+          if (zl < 1e-4) { zx = -yz; zy = 0; zz = yx; zl = Math.hypot(zx, zy, zz) || 1; if (zl === 1 && !zx && !zz) zx = 1; } zx /= zl; zy /= zl; zz /= zl;
+          var xx = (yy * zz - yz * zy) * chi, xy = (yz * zx - yx * zz) * chi, xz = (yx * zy - yy * zx) * chi, o12 = bi * 12, ys = unit ? 1 : len / L0[bi];
+          F[o12] = xx * s; F[o12 + 1] = xy * s; F[o12 + 2] = xz * s; F[o12 + 3] = yx * ys; F[o12 + 4] = yy * ys; F[o12 + 5] = yz * ys; F[o12 + 6] = zx * s; F[o12 + 7] = zy * s; F[o12 + 8] = zz * s; F[o12 + 9] = A.x; F[o12 + 10] = A.y; F[o12 + 11] = A.z;
+          px = yx; py = yy; pz = yz;
+        }
+      }
+    }
+    var HM = (function () {
+      var m = window.HAND_MODEL; if (!m || !window.atob) return null;
+      try {
+        var dec = function (str) { var b = atob(str), u = new Uint8Array(b.length); for (var n = 0; n < b.length; n++) u[n] = b.charCodeAt(n); return u; };
+        var q = new Uint16Array(dec(m.pos).buffer), nq = new Int8Array(dec(m.nrm).buffer), pos = new Float32Array(m.nv * 3), nrm = new Float32Array(m.nv * 3), n, idx = new Uint16Array(dec(m.idx).buffer), rev = new Uint16Array(idx.length);
+        for (n = 0; n < m.nv * 3; n++) { pos[n] = m.min[n % 3] + q[n] / 65535 * m.size[n % 3]; nrm[n] = nq[n] / 127; }
+        for (n = 0; n < idx.length; n += 3) { rev[n] = idx[n]; rev[n + 1] = idx[n + 2]; rev[n + 2] = idx[n + 1]; }
+        var jw8 = dec(m.jw), jw = new Float32Array(m.nv * 4); for (n = 0; n < m.nv; n++) { var sum = jw8[n * 4] + jw8[n * 4 + 1] + jw8[n * 4 + 2] + jw8[n * 4 + 3] || 1; for (var c = 0; c < 4; c++) jw[n * 4 + c] = jw8[n * 4 + c] / sum; }
+        var rest = m.rest.map(function (p) { return { x: p[0], y: p[1], z: p[2] }; }), L0 = m.bones.map(function (b) { return Math.hypot(rest[b[1]].x - rest[b[0]].x, rest[b[1]].y - rest[b[0]].y, rest[b[1]].z - rest[b[0]].z); }), RF = new Float32Array(240);
+        frames(rest, 1, 1, RF, true);
+        return { nv: m.nv, pos: pos, nrm: nrm, idx: new T.BufferAttribute(idx, 1), rev: new T.BufferAttribute(rev, 1), ji: dec(m.ji), jw: jw, tint: dec(m.tint), L0: L0, RF: RF, col: new T.BufferAttribute(new Float32Array(m.nv * 3), 3) };
+      } catch (e) { return null; }
+    })();
+    /* skin tones, and the blue lab glove */
+    var TONES = [['t1', 0xF1CDB6, 'Skin tone 1'], ['t2', 0xDDA987, 'Skin tone 2'], ['t3', 0xC0875F, 'Skin tone 3'], ['t4', 0x94603F, 'Skin tone 4'], ['t5', 0x63402C, 'Skin tone 5'], ['glove', 0x3E8FCB, 'Blue lab glove']];
+    var skinMat = new T.MeshStandardMaterial({ vertexColors: true, roughness: .62, metalness: 0, envMapIntensity: .3 }), LV = new Float32Array(240), toneBox = null;
+    k.tone = 't3'; try { var tn0 = localStorage.getItem('hand-tone'); if (tn0 && TONES.some(function (t) { return t[0] === tn0; })) k.tone = tn0; } catch (e) { }
+    k.setTone = function (id) {
+      var t = TONES.filter(function (q) { return q[0] === id; })[0] || TONES[2]; k.tone = t[0]; try { localStorage.setItem('hand-tone', k.tone); } catch (e) { }
+      if (toneBox) Array.prototype.forEach.call(toneBox.children, function (b) { b.setAttribute('aria-pressed', b.dataset.tone === k.tone ? 'true' : 'false'); });
+      if (!HM) { glove.color.setHex(t[1]); return; }
+      var isGlove = t[0] === 'glove', base = new T.Color(t[1]), nail = base.clone().lerp(new T.Color(0xFBE3DA), .55), palm = base.clone().lerp(new T.Color(0xF0BFA8), .5), a = HM.col.array, cc = new T.Color();
+      for (var n = 0; n < HM.nv; n++) { cc.copy(base); if (!isGlove) { if (HM.tint[n]) cc.copy(nail); else { var u = Math.max(0, Math.min(1, (HM.nrm[n * 3 + 2] - .15) * 1.6)); cc.lerp(palm, u * .7); } } a[n * 3] = cc.r; a[n * 3 + 1] = cc.g; a[n * 3 + 2] = cc.b; }
+      HM.col.needsUpdate = true; skinMat.roughness = isGlove ? .42 : .62;
+    };
+    k.setTone(k.tone);
+    if (HM) {
+      toneBox = document.createElement('div'); toneBox.className = 'tones'; toneBox.setAttribute('role', 'group'); toneBox.setAttribute('aria-label', 'Hand colour');
+      TONES.forEach(function (t) { var b = document.createElement('button'); b.type = 'button'; b.title = t[2]; b.setAttribute('aria-label', t[2]); b.dataset.tone = t[0]; b.style.background = '#' + ('00000' + t[1].toString(16)).slice(-6); b.setAttribute('aria-pressed', t[0] === k.tone ? 'true' : 'false');
+        b.addEventListener('pointerdown', function (e) { e.stopPropagation(); }); b.onclick = function () { k.setTone(t[0]); }; toneBox.appendChild(b); });
+      stage.appendChild(toneBox);
+    }
     function rigOf(h) {
-      if (h.rig) return h.rig; var grp = new T.Group(), R = { g: grp, j: [], b: [], P: [] };
-      for (var i = 0; i < 21; i++) { var m = new T.Mesh(sph, glove); m.castShadow = true; grp.add(m); R.j.push(m); R.P.push(new T.Vector3()); }
-      BONES.forEach(function () { var m = new T.Mesh(cyl, glove); m.castShadow = true; grp.add(m); R.b.push(m); });
-      var pg = new T.BufferGeometry(); pg.setAttribute('position', new T.BufferAttribute(new Float32Array(18), 3)); pg.setIndex([0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5]); R.palm = new T.Mesh(pg, new T.MeshStandardMaterial({ color: 0x3E8FCB, roughness: .5, side: T.DoubleSide })); grp.add(R.palm);
-      R.cuff = new T.Mesh(cyl, cuffMat); R.cuff.castShadow = true; grp.add(R.cuff); R.band = new T.Mesh(cyl, glove); grp.add(R.band);
+      if (h.rig) return h.rig; var grp = new T.Group(), R = { g: grp, j: [], b: [], P: [], chi: 0, lean: 0 }, i;
+      for (i = 0; i < 21; i++) R.P.push(new T.Vector3());
+      if (HM) {
+        var geo = new T.BufferGeometry(); R.pa = new T.BufferAttribute(new Float32Array(HM.nv * 3), 3); R.na = new T.BufferAttribute(new Float32Array(HM.nv * 3), 3); R.pa.setUsage(T.DynamicDrawUsage); R.na.setUsage(T.DynamicDrawUsage);
+        geo.setAttribute('position', R.pa); geo.setAttribute('normal', R.na); geo.setAttribute('color', HM.col); geo.setIndex(HM.idx); R.M = new Float32Array(240);
+        R.skin = new T.Mesh(geo, skinMat); R.skin.frustumCulled = false; R.skin.castShadow = true; grp.add(R.skin);
+      } else {
+        for (i = 0; i < 21; i++) { var m = new T.Mesh(sph, glove); m.castShadow = true; grp.add(m); R.j.push(m); }
+        BONES.forEach(function () { var m2 = new T.Mesh(cyl, glove); m2.castShadow = true; grp.add(m2); R.b.push(m2); });
+        var pg = new T.BufferGeometry(); pg.setAttribute('position', new T.BufferAttribute(new Float32Array(18), 3)); pg.setIndex([0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5]); R.palm = new T.Mesh(pg, new T.MeshStandardMaterial({ color: 0x3E8FCB, roughness: .5, side: T.DoubleSide })); grp.add(R.palm);
+        R.band = new T.Mesh(cyl, glove); grp.add(R.band);
+      }
+      R.cuff = new T.Mesh(cyl, cuffMat); R.cuff.castShadow = true; grp.add(R.cuff);
       scene.add(grp); h.rig = R; return R;
     }
     function planePoint(sx, sy, z, out) { ray.set(sx / k.W * 2 - 1, 1 - sy / k.H * 2, .5).unproject(cam).sub(cam.position).normalize(); return out.copy(cam.position).addScaledVector(ray, (z - cam.position.z) / ray.z); }
+    /* which side of the palm the thumb and the curled fingers are on: tells a left hand from a right hand */
+    function lean(P) {
+      var ax = P[17].x - P[0].x, ay = P[17].y - P[0].y, az = P[17].z - P[0].z, bx = P[5].x - P[0].x, by = P[5].y - P[0].y, bz = P[5].z - P[0].z, nx = ay * bz - az * by, ny = az * bx - ax * bz, nz = ax * by - ay * bx, nl = Math.hypot(nx, ny, nz) || 1, c = 0, i;
+      for (i = 1; i <= 4; i++) c += (P[i].x - P[0].x) * nx + (P[i].y - P[0].y) * ny + (P[i].z - P[0].z) * nz;
+      for (i = 5; i <= 17; i += 4) c += .5 * ((P[i + 3].x - P[i].x) * nx + (P[i + 3].y - P[i].y) * ny + (P[i + 3].z - P[i].z) * nz);
+      return c / nl;
+    }
+    function skinTo(R, s) {
+      var M = R.M, RF = HM.RF, b, i, j, o;
+      for (b = 0; b < 20; b++) { o = b * 12; for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) M[o + j * 3 + i] = LV[o + i] * RF[o + j] + LV[o + 3 + i] * RF[o + 3 + j] + LV[o + 6 + i] * RF[o + 6 + j];
+        for (i = 0; i < 3; i++) M[o + 9 + i] = LV[o + 9 + i] - (M[o + i] * RF[o + 9] + M[o + 3 + i] * RF[o + 10] + M[o + 6 + i] * RF[o + 11]); }
+      var pos = HM.pos, nrm = HM.nrm, ji = HM.ji, jw = HM.jw, out = R.pa.array, on = R.na.array;
+      for (var v = 0, v3 = 0, v4 = 0; v < HM.nv; v++, v3 += 3, v4 += 4) {
+        var x = pos[v3], y = pos[v3 + 1], z = pos[v3 + 2], nx = nrm[v3], ny = nrm[v3 + 1], nz = nrm[v3 + 2], X = 0, Y = 0, Z = 0, NX = 0, NY = 0, NZ = 0;
+        for (var q = 0; q < 4; q++) { var w = jw[v4 + q]; if (!w) continue; o = ji[v4 + q] * 12;
+          X += w * (M[o] * x + M[o + 3] * y + M[o + 6] * z + M[o + 9]); Y += w * (M[o + 1] * x + M[o + 4] * y + M[o + 7] * z + M[o + 10]); Z += w * (M[o + 2] * x + M[o + 5] * y + M[o + 8] * z + M[o + 11]);
+          NX += w * (M[o] * nx + M[o + 3] * ny + M[o + 6] * nz); NY += w * (M[o + 1] * nx + M[o + 4] * ny + M[o + 7] * nz); NZ += w * (M[o + 2] * nx + M[o + 5] * ny + M[o + 8] * nz); }
+        var l = Math.hypot(NX, NY, NZ) || 1; out[v3] = X; out[v3 + 1] = Y; out[v3 + 2] = Z; on[v3] = NX / l; on[v3 + 1] = NY / l; on[v3 + 2] = NZ / l;
+      }
+      R.pa.needsUpdate = true; R.na.needsUpdate = true;
+    }
     function updateRig(h) {
       var R = rigOf(h), P = R.P, i; if (!h.cur.has || !st.mode) { R.g.visible = false; return; } R.g.visible = true;
-      var size;
-      if (h.lms && !h.ptr) {                              // the real hand: every tracked point, with its depth
+      var size, tracked = !!(h.lms && !h.ptr);
+      if (tracked) {                                      // the real hand: every tracked point, with its depth (nearer the camera = further into the lab)
         var wpp = 2 * k.halfW / k.W;
-        for (i = 0; i < 21; i++) { planePoint(k.mapX(h.lms[i].x), k.mapY(h.lms[i].y), ZH, P[i]); P[i].z += -(h.lms[i].z || 0) * k.W * wpp * 1.1; }
+        for (i = 0; i < 21; i++) { planePoint(k.mapX(h.lms[i].x), k.mapY(h.lms[i].y), ZH, P[i]); P[i].z += (h.lms[i].z || 0) * k.W * wpp * 1.1; }
         size = P[0].distanceTo(P[9]);
       } else {                                            // mouse or touch: a posed hand whose pinch point is the pointer
-        h.pose += ((h.pinch ? 1 : 0) - h.pose) * .35; size = .78; var s = size / 1.0, flip = h.i === 1 ? -1 : 1, a = h.pose;
+        h.pose += ((h.pinch ? 1 : 0) - h.pose) * .35; size = .9; var s = size / 1.0, flip = NH > 1 && h.i === 0 ? -1 : 1, a = h.pose;
         var mx = (OPEN[4][0] + OPEN[8][0]) / 2 * (1 - a) + PINCH[4][0] * a * .5 + PINCH[8][0] * a * .5, my = (OPEN[4][1] + OPEN[8][1]) / 2 * (1 - a) + (PINCH[4][1] + PINCH[8][1]) / 2 * a;
         planePoint(h.cur.sx, h.cur.sy, ZH, tv);
-        for (i = 0; i < 21; i++) { var ox = OPEN[i][0] + (PINCH[i][0] - OPEN[i][0]) * a, oy = OPEN[i][1] + (PINCH[i][1] - OPEN[i][1]) * a, oz = OPEN[i][2] + (PINCH[i][2] - OPEN[i][2]) * a; P[i].set(tv.x + (ox - mx) * s * flip, tv.y + (oy - my) * s, tv.z + oz * s); }
+        for (i = 0; i < 21; i++) { var ox = OPEN[i][0] + (PINCH[i][0] - OPEN[i][0]) * a, oy = OPEN[i][1] + (PINCH[i][1] - OPEN[i][1]) * a, oz = OPEN[i][2] + (PINCH[i][2] - OPEN[i][2]) * a; P[i].set(tv.x + (ox - mx) * s * flip, tv.y + (oy - my) * s, tv.z - oz * s); }
       }
       var rf = size * .112;
-      for (i = 0; i < 21; i++) { R.j[i].position.copy(P[i]); R.j[i].scale.setScalar(i === 0 ? rf * 1.5 : (i % 4 === 1 && i > 1 ? rf * 1.25 : rf * (i < 5 ? 1.12 : 1.02))); }
-      BONES.forEach(function (bn, n) { var A = P[bn[0]], B = P[bn[1]], m = R.b[n]; tv.subVectors(B, A); var len = tv.length() || 1e-4; m.position.copy(A).addScaledVector(tv, .5); m.quaternion.setFromUnitVectors(UP, tv.multiplyScalar(1 / len)); var palmBone = bn[0] === 0 || (bn[0] % 4 === 1 && bn[1] % 4 === 1); m.scale.set(palmBone ? rf * 1.2 : rf * (bn[0] < 4 ? 1.08 : .98), len, palmBone ? rf * 1.2 : rf * (bn[0] < 4 ? 1.08 : .98)); });
-      var pa = R.palm.geometry.attributes.position; [0, 1, 5, 9, 13, 17].forEach(function (id, n) { pa.setXYZ(n, P[id].x, P[id].y, P[id].z); }); pa.needsUpdate = true; R.palm.geometry.computeVertexNormals();
-      // wrist band, and a white coat sleeve once the lab coat is on
+      if (HM) {
+        var c = lean(P) / (size * size || 1); R.lean = tracked && R.chi ? R.lean + (c - R.lean) * .2 : c; var chi = R.chi && Math.abs(R.lean) < .05 ? R.chi : (R.lean >= 0 ? 1 : -1);
+        if (chi !== R.chi) { R.chi = chi; R.skin.geometry.setIndex(chi > 0 ? HM.idx : HM.rev); }
+        frames(P, chi, size, LV, false, HM.L0); skinTo(R, size);
+      } else {
+        for (i = 0; i < 21; i++) { R.j[i].position.copy(P[i]); R.j[i].scale.setScalar(i === 0 ? rf * 1.5 : (i % 4 === 1 && i > 1 ? rf * 1.25 : rf * (i < 5 ? 1.12 : 1.02))); }
+        BONES.forEach(function (bn, n) { var A = P[bn[0]], B = P[bn[1]], m = R.b[n]; tv.subVectors(B, A); var len = tv.length() || 1e-4; m.position.copy(A).addScaledVector(tv, .5); m.quaternion.setFromUnitVectors(UP, tv.multiplyScalar(1 / len)); var palmBone = bn[0] === 0 || (bn[0] % 4 === 1 && bn[1] % 4 === 1); m.scale.set(palmBone ? rf * 1.2 : rf * (bn[0] < 4 ? 1.08 : .98), len, palmBone ? rf * 1.2 : rf * (bn[0] < 4 ? 1.08 : .98)); });
+        var pa = R.palm.geometry.attributes.position; [0, 1, 5, 9, 13, 17].forEach(function (id, n) { pa.setXYZ(n, P[id].x, P[id].y, P[id].z); }); pa.needsUpdate = true; R.palm.geometry.computeVertexNormals();
+      }
+      // a white coat sleeve once the lab coat is on
       tv.subVectors(P[0], P[9]).normalize(); tq.setFromUnitVectors(UP, tv);
-      R.band.position.copy(P[0]).addScaledVector(tv, size * .16); R.band.quaternion.copy(tq); R.band.scale.set(rf * 3.1, size * .34, rf * 2.2);
-      R.cuff.visible = !!k.sleeves; if (k.sleeves) { R.cuff.position.copy(P[0]).addScaledVector(tv, size * 1.15); R.cuff.quaternion.copy(tq); R.cuff.scale.set(rf * 3.5, size * 1.7, rf * 2.7); }
+      if (R.band) { R.band.position.copy(P[0]).addScaledVector(tv, size * .16); R.band.quaternion.copy(tq); R.band.scale.set(rf * 3.1, size * .34, rf * 2.2); }
+      R.cuff.visible = !!k.sleeves; if (k.sleeves) { R.cuff.position.copy(P[0]).addScaledVector(tv, size * 1.2); R.cuff.quaternion.copy(tq); R.cuff.scale.set(rf * 3.5, size * 1.7, rf * 2.7); }
     }
 
     /* ---------- labels on the heads-up layer, styled like the 2-D labs ---------- */

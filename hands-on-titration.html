@@ -12,7 +12,7 @@
   <div>
    <p class="eyebrow">Grade 10–12 Chemistry · Solutions · Camera lab</p>
    <h1>Hands-On Lab: Dilution and Titration</h1>
-   <p class="lede">Use your own hand to do the two skills from the Titration &amp; Dilution Lab. Pinch your thumb and first finger together to pick up glassware or to open the burette tap; open your fingers to let go.</p>
+   <p class="lede">Use your own hand to do the two skills from the Titration &amp; Dilution Lab. Pinch your thumb and first finger together to pick up glassware or to open the burette tap; open your fingers to let go. In the dilution you mix the flask yourself by turning it over.</p>
   </div>
   <div class="row"><a class="btn" href="titration-lab.html" style="text-decoration:none">2-D Titration &amp; Dilution Lab</a><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
  </header>
@@ -54,6 +54,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
 <script>
 (function(){
@@ -66,9 +67,9 @@ const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),fx=(v,d)=>v.toFixed(d);
 let tab='dil';
 const FX=1.1,BOT=-2.6,TX=.2;                      // volumetric flask x, stock bottle x, titration flask x
 const K=HandKit.create({stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
- layout(k){const lx=-(k.halfW-1.0),rx=k.halfW-1.2;pip.userData.home.set(lx+.2,2.35,0);wash.userData.home.set(rx-.2,.82,0);stop.userData.home.set(rx-1.9,.22,.6);ind.userData.home.set(rx-.4,.62,0);tap.userData.home.copy(TAP);tap.userData.goal.copy(TAP)},
- onGrab,onDrop,onFrame:frame,onHUD:hudDraw,
- targets(it){const id=it.userData.id;return id==='pip'?[V(BOT,2.2),V(FX,4.05)]:id==='wash'?[V(FX+.75,3.75)]:id==='stop'?[V(FX,3.75)]:id==='ind'?[V(TX,2.75)]:[]}});
+ layout(k){const lx=-(k.halfW-1.0),rx=k.halfW-1.2;pip.userData.home.set(lx+.2,2.35,0);wash.userData.home.set(rx-.2,.82,0);stop.userData.home.set(rx-1.9,.22,.6);fl.userData.home.set(FX,PIV,0);ind.userData.home.set(rx-.4,.62,0);tap.userData.home.copy(TAP);tap.userData.goal.copy(TAP)},
+ onGrab,onDrop,onFrame:frame,onHUD:hudDraw,onPinchEmpty(p){if(tab==='dil'&&!D.stop&&D.vol>0&&Math.abs(p.x-FX)<.6&&p.y>1.9&&p.y<4)say('Never turn an open flask over: the solution would spill. Put the stopper on first, then mix.')},
+ targets(it){const id=it.userData.id;return id==='pip'?[V(BOT,2.2),V(FX,4.05)]:id==='wash'?[V(FX+.75,3.75)]:id==='stop'?[V(FX,3.75)]:id==='flask'&&!D.done&&!(K.holder(fl)&&K.holder(fl).lms&&!K.holder(fl).ptr)?[V(fl.position.x,fl.position.y+(D.inv?NECK:-NECK))]:id==='ind'?[V(TX,2.75)]:[]}});
 const scene=K.scene,PURPLE=0x8E2AA8;
 const grpD=new T.Group(),grpT=new T.Group();scene.add(grpD);scene.add(grpT);
 const toD=o=>{scene.remove(o);grpD.add(o);return o},toT=o=>{scene.remove(o);grpT.add(o);return o};
@@ -81,7 +82,9 @@ const bottle=K.vessel(BOT,[[0,0],[.7,0],[.75,.08],[.75,1.5],[.34,1.85],[.34,2.25
 {const cap=new T.Mesh(new T.CylinderGeometry(.4,.4,.26,20),new T.MeshStandardMaterial({color:0x22282C,roughness:.5}));cap.position.set(BOT+1.25,.13,.5);cap.castShadow=true;grpD.add(cap);const l=label(['KMnO₄','0.020 M'],1.0,.62);l.position.set(BOT,.8,.77);grpD.add(l)}
 // 100 mL volumetric flask
 const FPROF=[[0,0],[.6,0],[.92,.22],[1.02,.75],[.92,1.3],[.52,1.75],[.2,1.98],[.17,2.12],[.17,3.6],[.22,3.66]],LINE=3.0;
-const flask=K.vessel(FX,FPROF,{liq:PURPLE,op:.5});toD(flask.g);
+const PIV=1.0,NECK=1.9,flask=K.vessel(0,FPROF,{liq:PURPLE,op:.5}),fl=new T.Group();fl.add(flask.g);flask.g.position.set(0,-PIV,0);
+const darkPlane=new T.Plane(new T.Vector3(0,-1,0),0),dark=flask.liq.clone();dark.material=flask.mat.clone();dark.material.clippingPlanes=[darkPlane];dark.scale.set(.96,1,.96);flask.g.add(dark);
+const stopOn=new T.Mesh(new T.CylinderGeometry(.24,.15,.34,16),new T.MeshStandardMaterial({color:0xDCEAF0,transparent:true,opacity:.92,roughness:.15}));stopOn.position.y=3.78;stopOn.visible=false;flask.g.add(stopOn);
 {const ring=new T.Mesh(new T.TorusGeometry(.175,.014,6,28),new T.MeshBasicMaterial({color:0xC2185B}));ring.rotation.x=Math.PI/2;ring.position.y=LINE;flask.g.add(ring)}
 const levelOf=v=>v<=0?0:v<=92?.06+1.94*v/92:2.0+(v-92)/8*1.0;
 // pipette with a rubber filler; pipLiq grows from the tip upward
@@ -99,6 +102,7 @@ const wash=new T.Group();{const body=new T.Mesh(new T.CylinderGeometry(.48,.52,1
  const l=label(['H₂O','distilled'],.7,.44);l.position.set(0,-.1,.53);wash.add(l)}
 K.addItem('wash',wash,{name:'wash bottle',r:1.0,grabY:.2,tab:'dil'});
 const stop=new T.Mesh(new T.CylinderGeometry(.24,.15,.34,16),new T.MeshStandardMaterial({color:0xDCEAF0,transparent:true,opacity:.92,roughness:.15}));K.addItem('stop',stop,{name:'stopper',r:.75,tab:'dil'});
+K.addItem('flask',fl,{r:1.0,grabY:NECK,tab:'dil',locked:true,fixed:true,firm:true,liftZ:.9});fl.traverse(m=>{if(m.isMesh&&m.material.transparent)m.castShadow=false});
 
 /* ================= TITRATION bench ================= */
 const Cb=0.10,Va=20;
@@ -127,20 +131,21 @@ const drops=[];for(let i=0;i<10;i++){const d=K.dot('#BFDDF0','',.13);d.visible=f
 const stream=[];for(let i=0;i<10;i++){const d=K.dot('#BFDDF0','',.11);d.visible=false;scene.add(d);stream.push(d)}
 
 /* ================= state and rules ================= */
-const D={pip:0,sol:0,vol:0,stop:false,mix:0,done:false,over:false,filled:false,told:''};
+const D={pip:0,sol:0,vol:0,stop:false,m:0,turns:0,inv:false,th:0,aim:0,a0:0,done:false,over:false,filled:false,told:''};
+const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a)),TURNS=3;
 const Tt={V:0,ind:false,Ca:.08,flash:0,hold:0,done:false,dropT:0};
 const Veq=()=>Tt.Ca*Va/Cb;
 const pHof=v=>{const n=Tt.Ca*Va-Cb*v,vt=(Va+v)/1000;return Math.abs(n)<1e-9?7:n>0?-Math.log10(n/1000/vt):14+Math.log10(-n/1000/vt)};
-const STEPS={dil:[['pip','Fill the pipette from the stock bottle (10.0 mL)'],['sol','Empty the pipette into the 100 mL flask'],['line','Add distilled water up to the line'],['stop','Put the stopper on; the flask is mixed']],
+const STEPS={dil:[['pip','Fill the pipette from the stock bottle (10.0 mL)'],['sol','Empty the pipette into the 100 mL flask'],['line','Add distilled water up to the line'],['stop','Put the stopper on the flask'],['mix','Mix it yourself: turn the flask upside down and back, 3 times']],
  tit:[['ind','Add 2 drops of phenolphthalein to the flask'],['run','Pinch and hold the tap to add NaOH'],['end','Stop at the first pale pink that stays'],['chk','Check your end point and find C(HCl)']]};
-function stepState(k){return k==='pip'?D.filled:k==='sol'?D.sol>=V0-.05:k==='line'?Math.abs(D.vol-VF)<=.6&&D.sol>=V0-.05:k==='stop'?D.done:k==='ind'?Tt.ind:k==='run'?Tt.V>0.5:k==='end'?Tt.V>0&&pHof(Tt.V)>8.2&&Tt.V-Veq()<=.3:Tt.done}
+function stepState(k){return k==='pip'?D.filled:k==='sol'?D.sol>=V0-.05:k==='line'?Math.abs(D.vol-VF)<=.6&&D.sol>=V0-.05:k==='stop'?D.stop:k==='mix'?D.done:k==='ind'?Tt.ind:k==='run'?Tt.V>0.5:k==='end'?Tt.V>0&&pHof(Tt.V)>8.2&&Tt.V-Veq()<=.3:Tt.done}
 function steps(){let first=true;$('steps').innerHTML=STEPS[tab].map(([k,t])=>{const d=stepState(k),now=!d&&first;if(!d)first=false;return `<li class="${d?'done':''}${now?' now':''}"><i></i><span>${t}</span></li>`}).join('')}
 function setTab(t){tab=t;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));grpD.visible=t==='dil';grpT.visible=t==='tit';
  for(const it of K.items){const h=it.userData.tab!==t;it.userData.hidden=h;it.visible=!h}
  $('titCard').hidden=t!=='tit';$('task').innerHTML=t==='dil'?'Dilute the KMnO₄ stock (C₀ = 0.020 mol/L) <b>10 times</b>: 10.0 mL of stock made up to 100.0 mL.':'Find the concentration of the HCl in the flask (V<sub>a</sub> = 20.0 mL) with NaOH 0.10 mol/L from the burette.';
  say(t==='dil'?'Pick up the pipette and dip its tip into the stock bottle.':'Pick up the indicator bottle and hold it over the flask.');steps()}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
-function resetDil(){Object.assign(D,{pip:0,sol:0,vol:0,stop:false,mix:0,done:false,over:false,filled:false,told:''});for(const it of [pip,wash,stop]){it.userData.placed=false;it.userData.locked=false;K.home(it)}flask.g.rotation.z=0;steps()}
+function resetDil(){Object.assign(D,{pip:0,sol:0,vol:0,stop:false,m:0,turns:0,inv:false,th:0,aim:0,done:false,over:false,filled:false,told:''});for(const it of [pip,wash,stop]){it.userData.placed=false;it.userData.locked=false;K.home(it)}fl.userData.locked=true;K.home(fl);fl.rotation.z=0;steps()}
 function resetTit(newCa){if(newCa)Tt.Ca=Math.round((.06+Math.random()*.06)*1000)/1000;Object.assign(Tt,{V:0,ind:false,flash:0,hold:0,done:false});$('calc').hidden=true;K.home(ind);steps()}
 $('reset').onclick=()=>{if(tab==='dil'){resetDil();say('Pick up the pipette and dip its tip into the stock bottle.')}else{resetTit(false);say('Burette refilled to 0.00 mL. Add the indicator, then titrate.')}};
 $('trial').onclick=()=>{resetTit(true);say('A new unknown HCl solution is in the flask.')};
@@ -150,15 +155,16 @@ $('chk').onclick=()=>{const v=Tt.V,ve=Veq(),el=$('calc');el.hidden=false;
  if(v-ve>.3){el.textContent=`Overshot by ${fx(v-ve,2)} mL: the pink is too dark. Start this part again and go drop by drop near the end.`;return}
  Tt.done=true;el.textContent=`End point: V_E = ${fx(v,2)} mL  (true value ${fx(ve,2)} mL)\nHCl + NaOH → NaCl + H₂O, so n(HCl) = n(NaOH)\nC_a × V_a = C_b × V_E\nC_a = ${Cb} × ${fx(v,2)} ÷ ${fx(Va,1)} = ${(Cb*v/Va).toFixed(4)} mol/L`;say('Well done. One drop of NaOH turned the whole flask pale pink: that is the equivalence point.');setStatus('End point found.','ok');steps()};
 
-function onGrab(it){const id=it.userData.id;if(id==='stop'&&D.stop){D.stop=false;it.userData.placed=false;D.done=false}
+function onGrab(it,h){const id=it.userData.id;if(id==='flask'){D.a0=h&&h.ang||0;D.aim=0;if(!D.done)say(h&&h.lms&&!h.ptr?'You are holding the flask by its neck. Turn your hand upside down, then back up. Keep a finger on the stopper in a real lab.':'You are holding the flask. Drag the neck round in a circle until the flask is upside down, then bring it back up.')}
  if(id==='tap'){if(!Tt.ind){say('Add the indicator first. Without phenolphthalein the flask stays colourless and you cannot see the end point.');return}if(Tt.V<50){Tt.V=Math.min(50,Tt.V+.05);Tt.flash=1;Tt.hold=0}}}
 function onDrop(it){const id=it.userData.id;
  if(id==='stop'){if(K.near(it,V(FX,3.75),1.3)){if(D.sol<V0-.05){K.home(it);say('The flask has no stock solution yet. Use the pipette first.');return}
    if(D.vol<VF-.6){K.home(it);say(`Not yet: the level is below the line (${fx(D.vol,1)} mL). Add water until the bottom of the meniscus sits on the line.`);return}
    if(D.vol>VF+.6){K.home(it);say('The level is past the line, so the solution is too dilute. You cannot take water out: start this part again.');return}
-   D.stop=true;it.userData.placed=true;it.userData.goal.set(FX,3.78,0);D.mix=.001;say('Stopper on. The flask is turned over several times so the solution is the same everywhere.')}else K.home(it)}
+   D.stop=true;K.home(it);fl.userData.locked=false;say('Stopper on. Look: the dark stock still sits at the bottom. Now mix it yourself: pick the flask up by its neck and turn it upside down and back up, 3 times.')}else K.home(it)}
+ else if(id==='flask'){K.home(it);if(!D.done&&D.stop)say(`Flask put down after ${D.turns} of ${TURNS} turns. It is not the same everywhere yet: pick it up and keep turning.`)}
  else if(id==='ind'){if(K.near(it,V(TX,2.75),1.3)){Tt.ind=true;say('Two drops of phenolphthalein are in. It is colourless in acid and turns pink above pH 8.2.')}K.home(it)}
- else if(id!=='tap')K.home(it);
+ else if(id!=='tap'&&id!=='flask')K.home(it);
  if(id==='wash'&&Math.abs(D.vol-VF)<=.6&&D.sol>=V0-.05)say('The bottom of the meniscus is on the line. Now put the stopper on.');
  steps()}
 
@@ -178,10 +184,27 @@ function frame(dt,now){const h=K.held&&K.held.userData.id;
    if(D.vol>VF+.6&&!D.over){D.over=true;say('Past the line! The solution is now too dilute and cannot be fixed. Start this part again.')}
    if(D.vol>106)D.vol=106}
   stream.forEach((d,i)=>{d.visible=pouring;if(pouring){const u=((now/260)+i/stream.length)%1;d.position.set(nx+(FX-nx)*u,ny-(ny-(levelOf(D.vol)+.1))*u*u,.1)}});
-  flask.setLevel(levelOf(D.vol));const conc=D.vol>0?D.sol/D.vol:0;flask.setColor(PURPLE,Math.min(.85,.12+conc*3.2));
-  // mixing: the stoppered flask turns over twice
-  if(D.mix>0&&!D.done){D.mix+=dt;const u=D.mix/2.4;flask.g.rotation.z=Math.sin(Math.min(1,u)*Math.PI*4)*.5;stop.visible=u>=1||true;stop.position.set(FX-Math.sin(flask.g.rotation.z)*3.78,Math.cos(flask.g.rotation.z)*3.78,0);
-   if(u>=1){flask.g.rotation.z=0;D.done=true;say(`Done! n(solute) is conserved: C = C₀ × V₀ ÷ V = ${C0.toFixed(3)} × ${V0.toFixed(1)} ÷ ${VF.toFixed(1)} = ${(C0*V0/VF).toFixed(4)} mol/L. The dilution factor is 10.`);setStatus('Dilution complete.','ok');steps()}}
+  // mixing by hand: the stoppered flask follows the hand that holds it and turns with it
+  const hd=K.holder(fl),u=fl.userData;
+  if(hd&&D.stop){const w=hd.world,camHand=hd.lms&&!hd.ptr;let gx=FX,gy=3.3;
+   if(camHand)D.th+=wrap(-wrap((hd.ang||0)-D.a0)-D.th)*.35;
+   else{const dx=w.x-fl.position.x,dy=w.y-fl.position.y;if(Math.hypot(dx,dy)>.6)D.aim=Math.atan2(-dx,dy);D.th+=wrap(D.aim-D.th)*.3}
+   if(camHand){gx=w.x+Math.sin(D.th)*NECK;gy=w.y-Math.cos(D.th)*NECK}
+   let lo=0;const c0=Math.cos(D.th),s0=Math.abs(Math.sin(D.th));for(const [r,y] of FPROF.concat([[.24,3.95]]))lo=Math.min(lo,(y-PIV)*c0-r*s0);
+   u.goal.set(Math.max(-K.halfW+1.2,Math.min(K.halfW-1.2,gx)),Math.max(gy,.05-lo),.9);u.snap=.45;
+   const up=Math.cos(D.th);
+   if(!D.done){if(!D.inv&&up<-.6){D.inv=true;D.m=Math.min(1,D.m+.5/TURNS);say('Upside down: the air bubble rises through the solution and stirs it. Now bring it back up.')}
+    else if(D.inv&&up>.75){D.inv=false;D.turns++;D.m=Math.min(1,D.turns/TURNS);
+     if(D.turns>=TURNS){D.done=true;say(`Mixed! The colour is now the same everywhere. n(solute) is conserved: C = C₀ × V₀ ÷ V = ${C0.toFixed(3)} × ${V0.toFixed(1)} ÷ ${VF.toFixed(1)} = ${(C0*V0/VF).toFixed(4)} mol/L. The dilution factor is 10. Put the flask down.`);setStatus('Dilution complete.','ok')}
+     else say(`Turn ${D.turns} of ${TURNS} done. The layers are blending. Turn it over again.`);steps()}}}
+  else{D.th=wrap(D.th);D.th+=(0-D.th)*.2;if(Math.abs(D.th)<.002)D.th=0;u.snap=.2;D.inv=false}
+  fl.rotation.z=D.th;stop.visible=!D.stop;stop.userData.hidden=D.stop;stopOn.visible=D.stop;
+  // liquid: surfaces stay level while the flask turns; the unmixed stock is a darker layer at the bottom
+  {const lv=levelOf(D.vol),conc=D.vol>0?D.sol/D.vol:0,opU=Math.min(.85,.12+conc*3.2),c=Math.cos(D.th),sn=Math.abs(Math.sin(D.th)),by=fl.position.y,tilt=Math.abs(D.th)>.02;let hi=-9,lo=9;
+   for(const [r,y] of FPROF){hi=Math.max(hi,(y-PIV)*c+r*sn);lo=Math.min(lo,(y-PIV)*c-r*sn)}
+   flask.setLevel(lv);const top=tilt?by+hi-(.06+.6*Math.pow(Math.max(0,c),3)):by-PIV+lv;flask.mat.clippingPlanes[0].constant=top;flask.top.visible=!tilt&&lv>.03;
+   const m=D.m,mixed=m>=1||D.sol<=0;flask.setColor(PURPLE,mixed?opU:opU*(.3+.7*m));dark.visible=!mixed&&lv>.03;
+   if(dark.visible){dark.material.opacity=.85+(opU-.85)*m;darkPlane.constant=Math.min(top,by+lo+(.5+1.25*(1-c)/2)*(1-.3*m))}}
   drops.forEach(d=>d.visible=false)}
  else{stream.forEach(d=>d.visible=false);
   const open=h==='tap'&&Tt.ind&&Tt.V<50;tap.rotation.z+=((open?Math.PI/2:0)-tap.rotation.z)*.3;
@@ -198,8 +221,10 @@ function frame(dt,now){const h=K.held&&K.held.userData.id;
 function lens(cx,cy,R,draw){const g=$('hud').getContext('2d');g.save();g.beginPath();g.arc(cx,cy,R,0,6.3);g.fillStyle=K.isDark()?'#0F1B20':'#FFFFFF';g.fill();g.clip();draw(g);g.restore();g.lineWidth=3;g.strokeStyle=K.ink();g.beginPath();g.arc(cx,cy,R,0,6.3);g.stroke()}
 function hudDraw(g){const ink=K.ink();
  for(const it of K.items){const u=it.userData;if(u.hidden||!u.name||it===K.held||u.placed)continue;K.tag(u.name,V(it.position.x,it.position.y-(u.id==='pip'?2.0:u.id==='wash'?1.05:u.id==='tap'?.35:.62),it.position.z),ink,0,true)}
- if(tab==='dil'){K.tag('stock',V(BOT,-.3,1.8));K.tag('100 mL volumetric flask',V(FX,-.3,1.8));K.tag(`in flask: ${fx(D.vol,1)} mL`,V(FX,4.35,0),K.isDark()?'#56C3DF':'#0A6A88',0,true);
-  if(D.vol>70&&!D.done){const p=K.toScreen(V(FX+2.3,3.3,0)),R=Math.max(44,K.W*.062),d=D.vol-VF,z=R*.28;
+ if(tab==='dil'){K.tag('stock',V(BOT,-.3,1.8));K.tag('100 mL volumetric flask',V(FX,-.3,1.8));if(!D.stop)K.tag(`in flask: ${fx(D.vol,1)} mL`,V(FX,4.35,0),K.isDark()?'#56C3DF':'#0A6A88',0,true);
+  else if(!D.done)K.tag(K.holder(fl)?`turn ${Math.min(TURNS,D.turns+1)} of ${TURNS}${D.inv?': now back up':': turn it upside down'}`:`not mixed yet: pick up the flask (${D.turns} of ${TURNS} turns)`,V(fl.position.x,Math.min(6.4,fl.position.y+3.6),0),K.isDark()?'#E0A63A':'#8A5A00',0,true);
+  else K.tag(`mixed: C = ${(C0*V0/VF).toFixed(4)} mol/L`,V(fl.position.x,Math.min(6.4,fl.position.y+3.6),0),K.isDark()?'#4ACB8A':'#1E8A55',0,true);
+  if(D.vol>70&&!D.stop){const p=K.toScreen(V(FX+2.3,3.3,0)),R=Math.max(44,K.W*.062),d=D.vol-VF,z=R*.28;
    lens(p[0],p[1],R,g=>{g.fillStyle='rgba(142,42,168,.45)';const y=p[1]-d*z;g.beginPath();g.moveTo(p[0]-R*.45,y-7);g.quadraticCurveTo(p[0],y+7,p[0]+R*.45,y-7);g.lineTo(p[0]+R*.45,p[1]+R);g.lineTo(p[0]-R*.45,p[1]+R);g.closePath();g.fill();
     g.strokeStyle=ink;g.lineWidth=2;g.beginPath();g.moveTo(p[0]-R*.45,p[1]-R);g.lineTo(p[0]-R*.45,p[1]+R);g.moveTo(p[0]+R*.45,p[1]-R);g.lineTo(p[0]+R*.45,p[1]+R);g.stroke();g.strokeStyle='#C2185B';g.lineWidth=2.5;g.beginPath();g.moveTo(p[0]-R*.6,p[1]);g.lineTo(p[0]+R*.6,p[1]);g.stroke()});
    K.tag(Math.abs(d)<=.6?'on the line':d<0?'below the line':'past the line',V(FX+2.3,3.3,0),Math.abs(d)<=.6?(K.isDark()?'#4ACB8A':'#1E8A55'):ink,R+14,true)}}
@@ -212,7 +237,7 @@ function hudDraw(g){const ink=K.ink();
   if(K.hover===tap&&!K.held)K.tag(Tt.ind?'pinch and hold = flow · quick pinch = one drop':'add the indicator first',V(TX+.3,BBOT-.06,.2),ink,-26)}}
 
 HandKit.themeButton($('themeBtn'),K);Tt.Ca=Math.round((.06+Math.random()*.06)*1000)/1000;K.start();setTab('dil');
-window.__HK=Object.assign(K,{D,Tt,Veq,pHof,setTab,FX,BOT,TX,TAP});
+window.__HK=Object.assign(K,{D,Tt,Veq,pHof,setTab,FX,BOT,TX,TAP,fl});
 })();
 </script>
 </body></html>
