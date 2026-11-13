@@ -60,6 +60,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visib
 .benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
 .note{color:var(--muted);font-size:.9rem;margin:0}
 .mono{font-family:var(--data)}
+div.rig{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--stage)}div.rig svg{display:block;width:100%;height:auto}
 canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
 #eg{height:260px}
 .eqbox{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:16px;overflow-x:auto}
@@ -174,6 +175,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
  <!-- ================= TAB 2 ================= -->
  <section class="bench" id="p-eq" role="tabpanel" hidden>
   <div class="benchhead"><h2 class="mono" id="eqTitle"></h2><span class="note">Esterification is <b>slow</b>, <b>limited</b> (reversible) and <b>athermic</b>.</span></div>
+  <div class="rig"><svg id="rigSvg" viewBox="0 0 760 380" role="img" aria-label="Reflux apparatus: heating mantle, round-bottom flask, condenser, and a view of the molecules inside the flask"></svg></div>
   <div class="grid2">
    <div class="col">
     <div class="field"><div class="field-head"><label for="sA">n₀(acid)</label><output id="oA"></output></div><input id="sA" type="range" min="0.2" max="3" step="0.1" value="1"></div>
@@ -238,6 +240,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
  <footer>Designed and built by Mr Khaled. Model: equilibrium constant K = 4 for primary alcohols, 2.25 for secondary and 0.0028 for tertiary, which give the classic yields of 67 %, 60 % and 5 % for an equimolar mixture. Times are illustrative.</footer>
 </div>
 
+<script src="lab-svg.js"></script>
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const fx=(x,d=2)=>Number(x).toFixed(d);
@@ -386,6 +389,7 @@ function loop(now){const real=Math.min(.05,(now-last)/1000);last=now;
    eq.runs.push({ab:`${fx(p.a,1)} / ${fx(p.b,1)}`,cls:['','I','II','III'][eq.cls],cond:[eq.heat?'heated':'room temp.',eq.cat?'H₂SO₄':'no catalyst',eq.rem?'water removed':''].filter(Boolean).join(', '),t:'≈ '+fmtT(eq.t95||eq.tmax),y:fx(100*eq.xe/Math.min(p.a,p.b),0)+' %'});
    if(eq.runs.length>8)eq.runs.shift();renderRuns()}
   acc+=real;if(acc>.1||eq.done){acc=0;updEq()}}
+ if(tab==='eq'&&now-RIG.lastDraw>33){RIG.lastDraw=now;drawRig()}
  requestAnimationFrame(loop)}
 
 /* =========================================================
@@ -454,6 +458,133 @@ function nextQ(){if(!order.length||qi>=order.length-1){order=shuffle([...QS.keys
   const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
   const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
 $('#qNext').onclick=nextQ;
+
+/* =========================================================
+   TAB 2 — the reflux apparatus (SVG, uses lab-svg.js)
+   heating mantle · round-bottom flask with boiling chips · Liebig condenser with cooling water
+   · Dean–Stark trap when water is removed · H₂SO₄ dropper bottle · "inside the flask" lens · lab timer
+   ========================================================= */
+const RIG={W:760,H:380,BY:350,lastDraw:0};
+function rnd(i){const s=Math.sin(i*127.1+311.7)*43758.5453;return s-Math.floor(s)}
+function rigSteel(x,y,w,h,r){return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r||2}" fill="url(#lsv-steelV)"/>`}
+function rigClamp(rodX,y,toX,jawW){ // boss head on the rod + arm + cork-lined jaws
+  return `<rect x="${rodX-9}" y="${y-9}" width="18" height="18" rx="3" fill="url(#lsv-steelH)" stroke="rgba(0,0,0,.25)"/>`+
+   `<circle cx="${rodX-13}" cy="${y}" r="4" fill="url(#lsv-brass)"/>`+
+   `<rect x="${rodX+9}" y="${y-3}" width="${toX-rodX-9-jawW}" height="6" fill="url(#lsv-steelH)"/>`+
+   `<path d="M${toX-jawW-2} ${y-9} h${jawW*2+4} v4 h-${jawW*2+4}z M${toX-jawW-2} ${y+5} h${jawW*2+4} v4 h-${jawW*2+4}z" fill="#7B5A3A" opacity=".9"/>`+
+   `<rect x="${toX-jawW-5}" y="${y-11}" width="4" height="22" rx="1.5" fill="url(#lsv-steelV)"/><rect x="${toX+jawW+1}" y="${y-11}" width="4" height="22" rx="1.5" fill="url(#lsv-steelV)"/>`}
+function rigTube(x1,x2,y1,y2,o){o=o||{}; // vertical glass tube
+  const w=x2-x1;return `<rect x="${x1}" y="${y1}" width="${w}" height="${y2-y1}" fill="url(#lsv-tint)" stroke="${o.edge}" stroke-width="1.2"/>`+
+   `<rect x="${x1+w*.18}" y="${y1+3}" width="${Math.max(1.5,w*.14)}" height="${y2-y1-6}" fill="url(#lsv-hl)" opacity=".8"/>`}
+function rigHose(d,col){return `<path d="${d}" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="9" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round"/><path d="${d}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-linecap="round" transform="translate(-1.5,-1.5)"/>`}
+function rigCondenser(cx,top,bot,on,t,edge){ // Liebig: inner tube + water jacket + nozzles
+  const jt=top+22,jb=bot-18,ox=cx-17,ow=34,ix=cx-6,iw=12;let s='';
+  s+=`<rect x="${ox}" y="${jt}" width="${ow}" height="${jb-jt}" rx="7" fill="url(#lsv-tint)" stroke="${edge}" stroke-width="1.3"/>`;
+  if(on){s+=`<rect x="${ox+2}" y="${jt+2}" width="${ow-4}" height="${jb-jt-4}" rx="6" fill="#4FA8D8" opacity=".28"/>`;
+    for(let k=0;k<2;k++){const xx=k?cx+11:cx-11;s+=`<line x1="${xx}" x2="${xx}" y1="${jb-4}" y2="${jt+4}" stroke="#2A86C0" stroke-width="2" stroke-dasharray="6 9" stroke-dashoffset="${(t*40)%15}" opacity=".7"/>`}}
+  // nozzles: inlet at the bottom (right), outlet at the top (left)
+  s+=`<rect x="${ox+ow-2}" y="${jb-18}" width="16" height="8" rx="2" fill="url(#lsv-tint)" stroke="${edge}"/>`+
+     `<rect x="${ox-14}" y="${jt+10}" width="16" height="8" rx="2" fill="url(#lsv-tint)" stroke="${edge}"/>`;
+  s+=rigTube(ix,ix+iw,top,bot,{edge});
+  s+=`<rect x="${ox+ow*.12}" y="${jt+4}" width="4" height="${jb-jt-8}" rx="2" fill="url(#lsv-hl)"/>`;
+  // ground-glass joints
+  s+=`<rect x="${ix-1}" y="${bot-10}" width="${iw+2}" height="10" fill="#E9EEF0" opacity=".75" stroke="${edge}"/>`;
+  return s}
+function rigFlaskShape(cx,cy,r,nw,neckTop){const a=Math.asin(nw/2/r);const x1=cx-nw/2,x2=cx+nw/2,yj=cy-r*Math.cos(a);
+  return `M${x1} ${neckTop} L${x1} ${yj} A${r} ${r} 0 1 0 ${x2} ${yj} L${x2} ${neckTop}Z`}
+function drawRig(){const sv=$('#rigSvg');if(!sv)return;const t=performance.now()/1000,dk=isDark();
+ const p=eqParams(),th=Math.min(p.a,p.b),x=eq.done?eq.xe:eq.x,water=eq.rem?0:x,removed=eq.rem?x:0;
+ const heat=eq.heat,boil=heat&&(eq.running||eq.t>0)&&!eq.done||heat&&eq.running;const heatOn=heat;
+ const edge=dk?'rgba(195,225,235,.55)':'rgba(55,85,95,.55)';const ink=dk?'#E7EFF1':'#13232B',mut=dk?'#94A7AE':'#52646C';
+ const BY=RIG.BY,cx=250,cy=268,r=50,nw=22,neckTop=192;let s=LabSVG.defs()+LabSVG.bench(RIG.W,RIG.H,BY);
+ const lab=(x,y,txt,anchor)=>`<text x="${x}" y="${y}" fill="${mut}" font-size="11.5" font-weight="700" font-family="Atkinson Hyperlegible,system-ui,sans-serif" text-anchor="${anchor||'start'}">${txt}</text>`;
+ // ---- retort stand ----
+ s+=LabSVG.shadow(120,BY,80)+`<rect x="50" y="${BY-9}" width="150" height="9" rx="3" fill="url(#lsv-steelH)"/>`+rigSteel(86,18,8,BY-24,3);
+ // ---- heating mantle ----
+ s+=LabSVG.shadow(cx,BY,90);
+ s+=`<path d="M${cx-78} ${BY} L${cx-72} ${BY-58} Q${cx} ${BY-74} ${cx+72} ${BY-58} L${cx+78} ${BY}Z" fill="${dk?'#3A4248':'#5A646B'}"/>`+
+    `<path d="M${cx-78} ${BY} L${cx-72} ${BY-58} Q${cx-60} ${BY-62} ${cx-50} ${BY-63} L${cx-54} ${BY}Z" fill="#fff" opacity=".08"/>`+
+    `<ellipse cx="${cx}" cy="${BY-60}" rx="66" ry="12" fill="${dk?'#20262A':'#2E3438'}"/>`;
+ const glow=heatOn?.55+.15*Math.sin(t*3):0;
+ if(heatOn)s+=`<ellipse cx="${cx}" cy="${BY-62}" rx="60" ry="10" fill="#FF6A2A" opacity="${glow}"/>`;
+ // control panel
+ s+=`<rect x="${cx-34}" y="${BY-36}" width="68" height="26" rx="5" fill="${dk?'#1B2023':'#2A3034'}"/>`+
+    `<rect x="${cx-29}" y="${BY-31}" width="34" height="16" rx="2" fill="${heatOn?'#0E2A1C':'#141A17'}"/>`+
+    `<text x="${cx-12}" y="${BY-19}" fill="${heatOn?'#5CFF9A':'#2F4A3A'}" font-size="11" font-family="IBM Plex Mono,monospace" text-anchor="middle">${heatOn?'80°C':'25°C'}</text>`+
+    `<circle cx="${cx+20}" cy="${BY-23}" r="7" fill="url(#lsv-steelH)" stroke="rgba(0,0,0,.3)"/><line x1="${cx+20}" y1="${BY-23}" x2="${cx+20+5*Math.cos(heatOn?-.6:-2.4)}" y2="${BY-23+5*Math.sin(heatOn?-.6:-2.4)}" stroke="#222" stroke-width="2"/>`+
+    `<circle cx="${cx+31}" cy="${BY-31}" r="2.4" fill="${heatOn?'#FF3B30':'#4A2020'}"/>`;
+ // ---- round-bottom flask ----
+ const fpath=rigFlaskShape(cx,cy,r,nw,neckTop);
+ const lvl=cy-r*.12-Math.min(10,(p.a+p.b)*2.2); // liquid surface
+ const liq=dk?'#C9B98A':'#E9D9A3';
+ s+=`<defs><clipPath id="rigFl"><path d="${fpath}"/></clipPath></defs>`;
+ s+=`<g clip-path="url(#rigFl)"><rect x="${cx-r}" y="${lvl}" width="${2*r}" height="${r*2}" fill="${liq}" opacity=".75"/><rect x="${cx-r}" y="${lvl}" width="${2*r}" height="${r*2}" fill="url(#lsv-liq)"/>`+
+    `<ellipse cx="${cx}" cy="${lvl}" rx="${Math.sqrt(Math.max(0,r*r-(cy-lvl)**2))}" ry="3" fill="#fff" opacity=".35"/>`;
+ // boiling chips
+ [[-14,4],[3,6],[16,3]].forEach(([dx,sz],i)=>{s+=`<path d="M${cx+dx-sz} ${cy+r-4} l${sz*.6} -${sz} l${sz*1.2} ${sz*.3} l${sz*.4} ${sz*.7}z" fill="#9AA0A4" stroke="#5E6468" stroke-width=".6"/>`});
+ // bubbles when boiling
+ if(heatOn){const nb=eq.cat?14:10;for(let i=0;i<nb;i++){const sp=40+rnd(i)*50,ph=(t*sp/60+rnd(i+9))%1;const bx=cx-28+rnd(i+3)*56+Math.sin(t*4+i)*2,by=cy+r-6-ph*(cy+r-6-lvl);
+   s+=`<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(1.5+ph*2.6).toFixed(1)}" fill="none" stroke="#fff" stroke-width="1.1" opacity="${(.85-ph*.4).toFixed(2)}"/>`}}
+ s+=`</g>`;
+ s+=`<path d="${fpath}" fill="url(#lsv-tint)" stroke="${edge}" stroke-width="1.4"/>`+
+    `<path d="M${cx-r*.62} ${cy-r*.45} A${r*.8} ${r*.8} 0 0 1 ${cx-r*.1} ${cy-r*.78}" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="${dk?.25:.6}"/>`+
+    `<rect x="${cx-nw/2-1}" y="${neckTop}" width="${nw+2}" height="10" fill="#E9EEF0" opacity=".75" stroke="${edge}"/>`;
+ if(eq.cat)s+=`<g><rect x="${cx+16}" y="${cy+8}" width="44" height="14" rx="3" fill="${dk?'#3B2A16':'#FFF1D6'}" stroke="#C98A2A"/><text x="${cx+38}" y="${cy+18}" fill="#A0601A" font-size="9" font-weight="700" text-anchor="middle" font-family="system-ui">+ H₂SO₄</text></g>`;
+ // ---- clamp on the flask neck ----
+ s+=rigClamp(90,neckTop+18,cx,nw/2);
+ // ---- above the flask: condenser (reflux) or Dean–Stark trap + condenser ----
+ let condX=cx,condTop=20,condBot=neckTop;
+ if(eq.rem){const rx=340,armY=150,rTop=armY-6,rBot=262;
+   // riser from the flask and side arm into the graduated receiver
+   s+=rigTube(cx-6,cx+6,armY-8,neckTop,{edge});
+   s+=`<path d="M${cx-6} ${armY-8} L${cx-6} ${armY-16} Q${cx} ${armY-24} ${cx+12} ${armY-20} L${rx-6} ${armY-6} L${rx-6} ${armY+6} L${cx+8} ${armY-6} L${cx+6} ${armY-8}Z" fill="url(#lsv-tint)" stroke="${edge}" stroke-width="1.2"/>`;
+   s+=rigTube(rx-6,rx+6,rTop,rBot,{edge});
+   const maxW=Math.max(.2,th),wl=Math.min(1,removed/maxW)*(rBot-rTop-24);
+   if(wl>0)s+=`<rect x="${rx-5}" y="${rBot-4-wl}" width="10" height="${wl}" fill="#9CCFEA" opacity=".85"/><rect x="${rx-5}" y="${rBot-4-wl}" width="10" height="2" fill="#fff" opacity=".6"/>`;
+   for(let k=0;k<=8;k++){const yy=rBot-4-k*(rBot-rTop-24)/8;s+=`<line x1="${rx+6}" x2="${rx+(k%2?10:13)}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" stroke="${edge}" stroke-width="1"/>`}
+   // stopcock
+   s+=`<rect x="${rx-9}" y="${rBot}" width="18" height="9" rx="3" fill="#EEF2F3" stroke="${edge}"/><rect x="${rx-14}" y="${rBot+2}" width="28" height="5" rx="2" fill="#2E3A40" opacity=".8"/><rect x="${rx-2}" y="${rBot+9}" width="4" height="12" fill="url(#lsv-tint)" stroke="${edge}"/>`;
+   if(boil&&eq.running){const ph=(t*1.3)%1;s+=`<circle cx="${rx}" cy="${(armY+4+ph*(rBot-4-wl-armY-8)).toFixed(1)}" r="2.2" fill="#7FC2E6"/>`}
+   s+=lab(rx+14,rBot-30,'Dean–Stark trap')+lab(rx+14,rBot-16,'water collects','start').replace('font-weight="700"','font-weight="400"');
+   s+=rigClamp(90,armY+40,rx,6);
+   condX=rx;condTop=12;condBot=rTop;}
+ s+=rigCondenser(condX,condTop,condBot,heatOn,t,edge);
+ if(!eq.rem)s+=rigClamp(90,110,condX,17);
+ // vapour + reflux drops inside the condenser
+ if(boil){const ringY=condBot-48+Math.sin(t*2)*4;s+=`<ellipse cx="${condX}" cy="${ringY.toFixed(1)}" rx="5" ry="2" fill="#fff" opacity=".7"/>`;
+   for(let i=0;i<3;i++){const ph=(t*.9+i/3)%1;const yy=ringY+ph*(eq.rem?20:(lvl-ringY));s+=`<ellipse cx="${condX}" cy="${yy.toFixed(1)}" rx="1.8" ry="2.6" fill="#BFE3F5" opacity="${(1-ph*.6).toFixed(2)}"/>`}}
+ // cooling water hoses (in at the bottom, out at the top)
+ const jb=condBot-18,jt=condTop+22;
+ s+=rigHose(`M${condX+31} ${jb-14} C${condX+120} ${jb-14} ${condX+125} ${BY-100} ${condX+138} ${BY+28}`,dk?'#5A2A2A':'#7A2E2E');
+ s+=rigHose(`M${condX-31} ${jt+14} C30 ${jt+14} 22 ${BY-120} 4 ${BY+12}`,dk?'#2C2C2C':'#3A3A3A');
+ s+=lab(condX+40,jb-22,heatOn?'cold water in ↑':'water off')+lab(condX-36,jt+6,'water out','end');
+ s+=lab(condX+26,(jt+jb)/2,'condenser');
+ // labels
+ s+=lab(cx-r-8,cy-r+6,'round-bottom','end')+lab(cx-r-8,cy-r+20,'flask','end')+lab(cx,BY+20,heatOn?'heating mantle · ON':'heating mantle · off','middle');
+ // ---- H₂SO₄ dropper bottle ----
+ const bx=530;s+=LabSVG.shadow(bx,BY,22)+`<path d="M${bx-16} ${BY} L${bx-16} ${BY-38} Q${bx-16} ${BY-46} ${bx-8} ${BY-48} L${bx+8} ${BY-48} Q${bx+16} ${BY-46} ${bx+16} ${BY-38} L${bx+16} ${BY}Z" fill="#6B3A12" opacity=".9"/>`+
+   `<rect x="${bx-12}" y="${BY-34}" width="24" height="20" rx="2" fill="#F5F0E6"/><rect x="${bx-4}" y="${BY-30}" width="8" height="8" transform="rotate(45 ${bx} ${BY-26})" fill="none" stroke="#E2711D" stroke-width="1.5"/>`+
+   `<text x="${bx}" y="${BY-16}" fill="#333" font-size="7" text-anchor="middle" font-weight="700" font-family="system-ui">H₂SO₄</text>`;
+ if(eq.cat)s+=`<path d="M${bx+22} ${BY-6} L${bx+52} ${BY-14}" stroke="#E8E2D2" stroke-width="5" stroke-linecap="round"/><ellipse cx="${bx+56}" cy="${BY-15}" rx="6" ry="4" fill="#3A3A3A"/>`+lab(bx,BY+20,'catalyst added','middle');
+ else s+=`<rect x="${bx-6}" y="${BY-60}" width="12" height="13" rx="2" fill="#2C2C2C"/><ellipse cx="${bx}" cy="${BY-63}" rx="7" ry="5" fill="#3A3A3A"/>`+lab(bx,BY+20,'catalyst (not added)','middle');
+ // ---- lab timer ----
+ const tx=650;s+=LabSVG.shadow(tx,BY,40)+`<rect x="${tx-42}" y="${BY-44}" width="84" height="44" rx="8" fill="${dk?'#E8ECEE':'#F4F6F7'}" stroke="rgba(0,0,0,.2)"/><rect x="${tx-34}" y="${BY-38}" width="68" height="22" rx="3" fill="#B9C7B0"/>`+
+   `<text x="${tx}" y="${BY-22}" fill="#1E2A1A" font-size="13" font-family="IBM Plex Mono,monospace" text-anchor="middle" font-weight="700">${fmtT(eq.t)}</text>`+
+   `<circle cx="${tx-14}" cy="${BY-8}" r="3" fill="${eq.running?'#2EBD5A':'#9AA'}"/><circle cx="${tx+14}" cy="${BY-8}" r="3" fill="#C44"/>`+lab(tx,BY+20,'time','middle');
+ // ---- "inside the flask" lens ----
+ const LX=640,LY=150,LR=92;const tot=Math.max(.2,p.a+p.b);const N=k=>Math.round(k/tot*22);
+ const items=[];const add=(n,type)=>{for(let i=0;i<n;i++)items.push(type)};add(N(p.a-x),'acid');add(N(p.b-x),'alc');add(N(x),'est');add(N(water),'wat');
+ s+=`<line x1="${cx+r*.7}" y1="${cy-r*.7}" x2="${LX-LR*.9}" y2="${LY+LR*.4}" stroke="${edge}" stroke-width="1.2" stroke-dasharray="4 4"/>`;
+ s+=`<defs><clipPath id="rigLens"><circle cx="${LX}" cy="${LY}" r="${LR-3}"/></clipPath></defs><circle cx="${LX}" cy="${LY}" r="${LR}" fill="${dk?'#1A2A30':'#FFFDF5'}" stroke="url(#lsv-steelV)" stroke-width="6"/><g clip-path="url(#rigLens)">`;
+ const sp=heatOn?2.2:.7;const C2={acid:dk?'#B79BFF':'#6E44C2',alc:dk?'#F2B45A':'#D88A1C',est:dk?'#56C3DF':'#0A6A88',wat:dk?'#9FD8F0':'#67B6DA'};
+ items.forEach((ty,i)=>{const a0=rnd(i*3+1)*6.283,rr=Math.sqrt(rnd(i*3+2))*(LR-16);const px=LX+rr*Math.cos(a0)+Math.sin(t*sp+i)*6,py=LY+rr*Math.sin(a0)+Math.cos(t*sp*1.1+i*1.7)*6,ang=(t*sp*20+i*40)%360;
+  if(ty==='wat')s+=`<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) rotate(${ang.toFixed(0)})"><circle r="4" fill="${C2.wat}"/><circle cx="-4" cy="3" r="2.2" fill="#fff" stroke="${C2.wat}"/><circle cx="4" cy="3" r="2.2" fill="#fff" stroke="${C2.wat}"/></g>`;
+  else if(ty==='est')s+=`<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) rotate(${ang.toFixed(0)})"><rect x="-11" y="-4.5" width="22" height="9" rx="4.5" fill="${C2.est}"/><circle cx="-6" r="2.2" fill="#fff" opacity=".5"/></g>`;
+  else s+=`<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) rotate(${ang.toFixed(0)})"><rect x="-7" y="-4" width="14" height="8" rx="4" fill="${C2[ty]}"/><circle cx="7" r="2.6" fill="${ty==='acid'?'#E0475A':'#fff'}" stroke="${C2[ty]}"/></g>`});
+ s+=`</g>`+lab(LX,LY-LR-8,'inside the flask','middle');
+ const leg=[['acid',C2.acid],['alcohol',C2.alc],['ester',C2.est],[eq.rem?'water (→ trap)':'water',C2.wat]];
+ leg.forEach(([nm,c],i)=>{const lx=LX-LR+4+(i%2)*96,ly=LY+LR+16+Math.floor(i/2)*15;s+=`<circle cx="${lx}" cy="${ly-4}" r="5" fill="${c}"/>`+lab(lx+9,ly,nm)});
+ sv.innerHTML=s}
 
 function drawAll(){if(!C.ink)readColors();if(tab==='eq'&&eq.hist)drawEq()}
 addEventListener('resize',drawAll);
