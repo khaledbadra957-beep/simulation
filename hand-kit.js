@@ -18,7 +18,7 @@
 
     /* ---------- scene ---------- */
     var renderer = new T.WebGLRenderer({ canvas: o.canvas, alpha: true, antialias: true }); renderer.setClearColor(0, 0);
-    renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
+    renderer.localClippingEnabled = true; k.renderer = renderer; renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
     var scene = k.scene = new T.Scene(), cam = k.cam = new T.PerspectiveCamera(40, 16 / 9, .1, 100); cam.position.set(0, 3.6, 11.5); cam.lookAt(0, 2.9, 0);
     var hemi = new T.HemisphereLight(0xffffff, 0x556677, .5); scene.add(hemi);
     var sun = new T.DirectionalLight(0xffffff, .7); sun.position.set(4, 9, 7); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
@@ -33,7 +33,7 @@
     var bench = new T.Mesh(new T.BoxGeometry(40, 3, 3.8), benchMat); bench.position.set(0, -1.5, -.1); bench.receiveShadow = true; scene.add(bench);
     var edgeMat = new T.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .7 });
     var edge = new T.Mesh(new T.BoxGeometry(40, .03, .05), edgeMat); edge.position.set(0, 0, 1.8); scene.add(edge);
-    k.theme = function () { var dk = isDark(); benchMat.color.set(dk ? 0x24343B : 0xB4BFBD); edgeMat.opacity = dk ? .15 : .7; hemi.intensity = dk ? .45 : .5; k.edgeMat.color.set(dk ? 0xBFE0EA : 0x3F6170); stage.classList.toggle('dk', dk); };
+    k.theme = function () { var dk = isDark(); benchMat.color.set(dk ? 0x24343B : 0xB4BFBD); edgeMat.opacity = dk ? .15 : .7; hemi.intensity = dk ? .45 : .5; k.edgeMat.color.set(dk ? 0xBFE0EA : 0x3F6170); k.outlines.forEach(function (m) { m.color.set(dk ? 0xBFE0EA : 0x3F6170); }); stage.classList.toggle('dk', dk); };
 
     /* ---------- materials and parts (the 2-D labs' look) ---------- */
     k.edgeMat = new T.MeshBasicMaterial({ color: 0x3F6170, transparent: true, opacity: .75 });
@@ -63,6 +63,22 @@
       }
       scene.add(grp); return { g: grp, liq: liq, r: r, h: h };
     };
+    /* glass vessel turned from a profile [[radius, height], ...]; returns { g, setLevel(y), radiusAt(y) } with liquid clipped at a level */
+    k.vessel = function (x, prof, o2) {
+      o2 = o2 || {}; var grp = new T.Group(); grp.position.set(x, o2.y || 0, o2.z || 0);
+      var pts = prof.map(function (p) { return new T.Vector2(p[0], p[1]); });
+      var wall = new T.Mesh(new T.LatheGeometry(pts, 48), k.glass(.22)); grp.add(wall);
+      var out = new T.Line(new T.BufferGeometry().setFromPoints(prof.map(function (p) { return new T.Vector3(p[0], p[1], 0); }).concat(prof.slice().reverse().map(function (p) { return new T.Vector3(-p[0], p[1], 0); }))), new T.LineBasicMaterial({ color: 0x3F6170, transparent: true, opacity: .8 })); grp.add(out); k.outlines.push(out.material);
+      var plane = new T.Plane(new T.Vector3(0, -1, 0), 0), lmat = new T.MeshStandardMaterial({ color: o2.liq || 0xBFD9E8, transparent: true, opacity: o2.op == null ? .5 : o2.op, roughness: .1, depthWrite: false, side: T.DoubleSide, clippingPlanes: [plane] });
+      var liq = new T.Mesh(new T.LatheGeometry(pts.map(function (p) { return new T.Vector2(Math.max(0, p.x - .04), p.y); }), 48), lmat); grp.add(liq);
+      var top = new T.Mesh(new T.CircleGeometry(1, 40), new T.MeshStandardMaterial({ color: o2.liq || 0xBFD9E8, transparent: true, opacity: .75, roughness: .05, depthWrite: false, side: T.DoubleSide })); top.rotation.x = -Math.PI / 2; grp.add(top);
+      var radiusAt = function (y) { for (var i = 1; i < prof.length; i++) { if (y <= prof[i][1] && prof[i][1] > prof[i - 1][1]) { var u = (y - prof[i - 1][1]) / (prof[i][1] - prof[i - 1][1]); return prof[i - 1][0] + (prof[i][0] - prof[i - 1][0]) * Math.max(0, u); } } return prof[prof.length - 1][0]; };
+      var v = { g: grp, liq: liq, top: top, mat: lmat, radiusAt: radiusAt, level: 0,
+        setLevel: function (y) { v.level = y; plane.constant = grp.position.y + y; var rr = Math.max(.01, radiusAt(y) - .045); top.scale.set(rr, rr, 1); top.position.y = y; top.visible = liq.visible = y > .03; },
+        setColor: function (hex, op) { lmat.color.set(hex); top.material.color.set(hex); if (op != null) { lmat.opacity = op; top.material.opacity = Math.min(.95, op + .2); } } };
+      v.setLevel(o2.level || 0); scene.add(grp); return v;
+    };
+    k.outlines = [];
     /* a small flat picture that always faces the camera: ions, electrons, labels */
     k.dot = function (col, label, size, ink) {
       var tex = canvasTex(96, 96, function (c) { var gr = c.createRadialGradient(36, 34, 4, 48, 48, 44); gr.addColorStop(0, '#fff'); gr.addColorStop(.35, col); gr.addColorStop(1, 'rgba(0,0,0,.55)'); c.fillStyle = col; c.beginPath(); c.arc(48, 48, 44, 0, 7); c.fill(); c.fillStyle = gr; c.globalAlpha = .75; c.fill(); c.globalAlpha = 1;
@@ -133,9 +149,9 @@
     function frame(now) {
       requestAnimationFrame(frame); var dt = Math.min(.05, (now - tPrev) / 1000 || .016); tPrev = now;
       if (st.cur.has) { var p = k.toWorld(st.cur.sx, st.cur.sy); k.cursorWorld = p;
-        if (k.held) k.held.position.set(Math.max(-k.halfW + .4, Math.min(k.halfW - .4, p.x + grabOff.x)), Math.max(.3, Math.min(6.7, p.y + grabOff.y)), k.held.userData.liftZ == null ? .9 : k.held.userData.liftZ);
+        if (k.held && !k.held.userData.fixed) k.held.position.set(Math.max(-k.halfW + .4, Math.min(k.halfW - .4, p.x + grabOff.x)), Math.max(.3, Math.min(6.7, p.y + grabOff.y)), k.held.userData.liftZ == null ? .9 : k.held.userData.liftZ);
         else k.hover = nearest(p); }
-      k.items.forEach(function (it) { var u = it.userData; if (it !== k.held) it.position.lerp(u.goal, .2); var s = (u.scale || 1) * (it === k.held ? 1.07 : (it === k.hover && !st.pinch ? 1.05 : 1)); it.scale.setScalar(it.scale.x + (s - it.scale.x) * .25); });
+      k.items.forEach(function (it) { var u = it.userData; if (it !== k.held || u.fixed) it.position.lerp(u.goal, .2); var s = (u.scale || 1) * (it === k.held ? 1.07 : (it === k.hover && !st.pinch ? 1.05 : 1)); it.scale.setScalar(it.scale.x + (s - it.scale.x) * .25); });
       if (o.onFrame) o.onFrame(dt, now);
       renderer.render(scene, cam);
       g.clearRect(0, 0, k.W, k.H);
