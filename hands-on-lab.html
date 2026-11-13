@@ -1,64 +1,27 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Hands-On Lab</title>
+<title>Hands-On Lab: Galvanic Cell</title>
 <meta name="description" content="Build a galvanic cell with your own hands: the camera tracks your hand, pinch to grab the metals, the salt bridge, the bulb and the word cards. Works with mouse or touch too.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-<style>
-/* A dark "mixed reality" stage: the student's camera picture sits dimmed behind a 3-D bench.
-   Everything that can be picked up glows slightly when the hand is near it. */
-:root{--bg:#0D161A;--surface:#142127;--line:#2B3D44;--ink:#E7EFF1;--muted:#94A7AE;--accent:#56C3DF;--accent-ink:#06222B;--ok:#4ACB8A;--bad:#FF8A7A;--brass:#E0BC5E;
- --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;--body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;--data:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;color-scheme:dark}
-*{box-sizing:border-box}[hidden]{display:none!important}
-html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
-.wrap{max-width:1280px;margin-inline:auto;padding:clamp(14px,3vw,32px);display:flex;flex-direction:column;gap:16px}
-.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px}
-.mk-home:hover,.mk-home:focus-visible{opacity:1}
-.eyebrow{margin:0;font-family:var(--data);font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-h1{margin:.1em 0 .15em;font-family:var(--display);font-weight:800;font-size:clamp(1.9rem,4.6vw,3rem);line-height:1.03;letter-spacing:-.02em}
-.lede{margin:0;max-width:66ch;color:var(--muted)}
-.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:16px;align-items:start}
-@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
-.stage{position:relative;width:100%;aspect-ratio:var(--ar,1.7778);background:radial-gradient(ellipse at 50% 35%,#182733,#070C10 78%);border:1.5px solid var(--line);border-radius:14px;overflow:hidden;touch-action:none;cursor:grab}
-.stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-#video{object-fit:cover;transform:scaleX(-1);opacity:.33}
-#hud{pointer-events:none}
-#intro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:20px;background:rgba(7,12,16,.72)}
-#intro h2{margin:0;font-family:var(--display);font-size:clamp(1.4rem,3.4vw,2rem)}
-#intro p{margin:0;color:var(--muted);max-width:48ch}
-button{font:inherit;color:var(--ink);cursor:pointer}
-.btn{border:1.5px solid var(--line);background:#0F1B20;border-radius:10px;padding:9px 15px;font-weight:700}
-.btn:hover{border-color:var(--accent)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn:disabled{opacity:.55;cursor:default}
-button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-aside{display:flex;flex-direction:column;gap:12px;min-width:0}
-.card{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
-.card h3{margin:0 0 8px;font-family:var(--data);font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-#status{font-weight:700}#status.ok{color:var(--ok)}#status.bad{color:var(--bad)}
-ol.steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
-ol.steps li{display:flex;gap:8px;align-items:flex-start;font-size:.95rem}
-ol.steps li i{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid var(--line);margin-top:2px;display:grid;place-items:center;font-style:normal;font-size:11px;color:var(--accent-ink)}
-ol.steps li.done i{background:var(--ok);border-color:var(--ok)}ol.steps li.done i::before{content:"✓"}ol.steps li.done{color:var(--muted)}
-.small{font-size:.86rem;color:var(--muted);margin:0}
-label.ck{display:flex;gap:8px;align-items:center;font-size:.95rem;cursor:pointer}
-input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
-#say{min-height:3em}
-</style></head><body>
+<link rel="stylesheet" href="hand-kit.css">
+</head><body>
 <div class="wrap">
  <a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
  <header>
-  <p class="eyebrow">Grade 10–12 Chemistry · Electrochemistry · Camera lab</p>
-  <h1>Hands-On Lab</h1>
-  <p class="lede">Build a galvanic cell with your own hand. Hold your hand up to the camera, pinch your thumb and first finger together to pick something up, move it, and open your fingers to let go.</p>
+  <div>
+   <p class="eyebrow">Grade 10–12 Chemistry · Electrochemistry · Camera lab</p>
+   <h1>Hands-On Lab: Galvanic Cell</h1>
+   <p class="lede">Build the same zinc–copper cell as in the Galvanic Cell Lab, with your own hand. Hold your hand up to the camera, pinch your thumb and first finger together to pick something up, move it, and open your fingers to let go.</p>
+  </div>
+  <div class="row"><a class="btn" href="galvanic-cell-lab.html" style="text-decoration:none">2-D Galvanic Cell Lab</a><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
  </header>
  <div class="grid">
   <div class="stage" id="stage">
    <video id="video" playsinline muted autoplay hidden></video>
-   <canvas id="gl" aria-label="3-D lab bench with two beakers, metal strips, a salt bridge, a bulb and word cards"></canvas>
-   <canvas id="hud"></canvas>
-   <div id="intro">
+   <canvas id="gl" aria-label="3-D lab bench with two beakers, metal strips, a salt bridge, a multimeter, a bulb and word cards"></canvas>
+   <canvas id="hud" class="hud"></canvas>
+   <div class="intro" id="intro">
     <h2>Pinch to grab</h2>
     <p>The camera follows your hand. Your video stays on this device and is never uploaded.</p>
     <div class="row" style="justify-content:center">
@@ -68,14 +31,14 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
    </div>
   </div>
   <aside>
-   <div class="card"><div id="status">Choose how you want to play.</div></div>
-   <div class="card"><h3>What happened</h3><p class="small" id="say" style="color:var(--ink)">Pick up the zinc strip first.</p></div>
+   <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
+   <div class="card"><h3>What happened</h3><p class="say" id="say">Pick up the zinc strip first.</p></div>
    <div class="card"><h3>Build the cell</h3>
     <ol class="steps" id="steps">
      <li data-s="zn"><i></i><span>Zinc strip into the zinc sulfate (clear)</span></li>
      <li data-s="cu"><i></i><span>Copper strip into the copper sulfate (blue)</span></li>
      <li data-s="bridge"><i></i><span>Salt bridge across the two beakers</span></li>
-     <li data-s="lamp"><i></i><span>Bulb above, to join the two metals</span></li>
+     <li data-s="lamp"><i></i><span>Bulb on the rail, to complete the circuit</span></li>
      <li data-s="cards"><i></i><span>Drop each word card on the right part</span></li>
     </ol>
    </div>
@@ -89,193 +52,135 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="hand-kit.js"></script>
 <script>
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const stage=$('stage'),video=$('video'),hud=$('hud'),statusEl=$('status');
-const setStatus=(t,c)=>{statusEl.textContent=t;statusEl.className=c||''};
+const setStatus=(t,c)=>{$('status').textContent=t;$('status').className='status '+(c||'')};
 const say=t=>{$('say').textContent=t};
 if(!window.THREE){setStatus('The 3-D engine could not load. Check the internet connection and reload.','bad');return}
-const T=THREE;
-const MP='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
-const HAND_MODEL='https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0);
+const BX=1.95,SLOT={zn:V(-BX,1.95),cu:V(BX,1.95),bridge:V(0,3.3,.35),lamp:V(2.35,5.06)};
+const LABELPOS={anode:V(-4.25,3.0,.4),cathode:V(4.25,3.0,.4),saltb:V(0,.95,1.0)};
+const CARDTARGET={anode:V(-BX,2.5),cathode:V(BX,2.5),saltb:V(0,3.0)};
+const occupied={L:null,R:null};let cards=[];
+const K=HandKit.create({stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
+ layout(k){const lx=-(k.halfW-1.15),rx=k.halfW-1.25,wide=k.halfW>6.7;
+  zn.userData.home.set(lx-.4,1.77,0);cu.userData.home.set(lx+.5,1.77,0);if(wide)bridge.userData.home.set(lx+2.1,2.25,0);else bridge.userData.home.set(lx+.3,5.9,0);
+  lamp.userData.home.set(rx,5.3,0);cards.forEach((c,i)=>c.userData.home.set(rx,3.7-i*.85,.4))},
+ onGrab(it){unplace(it);steps()},onDrop:drop,onFrame:frame,onHUD:hudDraw,
+ targets(it){const u=it.userData;return u.kind==='strip'?[SLOT.zn,SLOT.cu]:u.kind==='bridge'?[SLOT.bridge]:u.kind==='lamp'?[SLOT.lamp]:Object.values(CARDTARGET)}});
+const scene=K.scene;
 
-/* ---------- scene ---------- */
-const renderer=new T.WebGLRenderer({canvas:$('gl'),alpha:true,antialias:true});renderer.setClearColor(0,0);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
-const scene=new T.Scene(),cam=new T.PerspectiveCamera(40,16/9,.1,100);cam.position.set(0,3.1,11.5);cam.lookAt(0,2.3,0);
-scene.add(new T.HemisphereLight(0xffffff,0x334455,.75));
-const sun=new T.DirectionalLight(0xffffff,.9);sun.position.set(4,9,7);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-9,right:9,top:9,bottom:-3,near:1,far:30});scene.add(sun);
-// bench
-const bench=new T.Mesh(new T.BoxGeometry(30,.5,7),new T.MeshStandardMaterial({color:0x3B4A52,roughness:.55,metalness:.1}));bench.position.set(0,-.25,0);bench.receiveShadow=true;scene.add(bench);
-const edge=new T.Mesh(new T.BoxGeometry(30,.06,.08),new T.MeshBasicMaterial({color:0x7E929B}));edge.position.set(0,0,3.5);scene.add(edge);
-const metal=(c,r)=>new T.MeshStandardMaterial({color:c,metalness:.25,roughness:r||.35});
-const glass=()=>new T.MeshPhysicalMaterial({color:0xCFE8F2,transparent:true,opacity:.22,roughness:.05,metalness:0,side:T.DoubleSide,depthWrite:false});
-function beaker(x,liq,op){const g=new T.Group();g.position.set(x,0,0);
- const wall=new T.Mesh(new T.CylinderGeometry(1.15,1.15,2.5,40,1,true),glass());wall.position.y=1.25;g.add(wall);
- const rim=new T.Mesh(new T.TorusGeometry(1.15,.035,8,48),new T.MeshStandardMaterial({color:0xE8F6FB,transparent:true,opacity:.7}));rim.rotation.x=Math.PI/2;rim.position.y=2.5;g.add(rim);
- const l=new T.Mesh(new T.CylinderGeometry(1.08,1.08,1.5,40),new T.MeshStandardMaterial({color:liq,transparent:true,opacity:op,roughness:.15,depthWrite:false}));l.position.y=.83;g.add(l);
- scene.add(g);return {g,l}}
-const bkL=beaker(-1.75,0xBFD6E2,.38),bkR=beaker(1.75,0x2F86D6,.62);
+/* ---------- fixed apparatus, laid out like the 2-D lab ---------- */
+const bkL=K.beaker(-BX,{r:1.3,h:2.8,liq:0xB7D3E3,op:.42,level:1.75}),bkR=K.beaker(BX,{r:1.3,h:2.8,liq:0x2F86D6,op:.72,level:1.75});
+const chrome=K.metal(0xC9D1D6);
+{// rail on two posts that carries the switch, the meter and the bulb
+ const rail=new T.Mesh(new T.CylinderGeometry(.055,.055,7.4,12),chrome);rail.rotation.z=Math.PI/2;rail.position.set(0,4.9,-.25);scene.add(rail);
+ for(const s of [-1,1]){const post=new T.Mesh(new T.CylinderGeometry(.06,.06,4.9,12),chrome);post.position.set(s*3.65,2.45,-.25);post.castShadow=true;scene.add(post);
+  const foot=new T.Mesh(new T.BoxGeometry(.9,.1,.7),new T.MeshStandardMaterial({color:0x2D363B,roughness:.6}));foot.position.set(s*3.65,.05,-.25);scene.add(foot)}}
+const brass=new T.MeshStandardMaterial({color:0xD8B45A,metalness:.6,roughness:.3});
+{// knife switch (closed)
+ const g=new T.Group();g.position.set(-2.35,4.96,0);const base=new T.Mesh(new T.BoxGeometry(1.35,.14,.5),new T.MeshStandardMaterial({color:0xF4F3EE,roughness:.4}));base.position.y=.07;g.add(base);
+ for(const s of [-1,1]){const p=new T.Mesh(new T.BoxGeometry(.12,.26,.14),brass);p.position.set(s*.42,.27,0);g.add(p);const sc=new T.Mesh(new T.SphereGeometry(.06,10,8),brass);sc.position.set(s*.58,.16,.12);g.add(sc)}
+ const blade=new T.Mesh(new T.BoxGeometry(.95,.06,.1),new T.MeshStandardMaterial({color:0xC27740,metalness:.6,roughness:.35}));blade.position.set(0,.36,0);g.add(blade);
+ const knob=new T.Mesh(new T.SphereGeometry(.11,14,10),new T.MeshStandardMaterial({color:0x16191C,roughness:.5}));knob.scale.set(1.4,1,1);knob.position.set(.6,.37,0);g.add(knob);
+ g.traverse(m=>{if(m.isMesh)m.castShadow=true});scene.add(g)}
+// yellow multimeter with a live screen
+let lcdTex,lcdText='';
+{const g=new T.Group();g.position.set(0,4.96,0);const body=new T.Mesh(new T.BoxGeometry(1.5,1.15,.34),new T.MeshStandardMaterial({color:0xF2B41F,roughness:.55}));body.position.y=.575;g.add(body);
+ const face=new T.Mesh(new T.PlaneGeometry(1.3,.95),new T.MeshStandardMaterial({color:0x2A2F34,roughness:.6}));face.position.set(0,.575,.172);g.add(face);
+ const c=document.createElement('canvas');c.width=256;c.height=112;lcdTex=new T.CanvasTexture(c);lcdTex.userData={c};
+ const lcd=new T.Mesh(new T.PlaneGeometry(1.08,.47),new T.MeshBasicMaterial({map:lcdTex}));lcd.position.set(0,.74,.176);g.add(lcd);
+ const dial=new T.Mesh(new T.CylinderGeometry(.13,.13,.05,20),new T.MeshStandardMaterial({color:0x16191C}));dial.rotation.x=Math.PI/2;dial.position.set(0,.3,.19);g.add(dial);
+ for(const [s,col] of [[-1,0x16191C],[1,0xC62828]]){const j=new T.Mesh(new T.CylinderGeometry(.06,.06,.05,14),new T.MeshStandardMaterial({color:col}));j.rotation.x=Math.PI/2;j.position.set(s*.45,.2,.19);g.add(j)}
+ g.traverse(m=>{if(m.isMesh)m.castShadow=true});scene.add(g)}
+function lcd(v,i){const s=v+'|'+i;if(s===lcdText)return;lcdText=s;const c=lcdTex.userData.c,x=c.getContext('2d');const gr=x.createLinearGradient(0,0,0,112);gr.addColorStop(0,'#D3DEC2');gr.addColorStop(1,'#AFBE98');x.fillStyle=gr;x.fillRect(0,0,256,112);
+ x.fillStyle='#17210F';x.textAlign='right';x.font='700 44px "IBM Plex Mono",monospace';x.fillText(v,176,48);x.fillText(i,176,98);x.textAlign='left';x.font='700 26px "IBM Plex Mono",monospace';x.fillText('V',186,48);x.fillText('mA',186,98);lcdTex.needsUpdate=true}
 
-/* things that can be picked up */
-const items=[];
-function addItem(id,obj,o){obj.userData=Object.assign({id,home:new T.Vector3(),goal:new T.Vector3(),placed:false,locked:false,r:1.0},o||{});obj.traverse(m=>{if(m.isMesh)m.castShadow=true});scene.add(obj);items.push(obj);return obj}
-const strip=(c)=>{const m=new T.Mesh(new T.BoxGeometry(.52,3.2,.12),metal(c));return m};
-const zn=addItem('zn',strip(0xB9C3CC),{name:'zinc',kind:'strip'}),cu=addItem('cu',strip(0xD9823F),{name:'copper',kind:'strip'});
-// salt bridge: an upside-down U tube
-const bridge=new T.Group();{const mat=new T.MeshStandardMaterial({color:0xF1EFE6,roughness:.5});
- const arc=new T.Mesh(new T.TorusGeometry(1.0,.15,12,36,Math.PI),mat);bridge.add(arc);
- for(const s of [-1,1]){const leg=new T.Mesh(new T.CylinderGeometry(.15,.15,1.6,16),mat);leg.position.set(s*1.0,-.8,0);bridge.add(leg);
-  const plug=new T.Mesh(new T.SphereGeometry(.17,12,10),new T.MeshStandardMaterial({color:0xFFFFFF}));plug.position.set(s*1.0,-1.6,0);bridge.add(plug)}}
-addItem('bridge',bridge,{name:'salt bridge',kind:'bridge',r:1.25});
-// bulb on a small holder
-const lamp=new T.Group();let bulbMat,filMat;{const board=new T.Mesh(new T.BoxGeometry(1.1,.16,.5),new T.MeshStandardMaterial({color:0x9A6A3A,roughness:.7}));lamp.add(board);
- const sock=new T.Mesh(new T.CylinderGeometry(.16,.18,.3,16),metal(0xBFC6CB,.4));sock.position.y=.22;lamp.add(sock);
- bulbMat=new T.MeshStandardMaterial({color:0xFFF6D8,transparent:true,opacity:.45,roughness:.1,emissive:0xFFC860,emissiveIntensity:0});
+/* ---------- things to pick up ---------- */
+const strip=c=>new T.Mesh(new T.BoxGeometry(.52,3.5,.12),K.metal(c,true));
+const zn=K.addItem('zn',strip(0x9FABB7),{name:'Zn',kind:'strip'}),cu=K.addItem('cu',strip(0xC27740),{name:'Cu',kind:'strip'});
+const bridge=new T.Group();{const gel=new T.MeshStandardMaterial({color:0xE9E1CB,roughness:.7}),gl=K.glass(.4);
+ bridge.add(new T.Mesh(new T.TorusGeometry(1.0,.12,12,40,Math.PI),gel));bridge.add(new T.Mesh(new T.TorusGeometry(1.0,.17,12,40,Math.PI),gl));
+ for(const s of [-1,1]){const leg=new T.Mesh(new T.CylinderGeometry(.12,.12,1.9,16),gel);leg.position.set(s,-.95,0);bridge.add(leg);const lg=new T.Mesh(new T.CylinderGeometry(.17,.17,1.9,16,1,true),gl);lg.position.set(s,-.95,0);bridge.add(lg);
+  for(const e of [-1,1]){const ln=new T.Mesh(new T.BoxGeometry(.025,1.9,.025),K.edgeMat);ln.position.set(s+e*.17,-.95,0);bridge.add(ln)}
+  const cotton=new T.MeshStandardMaterial({color:0xFFFFFF,roughness:1});for(let k=0;k<5;k++){const p=new T.Mesh(new T.SphereGeometry(.09+.03*(k%2),8,6),cotton);p.position.set(s+(k-2)*.05,-1.9-(k%2)*.06,(k%3-1)*.06);bridge.add(p)}}
+ for(const rr of [.83,1.17]){const o=new T.Mesh(new T.TorusGeometry(rr,.013,6,40,Math.PI),K.edgeMat);bridge.add(o)}}
+K.addItem('bridge',bridge,{name:'salt bridge',kind:'bridge',r:1.3,grabY:-.7});
+const lamp=new T.Group();let bulbMat,filMat;{const board=new T.Mesh(new T.BoxGeometry(1.25,.16,.5),new T.MeshStandardMaterial({color:0xA8743F,roughness:.75}));lamp.add(board);
+ const sock=new T.Mesh(new T.CylinderGeometry(.16,.18,.3,16),K.metal(0xC9D1D6));sock.position.y=.22;lamp.add(sock);
+ bulbMat=new T.MeshStandardMaterial({color:0xFFF6D8,transparent:true,opacity:.4,roughness:.05,emissive:0xFFC860,emissiveIntensity:0});
  const bulb=new T.Mesh(new T.SphereGeometry(.34,24,18),bulbMat);bulb.position.y=.66;lamp.add(bulb);
  filMat=new T.MeshStandardMaterial({color:0x666666,emissive:0xFFB040,emissiveIntensity:0});const fil=new T.Mesh(new T.TorusGeometry(.1,.02,8,16),filMat);fil.position.y=.64;lamp.add(fil);
- for(const s of [-1,1]){const t=new T.Mesh(new T.SphereGeometry(.07,10,8),metal(0xD8B45A));t.position.set(s*.42,.1,0);lamp.add(t)}}
-addItem('lamp',lamp,{name:'bulb',kind:'lamp'});
+ for(const s of [-1,1]){const t=new T.Mesh(new T.SphereGeometry(.07,10,8),brass);t.position.set(s*.47,.12,.05);lamp.add(t)}}
+K.addItem('lamp',lamp,{name:'bulb',kind:'lamp'});
+cards=[['anode','ANODE (−)','oxidation','#C0392B'],['cathode','CATHODE (+)','reduction','#2F6FD0'],['saltb','SALT BRIDGE','ions move','#1E1A10']].map(([id,t,s,c])=>K.addItem(id,K.card(t,s,c),{name:'',kind:'card',r:.95}));
 const glow=new T.PointLight(0xFFC060,0,9);scene.add(glow);
-const halo=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),gr=x.createRadialGradient(64,64,4,64,64,64);gr.addColorStop(0,'rgba(255,240,190,1)');gr.addColorStop(.3,'rgba(255,200,100,.55)');gr.addColorStop(1,'rgba(255,180,80,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
- const sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),transparent:true,opacity:0,depthWrite:false,blending:T.AdditiveBlending}));sp.scale.set(3,3,1);scene.add(sp);return sp})();
-// word cards
-function card(text,sub){const c=document.createElement('canvas');c.width=512;c.height=168;const x=c.getContext('2d');
- x.fillStyle='#FFF8DC';x.beginPath();const r=26;x.moveTo(r,4);x.arcTo(508,4,508,164,r);x.arcTo(508,164,4,164,r);x.arcTo(4,164,4,4,r);x.arcTo(4,4,508,4,r);x.fill();x.strokeStyle='#B8913A';x.lineWidth=6;x.stroke();
- x.fillStyle='#1E1A10';x.textAlign='center';x.font='800 58px "Bricolage Grotesque","Trebuchet MS",sans-serif';x.fillText(text,256,78);x.font='600 34px "Atkinson Hyperlegible",sans-serif';x.fillStyle='#5A5036';x.fillText(sub,256,130);
- const tex=new T.CanvasTexture(c);const m=new T.Mesh(new T.PlaneGeometry(1.9,.62),new T.MeshBasicMaterial({map:tex,transparent:true}));return m}
-const CARDS=[['anode','ANODE (−)','oxidation'],['cathode','CATHODE (+)','reduction'],['saltb','SALT BRIDGE','ions move']];
-const cards=CARDS.map(([id,t,s])=>addItem(id,card(t,s),{name:'',kind:'card',r:.95}));
+const halo=new T.Sprite(new T.SpriteMaterial({map:K.canvasTex(128,128,(x)=>{const gr=x.createRadialGradient(64,64,4,64,64,64);gr.addColorStop(0,'rgba(255,225,150,1)');gr.addColorStop(.3,'rgba(255,180,70,.6)');gr.addColorStop(1,'rgba(255,160,50,0)');x.fillStyle=gr;x.fillRect(0,0,128,128)}),transparent:true,opacity:0,depthWrite:false}));halo.scale.set(2.6,2.6,1);scene.add(halo);
 
-/* where things belong */
-const SLOT={zn:new T.Vector3(-1.75,1.78,0),cu:new T.Vector3(1.75,1.78,0),bridge:new T.Vector3(0,3.0,.35),lamp:new T.Vector3(0,4.55,0)};
-const LABELPOS={anode:new T.Vector3(-3.55,3.0,.4),cathode:new T.Vector3(3.55,3.0,.4),saltb:new T.Vector3(0,.42,1.5)};
-const CARDTARGET={anode:new T.Vector3(-1.75,2.3,0),cathode:new T.Vector3(1.75,2.3,0),saltb:new T.Vector3(0,2.7,0)};
-const occupied={L:null,R:null};
-let W=640,H=360,halfW=7;
-function layout(){const halfH=Math.tan(20*Math.PI/180)*11.5;halfW=halfH*cam.aspect;const lx=-(halfW-1.15),rx=halfW-1.25;
- const wide=halfW>6.7;zn.userData.home.set(lx-.35,1.62,0);cu.userData.home.set(lx+.7,1.62,0);if(wide)bridge.userData.home.set(lx+2.35,2.05,0);else bridge.userData.home.set(lx+.3,5.55,0);lamp.userData.home.set(rx,4.9,0);
- cards.forEach((c,i)=>c.userData.home.set(rx,3.3-i*.85,.4));
- for(const it of items)if(!it.userData.placed&&held!==it)it.userData.goal.copy(it.userData.home)}
-function resize(){const r=stage.getBoundingClientRect();W=Math.max(2,Math.round(r.width));H=Math.max(2,Math.round(r.height));renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H,false);
- cam.aspect=W/H;cam.updateProjectionMatrix();hud.width=W;hud.height=H;layout()}
+/* ions drifting in the two solutions, labelled like the 2-D lab */
+const ions=[];function addIons(cx,col,lab){for(let i=0;i<12;i++){const cat=i<6;const s=K.dot(cat?col:'#E07AA8',cat?lab:'−',cat?.32:.28);s.userData={cx,x:(Math.random()-.5)*2,y:.3+Math.random()*1.4,vx:0,vy:0,z:.3+Math.random()*.6};scene.add(s);ions.push(s)}}
+addIons(-BX,'#DDE6EE','2+');addIons(BX,'#3F96E6','2+');
 
-/* wires and electrons appear once the bulb joins the two metals */
-const wireMat=new T.MeshStandardMaterial({color:0x1E2327,roughness:.6}),wireMatR=new T.MeshStandardMaterial({color:0xC8302C,roughness:.6});
-let wires=[],path=null;const electrons=[];
-for(let i=0;i<14;i++){const e=new T.Mesh(new T.SphereGeometry(.07,10,8),new T.MeshStandardMaterial({color:0xFFE066,emissive:0xFFB300,emissiveIntensity:1.6}));e.visible=false;scene.add(e);electrons.push(e)}
+/* cables, clips and electrons */
+const wireB=new T.MeshStandardMaterial({color:0x1E2327,roughness:.55}),wireR=new T.MeshStandardMaterial({color:0xC8302C,roughness:.55});
+let wires=[],path=null;const electrons=[];for(let i=0;i<18;i++){const e=K.dot('#FFD23F','−',.2);e.visible=false;scene.add(e);electrons.push(e)}
+const clips={};for(const [id,col] of [['zn',0x1E2327],['cu',0xC8302C]]){const g=new T.Group();const boot=new T.Mesh(new T.BoxGeometry(.3,.34,.24),new T.MeshStandardMaterial({color:col,roughness:.5}));boot.position.y=.2;g.add(boot);
+ const jaw=new T.Mesh(new T.BoxGeometry(.4,.22,.28),K.metal(0xD5DADE));jaw.position.y=-.05;g.add(jaw);g.visible=false;scene.add(g);clips[id]=g}
+const P={znTop:V(-BX,4.0,.02),swL:V(-2.93,5.12,.12),swR:V(-1.77,5.12,.12),mL:V(-.45,5.16,.2),mR:V(.45,5.16,.2),bL:V(1.88,5.18,.06),bR:V(2.82,5.18,.06),cuTop:V(BX,4.0,.02)};
 function buildWires(){wires.forEach(w=>{scene.remove(w);w.geometry.dispose()});wires=[];path=null;
- if(!(zn.userData.placed&&cu.userData.placed&&lamp.userData.placed))return;
- const L=[new T.Vector3(-1.75,3.38,0),new T.Vector3(-1.75,4.25,.05),new T.Vector3(-1.0,4.75,.05),new T.Vector3(-.42,4.65,0)],R=[new T.Vector3(.42,4.65,0),new T.Vector3(1.0,4.75,.05),new T.Vector3(1.75,4.25,.05),new T.Vector3(1.75,3.38,0)];
- const cL=new T.CatmullRomCurve3(L),cR=new T.CatmullRomCurve3(R);
- [[cL,wireMat],[cR,wireMatR]].forEach(([c,m])=>{const w=new T.Mesh(new T.TubeGeometry(c,24,.045,8),m);scene.add(w);wires.push(w)});
- path=new T.CurvePath();path.add(cL);path.add(new T.LineCurve3(L[3],R[0]));path.add(cR)}
+ const zp=zn.userData.placed,cp=cu.userData.placed,lp=lamp.userData.placed;clips.zn.visible=zp;clips.cu.visible=cp&&lp;clips.zn.position.set(-BX,3.76,0);clips.cu.position.set(BX,3.76,0);
+ const curves=[];const add=(pts,mat,show)=>{const c=new T.CatmullRomCurve3(pts);if(show){const w=new T.Mesh(new T.TubeGeometry(c,28,.05,8),mat);w.castShadow=true;scene.add(w);wires.push(w)}return c};
+ const c1=add([P.znTop,V(-BX-.05,4.45,.1),V(-2.7,4.55,.2),V(-3.1,4.85,.2),P.swL],wireB,zp);
+ const c2=add([P.swR,V(-1.45,4.72,.25),V(-.75,4.7,.25),P.mL],wireB,true);
+ const c3=add([P.mR,V(.75,4.7,.25),V(1.5,4.72,.2),P.bL],wireR,lp);
+ const c4=add([P.bR,V(3.05,4.85,.2),V(2.65,4.55,.2),V(BX+.05,4.45,.1),P.cuTop],wireR,lp&&cp);
+ if(zp&&cp&&lp){path=new T.CurvePath();[c1,new T.LineCurve3(P.swL,P.swR),c2,new T.LineCurve3(P.mL,P.mR),c3,new T.LineCurve3(P.bL,P.bR),c4].forEach(c=>path.add(c))}}
 
-/* ---------- state ---------- */
-const st={mode:null,cur:{x:.5,y:.5,sx:0,sy:0,has:false},pinch:false,lms:null,seen:0,power:0,done:false};
-let held=null,grabOff=new T.Vector3(),hover=null;
+/* ---------- rules ---------- */
+const state={power:0,done:false,eT:0};
 const running=()=>zn.userData.placed&&cu.userData.placed&&bridge.userData.placed&&lamp.userData.placed;
-function steps(){const all=cards.every(c=>c.userData.locked);
- document.querySelectorAll('#steps li').forEach(li=>{const k=li.dataset.s;li.classList.toggle('done',k==='cards'?all:!!({zn,cu,bridge,lamp})[k].userData.placed)});
- if(running()&&all&&!st.done){st.done=true;say('Cell complete! Zinc is oxidised (anode), copper ions are reduced (cathode), electrons travel through the wire and light the bulb, and the salt bridge keeps both solutions neutral. E° = 1.10 V.');setStatus('Well done: the cell works and every part is named.','ok')}}
-const world=new T.Vector3(),ray=new T.Vector3();
-function toWorld(sx,sy){ray.set(sx/W*2-1,1-sy/H*2,.5).unproject(cam).sub(cam.position).normalize();const t=-cam.position.z/ray.z;return world.copy(cam.position).addScaledVector(ray,t)}
-function toScreen(v){const p=v.clone().project(cam);return [(p.x+1)/2*W,(1-p.y)/2*H]}
-function nearest(p){let best=null,bd=1e9;for(const it of items){if(it.userData.locked)continue;const d=Math.hypot(it.position.x-p.x,it.position.y-p.y-(it.userData.kind==='bridge'?-.6:0));if(d<it.userData.r&&d<bd){bd=d;best=it}}return best}
-function unplace(it){const u=it.userData;if(!u.placed)return;u.placed=false;if(u.kind==='strip'){if(occupied.L===it)occupied.L=null;if(occupied.R===it)occupied.R=null}st.done=false;buildWires()}
-function grab(){const p=toWorld(st.cur.sx,st.cur.sy);const it=nearest(p);if(!it)return;held=it;unplace(it);grabOff.set(it.position.x-p.x,it.position.y-p.y,0);stage.style.cursor='grabbing';steps()}
-function drop(){const it=held;held=null;stage.style.cursor='grab';if(!it)return;const u=it.userData,p=it.position;const near=(v,r)=>Math.hypot(p.x-v.x,p.y-v.y)<(r||1.5);
- const home=()=>{u.goal.copy(u.home)};
+function steps(){const all=cards.every(c=>c.userData.locked);let first=true;
+ document.querySelectorAll('#steps li').forEach(li=>{const k=li.dataset.s,d=k==='cards'?all:!!({zn,cu,bridge,lamp})[k].userData.placed;li.classList.toggle('done',d);li.classList.toggle('now',!d&&first);if(!d)first=false});
+ if(running()&&all&&!state.done){state.done=true;say('Cell complete! Zinc is oxidised (anode), copper ions are reduced (cathode), electrons travel through the wire and light the bulb, and the salt bridge keeps both solutions neutral. E° = 1.10 V.');setStatus('Well done: the cell works and every part is named.','ok')}}
+function unplace(it){const u=it.userData;if(!u.placed)return;u.placed=false;if(u.kind==='strip'){if(occupied.L===it)occupied.L=null;if(occupied.R===it)occupied.R=null}state.done=false;buildWires()}
+function drop(it){const u=it.userData,near=(v,r)=>K.near(it,v,r),home=()=>K.home(it);
  if(u.kind==='strip'){const side=near(SLOT.zn)?'L':near(SLOT.cu)?'R':null;
   if(!side){home();return}
   if(occupied[side]){home();say('That beaker already has a metal strip in it.');return}
-  const right=(u.id==='zn')===(side==='L');
-  if(!right){home();say(u.id==='zn'?'Zinc straight into copper sulfate: copper would plate onto the zinc directly and the electrons would never go through the wire. Each metal goes into the solution of its own ions.':'Copper in zinc sulfate: nothing happens. Copper is less reactive than zinc, so it cannot push zinc out of the solution. Put copper in the blue copper sulfate.');return}
+  if((u.id==='zn')!==(side==='L')){home();say(u.id==='zn'?'Zinc straight into copper sulfate: copper would plate onto the zinc directly and the electrons would never go through the wire. Each metal goes into the solution of its own ions.':'Copper in zinc sulfate: nothing happens. Copper is less reactive than zinc, so it cannot push zinc out of the solution. Put copper in the blue copper sulfate.');return}
   occupied[side]=it;u.placed=true;u.goal.copy(side==='L'?SLOT.zn:SLOT.cu);say(u.id==='zn'?'Zinc is in zinc sulfate. This will be the anode: zinc atoms will leave electrons behind and go into the solution.':'Copper is in copper sulfate. This will be the cathode: copper ions will take electrons and stick to the strip.')}
  else if(u.kind==='bridge'){if(near(SLOT.bridge,1.8)){u.placed=true;u.goal.copy(SLOT.bridge);say('The salt bridge joins the two solutions. Its ions move to keep each beaker neutral, so the current can keep flowing.')}else home()}
- else if(u.kind==='lamp'){if(near(SLOT.lamp,1.8)){u.placed=true;u.goal.copy(SLOT.lamp);say(zn.userData.placed&&cu.userData.placed?'The bulb is wired to both metals.':'The bulb is ready. It needs both metal strips to connect to.')}else home()}
- else{let best=null,bd=1.5;for(const k in CARDTARGET){const v=CARDTARGET[k],d=Math.hypot(p.x-v.x,p.y-v.y);if(d<bd){bd=d;best=k}}
+ else if(u.kind==='lamp'){if(near(SLOT.lamp,1.8)){u.placed=true;u.goal.copy(SLOT.lamp);say(zn.userData.placed&&cu.userData.placed?'The bulb is wired in, in series with the meter.':'The bulb is on the rail. It still needs both metal strips to connect to.')}else home()}
+ else{let best=null,bd=1.5;for(const k in CARDTARGET){const v=CARDTARGET[k],d=Math.hypot(it.position.x-v.x,it.position.y-v.y);if(d<bd){bd=d;best=k}}
   if(!best){home();return}
   const need={anode:zn,cathode:cu,saltb:bridge}[best];
   if(best!==u.id){home();say(u.id==='anode'?'Not there. The anode is where oxidation happens: the metal that loses electrons more easily. That is zinc.':u.id==='cathode'?'Not there. The cathode is where reduction happens: ions gain electrons. That is the copper side.':'Not there. The salt bridge is the tube that joins the two beakers.');return}
   if(!need.userData.placed){home();say('Put that part of the cell in place first, then name it.');return}
   u.placed=true;u.locked=true;u.goal.copy(LABELPOS[u.id]);say(u.id==='anode'?'Correct: zinc is the anode (−). Zn → Zn²⁺ + 2e⁻ is oxidation.':u.id==='cathode'?'Correct: copper is the cathode (+). Cu²⁺ + 2e⁻ → Cu is reduction.':'Correct: ions move through the salt bridge, negative ions toward the zinc side and positive ions toward the copper side.')}
  buildWires();
- if(zn.userData.placed&&cu.userData.placed&&lamp.userData.placed&&!bridge.userData.placed&&u.kind!=='card')say('The bulb stays dark. Electrons start to move, but charge builds up in the beakers and stops them. Add the salt bridge.');
- if(running()&&u.kind!=='card')say('The bulb lights! Electrons flow from zinc, through the wire and the bulb, to copper. The cell gives about 1.10 V.');
+ if(zn.userData.placed&&cu.userData.placed&&lamp.userData.placed&&!bridge.userData.placed&&u.kind!=='card')say('The bulb stays dark and the meter reads 0. Electrons start to move, but charge builds up in the beakers and stops them. Add the salt bridge.');
+ if(running()&&u.kind!=='card')say('The bulb lights! Electrons flow from zinc, through the switch, the meter and the bulb, to copper. The cell\'s emf is 1.10 V; with the bulb drawing 169 mA the meter reads 0.85 V.');
  steps()}
 
-/* ---------- input: hand or pointer ---------- */
-function setCursor(sx,sy){st.cur.sx=sx;st.cur.sy=sy;st.cur.has=true}
-function setPinch(on){if(on===st.pinch)return;st.pinch=on;if(on)grab();else drop()}
-// hand landmarks (21 points, 0..1, not mirrored) -> pointer + pinch
-function feed(lms,now){if(st.ptr){st.lms=lms||null;return}   // a mouse or finger on the screen wins over the camera
- if(!lms){st.lms=null;if(st.pinch&&now-st.seen>450)setPinch(false);return}
- st.lms=lms;st.seen=now;const px=i=>(1-lms[i].x)*W,py=i=>lms[i].y*H;
- const tx=(px(4)+px(8))/2,ty=(py(4)+py(8))/2;const k=st.cur.has?.55:1;setCursor(st.cur.sx+(tx-st.cur.sx)*k,st.cur.sy+(ty-st.cur.sy)*k);
- const size=Math.hypot(px(0)-px(9),py(0)-py(9))||1,ratio=Math.hypot(px(4)-px(8),py(4)-py(8))/size;st.ratio=ratio;
- setPinch(st.pinch?ratio<.5:ratio<.3)}
-const pt=e=>{const r=stage.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]};
-stage.addEventListener('pointerdown',e=>{if(!st.mode||e.target.closest('#intro'))return;const [x,y]=pt(e);setCursor(x,y);st.ptr=true;try{stage.setPointerCapture(e.pointerId)}catch(_){ }setPinch(true)});
-stage.addEventListener('pointermove',e=>{if(!st.mode)return;if(st.ptr||!st.lms){const [x,y]=pt(e);setCursor(x,y)}});
-const up=()=>{if(st.ptr){st.ptr=false;setPinch(false)}};stage.addEventListener('pointerup',up);stage.addEventListener('pointercancel',up);
+/* ---------- every frame ---------- */
+function frame(dt,now){const on=running()?1:0;state.power+=(on-state.power)*Math.min(1,dt*4);const p=state.power;
+ bulbMat.emissiveIntensity=2.2*p;bulbMat.opacity=.4+.55*p;filMat.emissiveIntensity=3*p;glow.intensity=1.6*p;glow.position.copy(lamp.position);glow.position.y+=.66;halo.material.opacity=p;halo.position.copy(glow.position);halo.position.z+=.3;
+ lcd((0.85*p).toFixed(2),String(Math.round(169*p)));
+ state.eT+=dt*.11*p;electrons.forEach((e,i)=>{e.visible=!!path&&p>.05;if(e.visible){e.position.copy(path.getPointAt(((i/electrons.length)+state.eT)%1));e.position.z+=.12}});
+ for(const s of ions){const u=s.userData;u.vx+=(Math.random()-.5)*dt*1.6;u.vy+=(Math.random()-.5)*dt*1.6;u.vx*=.96;u.vy*=.96;u.x+=u.vx*dt*3;u.y+=u.vy*dt*3;if(Math.abs(u.x)>1.0){u.x=Math.sign(u.x)*1.0;u.vx*=-1}if(u.y<.28){u.y=.28;u.vy*=-1}if(u.y>1.7){u.y=1.7;u.vy*=-1}s.position.set(u.cx+u.x,u.y,u.z)}
+ for(const c of cards)c.rotation.z=c===K.held?Math.sin(now/180)*.04:0}
+function hudDraw(){for(const it of K.items){const u=it.userData;if(u.name&&!u.placed&&it!==K.held)K.tag(u.name,V(it.position.x,it.position.y-(u.kind==='strip'?2.05:u.kind==='bridge'?2.4:.42),0),K.ink(),0,true)}
+ K.tag('ZnSO₄(aq)',V(-BX,-.3,1.8));K.tag('CuSO₄(aq)',V(BX,-.3,1.8));K.tag('switch closed',V(-2.35,4.72,.3));
+ if(zn.userData.placed)K.tag('Zn',V(-BX-.75,3.35,0),K.ink(),0,true);if(cu.userData.placed)K.tag('Cu',V(BX+.75,3.35,0),K.ink(),0,true);
+ if(bridge.userData.placed&&!cards[2].userData.locked){K.tag('salt bridge',V(0,2.5,.4),K.ink(),0,true);K.tag('KNO₃ gel (K⁺ + NO₃⁻)',V(0,2.5,.4),null,22)}
+ if(state.power>.5)K.tag('e⁻ →',V(-2.35,5.85,0),'#C98A12',0,true)}
 
-/* ---------- drawing ---------- */
-const g=hud.getContext('2d');let tPrev=0,eT=0;
-function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-tPrev)/1000||.016);tPrev=now;
- if(st.cur.has){const p=toWorld(st.cur.sx,st.cur.sy);
-  if(held){held.position.set(Math.max(-halfW+.4,Math.min(halfW-.4,p.x+grabOff.x)),Math.max(.4,Math.min(6.2,p.y+grabOff.y)),.9)}
-  else hover=nearest(p)}
- for(const it of items){const u=it.userData;if(it!==held)it.position.lerp(u.goal,.2);const s=it===held?1.08:(it===hover&&!st.pinch?1.05:1);it.scale.setScalar(it.scale.x+(s-it.scale.x)*.25);
-  if(u.kind==='card')it.rotation.z=it===held?Math.sin(now/180)*.04:0}
- // the cell
- const on=running()?1:0;st.power+=(on-st.power)*Math.min(1,dt*4);
- bulbMat.emissiveIntensity=2.2*st.power;bulbMat.opacity=.45+.5*st.power;halo.material.opacity=st.power;halo.position.copy(lamp.position);halo.position.y+=.66;halo.position.z+=.3;filMat.emissiveIntensity=3*st.power;glow.intensity=1.6*st.power;glow.position.copy(lamp.position).y+=.66;
- eT+=dt*.16*st.power;electrons.forEach((e,i)=>{e.visible=!!path&&st.power>.05;if(e.visible)e.position.copy(path.getPointAt(((i/electrons.length)+eT)%1)).z+=.08});
- bkR.l.material.opacity=.62;
- renderer.render(scene,cam);
- // heads-up layer
- g.clearRect(0,0,W,H);g.textAlign='center';g.textBaseline='middle';
- const tag=(txt,v,col,dy)=>{const [x,y]=toScreen(v);g.font='600 13px "IBM Plex Mono",monospace';const w=g.measureText(txt).width+12;g.fillStyle='rgba(7,12,16,.7)';g.fillRect(x-w/2,y+(dy||0)-10,w,20);g.fillStyle=col||'#E7EFF1';g.fillText(txt,x,y+(dy||0))};
- for(const it of items){const u=it.userData;if(u.name&&!u.placed&&it!==held)tag(u.name,it.position.clone().setY(it.position.y-(u.kind==='strip'?(u.id==='zn'?1.95:2.3):u.kind==='bridge'?2.05:.45)),'#94A7AE')}
- tag('zinc sulfate',new T.Vector3(-1.75,-.3,1.2),'#94A7AE');tag('copper sulfate',new T.Vector3(1.75,-.3,1.2),'#7FB8F0');
- if(st.power>.5)tag('1.10 V',new T.Vector3(0,5.75,0),'#E0BC5E');
- if(held){const u=held.userData,ts=u.kind==='strip'?[SLOT.zn,SLOT.cu]:u.kind==='bridge'?[SLOT.bridge]:u.kind==='lamp'?[SLOT.lamp]:Object.values(CARDTARGET);
-  g.setLineDash([6,6]);g.lineWidth=2;g.strokeStyle='rgba(86,195,223,.8)';for(const v of ts){const [x,y]=toScreen(v);g.beginPath();g.arc(x,y,Math.max(22,W*.035),0,6.3);g.stroke()}g.setLineDash([])}
- if(st.lms){g.strokeStyle='rgba(86,195,223,.75)';g.lineWidth=2;g.lineCap='round';
-  for(const c of [[0,1,2,3,4],[0,5,6,7,8],[5,9,10,11,12],[9,13,14,15,16],[13,17,18,19,20],[0,17]]){g.beginPath();c.forEach((i,k)=>{const x=(1-st.lms[i].x)*W,y=st.lms[i].y*H;k?g.lineTo(x,y):g.moveTo(x,y)});g.stroke()}
-  g.fillStyle='#E0BC5E';for(const i of [4,8]){g.beginPath();g.arc((1-st.lms[i].x)*W,st.lms[i].y*H,5,0,6.3);g.fill()}}
- if(st.cur.has&&st.mode){const r=st.pinch?9:20;g.lineWidth=3;g.strokeStyle=st.pinch?'#E0BC5E':hover?'#4ACB8A':'rgba(231,239,241,.9)';g.beginPath();g.arc(st.cur.sx,st.cur.sy,r,0,6.3);g.stroke();
-  if(!st.pinch&&hover&&!held){g.font='600 12px "IBM Plex Mono",monospace';g.fillStyle='#4ACB8A';g.fillText(st.lms?'pinch to grab':'press to grab',st.cur.sx,st.cur.sy+34)}}
-}
-
-/* ---------- start ---------- */
-let tracker=null;
-async function startCamera(){$('startCam').disabled=true;let where='camera';
- try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('this browser will not give this page a camera');
-  setStatus('Asking for the camera…');const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false});
-  video.srcObject=stream;video.hidden=!$('showCam').checked;await video.play();
-  if(video.videoWidth)stage.style.setProperty('--ar',(video.videoWidth/video.videoHeight).toFixed(4));
-  where='hand tracker';setStatus('Loading the hand tracker (the first time takes a few seconds)…');
-  const vision=await import(MP+'/vision_bundle.mjs');const files=await vision.FilesetResolver.forVisionTasks(MP+'/wasm');
-  const mk=d=>vision.HandLandmarker.createFromOptions(files,{baseOptions:{modelAssetPath:HAND_MODEL,delegate:d},runningMode:'VIDEO',numHands:1});
-  try{tracker=await mk('GPU')}catch(e){tracker=await mk('CPU')}
-  st.mode='cam';$('intro').hidden=true;resize();setStatus('Camera on. Hold up one hand and pinch to grab.','ok');
-  let last=-1,lost=0;(function tick(){requestAnimationFrame(tick);if(video.readyState<2||video.currentTime===last)return;last=video.currentTime;const now=performance.now();
-   try{const r=tracker.detectForVideo(video,now);const l=r.landmarks&&r.landmarks[0];feed(l||null,now);
-    if(!l){if(!lost)lost=now;if(now-lost>1500&&!st.ptr)setStatus('I cannot see a hand. Hold it up in front of the camera, with light on it.','bad')}else{if(lost)setStatus('Hand found. Pinch to grab, open to drop.','ok');lost=0}}
-   catch(e){setStatus('The tracker hit an error: '+e.message,'bad')}})()}
- catch(err){$('startCam').disabled=false;const denied=err&&(err.name==='NotAllowedError'||err.name==='SecurityError');
-  setStatus(denied?'Camera blocked. Allow the camera for this page, or use mouse or touch.':'Could not start the '+where+': '+(err&&err.message||err)+'. You can use mouse or touch.','bad')}}
-function startMouse(){st.mode='mouse';$('intro').hidden=true;setStatus('Mouse or touch: press on something to pick it up, drag, and let go.','ok')}
-$('startCam').onclick=startCamera;$('startMouse').onclick=startMouse;
-$('showCam').onchange=e=>{video.hidden=!e.target.checked||!video.srcObject};
-$('reset').onclick=()=>{held=null;occupied.L=occupied.R=null;st.done=false;for(const it of items){it.userData.placed=false;it.userData.locked=false;it.userData.goal.copy(it.userData.home)}buildWires();steps();say('Pick up the zinc strip first.')};
-new ResizeObserver(resize).observe(stage);resize();for(const it of items)it.position.copy(it.userData.home);steps();
-requestAnimationFrame(frame);
-window.__HL={st,items,feed,SLOT,CARDTARGET,toScreen,running,startMouse};
-if(location.hash==='#mouse')startMouse();
+$('reset').onclick=()=>{occupied.L=occupied.R=null;state.done=false;for(const it of K.items){it.userData.placed=false;it.userData.locked=false;K.home(it)}buildWires();steps();say('Pick up the zinc strip first.')};
+HandKit.themeButton($('themeBtn'),K);lcd('0.00','0');buildWires();K.start();steps();
+window.__HL=Object.assign(K,{SLOT,CARDTARGET,running});
 })();
 </script>
 </body></html>
