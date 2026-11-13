@@ -1,0 +1,217 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hands-On Lab: Waves on a Spring</title>
+<meta name="description" content="Grade 11 physics camera lab: hold a long spring between your two hands. Send pulses, watch them reflect and pass through each other, make standing waves, and measure the wave speed. Safety goggles first.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="hand-kit.css">
+<style>
+.read{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;font-size:.92rem}
+.read dt{color:var(--muted)}.read dd{margin:0;font-family:var(--data);text-align:right;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-right:1.5px solid var(--line);background:var(--stage);padding:5px 11px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+ol.steps li small{color:var(--muted);font-weight:400}
+</style>
+</head><body>
+<div class="wrap">
+ <a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+ <header>
+  <div>
+   <p class="eyebrow">Grade 11 Physics · Wave properties and wave behaviour · Camera lab</p>
+   <h1>Hands-On Lab: Waves on a Spring</h1>
+   <p class="lede">Hold a long spring between your two hands. Flick a hand to send a pulse, shake both to make pulses cross, and shake steadily to build a standing wave. The camera follows both hands; pinch your thumb and first finger to hold an end.</p>
+  </div>
+  <div class="row"><a class="btn" href="wave-speed-lab.html" style="text-decoration:none">2-D Wave Speed Lab</a><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
+ </header>
+ <div class="grid">
+  <div class="stage" id="stage">
+   <video id="video" playsinline muted autoplay hidden></video>
+   <canvas id="gl" aria-label="3-D lab bench with a long spring held between two clamps, a metre rule, safety goggles and a lab coat"></canvas>
+   <canvas id="hud" class="hud"></canvas>
+   <div class="intro" id="intro">
+    <h2>Two hands, one spring</h2>
+    <p>The camera follows both of your hands. Your video stays on this device and is never uploaded. With a mouse you hold one end and the other stays in its clamp; on a touch screen you can use two fingers.</p>
+    <div class="row" style="justify-content:center">
+     <button class="btn primary" id="startCam" type="button">Start with my camera</button>
+     <button class="btn" id="startMouse" type="button">Use mouse or touch</button>
+    </div>
+   </div>
+  </div>
+  <aside>
+   <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
+   <div class="card"><h3>What happened</h3><p class="say" id="say">Safety first: pick up the goggles and bring them to your face.</p></div>
+   <div class="card"><h3>Lab steps</h3><ol class="steps" id="steps"></ol></div>
+   <div class="card"><h3>Measurements</h3>
+    <dl class="read">
+     <dt>Length L</dt><dd id="rL">–</dd><dt>Tension T = k(L − L₀)</dt><dd id="rT">–</dd><dt>Mass per metre μ = m ÷ L</dt><dd id="rMu">–</dd>
+     <dt>Speed v = √(T ÷ μ)</dt><dd id="rV">–</dd><dt>Speed you measured</dt><dd id="rVm">–</dd><dt>Your shaking, f</dt><dd id="rF">–</dd><dt>Loops, n = 2Lf ÷ v</dt><dd id="rN">–</dd>
+    </dl>
+    <p class="small" style="margin-top:8px">Spring: m = 0.50 kg, k = 2.0 N/m, L₀ = 0.40 m.</p>
+   </div>
+   <div class="card"><h3>Rhythm helper</h3>
+    <div class="seg" id="helper"><button type="button" data-n="0" aria-pressed="true">Off</button><button type="button" data-n="1" aria-pressed="false">1 loop</button><button type="button" data-n="2" aria-pressed="false">2 loops</button><button type="button" data-n="3" aria-pressed="false">3 loops</button></div>
+    <p class="small" style="margin-top:8px">A dot moves at the right rhythm for that standing wave. Move your hand with it.</p>
+   </div>
+   <div class="card">
+    <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
+    <div class="row" style="margin-top:10px"><button class="btn" id="reset" type="button">Start again</button></div>
+   </div>
+  </aside>
+ </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="hand-kit.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const setStatus=(t,c)=>{$('status').textContent=t;$('status').className='status '+(c||'')};
+const say=t=>{$('say').textContent=t};
+if(!window.THREE){setStatus('The 3-D engine could not load. Check the internet connection and reload.','bad');return}
+const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),fx=(v,d)=>v.toFixed(d);
+/* ---------- the spring: real numbers ---------- */
+const M=0.35;                    // metres per bench unit
+const SP={m:0.50,k:2.0,L0:0.40}; // a long, soft demonstration spring
+const N=120,CLAMP={A:V(-3.4,3.2),B:V(3.4,3.2)},LMAX=3.6;
+const phys=L=>{const Tn=SP.k*Math.max(0,L-SP.L0),mu=SP.m/L;return {T:Tn,mu,v:Math.sqrt(Tn/mu)}};
+
+const K=HandKit.create({hands:2,stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
+ layout(k){const lx=-(k.halfW-1.0);gog.userData.home.set(lx+.1,5.75,0);coat.userData.home.set(lx+.1,3.9,0);endA.userData.home.copy(CLAMP.A);endB.userData.home.copy(CLAMP.B)},
+ onGrab,onDrop,onFrame:frame,onHUD:hudDraw,
+ targets(it){return it===gog?[V(0,5.75)]:it===coat?[V(0,4.4)]:[]}});
+const scene=K.scene,chrome=K.metal(0xC9D1D6);
+
+/* ---------- bench furniture ---------- */
+for(const s of [-1,1]){const x=s*3.4;const post=new T.Mesh(new T.CylinderGeometry(.07,.07,3.6,12),chrome);post.position.set(x,1.8,-.45);post.castShadow=true;scene.add(post);
+ const foot=new T.Mesh(new T.BoxGeometry(1.3,.12,1.1),new T.MeshStandardMaterial({color:0x2D363B,roughness:.6}));foot.position.set(x,.06,-.3);scene.add(foot);
+ const jaw=new T.Mesh(new T.BoxGeometry(.34,.3,.6),new T.MeshStandardMaterial({color:0x2C3236,roughness:.5}));jaw.position.set(x,3.2,-.2);jaw.castShadow=true;scene.add(jaw)}
+{// metre rule on two small stands, behind the spring
+ const len=4/M,tex=K.canvasTex(2048,72,(x,w,h)=>{x.fillStyle='#E7C873';x.fillRect(0,0,w,h);x.strokeStyle=x.fillStyle='#4A3A12';x.font='700 30px "IBM Plex Mono",monospace';x.textAlign='center';
+  for(let i=0;i<=40;i++){const px=i*w/40;x.lineWidth=i%5?2:4;x.beginPath();x.moveTo(px,0);x.lineTo(px,i%10===0?34:i%5===0?26:16);x.stroke();if(i%5===0&&i>0&&i<40)x.fillText((i/10).toFixed(1),px,64)}x.textAlign='left';x.fillText('0 m',6,64);x.textAlign='right';x.fillText('4.0',w-6,64)});
+ const rule=new T.Mesh(new T.BoxGeometry(len,.36,.05),new T.MeshStandardMaterial({map:tex,roughness:.6}));rule.position.set(0,1.55,-.7);rule.castShadow=true;scene.add(rule);
+ for(const s of [-1,1]){const st=new T.Mesh(new T.BoxGeometry(.12,1.4,.12),new T.MeshStandardMaterial({color:0x7A8794}));st.position.set(s*(len/2-.4),.7,-.78);scene.add(st)}}
+const RULE0=-(4/M)/2;                       // bench x of the rule's 0 m mark
+
+/* the spring: one steel ring per node */
+const ringMat=new T.MeshStandardMaterial({color:0xD3DADF,metalness:.75,roughness:.28,envMapIntensity:1.1});
+const rings=new T.InstancedMesh(new T.TorusGeometry(.3,.026,8,22),ringMat,N+1);rings.castShadow=true;rings.frustumCulled=false;scene.add(rings);
+const X=new Float32Array(N+1),Y=new Float32Array(N+1),VX=new Float32Array(N+1),VY=new Float32Array(N+1),ENV=new Float32Array(N+1);
+const knob=()=>{const g=new T.Group();const b=new T.Mesh(new T.SphereGeometry(.26,18,14),new T.MeshStandardMaterial({color:0xA8743F,roughness:.6}));g.add(b);const r=new T.Mesh(new T.TorusGeometry(.3,.05,8,20),chrome);r.rotation.y=Math.PI/2;g.add(r);return g};
+const endA=K.addItem('endA',knob(),{name:'',r:1.1,liftZ:0,snap:.14}),endB=K.addItem('endB',knob(),{name:'',r:1.1,liftZ:0,snap:.14});
+/* safety gear */
+const gog=new T.Group();{const lens=new T.MeshPhysicalMaterial({color:0xBFE4F5,transparent:true,opacity:.45,roughness:.05}),rim=new T.MeshStandardMaterial({color:0x1E2A30,roughness:.5});
+ for(const s of [-1,1]){const l=new T.Mesh(new T.CircleGeometry(.3,24),lens);l.position.x=s*.36;gog.add(l);const r=new T.Mesh(new T.TorusGeometry(.3,.05,8,24),rim);r.position.x=s*.36;gog.add(r)}
+ const br=new T.Mesh(new T.BoxGeometry(.2,.07,.07),rim);gog.add(br);for(const s of [-1,1]){const st=new T.Mesh(new T.BoxGeometry(.3,.1,.05),new T.MeshStandardMaterial({color:0x2F6FD0}));st.position.set(s*.8,0,-.05);gog.add(st)}}
+K.addItem('gog',gog,{name:'safety goggles',r:.95});
+const coat=new T.Group();{const w=new T.MeshStandardMaterial({color:0xF6F8F9,roughness:.85});const body=new T.Mesh(new T.BoxGeometry(.95,1.3,.22),w);coat.add(body);
+ for(const s of [-1,1]){const sl=new T.Mesh(new T.BoxGeometry(.3,1.05,.2),w);sl.position.set(s*.66,.08,0);sl.rotation.z=s*.22;coat.add(sl);const lap=new T.Mesh(new T.BoxGeometry(.07,.62,.02),new T.MeshStandardMaterial({color:0xC9D1D6}));lap.position.set(s*.13,.34,.12);lap.rotation.z=-s*.36;coat.add(lap)}
+ for(let i=0;i<3;i++){const b=new T.Mesh(new T.SphereGeometry(.035,8,6),new T.MeshStandardMaterial({color:0x52646C}));b.position.set(.05,-.05-i*.22,.12);coat.add(b)}}
+K.addItem('coat',coat,{name:'lab coat',r:1.0});
+
+/* ---------- state ---------- */
+const S={gog:false,coat:false,stretch:0,pulse:false,reflect:false,cross:false,stand:0,standDone:false,vMeas:null,over:false,slips:0,helper:0,quiet:0,
+ probe:null,flick:{A:0,B:0},shake:{A:{mean:3.2,last:0,per:[],sign:0,t:0},B:{mean:3.2,last:0,per:[],sign:0,t:0}},f:0,prev:{ax:0,ay:0,bx:0,by:0},time:0};
+const STEPS=[['gog','Put on the safety goggles'],['coat','Put on the lab coat'],['stretch','Hold an end and stretch the spring to between 2.5 and 3.2 m'],['pulse','Flick your hand once to send a pulse, and time it'],['reflect','Watch the pulse come back upside down from the fixed end'],['cross','Send a pulse from each end so they cross <small>(two hands or two fingers)</small>'],['stand','Shake steadily until you hold a standing wave with 2 loops']];
+const done=k=>k==='gog'?S.gog:k==='coat'?S.coat:k==='stretch'?S.stretch>=1:k==='pulse'?S.pulse:k==='reflect'?S.reflect:k==='cross'?S.cross:S.standDone;
+function steps(){let first=true;$('steps').innerHTML=STEPS.map(([k,t])=>{const d=done(k),now=!d&&first;if(!d)first=false;return `<li class="${d?'done':''}${now?' now':''}"><i></i><span>${t}</span></li>`}).join('')}
+function resetSpring(){const a=endA.position,b=endB.position;for(let i=0;i<=N;i++){X[i]=a.x+(b.x-a.x)*i/N;Y[i]=a.y+(b.y-a.y)*i/N;VX[i]=VY[i]=ENV[i]=0}}
+document.querySelectorAll('#helper button').forEach(b=>b.onclick=()=>{S.helper=+b.dataset.n;document.querySelectorAll('#helper button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+$('reset').onclick=()=>{Object.assign(S,{gog:false,coat:false,stretch:0,pulse:false,reflect:false,cross:false,stand:0,standDone:false,vMeas:null,over:false,slips:0,probe:null});K.sleeves=false;for(const it of [gog,coat]){it.userData.locked=false;it.userData.hidden=false;it.visible=true;K.home(it)}steps();say('Safety first: pick up the goggles and bring them to your face.')};
+
+function onGrab(it){
+ if(it===endA||it===endB){if(!S.gog){it.userData.fixed=true;say('Goggles first. A stretched spring stores energy: if an end slips it whips back fast, and eyes are what it hurts.');return}
+  if(S.stretch<1&&!done('stretch'))say('You are holding one end. Pull it away from the other end to stretch the spring; the tension grows as it gets longer.')}}
+function onDrop(it,h){
+ if(it===endA||it===endB){if(it.userData.fixed){it.userData.fixed=false;K.home(it);return}
+  const other=it===endA?endB:endA,L=endA.position.distanceTo(endB.position)*M;
+  if(L>2.6&&K.holder(other)){S.slips++;say('You let go of a stretched spring! In a real lab that end flies back and can hit your partner. Bring your hands together first, then let go.')}
+  K.home(it);return}
+ if(it===gog){if(K.near(it,V(0,5.75),1.6)){S.gog=true;it.userData.locked=true;it.userData.hidden=true;it.visible=false;say('Goggles on. They stay on until everything is put away, even while you only watch.')}else K.home(it)}
+ else if(it===coat){if(K.near(it,V(0,4.4),1.7)){S.coat=true;it.userData.locked=true;it.userData.hidden=true;it.visible=false;K.sleeves=true;say('Lab coat on and buttoned: no loose sleeves, scarves or long hair near the spring. Now hold an end of the spring.')}else K.home(it)}
+ steps()}
+
+/* ---------- physics: the wave equation on 120 pieces of spring, both ends driven by the hands ---------- */
+/* displacement from the rest line. The rest line follows the hands slowly, so a quick flick counts as a pulse and not as a new rest position */
+const BASE={ay:3.2,by:3.2};const disp=i=>{const u=i/N;return Y[i]-(BASE.ay+(BASE.by-BASE.ay)*u)};
+function stepPhysics(dt,now){
+ const ax=endA.position.x,ay=endA.position.y,bx=endB.position.x,by=endB.position.y,L=Math.max(.5,Math.hypot(bx-ax,by-ay)*M),ph=phys(L);
+ const cT=N*Math.sqrt(SP.k*Math.max(.02,1-SP.L0/L)/SP.m),cL=N*Math.sqrt(SP.k/SP.m),sub=Math.max(6,Math.ceil(dt*600)),h=dt/sub,P=S.prev;
+ // when both hands are still the wave dies away in a few seconds, as it does on a real spring
+ S.still=(Math.abs(ay-P.ay)+Math.abs(by-P.by))/dt<.25?(S.still||0)+dt:0;const gam=S.still>.6?1.3:.32;
+ const eb=Math.min(1,dt*2.2);BASE.ay+=(ay-BASE.ay)*eb;BASE.by+=(by-BASE.by)*eb;
+ for(let s=1;s<=sub;s++){const u=s/sub;X[0]=P.ax+(ax-P.ax)*u;Y[0]=P.ay+(ay-P.ay)*u;X[N]=P.bx+(bx-P.bx)*u;Y[N]=P.by+(by-P.by)*u;
+  for(let i=1;i<N;i++){VY[i]+=(cT*cT*(Y[i-1]-2*Y[i]+Y[i+1])-gam*VY[i])*h;VX[i]+=(cL*cL*(X[i-1]-2*X[i]+X[i+1])-.9*VX[i])*h}
+  for(let i=1;i<N;i++){Y[i]+=VY[i]*h;X[i]+=VX[i]*h}}
+ const vA=(ay-P.ay)/dt,vB=(by-P.by)/dt;P.ax=ax;P.ay=ay;P.bx=bx;P.by=by;
+ let mx=0;for(let i=1;i<N;i++){const d=Math.abs(disp(i));if(d>mx)mx=d;ENV[i]=Math.max(ENV[i]*.988,d)}
+ return {L,ph,vA,vB,mx}}
+function shakeFreq(key,y,t){const q=S.shake[key];q.mean+=(y-q.mean)*.02;const d=y-q.mean,sg=d>.06?1:d<-.06?-1:q.sign;
+ if(sg===1&&q.sign===-1){if(q.last&&t-q.last<3&&t-q.last>.15){q.per.push(t-q.last);if(q.per.length>3)q.per.shift()}q.last=t}q.sign=sg;
+ if(t-q.last>2.2)q.per.length=0;return q.per.length>=2?q.per.length/q.per.reduce((a,b)=>a+b,0):0}
+
+function frame(dt0,now){const dt=Math.min(.12,Math.max(.001,(now-(frame.last||now))/1000||dt0));frame.last=now;S.time+=dt;const t=S.time;   // real time, so the wave keeps pace with the hand even on a slow computer
+ const r=stepPhysics(dt,now),L=r.L,ph=r.ph,heldA=!!K.holder(endA)&&!endA.userData.fixed,heldB=!!K.holder(endB)&&!endB.userData.fixed,any=heldA||heldB;
+ // rings follow the nodes
+ const dummy=frame.d||(frame.d=new T.Object3D()),tan=frame.t||(frame.t=new T.Vector3()),ax=frame.a||(frame.a=new T.Vector3(0,0,1));
+ for(let i=0;i<=N;i++){const j0=Math.max(0,i-1),j1=Math.min(N,i+1);tan.set(X[j1]-X[j0],Y[j1]-Y[j0],.0001).normalize();dummy.position.set(X[i],Y[i],0);dummy.quaternion.setFromUnitVectors(ax,tan);dummy.rotateY(.16);dummy.updateMatrix();rings.setMatrixAt(i,dummy.matrix)}
+ rings.instanceMatrix.needsUpdate=true;
+ // safety: overstretch
+ const over=L>LMAX;ringMat.color.set(over?0xE0584A:0xD3DADF);if(over&&!S.over){S.over=true;S.slips++;say('Too far! Past about 3.6 m this spring is stretched beyond its elastic limit: it stays deformed and can snap back. Bring your hands closer.')}if(!over&&L<LMAX-.2)S.over=false;
+ // readouts
+ $('rL').textContent=fx(L,2)+' m';$('rT').textContent=fx(ph.T,2)+' N';$('rMu').textContent=fx(ph.mu,3)+' kg/m';$('rV').textContent=fx(ph.v,2)+' m/s';
+ $('rVm').textContent=S.vMeas?fx(S.vMeas,2)+' m/s':'send a pulse';
+ if(!S.gog||!any){S.quiet=0;if(!any){S.f=0;$('rF').textContent='–';$('rN').textContent='–'}return}
+ // step: stretch
+ if(L>=2.5&&L<=3.2){if(S.stretch<1){S.stretch+=dt/1.0;if(S.stretch>=1){say(`Good: L = ${fx(L,2)} m. The tension is ${fx(ph.T,1)} N and waves will travel at about ${fx(ph.v,1)} m/s. Now flick your hand once, quickly, up and down.`);steps()}}}else if(S.stretch<1)S.stretch=0;
+ // pulse timing: from the peak near the hand to the peak near the far end
+ const wasQuiet=S.quiet>.35;S.quiet=r.mx<.1?S.quiet+dt:0;const pr=S.probe;
+ const flickA=heldA&&Math.abs(r.vA)>2.4,flickB=heldB&&Math.abs(r.vB)>2.4;if(flickA)S.flick.A=t;if(flickB)S.flick.B=t;
+ if(S.stretch>=1&&!S.cross&&S.flick.A&&S.flick.B&&Math.abs(S.flick.A-S.flick.B)<.6&&t-Math.max(S.flick.A,S.flick.B)<.1){S.cross=true;say('Two pulses, one from each end. Watch the middle: where they overlap their heights add (superposition), then each carries on unchanged.');steps()}
+ if(!pr&&S.stretch>=1&&wasQuiet&&(flickA||flickB)&&!(flickA&&flickB))S.probe={src:flickA?'A':'B',st:0,start:t,L,pn:{a:0,b:0,tb:0,sb:0},pf:{a:0,b:0,tb:0,sb:0},pb:{a:0,b:0,tb:0,sb:0}};
+ else if(pr){// time the crest between two points well away from both ends (near an end the reflection overlaps the pulse)
+  const NEAR=20,FAR=40,near=pr.src==='A'?NEAR:N-NEAR,far=pr.src==='A'?N-FAR:FAR,dn=disp(near),df=disp(far),dist=(N-NEAR-FAR)/N*pr.L;
+  const peak=(o,val,thr)=>{let res=null;const m=Math.abs(val);if(o.b>thr&&o.b>=o.a&&o.b>m){const den=o.a-2*o.b+m;res={t:o.tb+(den?.5*(o.a-m)/den:0)*dt,v:o.b,s:o.sb}}o.a=o.b;o.b=m;o.tb=t;o.sb=Math.sign(val);return res};
+  if(pr.st===0){const q=peak(pr.pn,dn,.12);if(q){pr.t0=q.t;pr.max=q.v;pr.sign=q.s;pr.st=1}else if(t-pr.start>1.2)S.probe=null}
+  else if(pr.st===1){const q=peak(pr.pf,df,pr.max*.3);if(q&&q.t>pr.t0){const v=dist/(q.t-pr.t0);S.vMeas=v;pr.st=2;pr.tr=q.t;
+     if(!S.pulse){S.pulse=true;say(`Pulse timed between two marks ${fx(dist,2)} m apart: ${fx(q.t-pr.t0,2)} s, so v = ${fx(v,2)} m/s. Theory says √(T ÷ μ) = ${fx(phys(pr.L).v,2)} m/s. Keep the far end still and watch it come back.`);steps()}}
+    else if(t-pr.t0>3)S.probe=null}
+  else{if(t-pr.tr>.2){const q=peak(pr.pb,dn,pr.max*.2);if(q){if(!S.reflect&&q.s===-pr.sign){S.reflect=true;say('It came back upside down. A fixed end cannot move, so it pushes back on the spring and the reflected pulse is inverted.');steps()}S.probe=null}}
+   if(S.probe&&t-pr.tr>3)S.probe=null}}
+ // steady shaking: frequency, loops, standing wave
+ const fA=heldA?shakeFreq('A',endA.position.y,t):0,fB=heldB?shakeFreq('B',endB.position.y,t):0,f=Math.max(fA,fB);S.f=f;
+ if(f>0){const n=2*L*f/ph.v,ni=Math.round(n),res=ni>=1&&Math.abs(n-ni)<.14&&r.mx>.3;$('rF').textContent=fx(f,2)+' Hz';$('rN').textContent=fx(n,2)+(res?'  → '+ni+(ni===1?' loop':' loops'):'');S.res=res?ni:0;
+  if(res&&ni===2&&S.stretch>=1){S.stand+=dt;if(S.stand>2.5&&!S.standDone){S.standDone=true;say(`Standing wave, 2nd harmonic: 2 loops, so λ = L = ${fx(L,2)} m and f = ${fx(f,2)} Hz. Check: v = fλ = ${fx(f*L,2)} m/s. The middle point that stays still is a node.`);setStatus('All steps done. Try 1 and 3 loops with the rhythm helper.','ok');steps()}}else S.stand=Math.max(0,S.stand-dt)}
+ else{$('rF').textContent='–';$('rN').textContent='–';S.res=0}}
+
+/* ---------- heads-up layer ---------- */
+function hudDraw(g){const ink=K.ink(),L=endA.position.distanceTo(endB.position)*M,ph=phys(Math.max(.5,L)),dk=K.isDark();
+ for(const it of [gog,coat]){if(!it.userData.hidden&&!K.holder(it))K.tag(it.userData.name,V(it.position.x,it.position.y-(it===coat?.95:.6),0),ink,0,true)}
+ // where the goggles and the coat go: on you
+ const hg=K.holder(gog),hc=K.holder(coat);if(hg||hc){g.setLineDash([7,7]);g.lineWidth=2.5;g.strokeStyle=dk?'rgba(86,195,223,.9)':'rgba(10,106,136,.85)';
+  if(hg){const p=K.toScreen(V(0,5.75,0)),r=K.W*.055;g.beginPath();g.ellipse(p[0],p[1],r*.85,r*1.1,0,0,6.3);g.stroke();K.tag('your face',V(0,5.75,0),ink,-r*1.1-16,true)}
+  if(hc){const p=K.toScreen(V(0,4.4,0)),r=K.W*.1;g.beginPath();g.moveTo(p[0]-r,p[1]+r*.5);g.quadraticCurveTo(p[0]-r,p[1]-r*.45,p[0],p[1]-r*.45);g.quadraticCurveTo(p[0]+r,p[1]-r*.45,p[0]+r,p[1]+r*.5);g.stroke();K.tag('your shoulders',V(0,4.4,0),ink,0,true)}g.setLineDash([])}
+ // standing-wave envelope with nodes and antinodes
+ if(S.res){g.fillStyle=dk?'rgba(255,111,168,.16)':'rgba(194,24,91,.12)';g.beginPath();for(let i=0;i<=N;i++){const u=i/N,p=K.toScreen(V(X[i],Y[0]+(Y[N]-Y[0])*u+ENV[i],0));i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])}
+  for(let i=N;i>=0;i--){const u=i/N,p=K.toScreen(V(X[i],Y[0]+(Y[N]-Y[0])*u-ENV[i],0));g.lineTo(p[0],p[1])}g.closePath();g.fill();
+  for(let j=0;j<=S.res;j++){const i=Math.round(j/S.res*N);K.tag('N',V(X[i],Y[0]+(Y[N]-Y[0])*(i/N)-.75,0),ink,0,true)}for(let j=0;j<S.res;j++){const i=Math.round((j+.5)/S.res*N);K.tag('A',V(X[i],Y[0]+(Y[N]-Y[0])*(i/N)+ENV[i]+.5,0),dk?'#FF6FA8':'#C2185B',0,true)}}
+ // length, clamps, rule
+ K.tag(`L = ${fx(L,2)} m`,V((endA.position.x+endB.position.x)/2,Math.min(endA.position.y,endB.position.y)-1.15,0),L>LMAX?(dk?'#FF8A7A':'#C0392B'):ink,0,true);
+ if(!K.holder(endA))K.tag('fixed end (clamp)',V(CLAMP.A.x,CLAMP.A.y+.75,0));if(!K.holder(endB))K.tag('fixed end (clamp)',V(CLAMP.B.x,CLAMP.B.y+.75,0));
+ K.tag('metre rule',V(RULE0+.9,1.1,-.7));
+ if(L>LMAX)K.tag('OVERSTRETCHED: bring your hands closer',V(0,5.9,0),dk?'#FF8A7A':'#C0392B',0,true);
+ // rhythm helper: a dot that moves at f_n beside the held end
+ if(S.helper&&S.gog){const fn=S.helper*ph.v/(2*Math.max(.5,L)),it=K.holder(endB)?endB:K.holder(endA)?endA:endB,side=it===endB?1:-1,c=V(it.position.x+side*.95,S.shake[it===endB?'B':'A'].mean||it.position.y,0),a=.55,yy=Math.sin(S.time*2*Math.PI*fn)*a;
+  const p0=K.toScreen(V(c.x,c.y-a,0)),p1=K.toScreen(V(c.x,c.y+a,0)),p=K.toScreen(V(c.x,c.y+yy,0));g.strokeStyle=dk?'rgba(224,188,94,.6)':'rgba(184,145,58,.7)';g.lineWidth=3;g.lineCap='round';g.beginPath();g.moveTo(p0[0],p0[1]);g.lineTo(p1[0],p1[1]);g.stroke();
+  g.fillStyle='#E0A63A';g.beginPath();g.arc(p[0],p[1],9,0,6.3);g.fill();g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=1.5;g.stroke();K.tag(`follow: f${'₁₂₃'[S.helper-1]} = ${fx(fn,2)} Hz`,V(c.x,c.y+a+.5,0),ink,0,true)}
+ // wearing goggles: you see their rim at the edge of your view
+ if(S.gog){const W=K.W,H=K.H,m=Math.min(W,H)*.03;g.lineWidth=m*.75;g.strokeStyle=dk?'rgba(120,170,190,.28)':'rgba(40,80,100,.16)';g.beginPath();g.moveTo(m*3,m);g.arcTo(W-m,m,W-m,H-m,m*5);g.arcTo(W-m,H-m,m,H-m,m*5);g.arcTo(m,H-m,m,m,m*5);g.arcTo(m,m,W-m,m,m*5);g.closePath();g.stroke();
+  g.lineWidth=2;g.strokeStyle='rgba(255,255,255,.35)';g.beginPath();g.moveTo(m*4,m*2.2);g.lineTo(W*.3,m*2.2);g.stroke();K.tag(S.coat?'goggles and coat on':'goggles on',V(-K.halfW+1.9,6.25,0),dk?'#4ACB8A':'#1E8A55',0,true)}
+ if(S.slips)K.tag('safety slips: '+S.slips,V(K.halfW-1.4,6.2,0),dk?'#FF8A7A':'#C0392B',0,true)}
+
+HandKit.themeButton($('themeBtn'),K);K.start();endA.position.copy(CLAMP.A);endB.position.copy(CLAMP.B);Object.assign(S.prev,{ax:CLAMP.A.x,ay:CLAMP.A.y,bx:CLAMP.B.x,by:CLAMP.B.y});BASE.ay=BASE.by=CLAMP.A.y;resetSpring();steps();
+window.__HK=Object.assign(K,{S,phys,M,N,X,Y,disp,CLAMP,endA,endB,gog,coat,frameFn:frame});
+})();
+</script>
+</body></html>
