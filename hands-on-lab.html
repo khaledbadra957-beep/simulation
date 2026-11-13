@@ -32,9 +32,11 @@
   </div>
   <aside>
    <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
-   <div class="card"><h3>What happened</h3><p class="say" id="say">Pick up the zinc strip first.</p></div>
+   <div class="card"><h3>What happened</h3><p class="say" id="say">Safety first: put on the goggles, the lab coat and the gloves.</p></div>
+   <div class="card" id="mirror"></div>
    <div class="card"><h3>Build the cell</h3>
     <ol class="steps" id="steps">
+     <li data-s="safe"><i></i><span>Put on goggles, lab coat and gloves</span></li>
      <li data-s="zn"><i></i><span>Zinc strip into the zinc sulfate (clear)</span></li>
      <li data-s="cu"><i></i><span>Copper strip into the copper sulfate (blue)</span></li>
      <li data-s="bridge"><i></i><span>Salt bridge across the two beakers</span></li>
@@ -144,7 +146,7 @@ function buildWires(){wires.forEach(w=>{scene.remove(w);w.geometry.dispose()});w
 const state={power:0,done:false,eT:0};
 const running=()=>zn.userData.placed&&cu.userData.placed&&bridge.userData.placed&&lamp.userData.placed;
 function steps(){const all=cards.every(c=>c.userData.locked);let first=true;
- document.querySelectorAll('#steps li').forEach(li=>{const k=li.dataset.s,d=k==='cards'?all:!!({zn,cu,bridge,lamp})[k].userData.placed;li.classList.toggle('done',d);li.classList.toggle('now',!d&&first);if(!d)first=false});
+ document.querySelectorAll('#steps li').forEach(li=>{const k=li.dataset.s,d=k==='safe'?K.safe():k==='cards'?all:!!({zn,cu,bridge,lamp})[k].userData.placed;li.classList.toggle('done',d);li.classList.toggle('now',!d&&first);if(!d)first=false});
  if(running()&&all&&!state.done){state.done=true;say('Cell complete! Zinc is oxidised (anode), copper ions are reduced (cathode), electrons travel through the wire and light the bulb, and the salt bridge keeps both solutions neutral. E° = 1.10 V.');setStatus('Well done: the cell works and every part is named.','ok')}}
 function unplace(it){const u=it.userData;if(!u.placed)return;u.placed=false;if(u.kind==='strip'){if(occupied.L===it)occupied.L=null;if(occupied.R===it)occupied.R=null}state.done=false;buildWires()}
 function drop(it){const u=it.userData,near=(v,r)=>K.near(it,v,r),home=()=>K.home(it);
@@ -179,8 +181,8 @@ function hudDraw(){for(const it of K.items){const u=it.userData;if(u.name&&!u.pl
  if(bridge.userData.placed&&!cards[2].userData.locked){K.tag('salt bridge',V(0,2.5,.4),K.ink(),0,true);K.tag('KNO₃ gel (K⁺ + NO₃⁻)',V(0,2.5,.4),null,22)}
  if(state.power>.5)K.tag('e⁻ →',V(-2.35,5.85,0),'#C98A12',0,true)}
 
-$('reset').onclick=()=>{occupied.L=occupied.R=null;state.done=false;for(const it of K.items){it.userData.placed=false;it.userData.locked=false;K.home(it)}buildWires();steps();say('Pick up the zinc strip first.')};
-HandKit.themeButton($('themeBtn'),K);lcd('0.00','0');buildWires();K.start();steps();
+$('reset').onclick=()=>{occupied.L=occupied.R=null;state.done=false;for(const it of K.items){if(it.userData.gear)continue;it.userData.placed=false;it.userData.locked=false;K.home(it)}buildWires();steps();say(K.safe()?'Pick up the zinc strip first.':'Safety first: put on the goggles, the lab coat and the gloves.')};
+HandKit.themeButton($('themeBtn'),K);lcd('0.00','0');buildWires();K.gear({say,why:'Copper sulfate solution is harmful and irritates eyes and skin.',ready:'Pick up the zinc strip first.',onWear:()=>steps(),x0:k=>k.halfW>6.7?-k.halfW+1.35:-k.halfW+2.7});K.mirror($('mirror'));K.start();steps();
 window.__HL=Object.assign(K,{SLOT,CARDTARGET,running});
 })();
 </script>

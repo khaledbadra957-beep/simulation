@@ -41,6 +41,7 @@ ol.steps li small{color:var(--muted);font-weight:400}
   <aside>
    <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
    <div class="card"><h3>What happened</h3><p class="say" id="say">Safety first: pick up the goggles and bring them to your face.</p></div>
+   <div class="card" id="mirror"></div>
    <div class="card"><h3>Lab steps</h3><ol class="steps" id="steps"></ol></div>
    <div class="card"><h3>Measurements</h3>
     <dl class="read">
@@ -105,11 +106,11 @@ const endA=K.addItem('endA',knob(),{name:'',r:1.1,liftZ:0,snap:.14}),endB=K.addI
 const gog=new T.Group();{const lens=new T.MeshPhysicalMaterial({color:0xBFE4F5,transparent:true,opacity:.45,roughness:.05}),rim=new T.MeshStandardMaterial({color:0x1E2A30,roughness:.5});
  for(const s of [-1,1]){const l=new T.Mesh(new T.CircleGeometry(.3,24),lens);l.position.x=s*.36;gog.add(l);const r=new T.Mesh(new T.TorusGeometry(.3,.05,8,24),rim);r.position.x=s*.36;gog.add(r)}
  const br=new T.Mesh(new T.BoxGeometry(.2,.07,.07),rim);gog.add(br);for(const s of [-1,1]){const st=new T.Mesh(new T.BoxGeometry(.3,.1,.05),new T.MeshStandardMaterial({color:0x2F6FD0}));st.position.set(s*.8,0,-.05);gog.add(st)}}
-K.addItem('gog',gog,{name:'safety goggles',r:.95});
+K.addItem('gog',gog,{name:'safety goggles',r:.95,gear:'gog',firm:true});
 const coat=new T.Group();{const w=new T.MeshStandardMaterial({color:0xF6F8F9,roughness:.85});const body=new T.Mesh(new T.BoxGeometry(.95,1.3,.22),w);coat.add(body);
  for(const s of [-1,1]){const sl=new T.Mesh(new T.BoxGeometry(.3,1.05,.2),w);sl.position.set(s*.66,.08,0);sl.rotation.z=s*.22;coat.add(sl);const lap=new T.Mesh(new T.BoxGeometry(.07,.62,.02),new T.MeshStandardMaterial({color:0xC9D1D6}));lap.position.set(s*.13,.34,.12);lap.rotation.z=-s*.36;coat.add(lap)}
  for(let i=0;i<3;i++){const b=new T.Mesh(new T.SphereGeometry(.035,8,6),new T.MeshStandardMaterial({color:0x52646C}));b.position.set(.05,-.05-i*.22,.12);coat.add(b)}}
-K.addItem('coat',coat,{name:'lab coat',r:1.0});
+K.addItem('coat',coat,{name:'lab coat',r:1.0,gear:'coat',firm:true});K.mirror($('mirror'),['gog','coat']);
 
 /* ---------- state ---------- */
 const S={gog:false,coat:false,stretch:0,pulse:false,reflect:false,cross:false,stand:0,standDone:false,vMeas:null,over:false,slips:0,helper:0,quiet:0,
@@ -119,7 +120,7 @@ const done=k=>k==='gog'?S.gog:k==='coat'?S.coat:k==='stretch'?S.stretch>=1:k==='
 function steps(){let first=true;$('steps').innerHTML=STEPS.map(([k,t])=>{const d=done(k),now=!d&&first;if(!d)first=false;return `<li class="${d?'done':''}${now?' now':''}"><i></i><span>${t}</span></li>`}).join('')}
 function resetSpring(){const a=endA.position,b=endB.position;for(let i=0;i<=N;i++){X[i]=a.x+(b.x-a.x)*i/N;Y[i]=a.y+(b.y-a.y)*i/N;VX[i]=VY[i]=ENV[i]=0}}
 document.querySelectorAll('#helper button').forEach(b=>b.onclick=()=>{S.helper=+b.dataset.n;document.querySelectorAll('#helper button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
-$('reset').onclick=()=>{Object.assign(S,{gog:false,coat:false,stretch:0,pulse:false,reflect:false,cross:false,stand:0,standDone:false,vMeas:null,over:false,slips:0,probe:null});K.sleeves=false;for(const it of [gog,coat]){it.userData.locked=false;it.userData.hidden=false;it.visible=true;K.home(it)}steps();say('Safety first: pick up the goggles and bring them to your face.')};
+$('reset').onclick=()=>{Object.assign(S,{gog:false,coat:false,stretch:0,pulse:false,reflect:false,cross:false,stand:0,standDone:false,vMeas:null,over:false,slips:0,probe:null});K.setWear('gog',false);K.setWear('coat',false);for(const it of [gog,coat]){it.userData.locked=false;it.userData.hidden=false;it.visible=true;K.home(it)}steps();say('Safety first: pick up the goggles and bring them to your face.')};
 
 function onGrab(it){
  if(it===endA||it===endB){if(!S.gog){it.userData.fixed=true;say('Goggles first. A stretched spring stores energy: if an end slips it whips back fast, and eyes are what it hurts.');return}
@@ -129,8 +130,8 @@ function onDrop(it,h){
   const other=it===endA?endB:endA,L=endA.position.distanceTo(endB.position)*M;
   if(L>2.6&&K.holder(other)){S.slips++;say('You let go of a stretched spring! In a real lab that end flies back and can hit your partner. Bring your hands together first, then let go.')}
   K.home(it);return}
- if(it===gog){if(K.near(it,V(0,5.75),1.6)){S.gog=true;it.userData.locked=true;it.userData.hidden=true;it.visible=false;say('Goggles on. They stay on until everything is put away, even while you only watch.')}else K.home(it)}
- else if(it===coat){if(K.near(it,V(0,4.4),1.7)){S.coat=true;it.userData.locked=true;it.userData.hidden=true;it.visible=false;K.sleeves=true;say('Lab coat on and buttoned: no loose sleeves, scarves or long hair near the spring. Now hold an end of the spring.')}else K.home(it)}
+ if(it===gog){if(K.near(it,V(0,5.75),1.6)||it.userData.onBody){S.gog=true;K.setWear('gog',true);it.userData.locked=true;it.userData.hidden=true;it.visible=false;say('Goggles on. They stay on until everything is put away, even while you only watch.')}else K.home(it)}
+ else if(it===coat){if(K.near(it,V(0,4.4),1.7)||it.userData.onBody){S.coat=true;K.setWear('coat',true);it.userData.locked=true;it.userData.hidden=true;it.visible=false;K.sleeves=true;say('Lab coat on and buttoned: no loose sleeves, scarves or long hair near the spring. Now hold an end of the spring.')}else K.home(it)}
  steps()}
 
 /* ---------- physics: the wave equation on 120 pieces of spring, both ends driven by the hands ---------- */

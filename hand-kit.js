@@ -109,8 +109,15 @@
     k.toScreen = function (v) { var p = v.clone().project(cam); return [(p.x + 1) / 2 * k.W, (1 - p.y) / 2 * k.H]; };
     function nearest(p) { var best = null, bd = 1e9; k.items.forEach(function (it) { var u = it.userData; if (u.locked || u.hidden) return; var d = Math.hypot(it.position.x - p.x, it.position.y + u.grabY - p.y); if (d < u.r && d < bd) { bd = d; best = it; } }); return best; }
     function nearestFree(p, h) { var best = null, bd = 1e9; k.items.forEach(function (it) { var u = it.userData, hd = k.holder(it); if (u.locked || u.hidden || (hd && hd !== h)) return; var d = Math.hypot(it.position.x - p.x, it.position.y + u.grabY - p.y); if (d < u.r && d < bd) { bd = d; best = it; } }); return best; }
-    function grab(h) { var p = k.toWorld(h.cur.sx, h.cur.sy), it = nearestFree(p, h); if (!it) { if (o.onPinchEmpty) o.onPinchEmpty(p, h); return; } h.held = it; h.grabOff.set(it.position.x - p.x, it.position.y - p.y, 0); stage.style.cursor = 'grabbing'; if (o.onGrab) o.onGrab(it, h); }
-    function drop(h) { var it = h.held; h.held = null; stage.style.cursor = 'grab'; if (o.onRelease) o.onRelease(h); if (it && o.onDrop) o.onDrop(it, h); }
+    function grab(h) { var p = k.toWorld(h.cur.sx, h.cur.sy), it = nearestFree(p, h); if (!it) { if (o.onPinchEmpty) o.onPinchEmpty(p, h); return; }
+      var gu = it.userData;
+      if (gu.managed && gu.gear === 'gloves') { k.putOn('gloves'); return; }                 // pinch the box: you take a pair and put them on
+      if (gearOpt && !gu.gear && !k.safe()) { var miss = gearOpt.list.filter(function (n) { return !k.wear[n]; }).map(function (n) { return GEAR[n].toLowerCase(); });
+        gearOpt.say('Safety first. Put on your ' + (miss.length > 1 ? miss.slice(0, -1).join(', ') + ' and ' + miss[miss.length - 1] : miss[0]) + ' before you touch anything on the bench. ' + (gearOpt.why || '')); if (mir) { mir.host.classList.remove('warn'); void mir.host.offsetWidth; mir.host.classList.add('warn'); } return; }
+      h.held = it; h.grabOff.set(it.position.x - p.x, it.position.y - p.y, 0); stage.style.cursor = 'grabbing'; if (o.onGrab) o.onGrab(it, h); }
+    function drop(h) { var it = h.held; h.held = null; stage.style.cursor = 'grab'; if (o.onRelease) o.onRelease(h);
+      if (it && it.userData.managed) { var u = it.userData; if (u.onBody || Math.hypot(it.position.x - u.home.x, it.position.y - u.home.y) > 1.2) k.putOn(u.gear); else k.home(it); u.onBody = false; return; }
+      if (it && o.onDrop) o.onDrop(it, h); if (it) it.userData.onBody = false; }
     k.near = function (it, v, r) { return Math.hypot(it.position.x - v.x, it.position.y - v.y) < (r || 1.5); };
     k.home = function (it) { it.userData.goal.copy(it.userData.home); };
 
@@ -129,6 +136,7 @@
       setCursor(h, h.cur.sx + (tx - h.cur.sx) * a, h.cur.sy + (ty - h.cur.sy) * a);
       var size = Math.hypot(px(0) - px(9), py(0) - py(9)) || 1; h.ratio = Math.hypot(px(4) - px(8), py(4) - py(8)) / size;
       h.ang = Math.atan2(px(9) - px(0), py(0) - py(9));
+      if (h.needOpen) { if (h.ratio > .5) h.needOpen = false; else return; }
       var want = h.pinch ? h.ratio < (firm ? .6 : .55) : h.ratio < .33;
       if (h.pinch && !want && firm) { if (!h.openT) h.openT = now; if (now - h.openT < 450) want = true; } else h.openT = 0;
       setPinch(h, want);
@@ -198,14 +206,19 @@
     /* skin tones, and the blue lab glove */
     var TONES = [['t1', 0xF1CDB6, 'Skin tone 1'], ['t2', 0xDDA987, 'Skin tone 2'], ['t3', 0xC0875F, 'Skin tone 3'], ['t4', 0x94603F, 'Skin tone 4'], ['t5', 0x63402C, 'Skin tone 5'], ['glove', 0x3E8FCB, 'Blue lab glove']];
     var skinMat = new T.MeshStandardMaterial({ vertexColors: true, roughness: .62, metalness: 0, envMapIntensity: .3 }), LV = new Float32Array(240), toneBox = null;
+    k.wear = { gog: false, coat: false, gloves: false };
     k.tone = 't3'; try { var tn0 = localStorage.getItem('hand-tone'); if (tn0 && TONES.some(function (t) { return t[0] === tn0; })) k.tone = tn0; } catch (e) { }
-    k.setTone = function (id) {
-      var t = TONES.filter(function (q) { return q[0] === id; })[0] || TONES[2]; k.tone = t[0]; try { localStorage.setItem('hand-tone', k.tone); } catch (e) { }
-      if (toneBox) Array.prototype.forEach.call(toneBox.children, function (b) { b.setAttribute('aria-pressed', b.dataset.tone === k.tone ? 'true' : 'false'); });
+    function paint() {
+      var id = k.wear.gloves ? 'glove' : k.tone, t = TONES.filter(function (q) { return q[0] === id; })[0] || TONES[2];
       if (!HM) { glove.color.setHex(t[1]); return; }
       var isGlove = t[0] === 'glove', base = new T.Color(t[1]), nail = base.clone().lerp(new T.Color(0xFBE3DA), .55), palm = base.clone().lerp(new T.Color(0xF0BFA8), .5), a = HM.col.array, cc = new T.Color();
       for (var n = 0; n < HM.nv; n++) { cc.copy(base); if (!isGlove) { if (HM.tint[n]) cc.copy(nail); else { var u = Math.max(0, Math.min(1, (HM.nrm[n * 3 + 2] - .15) * 1.6)); cc.lerp(palm, u * .7); } } a[n * 3] = cc.r; a[n * 3 + 1] = cc.g; a[n * 3 + 2] = cc.b; }
       HM.col.needsUpdate = true; skinMat.roughness = isGlove ? .42 : .62;
+    }
+    k.setTone = function (id) {
+      var t = TONES.filter(function (q) { return q[0] === id; })[0] || TONES[2]; k.tone = t[0]; try { localStorage.setItem('hand-tone', k.tone); } catch (e) { }
+      if (toneBox) Array.prototype.forEach.call(toneBox.children, function (b) { b.setAttribute('aria-pressed', b.dataset.tone === k.tone ? 'true' : 'false'); });
+      paint();
     };
     k.setTone(k.tone);
     if (HM) {
@@ -290,15 +303,125 @@
     };
     k.ink = function () { return isDark() ? '#E7EFF1' : '#13232B'; };
 
+    /* ---------- safety gear, and the safety mirror: your own camera picture with the gear drawn on you ---------- */
+    var POSE_MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+    var GEAR = { gog: 'Goggles', coat: 'Lab coat', gloves: 'Gloves' }, gearOpt = null, gearItems = {}, body = null, bodySeen = 0, poser = null, poseNext = 0, mir = null;
+    var WORN = { gog: 'Goggles on. They protect your eyes from splashes and stay on until everything is put away.', coat: 'Lab coat on and buttoned. It keeps chemicals off your skin and clothes.', gloves: 'Gloves on. They keep the solutions off your hands: do not touch your face with them.' };
+    k.bodyNow = function () { return body && performance.now() - bodySeen < 1500 ? body : null; };
+    k.safe = function () { return !gearOpt || gearOpt.list.every(function (n) { return k.wear[n]; }); };
+    function chips() { if (mir) Array.prototype.forEach.call(mir.list.children, function (li) { li.className = k.wear[li.dataset.g] ? 'on' : ''; }); }
+    k.setWear = function (kind, on) { k.wear[kind] = !!on; if (kind === 'coat') k.sleeves = !!on; if (kind === 'gloves') paint(); chips(); };
+    k.putOn = function (kind, quiet) {
+      if (k.wear[kind]) return; var it = gearItems[kind]; if (it) { it.userData.locked = true; it.userData.hidden = true; it.visible = false; } k.setWear(kind, true);
+      if (gearOpt && !quiet) { var left = gearOpt.list.filter(function (n) { return !k.wear[n]; }).map(function (n) { return GEAR[n].toLowerCase(); });
+        gearOpt.say(WORN[kind] + (left.length ? ' Still to put on: ' + left.join(', ') + '.' : ' You are ready. ' + (gearOpt.ready || ''))); if (gearOpt.onWear) gearOpt.onWear(kind, !left.length); }
+    };
+    k.takeOff = function () { ['gog', 'coat', 'gloves'].forEach(function (n) { k.setWear(n, false); var it = gearItems[n]; if (it) { it.userData.locked = false; it.userData.hidden = false; it.visible = true; k.home(it); } }); if (gearOpt && gearOpt.onWear) gearOpt.onWear(null, false); };
+    k.wearAll = function () { (gearOpt ? gearOpt.list : ['gog', 'coat']).forEach(function (n) { k.putOn(n, true); }); if (gearOpt && gearOpt.onWear) gearOpt.onWear(null, true); };
+    /* gear on hooks at the top of the bench. opt: { list, say(text), why, ready, onWear(kind, allOn), x0(k) } */
+    k.gear = function (opt) {
+      gearOpt = opt; opt.list = opt.list || ['gog', 'coat', 'gloves'];
+      var gog = new T.Group(), lens = new T.MeshPhysicalMaterial({ color: 0xBFE4F5, transparent: true, opacity: .45, roughness: .05 }), rim = new T.MeshStandardMaterial({ color: 0x1E2A30, roughness: .5 }), blue = new T.MeshStandardMaterial({ color: 0x2F6FD0, roughness: .6 });
+      [-1, 1].forEach(function (sg) { var l = new T.Mesh(new T.CircleGeometry(.3, 24), lens); l.position.x = sg * .36; gog.add(l); var r = new T.Mesh(new T.TorusGeometry(.3, .05, 8, 24), rim); r.position.x = sg * .36; gog.add(r); var sp = new T.Mesh(new T.BoxGeometry(.3, .1, .05), blue); sp.position.set(sg * .8, 0, -.05); gog.add(sp); });
+      gog.add(new T.Mesh(new T.BoxGeometry(.2, .07, .07), rim));
+      var coat = new T.Group(), wm = new T.MeshStandardMaterial({ color: 0xF6F8F9, roughness: .85 }), gm = new T.MeshStandardMaterial({ color: 0xC9D1D6 }); coat.add(new T.Mesh(new T.BoxGeometry(.95, 1.3, .22), wm));
+      [-1, 1].forEach(function (sg) { var sl = new T.Mesh(new T.BoxGeometry(.3, 1.05, .2), wm); sl.position.set(sg * .66, .08, 0); sl.rotation.z = sg * .22; coat.add(sl); var lap = new T.Mesh(new T.BoxGeometry(.07, .62, .02), gm); lap.position.set(sg * .13, .34, .12); lap.rotation.z = -sg * .36; coat.add(lap); });
+      for (var bi = 0; bi < 3; bi++) { var bt = new T.Mesh(new T.SphereGeometry(.035, 8, 6), new T.MeshStandardMaterial({ color: 0x52646C })); bt.position.set(.05, -.05 - bi * .22, .12); coat.add(bt); }
+      var box = new T.Group(), bx = new T.Mesh(new T.BoxGeometry(.95, .55, .5), new T.MeshStandardMaterial({ color: 0x2E7FBF, roughness: .7 })); box.add(bx);
+      var lb = new T.Mesh(new T.PlaneGeometry(.8, .4), new T.MeshBasicMaterial({ map: k.canvasTex(256, 128, function (x) { x.fillStyle = '#F4F8FB'; x.fillRect(0, 0, 256, 128); x.fillStyle = '#17486E'; x.textAlign = 'center'; x.font = '800 50px "Bricolage Grotesque",sans-serif'; x.fillText('GLOVES', 128, 62); x.font = '600 28px "IBM Plex Mono",monospace'; x.fillText('nitrile · M', 128, 104); }) })); lb.position.z = .255; box.add(lb);
+      var tng = new T.Mesh(new T.BoxGeometry(.3, .26, .05), new T.MeshStandardMaterial({ color: 0x4A9BD6, roughness: .45 })); tng.position.set(.1, .36, 0); tng.rotation.z = -.25; box.add(tng);
+      var all = { gog: [gog, 'safety goggles', .7], coat: [coat, 'lab coat', .95], gloves: [box, 'gloves', .6] };
+      opt.list.forEach(function (n) { gearItems[n] = k.addItem(n, all[n][0], { gname: all[n][1], gear: n, managed: true, firm: true, r: .95, scale: .85, tagY: all[n][2] }); });
+      k.gearHome = function () { var x = opt.x0 ? opt.x0(k) : -k.halfW + 1.35, row = { gog: [0, 5.9], coat: [1.55, 5.65], gloves: [3.0, 5.85] }; opt.list.forEach(function (n) { gearItems[n].userData.home.set(x + row[n][0], row[n][1], 0); }); };
+      k.gearHome();
+    };
+    /* the mirror card. host: an empty element in the page; list: which gear this lab uses */
+    k.mirror = function (host, list) {
+      list = list || (gearOpt && gearOpt.list) || ['gog', 'coat', 'gloves'];
+      host.innerHTML = '<h3>Safety mirror</h3><div class="mirror"><canvas width="480" height="360" aria-label="Your camera picture with the safety gear you are wearing"></canvas></div><ul class="gear">' + list.map(function (n) { return '<li data-g="' + n + '">' + GEAR[n] + '</li>'; }).join('') + '</ul><p class="small" style="margin:8px 0 0">With the camera: pinch the goggles and bring them to your face, bring the coat to your shoulders' + (list.indexOf('gloves') >= 0 ? ', and pinch the glove box' : '') + '. With mouse or touch: drag each one off its hook and let go. Your camera picture stays on this device.</p>';
+      var cv = host.querySelector('canvas'); mir = { host: host, cv: cv, g: cv.getContext('2d'), list: host.querySelector('ul.gear') }; chips();
+    };
+    function mGoggles(x, eL, eR, earL, earR, nose) {
+      var d = Math.hypot(eR[0] - eL[0], eR[1] - eL[1]); if (d < 4) return; var a = Math.atan2(eR[1] - eL[1], eR[0] - eL[0]), cx = (eL[0] + eR[0]) / 2, cy = (eL[1] + eR[1]) / 2, ca = Math.cos(a), sa = Math.sin(a);
+      var loc = function (p) { var dx = p[0] - cx, dy = p[1] - cy; return [(dx * ca + dy * sa) / d, (-dx * sa + dy * ca) / d]; }, t = nose ? Math.max(-.35, Math.min(.35, loc(nose)[0])) * .3 : 0;
+      x.save(); x.translate(cx, cy); x.rotate(a); x.scale(d, d); x.lineCap = 'round'; x.lineJoin = 'round';
+      [[earL, -1], [earR, 1]].forEach(function (q) { if (!q[0]) return; var e = loc(q[0]); if (Math.abs(e[0]) < 1.0) return; x.strokeStyle = '#1F4E9C'; x.lineWidth = .26; x.beginPath(); x.moveTo(q[1] * 1.0 + t, 0); x.lineTo(e[0], e[1] - .08); x.stroke(); x.strokeStyle = '#2F6FD0'; x.lineWidth = .2; x.stroke(); });
+      x.translate(t, 0);
+      var path = function () { x.beginPath(); x.moveTo(-.78, -.48); x.lineTo(.78, -.48); x.quadraticCurveTo(1.1, -.46, 1.1, -.12); x.lineTo(1.06, .2); x.quadraticCurveTo(1.02, .46, .72, .46); x.lineTo(.44, .46); x.quadraticCurveTo(.22, .44, .13, .22); x.quadraticCurveTo(0, .04, -.13, .22); x.quadraticCurveTo(-.22, .44, -.44, .46); x.lineTo(-.72, .46); x.quadraticCurveTo(-1.02, .46, -1.06, .2); x.lineTo(-1.1, -.12); x.quadraticCurveTo(-1.1, -.46, -.78, -.48); x.closePath(); };
+      path(); x.fillStyle = 'rgba(185,226,250,.24)'; x.fill();
+      x.save(); path(); x.clip(); x.fillStyle = 'rgba(255,255,255,.3)'; [[-.95, .3], [.25, .16]].forEach(function (q) { x.beginPath(); x.moveTo(q[0], -.5); x.lineTo(q[0] + q[1], -.5); x.lineTo(q[0] + q[1] - .3, .5); x.lineTo(q[0] - .3, .5); x.closePath(); x.fill(); }); x.restore();
+      path(); x.lineWidth = .12; x.strokeStyle = 'rgba(18,52,70,.92)'; x.stroke(); x.lineWidth = .045; x.strokeStyle = 'rgba(150,215,245,.95)'; x.stroke();
+      x.fillStyle = 'rgba(18,52,70,.9)'; [-1, 1].forEach(function (sg) { x.fillRect(sg * 1.1 - .07, -.14, .14, .28); });
+      x.restore();
+    }
+    function mCoat(x, sL, sR, H) {
+      var w = Math.hypot(sR[0] - sL[0], sR[1] - sL[1]); if (w < 12) return; var a = Math.atan2(sR[1] - sL[1], sR[0] - sL[0]), far = H * 1.6 / w + 2;
+      x.save(); x.translate((sL[0] + sR[0]) / 2, (sL[1] + sR[1]) / 2); x.rotate(a); x.scale(w, w); x.lineJoin = 'round';
+      x.beginPath(); x.moveTo(-.2, -.19); x.quadraticCurveTo(-.42, -.13, -.6, -.03); x.quadraticCurveTo(-.74, .08, -.76, .42); x.lineTo(-.84, far); x.lineTo(.84, far); x.lineTo(.76, .42); x.quadraticCurveTo(.74, .08, .6, -.03); x.quadraticCurveTo(.42, -.13, .2, -.19); x.lineTo(0, .46); x.closePath();
+      var gr = x.createLinearGradient(-.8, 0, .8, 0); gr.addColorStop(0, '#D5DCE1'); gr.addColorStop(.2, '#F7F9FA'); gr.addColorStop(.8, '#F7F9FA'); gr.addColorStop(1, '#D5DCE1'); x.fillStyle = gr; x.fill(); x.lineWidth = .014; x.strokeStyle = 'rgba(105,122,132,.7)'; x.stroke();
+      [-1, 1].forEach(function (sg) { x.beginPath(); x.moveTo(sg * .2, -.19); x.lineTo(0, .46); x.lineTo(sg * .21, .37); x.lineTo(sg * .37, .05); x.closePath(); x.fillStyle = '#E7ECEF'; x.fill(); x.stroke(); });
+      x.beginPath(); x.moveTo(0, .46); x.lineTo(0, far); x.stroke();
+      x.fillStyle = '#66767F'; for (var i = 0; i < 5; i++) { x.beginPath(); x.arc(.045, .62 + i * .3, .022, 0, 6.3); x.fill(); }
+      x.strokeRect(.27, .52, .27, .25); x.beginPath(); x.moveTo(.27, .57); x.lineTo(.54, .57); x.stroke(); x.fillStyle = '#2F6FD0'; x.fillRect(.33, .44, .03, .13); x.fillStyle = '#C0392B'; x.fillRect(.39, .46, .03, .11);
+      x.restore();
+    }
+    function mGlove(x, P) {
+      var sz = Math.hypot(P[9][0] - P[0][0], P[9][1] - P[0][1]); if (sz < 4) return; x.save(); x.lineCap = 'round'; x.lineJoin = 'round';
+      var bx = P[0][0] - (P[9][0] - P[0][0]) * .45, by = P[0][1] - (P[9][1] - P[0][1]) * .45;
+      [['#255F93', .34], ['#4A9BD6', .26]].forEach(function (c) { x.strokeStyle = c[0]; x.fillStyle = c[0];
+        x.lineWidth = sz * (c[1] + .42); x.beginPath(); x.moveTo(P[0][0], P[0][1]); x.lineTo(bx, by); x.stroke();
+        x.lineWidth = sz * c[1]; x.beginPath(); [0, 1, 5, 9, 13, 17].forEach(function (i, n) { if (n) x.lineTo(P[i][0], P[i][1]); else x.moveTo(P[i][0], P[i][1]); }); x.closePath(); x.stroke(); x.fill();
+        for (var f = 0; f < 5; f++) { x.lineWidth = sz * c[1] * (f ? .82 : .95); x.beginPath(); x.moveTo(P[f * 4 + 1][0], P[f * 4 + 1][1]); for (var j = 2; j <= 4; j++) x.lineTo(P[f * 4 + j][0], P[f * 4 + j][1]); x.stroke(); } });
+      x.restore();
+    }
+    function drawMirror(now) {
+      var cv = mir.cv, x = mir.g, W = cv.width, H = cv.height, live = st.mode === 'cam' && video.videoWidth > 0, pts = null, map = null;
+      x.clearRect(0, 0, W, H);
+      if (live) {
+        var vw = video.videoWidth, vh = video.videoHeight, sc = Math.max(W / vw, H / vh), dw = vw * sc, dh = vh * sc, ox = (W - dw) / 2, oy = (H - dh) / 2;
+        x.save(); x.translate(W, 0); x.scale(-1, 1); try { x.drawImage(video, ox, oy, dw, dh); } catch (e) { } x.restore();
+        map = function (q) { return [W - (ox + q.x * dw), oy + q.y * dh]; };
+        if (body && now - bodySeen < 1500) { pts = body.map(map); pts.vis = body.map(function (q) { return q.v; }); }
+      } else {
+        var gr = x.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#22343C'); gr.addColorStop(1, '#16242A'); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+        x.fillStyle = '#6F8A96'; x.beginPath(); x.moveTo(W * .5 - H * .5, H); x.quadraticCurveTo(W * .5 - H * .46, H * .74, W * .5 - H * .12, H * .7); x.lineTo(W * .5 + H * .12, H * .7); x.quadraticCurveTo(W * .5 + H * .46, H * .74, W * .5 + H * .5, H); x.closePath(); x.fill(); x.fillRect(W * .5 - H * .075, H * .55, H * .15, H * .2);
+        x.fillStyle = '#86A2AE'; x.beginPath(); x.ellipse(W * .5, H * .38, H * .165, H * .215, 0, 0, 6.3); x.fill();
+        pts = []; pts[0] = [W * .5, H * .44]; pts[2] = [W * .5 + H * .07, H * .37]; pts[5] = [W * .5 - H * .07, H * .37]; pts[7] = [W * .5 + H * .17, H * .4]; pts[8] = [W * .5 - H * .17, H * .4]; pts[11] = [W * .5 + H * .36, H * .8]; pts[12] = [W * .5 - H * .36, H * .8]; pts.vis = []; [0, 2, 5, 7, 8, 11, 12].forEach(function (i) { pts.vis[i] = 1; });
+      }
+      if (pts) {
+        var eA = pts[2], eB = pts[5], eL = eA[0] <= eB[0] ? eA : eB, eR = eL === eA ? eB : eA, rA = pts[7], rB = pts[8], rL = rA[0] <= rB[0] ? rA : rB, rR = rL === rA ? rB : rA, ed = Math.hypot(eR[0] - eL[0], eR[1] - eL[1]);
+        if (k.wear.coat) {
+          var sA = pts[11], sB = pts[12], ok = pts.vis[11] > .3 && pts.vis[12] > .3 && Math.abs(sA[0] - sB[0]) > ed * 1.6;
+          if (!ok) { var mx = (eL[0] + eR[0]) / 2, my = (eL[1] + eR[1]) / 2; sA = [mx - ed * 2.6, my + ed * 3.5]; sB = [mx + ed * 2.6, my + ed * 3.5]; }   // shoulders out of the picture: place the coat from the face
+          mCoat(x, sA[0] <= sB[0] ? sA : sB, sA[0] <= sB[0] ? sB : sA, H);
+        }
+        if (k.wear.gog) mGoggles(x, eL, eR, rL, rR, pts[0]);
+      }
+      if (live && k.wear.gloves) hands.forEach(function (h) { if (h.lms) mGlove(x, h.lms.map(map)); });
+      if (live && !pts) { x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(0, H - 30, W, 30); x.fillStyle = '#fff'; x.font = '600 14px system-ui,sans-serif'; x.textAlign = 'center'; x.fillText(poser ? 'Move back until your face and shoulders show' : 'Finding your face…', W / 2, H - 10); }
+    }
+    /* gear in a tracked hand goes on when the hand reaches the face (goggles) or the shoulders (coat) */
+    function gearReach(now) {
+      if (!body || now - bodySeen > 1500) return;
+      hands.forEach(function (h) {
+        var it = h.held, kind = it && it.userData.gear; if (!kind || kind === 'gloves' || !h.lms || h.ptr) return;
+        var ar = video.videoWidth / (video.videoHeight || 1) || 1.78, hx = (h.lms[4].x + h.lms[8].x) / 2 * ar, hy = (h.lms[4].y + h.lms[8].y) / 2, near;
+        var ex = (body[2].x + body[5].x) / 2 * ar, ey = (body[2].y + body[5].y) / 2, de = Math.hypot((body[2].x - body[5].x) * ar, body[2].y - body[5].y);
+        if (kind === 'gog') near = Math.hypot(hx - ex, hy - ey) < Math.max(.07, de * 1.6);
+        else { var sx = (body[11].x + body[12].x) / 2 * ar, sy = (body[11].y + body[12].y) / 2, sw = Math.hypot((body[11].x - body[12].x) * ar, body[11].y - body[12].y); if (!(body[11].v > .3 && body[12].v > .3)) { sx = ex; sy = ey + de * 3.5; sw = de * 5.2; } near = Math.abs(hx - sx) < sw * .55 && hy > sy - sw * .3 && hy < sy + sw * .7; }
+        if (near) { it.userData.onBody = true; h.needOpen = true; setPinch(h, false); }
+      });
+    }
+
     /* ---------- frame loop ---------- */
     function resize() {
       var r = stage.getBoundingClientRect(); k.W = Math.max(2, Math.round(r.width)); k.H = Math.max(2, Math.round(r.height));
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(k.W, k.H, false); cam.aspect = k.W / k.H; cam.updateProjectionMatrix(); hud.width = k.W; hud.height = k.H;
-      k.halfW = Math.tan(20 * Math.PI / 180) * 11.5 * cam.aspect; if (o.layout) o.layout(k);
+      k.halfW = Math.tan(20 * Math.PI / 180) * 11.5 * cam.aspect; if (o.layout) o.layout(k); if (k.gearHome) k.gearHome();
       k.items.forEach(function (it) { if (!it.userData.placed && k.held !== it) it.userData.goal.copy(it.userData.home); });
     }
     k.resize = resize;
-    var tPrev = 0;
+    var tPrev = 0, frameN = 0;
     function frame(now) {
       requestAnimationFrame(frame); var dt = Math.min(.05, (now - tPrev) / 1000 || .016); tPrev = now; if (k.paused) return;
       hands.forEach(function (h) {
@@ -308,11 +431,14 @@
       });
       k.cursorWorld = hands[0].world;
       k.items.forEach(function (it) { var u = it.userData, hd = k.holder(it); if (!hd || u.fixed) it.position.lerp(u.goal, u.snap || .2); var hov = false; hands.forEach(function (h) { if (h.hover === it && !h.pinch) hov = true; }); var s = (u.scale || 1) * (hd ? 1.07 : (hov ? 1.05 : 1)); it.scale.setScalar(it.scale.x + (s - it.scale.x) * .25); });
+      gearReach(now);
       if (o.onFrame) o.onFrame(dt, now);
       hands.forEach(updateRig);
       renderer.render(scene, cam);
       g.clearRect(0, 0, k.W, k.H);
       if (o.onHUD) o.onHUD(g);
+      for (var gn in gearItems) { var gi = gearItems[gn]; if (gi.visible && !k.holder(gi)) k.tag(gi.userData.gname, tv.set(gi.position.x, gi.position.y - gi.userData.tagY, 0), k.ink(), 0, true); }
+      if (mir && (frameN++ & 1)) drawMirror(now);
       hands.forEach(function (h) {
         if (h.held && o.targets) { g.setLineDash([6, 6]); g.lineWidth = 2; g.strokeStyle = isDark() ? 'rgba(86,195,223,.85)' : 'rgba(10,106,136,.8)'; (o.targets(h.held) || []).forEach(function (v) { var q = k.toScreen(v); g.beginPath(); g.arc(q[0], q[1], Math.max(22, k.W * .035), 0, 6.3); g.stroke(); }); g.setLineDash([]); }
         if (h.cur.has && st.mode) { var rr = h.pinch ? 7 : 15; g.lineWidth = 4.5; g.strokeStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.arc(h.cur.sx, h.cur.sy, rr, 0, 6.3); g.stroke();
@@ -335,10 +461,15 @@
         var vision = await import(MP + '/vision_bundle.mjs'), files = await vision.FilesetResolver.forVisionTasks(MP + '/wasm');
         var mk = function (d) { return vision.HandLandmarker.createFromOptions(files, { baseOptions: { modelAssetPath: HAND_MODEL, delegate: d }, runningMode: 'VIDEO', numHands: NH }); };
         try { tracker = await mk('GPU'); } catch (e) { tracker = await mk('CPU'); }
+        if (mir && vision.PoseLandmarker) { var mkP = function (d) { return vision.PoseLandmarker.createFromOptions(files, { baseOptions: { modelAssetPath: POSE_MODEL, delegate: d }, runningMode: 'VIDEO', numPoses: 1 }); };
+          mkP('GPU').catch(function () { return mkP('CPU'); }).then(function (pz) { poser = pz; }).catch(function () { }); }
         st.mode = 'cam'; if (o.intro) o.intro.hidden = true; resize(); say(NH > 1 ? 'Camera on. Hold up both hands and pinch to grab.' : 'Camera on. Hold up one hand and pinch to grab.', 'ok');
         var last = -1, lost = 0;
         (function tick() { requestAnimationFrame(tick); if (video.readyState < 2 || video.currentTime === last) return; last = video.currentTime; var now = performance.now();
           try { var r = tracker.detectForVideo(video, now), L = r.landmarks || [], hd = r.handedness || r.handednesses || [], l = L[0];
+            if (poser && now >= poseNext) { var t0 = performance.now(); try { var pr = poser.detectForVideo(video, now), pl = pr.landmarks && pr.landmarks[0];
+              if (pl) { if (!body || now - bodySeen > 800) body = pl.map(function (q) { return { x: q.x, y: q.y, v: q.visibility == null ? 1 : q.visibility }; }); else pl.forEach(function (q, n) { var bq = body[n]; bq.x += (q.x - bq.x) * .6; bq.y += (q.y - bq.y) * .6; bq.v = q.visibility == null ? 1 : q.visibility; }); bodySeen = now; } } catch (e2) { }
+              poseNext = now + Math.max(60, Math.min(400, (performance.now() - t0) * 2.5)); }
             k.feedAll(L.map(function (lm, n) { return { lms: lm, label: hd[n] && hd[n][0] ? hd[n][0].categoryName : '' }; }), now);
             if (!l) { if (!lost) lost = now; if (now - lost > 1500 && !hands.some(function (q) { return q.ptr; })) say(NH > 1 ? 'I cannot see your hands. Hold them up in front of the camera, with light on them.' : 'I cannot see a hand. Hold it up in front of the camera, with light on it.', 'bad'); } else { if (lost) say(NH > 1 ? 'Hands found. Pinch to grab, open to drop.' : 'Hand found. Pinch to grab, open to drop.', 'ok'); lost = 0; } }
           catch (e) { say('The tracker hit an error: ' + e.message, 'bad'); } })();

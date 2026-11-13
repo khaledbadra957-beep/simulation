@@ -56,3 +56,14 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
 .tones button{width:22px;height:22px;border-radius:50%;border:2px solid rgba(0,0,0,.25);padding:0;cursor:pointer}
 .tones button[aria-pressed="true"]{outline:2.5px solid var(--accent);outline-offset:2px}
 .tones button:focus-visible{outline:2.5px solid var(--ink);outline-offset:2px}
+/* safety mirror card */
+.mirror{position:relative;border-radius:12px;overflow:hidden;background:#16242A;aspect-ratio:4/3;border:1px solid var(--line)}
+.mirror canvas{width:100%;height:100%;display:block}
+ul.gear{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;padding:0}
+ul.gear li{font:600 13px/1.2 var(--data);padding:5px 10px;border-radius:999px;border:1.5px solid var(--line);color:var(--muted)}
+ul.gear li::before{content:"✗ "}
+ul.gear li.on{border-color:var(--ok);color:var(--ok)}
+ul.gear li.on::before{content:"✓ "}
+@keyframes gearwarn{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,0)}30%{box-shadow:0 0 0 4px rgba(192,57,43,.55)}}
+.card.warn{animation:gearwarn .9s ease-out 2}
+@media (prefers-reduced-motion: reduce){.card.warn{animation:none;outline:3px solid var(--bad)}}

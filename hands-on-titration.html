@@ -37,6 +37,7 @@
   <aside>
    <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
    <div class="card"><h3>What happened</h3><p class="say" id="say"></p></div>
+   <div class="card" id="mirror"></div>
    <div class="card"><h3 id="taskH">Your task</h3><p class="small" id="task" style="color:var(--ink);margin-bottom:8px"></p><ol class="steps" id="steps"></ol></div>
    <div class="card" id="titCard" hidden>
     <h3>Burette</h3>
@@ -136,14 +137,14 @@ const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a)),TURNS=3;
 const Tt={V:0,ind:false,Ca:.08,flash:0,hold:0,done:false,dropT:0};
 const Veq=()=>Tt.Ca*Va/Cb;
 const pHof=v=>{const n=Tt.Ca*Va-Cb*v,vt=(Va+v)/1000;return Math.abs(n)<1e-9?7:n>0?-Math.log10(n/1000/vt):14+Math.log10(-n/1000/vt)};
-const STEPS={dil:[['pip','Fill the pipette from the stock bottle (10.0 mL)'],['sol','Empty the pipette into the 100 mL flask'],['line','Add distilled water up to the line'],['stop','Put the stopper on the flask'],['mix','Mix it yourself: turn the flask upside down and back, 3 times']],
- tit:[['ind','Add 2 drops of phenolphthalein to the flask'],['run','Pinch and hold the tap to add NaOH'],['end','Stop at the first pale pink that stays'],['chk','Check your end point and find C(HCl)']]};
-function stepState(k){return k==='pip'?D.filled:k==='sol'?D.sol>=V0-.05:k==='line'?Math.abs(D.vol-VF)<=.6&&D.sol>=V0-.05:k==='stop'?D.stop:k==='mix'?D.done:k==='ind'?Tt.ind:k==='run'?Tt.V>0.5:k==='end'?Tt.V>0&&pHof(Tt.V)>8.2&&Tt.V-Veq()<=.3:Tt.done}
+const STEPS={dil:[['safe','Put on goggles, lab coat and gloves'],['pip','Fill the pipette from the stock bottle (10.0 mL)'],['sol','Empty the pipette into the 100 mL flask'],['line','Add distilled water up to the line'],['stop','Put the stopper on the flask'],['mix','Mix it yourself: turn the flask upside down and back, 3 times']],
+ tit:[['safe','Put on goggles, lab coat and gloves'],['ind','Add 2 drops of phenolphthalein to the flask'],['run','Pinch and hold the tap to add NaOH'],['end','Stop at the first pale pink that stays'],['chk','Check your end point and find C(HCl)']]};
+function stepState(k){return k==='safe'?K.safe():k==='pip'?D.filled:k==='sol'?D.sol>=V0-.05:k==='line'?Math.abs(D.vol-VF)<=.6&&D.sol>=V0-.05:k==='stop'?D.stop:k==='mix'?D.done:k==='ind'?Tt.ind:k==='run'?Tt.V>0.5:k==='end'?Tt.V>0&&pHof(Tt.V)>8.2&&Tt.V-Veq()<=.3:Tt.done}
 function steps(){let first=true;$('steps').innerHTML=STEPS[tab].map(([k,t])=>{const d=stepState(k),now=!d&&first;if(!d)first=false;return `<li class="${d?'done':''}${now?' now':''}"><i></i><span>${t}</span></li>`}).join('')}
 function setTab(t){tab=t;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));grpD.visible=t==='dil';grpT.visible=t==='tit';
- for(const it of K.items){const h=it.userData.tab!==t;it.userData.hidden=h;it.visible=!h}
+ for(const it of K.items){if(it.userData.gear)continue;const h=it.userData.tab!==t;it.userData.hidden=h;it.visible=!h}
  $('titCard').hidden=t!=='tit';$('task').innerHTML=t==='dil'?'Dilute the KMnO₄ stock (C₀ = 0.020 mol/L) <b>10 times</b>: 10.0 mL of stock made up to 100.0 mL.':'Find the concentration of the HCl in the flask (V<sub>a</sub> = 20.0 mL) with NaOH 0.10 mol/L from the burette.';
- say(t==='dil'?'Pick up the pipette and dip its tip into the stock bottle.':'Pick up the indicator bottle and hold it over the flask.');steps()}
+ say((K.safe()?'':'Safety first: put on the goggles, the lab coat and the gloves. Then: ')+(t==='dil'?'Pick up the pipette and dip its tip into the stock bottle.':'Pick up the indicator bottle and hold it over the flask.'));steps()}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 function resetDil(){Object.assign(D,{pip:0,sol:0,vol:0,stop:false,m:0,turns:0,inv:false,th:0,aim:0,done:false,over:false,filled:false,told:''});for(const it of [pip,wash,stop]){it.userData.placed=false;it.userData.locked=false;K.home(it)}fl.userData.locked=true;K.home(fl);fl.rotation.z=0;steps()}
 function resetTit(newCa){if(newCa)Tt.Ca=Math.round((.06+Math.random()*.06)*1000)/1000;Object.assign(Tt,{V:0,ind:false,flash:0,hold:0,done:false});$('calc').hidden=true;K.home(ind);steps()}
@@ -236,6 +237,7 @@ function hudDraw(g){const ink=K.ink();
   K.tag('read the bottom of the meniscus',V(TX+2.4,4.6,0),null,R+14);
   if(K.hover===tap&&!K.held)K.tag(Tt.ind?'pinch and hold = flow · quick pinch = one drop':'add the indicator first',V(TX+.3,BBOT-.06,.2),ink,-26)}}
 
+K.gear({say,why:'Potassium permanganate stains skin and clothes, and the acid and sodium hydroxide can burn eyes and skin.',ready:'Now carry on with the first step.',onWear:()=>steps()});K.mirror($('mirror'));
 HandKit.themeButton($('themeBtn'),K);Tt.Ca=Math.round((.06+Math.random()*.06)*1000)/1000;K.start();setTab('dil');
 window.__HK=Object.assign(K,{D,Tt,Veq,pHof,setTab,FX,BOT,TX,TAP,fl});
 })();
