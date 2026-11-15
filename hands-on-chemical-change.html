@@ -1,0 +1,209 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hands-On Lab: Chemical or Physical Change?</title>
+<meta name="description" content="Grade 7 camera lab: put on your safety gear, pour and mix five pairs of substances with your own hand, watch for gas, a new solid, a colour change or a temperature change, then decide: chemical or physical change? Works with mouse or touch too.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="hand-kit.css">
+<style>.score{font:600 15px/1.4 var(--data);margin:0}.tab.ok::after{content:" ✓";color:var(--ok)}</style>
+</head><body>
+<div class="wrap">
+ <a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+ <header>
+  <div>
+   <p class="eyebrow">Grade 7 Science · Chemical changes · Camera lab</p>
+   <h1>Hands-On Lab: Chemical or Physical Change?</h1>
+   <p class="lede">Do five experiments with your own hand. Pinch your thumb and first finger together to pick up a bottle, hold it over the beaker and tilt your hand to pour. Watch closely, then drop the signs you saw on the beaker and decide what kind of change it was.</p>
+  </div>
+  <div class="row"><a class="btn" href="chemical-change-lab.html" style="text-decoration:none">2-D Chemical Change Lab</a><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
+ </header>
+ <div class="tabs" role="tablist" id="tabs"></div>
+ <div class="grid">
+  <div class="stage" id="stage">
+   <video id="video" playsinline muted autoplay hidden></video>
+   <canvas id="gl" aria-label="3-D lab bench with bottles, a beaker and cards you can pick up"></canvas>
+   <canvas id="hud" class="hud"></canvas>
+   <div class="intro" id="intro">
+    <h2>Pinch to grab, tilt to pour</h2>
+    <p>The camera follows your hand. Your video stays on this device and is never uploaded.</p>
+    <div class="row" style="justify-content:center">
+     <button class="btn primary" id="startCam" type="button">Start with my camera</button>
+     <button class="btn" id="startMouse" type="button">Use mouse or touch</button>
+    </div>
+   </div>
+  </div>
+  <aside>
+   <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
+   <div class="card"><h3>What happened</h3><p class="say" id="say"></p></div>
+   <div class="card" id="mirror"></div>
+   <div class="card"><h3 id="expH">Experiment</h3><ol class="steps" id="steps"></ol><p class="score" id="score" style="margin-top:10px"></p></div>
+   <div class="card">
+    <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
+    <div class="row" style="margin-top:10px"><button class="btn" id="reset" type="button">Do this experiment again</button></div>
+   </div>
+   <p class="small">Tip: keep your hand about an arm's length from the camera, with light on it. With mouse or touch, a bottle held over the beaker tips by itself.</p>
+  </aside>
+ </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="hand-model.js"></script>
+<script src="hand-kit.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const setStatus=(t,c)=>{$('status').textContent=t;$('status').className='status '+(c||'')};
+const say=t=>{$('say').textContent=t};
+if(!window.THREE){setStatus('The 3-D engine could not load. Check the internet connection and reload.','bad');return}
+const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),wrap=a=>Math.atan2(Math.sin(a),Math.cos(a)),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),sm=u=>{u=clamp(u,0,1);return u*u*(3-2*u)};
+
+/* ---------- the five experiments (same chemistry as the 2-D Chemical Change Lab) ---------- */
+const EXP=[
+ {id:'soda',tab:'Vinegar + baking soda',a:'vinegar',b:'baking soda',bKind:'powder',powderC:0xFFFFFF,liq:0xE6DC9A,mix:0xE6DC9A,aOp:.5,t0:22,t1:19,gas:1,kind:'chem',need:['gas','energy'],ok:[],
+  why:'Bubbles of a new gas (carbon dioxide) formed and the beaker got colder: 22 °C to 19 °C. New substances were made, so it is a chemical change.'},
+ {id:'mgso4',tab:'Two clear solutions',a:'magnesium sulfate solution',b:'sodium carbonate solution',la:'magnesium sulfate',lb:'sodium carbonate',bKind:'liquid',bCol:0xC4E0F2,liq:0xC4E0F2,mix:0xC4E0F2,aOp:.42,t0:22,t1:22,ppt:0xFFFFFF,cloud:.6,kind:'chem',need:['solid'],ok:['colour'],
+  why:'Two clear liquids made a white solid (a precipitate) that settled at the bottom. That solid is a new substance: a chemical change.'},
+ {id:'yeast',tab:'Hydrogen peroxide + yeast',a:'hydrogen peroxide',b:'yeast',bKind:'powder',powderC:0xC8A46A,liq:0xC4E0F2,mix:0xEADDBF,aOp:.42,t0:22,t1:35,gas:1.2,foam:1,kind:'chem',need:['gas','energy'],ok:['colour'],
+  why:'Foam full of a new gas (oxygen) rose up the beaker and it warmed up: 22 °C to 35 °C. New substances were made: a chemical change.'},
+ {id:'sugar',tab:'Sugar + water',a:'water',b:'sugar',bKind:'powder',powderC:0xFFFFFF,liq:0xBFDDF0,mix:0xBFDDF0,aOp:.42,t0:22,t1:22,dissolve:1,kind:'phys',need:[],ok:[],
+  why:'The sugar only dissolved. It is still sugar and water: boil the water away and the sugar is left. No new substance, so it is a physical change.'},
+ {id:'dye',tab:'Food colouring + water',a:'water',b:'blue food colouring',lb:'food colouring',bKind:'dye',bCol:0x2E7BD6,liq:0xBFDDF0,mix:0x5E9BE6,aOp:.42,t0:22,t1:22,dye:1,kind:'phys',need:[],ok:['colour'],
+  why:'The colour changed, but no new substance formed: the dye just spread through the water. A colour change only MAY mean a chemical change. Here it is a physical change.'}
+];
+const SIGNS={gas:['GAS BUBBLES','a gas forms','#0A6A88','No bubbles of gas formed in this one. Look again.'],solid:['NEW SOLID','a precipitate','#7A4B12','No new solid appeared. Something that only dissolves is not a new solid.'],
+ colour:['NEW COLOUR','a colour change','#8E2AA8','The colour did not change in this one.'],energy:['HOT OR COLD','temperature change','#C0392B','The thermometer did not move, so there was no temperature change.']};
+const SIGNOK={colour:'Yes, the colour changed. Be careful with this sign: a colour change only MAY mean a chemical change.',solid:'Yes.',gas:'Yes.',energy:'Yes.'};
+const SIGNYES={gas:'Yes! Bubbles mean a gas was made that was not there before.',solid:'Yes! A solid appeared out of two liquids: it is called a precipitate.',colour:'Yes, a new colour appeared.',energy:'Yes! The thermometer moved: energy was taken in or given out.'};
+
+const BX=.6,RIM=2.3;
+let cur=0,E=null;const done={},first={};
+const K=HandKit.create({stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
+ layout(k){const lx=-(k.halfW-1.0),rx=k.halfW-1.25;botA.it.userData.home.set(lx+1.2,.92,0);botB.it.userData.home.set(lx+3.0,botB.it.userData.scale*.92,0);dish.userData.home.set(lx+3.0,.12,0);
+  SIGNID.forEach((id,i)=>{const c=cards[id],u=c.userData;u.home.set(rx,5.55-i*.82,.4);if(u.placed)u.goal.set(BX+2.75,4.7-u.slot*.72,.4)});cards.chem.userData.home.set(rx,1.95,.4);cards.phys.userData.home.set(rx,1.1,.4);if(cards.chem.userData.placed)cards.chem.userData.goal.set(BX-1.95,3.9,.6);if(cards.phys.userData.placed)cards.phys.userData.goal.set(BX-1.95,3.9,.6)},
+ onGrab,onDrop,onFrame:frame,onHUD:hudDraw,
+ onPinchEmpty(p){if(E&&E.r<1&&p.x>K.halfW-2.4)say('Do the experiment first. The cards unlock when the change has finished.')},
+ targets(it){const u=it.userData;return u.pour?[V(BX-.9,3.95)]:u.kind==='card'?[V(BX,2.0)]:[]}});
+const scene=K.scene;
+
+/* ---------- glassware ---------- */
+const beaker=K.vessel(BX,[[0,0],[1.05,0],[1.1,.08],[1.1,RIM],[1.17,RIM+.07]],{liq:0xD7EBF8,op:.35});
+{// graduation marks and a digital thermometer probe standing in the beaker
+ for(let i=1;i<=4;i++){const m=new T.Mesh(new T.BoxGeometry(i%2?.22:.34,.018,.01),new T.MeshBasicMaterial({color:0x52646C}));m.position.set(-.55,i*.45,.96);m.rotation.y=-.5;beaker.g.add(m)}
+ const rod=new T.Mesh(new T.CylinderGeometry(.035,.035,3.1,10),K.metal(0xC9D1D6));rod.position.set(BX+.72,1.75,-.2);rod.rotation.z=-.1;rod.castShadow=true;scene.add(rod);
+ const head=new T.Mesh(new T.BoxGeometry(.5,.34,.16),new T.MeshStandardMaterial({color:0xF2C514,roughness:.5}));head.position.set(BX+.89,3.42,-.2);head.rotation.z=-.1;head.castShadow=true;scene.add(head)}
+function makeBottle(id,prof,mouth){const ves=K.vessel(0,prof,{liq:0xD7EBF8,op:.4,level:prof[3][1]*.8}),it=new T.Group(),mid=mouth*.48;it.add(ves.g);ves.g.position.set(0,-mid,0);
+ const tex=K.canvasTex(256,180,()=>{}),lab=new T.Mesh(new T.PlaneGeometry(.78,.55),new T.MeshBasicMaterial({map:tex}));lab.position.set(0,prof[3][1]*.47,.06);lab.renderOrder=2;ves.g.add(lab);
+ K.addItem(id,it,{r:1.0,pour:true,firm:true,th:0,a0:0,mid,mouth:mouth-mid,full:prof[3][1]*.8,liftZ:.9});it.traverse(m=>{if(m.isMesh&&m.material.transparent)m.castShadow=false});return {it,ves,prof,mid,tex}}
+function writeLabel(tex,text){const c=tex.image,x=c.getContext('2d');x.fillStyle='#FFFBEE';x.fillRect(0,0,256,180);x.strokeStyle='#CFC6A8';x.lineWidth=8;x.strokeRect(4,4,248,172);x.fillStyle='#1E1A10';x.textAlign='center';x.textBaseline='middle';const w=text.split(' '),lines=[];let l='';x.font='800 40px "Bricolage Grotesque",sans-serif';for(const q of w){if(l&&x.measureText(l+' '+q).width>226){lines.push(l);l=q}else l=l?l+' '+q:q}lines.push(l);lines.forEach((t,i)=>x.fillText(t,128,90+(i-(lines.length-1)/2)*44,232));tex.needsUpdate=true}
+const BPROF=[[0,0],[.5,0],[.55,.08],[.55,1.2],[.24,1.5],[.24,1.85]];
+const botA=makeBottle('botA',BPROF,1.85),botB=makeBottle('botB',BPROF,1.85);botB.it.userData.scale=1;
+// weighing dish with a heap of powder
+const dish=new T.Group();let heap;{const d=new T.Mesh(new T.CylinderGeometry(.62,.42,.2,28,1,true),new T.MeshStandardMaterial({color:0xF4F7F8,roughness:.4,side:T.DoubleSide}));dish.add(d);const fl=new T.Mesh(new T.CircleGeometry(.42,28),new T.MeshStandardMaterial({color:0xF4F7F8,roughness:.4}));fl.rotation.x=-Math.PI/2;fl.position.y=-.1;dish.add(fl);
+ heap=new T.Mesh(new T.SphereGeometry(.4,20,12,0,6.3,0,1.57),new T.MeshStandardMaterial({color:0xFFFFFF,roughness:.95}));heap.scale.set(1,.7,1);heap.position.y=-.09;dish.add(heap)}
+K.addItem('dish',dish,{r:.95,pour:true,firm:true,th:0,a0:0,mid:0,mouth:.1,liftZ:.9});
+// what happens inside the beaker
+const bubG=new T.SphereGeometry(1,8,6),bubM=new T.MeshStandardMaterial({color:0xFFFFFF,transparent:true,opacity:.75,roughness:.2}),bubbles=[];
+for(let i=0;i<44;i++){const b=new T.Mesh(bubG,bubM);b.visible=false;b.userData={a:i*2.4,rr:.12+.78*((i*37)%44)/44,ph:(i*.618)%1,sp:.55+((i*13)%10)/22,s:.035+((i*7)%5)*.012};scene.add(b);bubbles.push(b)}
+const foam=new T.Group();{const fm=new T.MeshStandardMaterial({color:0xFBF8EE,roughness:.95});const c=new T.Mesh(new T.CylinderGeometry(1.03,1.03,1,32),fm);c.position.y=.5;foam.add(c);for(let i=0;i<9;i++){const s=new T.Mesh(bubG,fm),a=i*.7;s.scale.setScalar(.3+(i%3)*.07);s.position.set(Math.cos(a)*(i?.62:0),1,Math.sin(a)*(i?.62:0));foam.add(s)}foam.position.set(BX,0,0);foam.visible=false;scene.add(foam)}
+const sed=new T.Mesh(new T.CylinderGeometry(1.0,1.0,1,32),new T.MeshStandardMaterial({color:0xFFFFFF,roughness:.95}));sed.position.set(BX,.05,0);sed.visible=false;scene.add(sed);
+const specks=[];for(let i=0;i<26;i++){const s=new T.Mesh(bubG,new T.MeshStandardMaterial({color:0xFFFFFF,roughness:.9,transparent:true}));s.visible=false;s.userData={a:i*1.9,rr:.1+.8*((i*29)%26)/26,ph:(i*.37)%1};scene.add(s);specks.push(s)}
+const stream=[];for(let i=0;i<10;i++){const d=new T.Mesh(bubG,new T.MeshStandardMaterial({color:0xBFDDF0,transparent:true,opacity:.85,roughness:.2}));d.visible=false;scene.add(d);stream.push(d)}
+
+/* ---------- cards: the signs, and the verdict ---------- */
+const SIGNID=['gas','solid','colour','energy'],cards={};
+SIGNID.forEach(id=>{cards[id]=K.addItem(id,K.card(SIGNS[id][0],SIGNS[id][1],SIGNS[id][2]),{kind:'card',sign:id,r:.95,locked:true})});
+cards.chem=K.addItem('chem',K.card('CHEMICAL','a new substance is made','#C0392B'),{kind:'card',verdict:'chem',r:.95,locked:true});
+cards.phys=K.addItem('phys',K.card('PHYSICAL','still the same substance','#2F6FD0'),{kind:'card',verdict:'phys',r:.95,locked:true});
+
+/* ---------- state ---------- */
+const STEPS=[['safe','Put on goggles, lab coat and gloves'],['a',''],['b',''],['watch','Watch the beaker and the thermometer'],['signs','Drop every sign you saw on the beaker'],['verdict','Decide: chemical or physical change?']];
+function stepState(k){return k==='safe'?K.safe():k==='a'?E.a>=1:k==='b'?E.b>=1:k==='watch'?E.r>=1:k==='signs'?E.r>=1&&(E.x.need.every(s=>E.found.has(s))&&(E.x.need.length>0||E.verdict)):E.verdict}
+function steps(){const x=E.x;let first1=true;$('expH').textContent='Experiment '+(cur+1)+' of '+EXP.length;
+ $('steps').innerHTML=STEPS.map(([k,t])=>{const txt=k==='a'?'Pour the '+x.a+' into the beaker':k==='b'?(x.bKind==='powder'?'Tip the '+x.b+' into the beaker':x.bKind==='dye'?'Add drops of '+x.b:'Pour in the '+x.b):t,d=stepState(k),now=!d&&first1;if(!d)first1=false;return `<li class="${d?'done':''}${now?' now':''}"><i></i><span>${txt}</span></li>`}).join('');
+ const n=Object.keys(done).length,f=Object.keys(first).length;$('score').textContent=n?`Done: ${n} of ${EXP.length} · right first time: ${f}`:'';
+ document.querySelectorAll('#tabs .tab').forEach((b,i)=>{b.setAttribute('aria-selected',i===cur);b.classList.toggle('ok',!!done[EXP[i].id])})}
+function setExp(i,quiet){cur=i;const x=EXP[i];E={x,a:0,b:0,r:0,found:new Set(),verdict:false,tries:0,told:{},slot:0};
+ for(const id in cards){const u=cards[id].userData;u.placed=false;u.locked=true;u.slot=0;K.home(cards[id])}
+ botA.ves.setColor(x.liq,x.aOp+.15);writeLabel(botA.tex,x.la||x.a);if(x.bKind!=='powder')writeLabel(botB.tex,x.lb||x.b);const liquidB=x.bKind!=='powder';botB.it.userData.hidden=!liquidB;botB.it.visible=liquidB;dish.userData.hidden=liquidB;dish.visible=!liquidB;
+ if(liquidB){botB.ves.setColor(x.bCol,x.bKind==='dye'?.9:.45);botB.it.userData.scale=x.bKind==='dye'?.6:1}else heap.material.color.setHex(x.powderC);
+ for(const it of [botA.it,botB.it,dish]){it.userData.th=0;it.rotation.z=0}K.resize();steps();
+ if(!quiet)say((K.safe()?'':'Safety first: put on the goggles, the lab coat and the gloves. Then: ')+'Pick up the '+x.a+', hold it over the beaker and tilt it to pour.')}
+$('tabs').innerHTML=EXP.map((x,i)=>`<button class="tab" role="tab" aria-selected="false" data-i="${i}" type="button">${i+1} · ${x.tab}</button>`).join('');
+document.querySelectorAll('#tabs .tab').forEach(b=>b.onclick=()=>setExp(+b.dataset.i));
+$('reset').onclick=()=>setExp(cur);
+
+function onGrab(it,h){const u=it.userData;if(u.pour){u.a0=h&&h.ang||0}}
+function onDrop(it){const u=it.userData,x=E.x;
+ if(u.pour){K.home(it);return}
+ if(!K.near(it,V(BX,2.0),1.9)){K.home(it);return}
+ if(u.sign){const s=u.sign;
+  if(x.need.includes(s)||x.ok.includes(s)){E.found.add(s);u.placed=true;u.locked=true;u.slot=E.slot++;u.goal.set(BX+2.75,4.7-u.slot*.72,.4);
+   const left=x.need.filter(q=>!E.found.has(q)).length;say((x.need.includes(s)?SIGNYES[s]:SIGNOK[s])+(left?' There is still '+(left>1?left+' more signs':'one more sign')+' to find.':' Now give your verdict: chemical or physical?'))}
+  else{K.home(it);say(SIGNS[s][3])}}
+ else{E.tries++;
+  if(u.verdict===x.kind){E.verdict=true;u.placed=true;u.locked=true;u.goal.set(BX-1.95,3.9,.6);const miss=x.need.filter(q=>!E.found.has(q)).map(q=>SIGNS[q][0].toLowerCase());
+   if(!done[x.id]&&E.tries===1)first[x.id]=true;done[x.id]=true;const all=Object.keys(done).length===EXP.length;
+   say('Correct: a '+(x.kind==='chem'?'chemical':'physical')+' change. '+x.why+(miss.length?' You missed a sign: '+miss.join(' and ')+'.':'')+(all?' You have done all five. Remember: a chemical change makes a new substance; gas, a new solid, a colour change and a temperature change are the signs to look for.':' Choose the next experiment above.'));
+   setStatus(all?'All five experiments done.':'Experiment '+(cur+1)+' done.','ok')}
+  else{K.home(it);say(x.kind==='chem'?'Not this time. Look at what you saw: was something made that was not there before? A new substance means a chemical change.':'Not this time. Ask yourself: is there any NEW substance in the beaker, or only the same ones mixed together? You could get them back.')}}
+ steps()}
+
+/* ---------- every frame ---------- */
+const cA=new T.Color(),cB=new T.Color(),WHITE=new T.Color(0xFFFFFF);
+function tiltBottle(B,hd,amountLeft){const it=B.it||B,u=it.userData,sc=it.scale.x;let target=0;
+ if(hd){const over=Math.abs(it.position.x-BX)<1.75&&it.position.y>2.9;if(hd.lms&&!hd.ptr)target=clamp(-wrap((hd.ang||0)-u.a0),-2.1,2.1);else if(over)target=(it.position.x<=BX?-1:1)*1.15}
+ u.th+=(target-u.th)*.22;if(Math.abs(u.th)<.002)u.th=0;it.rotation.z=u.th;
+ const mx=it.position.x-Math.sin(u.th)*u.mouth*sc,my=it.position.y+Math.cos(u.th)*u.mouth*sc,tip=Math.abs(u.th)>.7,inPlace=Math.abs(mx-BX)<1.0&&my>RIM+.05;
+ if(B.ves){// keep the liquid level flat while the bottle tips
+  const c=Math.cos(u.th),s=Math.abs(Math.sin(u.th));let hi=-9,lo=9;for(const [r,y] of B.prof){hi=Math.max(hi,((y-B.mid)*c+r*s)*sc);lo=Math.min(lo,((y-B.mid)*c-r*s)*sc)}
+  const f=.8*amountLeft;B.ves.setLevel(Math.max(.04,u.full*amountLeft));B.ves.mat.clippingPlanes[0].constant=it.position.y+lo+(hi-lo)*f*(.55+.45*c*c);B.ves.top.visible=Math.abs(u.th)<.03&&amountLeft>.03;B.ves.liq.visible=amountLeft>.02}
+ return {tip,inPlace,mx,my,held:!!hd}}
+function frame(dt,now){const x=E.x,t=now/1000;
+ const hA=K.holder(botA.it),bItem=x.bKind==='powder'?dish:botB.it,hB=K.holder(bItem);
+ const pa=tiltBottle(botA,hA,1-E.a),pb=x.bKind==='powder'?tiltBottle(dish,hB,1-E.b):tiltBottle(botB,hB,1-E.b*.6);
+ let pouring=null;
+ if(pa.held&&pa.tip){if(!pa.inPlace){if(!E.told.spillA){E.told.spillA=1;say('Careful! Tip the bottle only when its mouth is over the beaker. In a real lab that would be a spill.')}}
+  else if(E.a<1){E.a=Math.min(1,E.a+dt/2.2);pouring=['A',pa];if(E.a>=1){say('Enough '+x.a+' is in the beaker. The thermometer reads '+x.t0+' °C. Now add the '+x.b+'.');steps()}}}
+ if(pb.held&&pb.tip){if(!pb.inPlace){if(!E.told.spillB){E.told.spillB=1;say('Careful! Tip it only when it is over the beaker. In a real lab that would be a spill.')}}
+  else if(E.a<1){if(!E.told.order){E.told.order=1;say('Pour the '+x.a+' into the beaker first, then add the '+x.b+'.')}}
+  else if(E.b<1){E.b=Math.min(1,E.b+dt/(x.bKind==='dye'?1.4:1.9));pouring=['B',pb];if(E.b>=1){say('All the '+x.b+' is in. Put it down and watch the beaker and the thermometer.');steps()}}}
+ heap.scale.set(1-.75*E.b,.7*(1-E.b)+.02,1-.75*E.b);heap.visible=E.b<.98;
+ // the change itself
+ if(E.b>.05&&E.r<1){const was=E.r;E.r=Math.min(1,E.r+dt/7*(.35+.65*E.b));if(E.r>=1&&E.b>=1&&was<1){for(const id in cards)if(!cards[id].userData.placed)cards[id].userData.locked=false;
+   say('The change has finished. Which signs did you see? Drop them on the beaker'+(x.need.length?'':' (maybe there were none)')+', then choose CHEMICAL or PHYSICAL.');steps()}else if(E.r>=1&&E.b<1)E.r=.99}
+ const r=E.r,powder=x.bKind==='powder',lv=.95*E.a+(powder?.04:x.bKind==='dye'?.03:.5)*E.b;
+ const cloud=x.cloud?x.cloud*Math.min(1,r*4)*(1-.65*sm((r-.35)/.65)):0;
+ cA.setHex(x.liq).lerp(cB.setHex(x.mix),sm(r*1.3));if(cloud)cA.lerp(WHITE,cloud);
+ beaker.setLevel(lv);beaker.setColor(cA,Math.min(.92,x.aOp+(x.dye?.3*sm(r*1.3):0)+cloud*.7+(x.foam?.25*sm(r):0)));
+ const gasNow=x.gas?x.gas*(r>=1?.12:Math.sin(Math.PI*Math.min(1,r*1.05))**.6)*(E.b>.05?1:0):0,nB=Math.round(gasNow/1.2*bubbles.length);
+ bubbles.forEach((b,i)=>{const u=b.userData;b.visible=i<nB&&lv>.2;if(b.visible){const yy=((t*u.sp+u.ph)%1);b.position.set(BX+Math.cos(u.a+yy*2)*u.rr,.08+yy*(lv-.1),Math.sin(u.a+yy*2)*u.rr*.9);b.scale.setScalar(u.s*(.7+yy*.7))}});
+ const fh=x.foam?1.22*sm(r)*x.foam:0;foam.visible=fh>.03;if(foam.visible){foam.position.y=lv;foam.scale.set(1,fh,1);foam.children.forEach((c,i)=>{if(i)c.scale.y=c.scale.x/Math.max(.15,fh)})}
+ const sh=x.ppt?.16*sm((r-.2)/.8):x.dissolve?.2*E.b*(1-sm(r)):0;sed.visible=sh>.008;if(sed.visible){sed.scale.y=sh;sed.position.y=.03+sh/2;sed.material.color.setHex(x.ppt||x.powderC)}
+ const nS=x.ppt?Math.round(specks.length*Math.sin(Math.PI*clamp(r*1.15,0,1))):x.dye?Math.round(specks.length*.6*(1-sm(r*1.6))*(E.b>.05?1:0)):0;
+ specks.forEach((s,i)=>{const u=s.userData;s.visible=i<nS&&lv>.2;if(s.visible){const yy=(t*.28+u.ph)%1;s.material.color.setHex(x.ppt||x.bCol);s.material.opacity=x.dye?.55:.95;s.scale.setScalar(x.dye?.1+.12*yy:.04);s.position.set(BX+Math.cos(u.a+t*.7)*u.rr*(x.dye?.4+.6*yy:1),x.dye?lv-.1-yy*(lv-.2):lv-.05-yy*(lv-.1),Math.sin(u.a+t*.7)*u.rr*.8)}});
+ // the pouring stream
+ stream.forEach((d,i)=>{d.visible=!!pouring;if(pouring){const p=pouring[1],isA=pouring[0]==='A',u=((now/260)+i/stream.length)%1,col=isA?x.liq:powder?x.powderC:x.bCol,drops=!isA&&x.bKind==='dye';
+   d.material.color.setHex(col);d.material.opacity=powder&&!isA?1:.85;d.scale.setScalar(powder&&!isA?.05:drops?.07:.075);d.visible=!drops||i%3===0;
+   d.position.set(p.mx+(BX-p.mx)*u*.5+(powder&&!isA?Math.sin(i*2.1)*.08:0),p.my-(p.my-(lv+.05))*u*u,.1)}});
+ E.T=x.t0+(x.t1-x.t0)*sm(r*1.15)}
+
+/* ---------- heads-up layer ---------- */
+function hudDraw(g){const x=E.x,ink=K.ink(),dk=K.isDark();
+ const nm=(it,txt,dy,px)=>{if(!it.userData.hidden&&!K.holder(it))K.tag(txt,V(it.position.x,it.position.y-dy,it.position.z),ink,px||0,true)};
+ nm(botA.it,x.la||x.a,1.15);if(x.bKind==='powder')nm(dish,x.b,.42);else nm(botB.it,x.lb||x.b,x.bKind==='dye'?.75:1.15,24);
+ // thermometer read-out
+ const p=K.toScreen(V(BX+1.25,3.95,0)),w=Math.max(96,K.W*.11),h=w*.44;g.fillStyle=dk?'#0F1B20':'#FFFFFF';g.strokeStyle=ink;g.lineWidth=2.5;g.beginPath();g.rect(p[0]-w/2,p[1]-h/2,w,h);g.fill();g.stroke();
+ const T1=E.a>.2?E.T:null;g.fillStyle=T1==null?(dk?'#94A7AE':'#52646C'):Math.abs(E.T-x.t0)<.4?ink:E.T>x.t0?'#C0392B':'#2F6FD0';g.font='700 '+Math.round(h*.5)+'px "IBM Plex Mono",monospace';g.textAlign='center';g.textBaseline='middle';g.fillText(T1==null?'-- °C':T1.toFixed(1)+' °C',p[0],p[1]+1);
+ K.tag('thermometer',V(BX+1.25,3.95,0),null,h/2+13);
+ const hd=K.holder(botA.it)||K.holder(botB.it)||K.holder(dish);
+ if(hd){const it=hd.held,u=it.userData,over=Math.abs(it.position.x-BX)<1.75&&it.position.y>2.9;if(over&&Math.abs(u.th)<.7&&hd.lms&&!hd.ptr)K.tag('tilt your hand to pour',V(it.position.x,it.position.y+1.5,0),dk?'#E0A63A':'#8A5A00',0,true);else if(!over)K.tag('hold it over the beaker',V(BX-.9,3.95,0),null,44)}
+ if(E.r>=1&&!E.verdict&&!K.held)K.tag(x.need.length&&!x.need.every(s=>E.found.has(s))||!E.found.size&&x.need.length?'drop the signs you saw here':'now choose: chemical or physical?',V(BX,2.9,1.0),dk?'#E0A63A':'#8A5A00',0,true);
+ if(E.r<1){const rx=K.halfW-1.25;K.tag('locked for now',V(rx,6.15,.4))}}
+
+K.gear({say,why:'Even kitchen chemicals can splash into your eyes, and hydrogen peroxide irritates the skin.',ready:'Pick up the first bottle, hold it over the beaker and tilt it to pour.',onWear:()=>steps()});K.mirror($('mirror'));
+HandKit.themeButton($('themeBtn'),K);setExp(0,true);K.start();setExp(0);
+window.__HK=Object.assign(K,{EXP,BX,getE:()=>E,setExp,botA:botA.it,botB:botB.it,dish,cards,done,first});
+})();
+</script>
+</body></html>
