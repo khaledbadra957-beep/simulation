@@ -314,11 +314,11 @@
     k.putOn = function (kind, quiet) {
       if (k.wear[kind]) return; var it = gearItems[kind]; if (it) { it.userData.locked = true; it.userData.hidden = true; it.visible = false; } k.setWear(kind, true);
       if (gearOpt && !quiet) { var left = gearOpt.list.filter(function (n) { return !k.wear[n]; }).map(function (n) { return GEAR[n].toLowerCase(); });
-        gearOpt.say(WORN[kind] + (left.length ? ' Still to put on: ' + left.join(', ') + '.' : ' You are ready. ' + (gearOpt.ready || ''))); if (gearOpt.onWear) gearOpt.onWear(kind, !left.length); }
+        gearOpt.say((gearOpt.worn && gearOpt.worn[kind] || WORN[kind]) + (left.length ? ' Still to put on: ' + left.join(', ') + '.' : ' You are ready. ' + (gearOpt.ready || ''))); if (gearOpt.onWear) gearOpt.onWear(kind, !left.length); }
     };
     k.takeOff = function () { ['gog', 'coat', 'gloves'].forEach(function (n) { k.setWear(n, false); var it = gearItems[n]; if (it) { it.userData.locked = false; it.userData.hidden = false; it.visible = true; k.home(it); } }); if (gearOpt && gearOpt.onWear) gearOpt.onWear(null, false); };
     k.wearAll = function () { (gearOpt ? gearOpt.list : ['gog', 'coat']).forEach(function (n) { k.putOn(n, true); }); if (gearOpt && gearOpt.onWear) gearOpt.onWear(null, true); };
-    /* gear on hooks at the top of the bench. opt: { list, say(text), why, ready, onWear(kind, allOn), x0(k) } */
+    /* gear on hooks at the top of the bench. opt: { list, say(text), why, ready, worn: { kind: text }, onWear(kind, allOn), x0(k) } */
     k.gear = function (opt) {
       gearOpt = opt; opt.list = opt.list || ['gog', 'coat', 'gloves'];
       var gog = new T.Group(), lens = new T.MeshPhysicalMaterial({ color: 0xBFE4F5, transparent: true, opacity: .45, roughness: .05 }), rim = new T.MeshStandardMaterial({ color: 0x1E2A30, roughness: .5 }), blue = new T.MeshStandardMaterial({ color: 0x2F6FD0, roughness: .6 });
@@ -338,7 +338,7 @@
     /* the mirror card. host: an empty element in the page; list: which gear this lab uses */
     k.mirror = function (host, list) {
       list = list || (gearOpt && gearOpt.list) || ['gog', 'coat', 'gloves'];
-      host.innerHTML = '<h3>Safety mirror</h3><div class="mirror"><canvas width="480" height="360" aria-label="Your camera picture with the safety gear you are wearing"></canvas></div><ul class="gear">' + list.map(function (n) { return '<li data-g="' + n + '">' + GEAR[n] + '</li>'; }).join('') + '</ul><p class="small" style="margin:8px 0 0">With the camera: pinch the goggles and bring them to your face, bring the coat to your shoulders' + (list.indexOf('gloves') >= 0 ? ', and pinch the glove box' : '') + '. With mouse or touch: drag each one off its hook and let go. Your camera picture stays on this device.</p>';
+      host.innerHTML = '<h3>Safety mirror</h3><div class="mirror"><canvas width="480" height="360" aria-label="Your camera picture with the safety gear you are wearing"></canvas></div><ul class="gear">' + list.map(function (n) { return '<li data-g="' + n + '">' + GEAR[n] + '</li>'; }).join('') + '</ul><p class="small" style="margin:8px 0 0">With the camera: pinch the goggles and bring them to your face' + (list.indexOf('coat') >= 0 ? ', bring the coat to your shoulders' : '') + (list.indexOf('gloves') >= 0 ? ', and pinch the glove box' : '') + '. With mouse or touch: drag ' + (list.length > 1 ? 'each one off its hook' : 'them off the hook') + ' and let go. Your camera picture stays on this device.</p>';
       var cv = host.querySelector('canvas'); mir = { host: host, cv: cv, g: cv.getContext('2d'), list: host.querySelector('ul.gear') }; chips();
     };
     function mGoggles(x, eL, eR, earL, earR, nose) {

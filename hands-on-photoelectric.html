@@ -1,0 +1,242 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hands-On Lab: The Photoelectric Effect</title>
+<meta name="description" content="Grade 12 physics camera lab: slide colour filters into a lamp with your own hand, shine the light on a metal plate in a vacuum tube, and measure the photocurrent and the stopping voltage. Find Planck's constant and the work function. Works with mouse or touch too.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="hand-kit.css">
+<style>
+.read{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;font-size:.92rem}
+.read dt{color:var(--muted)}.read dd{margin:0;font-family:var(--data);text-align:right;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-right:1.5px solid var(--line);background:var(--stage);padding:5px 10px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.ctl{display:flex;flex-direction:column;gap:10px}
+.sl{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;font-size:.92rem}
+.sl input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--accent)}.sl output{font-family:var(--data)}
+#graph{display:block;width:100%;height:210px;border-radius:8px;background:var(--stage);border:1px solid var(--line)}
+table.data{width:100%;border-collapse:collapse;font-size:.86rem;margin:8px 0 0}
+table.data th,table.data td{padding:3px 4px;text-align:right;border-bottom:1px solid var(--line);font-family:var(--data);font-variant-numeric:tabular-nums}
+table.data th{font-weight:600;color:var(--muted)}table.data th:first-child,table.data td:first-child{text-align:left;font-family:var(--body)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;border:1px solid rgba(0,0,0,.3)}
+.metals{display:flex;flex-wrap:wrap;gap:6px}.metals .btn{padding:5px 10px;font-size:.9rem}
+</style>
+</head><body>
+<div class="wrap">
+ <a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+ <header>
+  <div>
+   <p class="eyebrow">Grade 12 Physics · Module 22 Quantum theory · A particle model of waves · Camera lab</p>
+   <h1>Hands-On Lab: The Photoelectric Effect</h1>
+   <p class="lede">Slide a colour filter into the lamp and shine the light on a metal plate inside a vacuum tube. Which colours knock electrons out? What does brightness change? Measure the stopping voltage for each colour and find Planck's constant. The camera follows your hand; pinch your thumb and first finger to pick up a filter or turn a knob.</p>
+  </div>
+  <div class="row"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
+ </header>
+ <div class="grid">
+  <div class="stage" id="stage">
+   <video id="video" playsinline muted autoplay hidden></video>
+   <canvas id="gl" aria-label="3-D lab bench with a lamp, six colour filters, a vacuum tube with two metal plates, a voltage supply and an ammeter"></canvas>
+   <canvas id="hud" class="hud"></canvas>
+   <div class="intro" id="intro">
+    <h2>Pinch to grab, slide to turn</h2>
+    <p>The camera follows your hand. Your video stays on this device and is never uploaded. Pinch a knob and move your hand left or right to turn it.</p>
+    <div class="row" style="justify-content:center">
+     <button class="btn primary" id="startCam" type="button">Start with my camera</button>
+     <button class="btn" id="startMouse" type="button">Use mouse or touch</button>
+    </div>
+   </div>
+  </div>
+  <aside>
+   <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
+   <div class="card"><h3>What happened</h3><p class="say" id="say">Safety first: the lamp gives out ultraviolet light. Put on the goggles.</p></div>
+   <div class="card" id="mirror"></div>
+   <div class="card"><h3>Lab steps</h3><ol class="steps" id="steps"></ol></div>
+   <div class="card"><h3>Light and meters</h3>
+    <dl class="read">
+     <dt>Light</dt><dd id="rL">lamp off</dd><dt>Frequency f = c ÷ λ</dt><dd id="rF">–</dd><dt>Photon energy hf</dt><dd id="rE">–</dd><dt>Voltage, collector</dt><dd id="rV">–</dd><dt>Photocurrent</dt><dd id="rI">–</dd>
+    </dl>
+   </div>
+   <div class="card ctl">
+    <div><h3>Metal plate</h3><div class="seg" id="metal"><button type="button" data-m="na" aria-pressed="true">Sodium</button><button type="button" data-m="ca" aria-pressed="false">Calcium</button><button type="button" data-m="zn" aria-pressed="false">Zinc</button><button type="button" data-m="x" aria-pressed="false">Mystery</button></div></div>
+    <label class="sl"><span>Brightness</span><output id="oB">60 %</output><input type="range" id="sB" min="0" max="100" step="1" value="60"></label>
+    <label class="sl"><span>Voltage on the collector</span><output id="oV">0.00 V</output><input type="range" id="sV" min="-3.5" max="2" step="0.01" value="0"></label>
+    <div class="row"><button class="btn" id="vDn" type="button" aria-label="Voltage down by 0.01 volt">−0.01 V</button><button class="btn" id="vUp" type="button" aria-label="Voltage up by 0.01 volt">+0.01 V</button><button class="btn primary" id="rec" type="button">Record stopping voltage</button></div>
+   </div>
+   <div class="card"><h3>Stopping voltage against frequency</h3><canvas id="graph" aria-label="Graph of stopping voltage against the frequency of the light"></canvas>
+    <table class="data" id="tbl"></table><p class="small" id="fit" style="margin-top:8px">Record a stopping voltage to plot your first point.</p></div>
+   <div class="card" id="myst" hidden><h3>Which metal is the mystery plate?</h3><p class="small" style="margin-bottom:8px">Measure a stopping voltage, work out W = hf − eV<sub>stop</sub>, then choose. Work functions in eV: caesium 2.14, sodium 2.28, calcium 2.87, magnesium 3.66, zinc 4.31, copper 4.70.</p><div class="metals" id="guess"></div></div>
+   <div class="card">
+    <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
+    <div class="row" style="margin-top:10px"><button class="btn" id="reset" type="button">Start again</button></div>
+   </div>
+  </aside>
+ </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="hand-model.js"></script>
+<script src="hand-kit.js"></script>
+<script src="phys-parts.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const setStatus=(t,c)=>{$('status').textContent=t;$('status').className='status '+(c||'')};
+const say=t=>{$('say').textContent=t};
+if(!window.THREE){setStatus('The 3-D engine could not load. Check the internet connection and reload.','bad');return}
+const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),fx=(v,d)=>v.toFixed(d),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* ---------- the physics: real numbers ---------- */
+const HC=1239.84,E_CH=1.602e-19;                                     // hc in eV nm; the charge of an electron in C
+const FILT=[{id:'red',nm:650,name:'red',hex:0xE23B2E},{id:'green',nm:530,name:'green',hex:0x2FBF4A},{id:'blue',nm:450,name:'blue',hex:0x2F6FE0},{id:'violet',nm:400,name:'violet',hex:0x8A3FE0},{id:'uvb',nm:310,name:'ultraviolet',hex:0xC3A8FF},{id:'uvc',nm:250,name:'ultraviolet',hex:0xE4D8FF}];
+FILT.forEach(f=>{f.E=HC/f.nm;f.f=2997.92/f.nm;f.css='#'+('00000'+f.hex.toString(16)).slice(-6)});     // photon energy in eV; frequency in 10^14 Hz
+const TABLE=[['Caesium',2.14],['Sodium',2.28],['Calcium',2.87],['Magnesium',3.66],['Zinc',4.31],['Copper',4.70]];
+const METALS={na:{name:'Sodium',W:2.28,col:0xC9CCD0},ca:{name:'Calcium',W:2.87,col:0xB5B0A4},zn:{name:'Zinc',W:4.31,col:0x93A1AE},x:{name:'Mystery metal',W:0,col:0x6E7480,truth:''}};
+function newMystery(){const m=[TABLE[0],TABLE[3],TABLE[5]][Math.floor(Math.random()*3)];METALS.x.truth=m[0];METALS.x.W=m[1]}newMystery();
+const ISAT=2.0;                                                       // nA of photocurrent for each 1 % of brightness, when every electron is collected
+/* photocurrent in nA: nothing below the threshold frequency; a retarding voltage turns back the slower electrons */
+function current(f,W,bright,v){const ke=f?f.E-W:0;if(!f||ke<=0||bright<=0)return 0;return ISAT*bright*clamp((v+ke)/(ke+.4),0,1)}
+
+const TX=-.9,TY=1.75,NOSE=V(1.05,4.75),S={metal:'na',filt:null,bright:60,V:0,I:0,done:{},data:{na:[],ca:[],zn:[],x:[]},time:0,acc:0,t:{},bmin:null,bmax:null,solved:false};
+const K=HandKit.create({stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
+ layout(k){const lx=-k.halfW+.85,mx=Math.min(k.halfW-1.45,4.7);rack.position.x=lx+.95;
+  FILT.forEach((f,i)=>{const u=slides[f.id].userData;u.home.set(lx+(i%3)*.95,i<3?4.75:3.6,0);if(S.filt===f.id)u.goal.copy(SLOT)});
+  ballast.g.position.set(-k.halfW+1.35,0,0);sup.g.position.set(mx,0,0);amm.g.position.set(mx,1.57,0);
+  [[vk,sup],[bk,ballast]].forEach(([it,box])=>{box.g.updateMatrixWorld(true);const s=K.toScreen(box.g.localToWorld(box.knobAt.clone())),q=K.toWorld(s[0],s[1]);it.userData.home.set(q.x,q.y,0)});wires()},
+ onGrab,onDrop,onFrame:frame,onHUD:hudDraw,
+ targets(it){return it.userData.filt?[V(SLOT.x,SLOT.y)]:[]}});
+const scene=K.scene,P=PhysParts(K);
+
+/* ---------- apparatus ---------- */
+const tube=P.phototube({len:3.6,r:.8,height:TY});tube.g.position.set(TX,TY,0);scene.add(tube.g);
+const CAT=V(TX-tube.px+.1,TY),ANO=V(TX+tube.px-.06,TY),GAP=ANO.x-CAT.x,DIR=CAT.clone().sub(NOSE),BLEN=DIR.length();DIR.normalize();const TH=Math.atan2(-DIR.y,-DIR.x),PERP=V(-DIR.y,DIR.x);
+const lamp=P.lamp();lamp.g.position.copy(NOSE);lamp.g.rotation.z=TH;scene.add(lamp.g);
+{const bx=NOSE.x+Math.cos(TH)*1.5,by=NOSE.y+Math.sin(TH)*1.5,st=P.stand(by,{fw:1.2,fd:1.0});st.position.set(bx,0,-.85);scene.add(st);
+ const boom=P.mesh(new T.CylinderGeometry(.05,.05,.9,10),P.steel,bx,by,-.42);boom.rotation.x=Math.PI/2;boom.castShadow=true;scene.add(boom);scene.add(P.mesh(P.rbox(.22,.22,.22,.04,.02),P.foot,bx,by,-.85))}
+const SLOT=V(NOSE.x-PERP.x*.1,NOSE.y-PERP.y*.1,0);                    // where a slide sits: its window on the axis of the beam
+const rack=new T.Group();{const w=P.wood('#B98A56');rack.add(P.mesh(P.rbox(3.1,2.5,.08,.06,.02),w,0,4.12,-.24));for(const y of [4.28,3.13])rack.add(P.mesh(P.rbox(3.1,.08,.34,.02,.01),w,0,y,-.06));P.cast(rack);rack.traverse(m=>{if(m.isMesh)m.receiveShadow=true})}scene.add(rack);
+const ballast=P.supply({w:2.0,h:1.3,col:0x39424A,title:'LAMP',knobLabel:'BRIGHTNESS',scale:['0','100']});scene.add(ballast.g);
+const sup=P.supply({w:2.3,h:1.5,col:0xDDE3E6,title:'DC SUPPLY',knobLabel:'VOLTAGE',scale:['−','+']});scene.add(sup.g);
+const amm=P.meter({w:1.9,h:1.25,d:.5,col:0xF2B41F,title:'AMMETER',unit:'nA'});scene.add(amm.g);
+const wire=[P.cable(0x16191C,.04),P.cable(0xC62828,.04),P.cable(0xC62828,.04),P.cable(0x16191C,.05)];
+function wires(){const c=tube.post(0),a=tube.post(1),s0=sup.post(0),s1=sup.post(1),m0=amm.post(0),m1=amm.post(1);
+ wire[0].set([c,V(c.x-.1,c.y-.5,.5),V(c.x+.4,.07,.95),V((c.x+s0.x)/2,.06,1.25),V(s0.x-.4,.07,.9),s0]);wire[1].set([a,V(a.x+.3,a.y+.25,.3),V(m0.x-.5,m0.y+.1,.5),m0]);
+ wire[2].set([m1,V(m1.x+.25,m1.y-.3,.55),V(s1.x+.6,s1.y+.5,.6),V(s1.x+.2,s1.y+.05,.5),s1]);
+ const b=ballast.g.position,lb=V(NOSE.x+Math.cos(TH)*2.4,NOSE.y+Math.sin(TH)*2.4,0);wire[3].set([V(b.x+.6,1.25,-.25),V(b.x+.9,2.6,-.6),V(b.x+1.6,6.2,-.9),V(lb.x-1.2,6.9,-.8),V(lb.x+.1,lb.y+.25,-.2),lb])}
+// the beam, photons and electrons
+const beamM=new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.14,depthWrite:false,side:T.DoubleSide}),beam=new T.Mesh(new T.CylinderGeometry(.26,.46,BLEN,24,1,true),beamM);
+beam.position.copy(NOSE).addScaledVector(DIR,BLEN/2);beam.quaternion.setFromUnitVectors(V(0,-1,0),DIR);beam.visible=false;scene.add(beam);
+const phM=new T.SpriteMaterial({transparent:true,depthWrite:false,rotation:Math.atan2(DIR.y,DIR.x),map:K.canvasTex(128,48,(x,w,h)=>{x.lineCap='round';x.lineJoin='round';const path=()=>{x.beginPath();for(let i=0;i<=96;i++){const u=i/96,px=10+u*100,py=h/2+Math.sin(u*Math.PI*6)*14*Math.sin(u*Math.PI);i?x.lineTo(px,py):x.moveTo(px,py)}};
+  path();x.strokeStyle='rgba(0,0,0,.45)';x.lineWidth=9;x.stroke();path();x.strokeStyle='#fff';x.lineWidth=5;x.stroke();x.fillStyle='#fff';x.beginPath();x.moveTo(124,h/2);x.lineTo(108,h/2-9);x.lineTo(108,h/2+9);x.closePath();x.fill()})});
+const NP=22,photons=[];for(let i=0;i<NP;i++){const s=new T.Sprite(phM);s.visible=false;s.userData={ph:i/NP+((i*.618)%1)*.03,off:((i*7)%11)/11-.5};scene.add(s);photons.push(s)}
+const NE=44,els=[];for(let i=0;i<NE;i++){const s=K.dot('#2F6FD0','−',.17,'#FFFFFF');s.visible=false;scene.add(s);els.push({s,on:false})}
+
+/* ---------- things to pick up or turn ---------- */
+const slides={};FILT.forEach(f=>{slides[f.id]=K.addItem(f.id,P.filter(f.hex,f.nm+' nm'),{filt:f,r:.52,liftZ:.9,firm:true});slides[f.id].rotation.order='ZYX';slides[f.id].traverse(m=>{if(m.isMesh&&m.material.transparent)m.castShadow=false})});
+const vk=K.addItem('vknob',new T.Group(),{fixed:true,r:.62,dial:'V'}),bk=K.addItem('bknob',new T.Group(),{fixed:true,r:.6,dial:'B'});
+const filt=()=>S.filt?slides[S.filt].userData.filt:null,metal=()=>METALS[S.metal],lit=()=>K.safe()&&!!S.filt&&S.bright>0&&!K.holder(slides[S.filt]);
+
+/* ---------- controls ---------- */
+function setV(v){S.V=clamp(Math.round(v*100)/100,-3.5,2);$('sV').value=S.V;$('oV').textContent=(S.V>0?'+':S.V<0?'−':'')+fx(Math.abs(S.V),2)+' V';sup.knob.set((S.V+3.5)/5.5);sup.show((S.V<0?'-':'')+fx(Math.abs(S.V),2),'V')}
+function setB(b){S.bright=clamp(Math.round(b),0,100);$('sB').value=S.bright;$('oB').textContent=S.bright+' %';ballast.knob.set(S.bright/100);ballast.show(String(S.bright),'%')}
+$('sV').oninput=e=>setV(+e.target.value);$('sB').oninput=e=>setB(+e.target.value);$('vDn').onclick=()=>setV(S.V-.01);$('vUp').onclick=()=>setV(S.V+.01);
+function setMetal(id){S.metal=id;tube.cat.color.setHex(METALS[id].col);tube.cat.roughness=id==='x'?.6:.35;document.querySelectorAll('#metal button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===id));$('myst').hidden=id!=='x';els.forEach(e=>{e.on=false;e.s.visible=false});
+ results();if(cur()==='mystery'&&id==='x')say('The mystery plate is in. Find a colour that frees electrons, measure its stopping voltage and record it. Then W = hf − eV(stop) tells you which metal it is.');
+ else if(K.safe())say(METALS[id].name+' plate in the tube'+(id==='x'?'.':': its work function is '+fx(METALS[id].W,2)+' eV.'))}
+document.querySelectorAll('#metal button').forEach(b=>b.onclick=()=>setMetal(b.dataset.m));
+$('guess').innerHTML=TABLE.map(m=>`<button class="btn" type="button" data-n="${m[0]}">${m[0]}</button>`).join('');
+document.querySelectorAll('#guess button').forEach(b=>b.onclick=()=>{const rows=S.data.x.filter(r=>r.Vs!=null);if(!rows.length){say('Measure first: record at least one stopping voltage for the mystery plate.');return}
+ const W=rows.reduce((a,r)=>a+(r.f.E-r.Vs),0)/rows.length;
+ if(b.dataset.n===METALS.x.truth){S.solved=true;S.done.mystery=true;steps();say('Correct: it is '+METALS.x.truth.toLowerCase()+'. Your measurements give W = hf − eV(stop) = '+fx(W,2)+' eV, and the table value is '+fx(METALS.x.W,2)+' eV.');setStatus('All steps done. Start again for a new mystery metal.','ok')}
+ else say('Not '+b.dataset.n.toLowerCase()+'. Your own measurements give W = hf − eV(stop) = '+fx(W,2)+' eV. Compare that with the table.')});
+
+const STEPS=[['safe','Put on the safety goggles'],['violet','Slide the violet filter (400 nm) into the lamp'],['red','Change to the red filter and turn the brightness right up'],['bright','Change to the blue filter and turn the brightness down and up'],['stop','Make the voltage negative until the current just stops, then record it'],['same','Change the brightness and record the stopping voltage again'],['three','Record the stopping voltage for three different colours'],['mystery','Fit the mystery plate and find out which metal it is']];
+const cur=()=>{for(const [k] of STEPS)if(!S.done[k])return k;return null};
+function steps(){S.done.safe=K.safe();const c=cur();$('steps').innerHTML=STEPS.map(([k,t])=>`<li class="${S.done[k]?'done':''}${k===c?' now':''}"><i></i><span>${t}</span></li>`).join('')}
+function tick(k,text){S.done[k]=true;say(text);steps()}
+
+function onGrab(it,h){const u=it.userData;
+ if(u.dial){u.lx=null;if(!S.t.knob){S.t.knob=1;say('You are holding the knob. Move your hand slowly to the right to turn it up and to the left to turn it down.')}return}
+ if(u.filt&&S.filt===u.filt.id){S.filt=null;u.placed=false}}
+function onDrop(it){const u=it.userData;if(!u.filt)return;
+ if(K.near(it,SLOT,1.25)){if(S.filt&&S.filt!==u.filt.id){const o=slides[S.filt];o.userData.placed=false;K.home(o)}S.filt=u.filt.id;u.placed=true;u.goal.copy(SLOT);S.bmin=S.bmax=null;const f=u.filt,ke=f.E-metal().W;
+  if(!cur()||!['violet','red'].includes(cur())||(cur()==='violet'&&f.id!=='violet')||(cur()==='red'&&f.id!=='red'))
+   say((f.name==='ultraviolet'?'Ultraviolet':f.name[0].toUpperCase()+f.name.slice(1))+' light, '+f.nm+' nm: each photon carries hf = '+fx(f.E,2)+' eV. '+(S.metal==='x'?'Watch the ammeter.':ke>0?'That is more than the work function of '+metal().name.toLowerCase()+', so electrons leave the plate.':'That is less than the '+fx(metal().W,2)+' eV needed to free an electron from '+metal().name.toLowerCase()+': no electrons.'))}
+ else{u.placed=false;K.home(it)}}
+
+/* ---------- recording a stopping voltage ---------- */
+function record(){if(!K.safe()){say('Goggles first.');return}const f=filt(),m=metal();if(!f){say('Put a filter in the lamp first.');return}if(S.bright<=0){say('The lamp is turned right down. Turn the brightness up first.');return}
+ const ke=f.E-m.W,rows=S.data[S.metal];let row=rows.find(r=>r.f===f);
+ if(ke<=0){if(!row)rows.push({f,Vs:null,b:[S.bright]});results();say('No electrons leave the plate with '+f.name+' light ('+f.nm+' nm), however bright it is, so there is nothing to stop. Recorded as "no electrons".');return}
+ if(S.I>=.05){say('Electrons still reach the collector: the current is '+fx(S.I,1)+' nA. Make the voltage more negative until the current is just zero.');return}
+ if(-S.V-ke>.045){say('You have gone past it. The current is zero for every voltage beyond the stopping voltage. Bring the voltage back towards zero until a current appears, then go back just far enough to stop it.');return}
+ const Vs=-S.V;if(row){const first=row.b[0];row.Vs=Vs;row.b.push(S.bright);
+   if(cur()==='same'){if(Math.abs(S.bright-first)>=25)tick('same','The stopping voltage is '+fx(Vs,2)+' V at '+first+' % and at '+S.bright+' % brightness. Brighter light sends more photons, so more electrons, but each electron gets the same energy. Only the colour (the frequency) changes the energy. Now record two more colours.');
+    else say('Change the brightness by a lot more first (it was '+first+' %), then find the stopping voltage again.')}
+   else say('Recorded again: '+fx(Vs,2)+' V for '+f.name+' light.')}
+ else{row={f,Vs,b:[S.bright]};rows.push(row);
+  if(cur()==='stop')tick('stop','Stopping voltage for '+f.name+' light: '+fx(Vs,2)+' V. The fastest electrons left the plate with a kinetic energy of '+fx(Vs,2)+' eV: KE(max) = eV(stop). Now change the brightness and measure it again.');
+  else say('Recorded: '+f.name+' light, '+fx(f.f,2)+' × 10¹⁴ Hz, stopping voltage '+fx(Vs,2)+' V.')}
+ results();const n=rows.filter(r=>r.Vs!=null).length;
+ if(cur()==='three'&&n>=3){const q=fit(rows);tick('three','Three colours on one straight line. Its slope is h ÷ e, which gives h = '+fx(q.h*1e34,2)+' × 10⁻³⁴ J·s (the accepted value is 6.63). It crosses zero at the threshold frequency '+fx(q.f0,2)+' × 10¹⁴ Hz, so W = hf₀ = '+fx(q.W,2)+' eV. Einstein: KE(max) = hf − W. Now try the mystery plate.')}}
+$('rec').onclick=record;
+function fit(rows){const p=rows.filter(r=>r.Vs!=null);if(p.length<2)return null;const n=p.length,sx=p.reduce((a,r)=>a+r.f.f,0),sy=p.reduce((a,r)=>a+r.Vs,0),sxx=p.reduce((a,r)=>a+r.f.f*r.f.f,0),sxy=p.reduce((a,r)=>a+r.f.f*r.Vs,0),a=(n*sxy-sx*sy)/(n*sxx-sx*sx),b=(sy-a*sx)/n;
+ return {a,b,h:a*1e-14*E_CH,W:-b,f0:-b/a}}
+function results(){const rows=S.data[S.metal].slice().sort((a,b)=>a.f.f-b.f.f),q=fit(rows);
+ $('tbl').innerHTML=rows.length?'<tr><th>Light</th><th>f (10¹⁴ Hz)</th><th>V stop (V)</th></tr>'+rows.map(r=>`<tr><td><span class="sw" style="background:${r.f.css}"></span>${r.f.nm} nm</td><td>${fx(r.f.f,2)}</td><td>${r.Vs==null?'no electrons':fx(r.Vs,2)}</td></tr>`).join(''):'';
+ $('fit').textContent=q?'Line through your points: slope '+fx(q.a,3)+' V per 10¹⁴ Hz, so h = slope × e = '+fx(q.h*1e34,2)+' × 10⁻³⁴ J·s. Threshold f₀ = '+fx(q.f0,2)+' × 10¹⁴ Hz, W = '+fx(q.W,2)+' eV.':rows.length?'One more colour gives you a line.':'Record a stopping voltage to plot your first point.';graph()}
+function graph(){const c=$('graph'),dpr=Math.min(2,window.devicePixelRatio||1),w=c.clientWidth,h=c.clientHeight;if(!w)return;if(c.width!==Math.round(w*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
+ const g=c.getContext('2d'),dk=K.isDark(),ink=dk?'#E7EFF1':'#13232B',mut=dk?'#94A7AE':'#52646C';g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+ const L=34,R=8,Tp=10,B=26,x0=0,x1=13,y0=-1,y1=3.2,X=f=>L+(f-x0)/(x1-x0)*(w-L-R),Y=v=>Tp+(y1-v)/(y1-y0)*(h-Tp-B);g.font='600 10px "IBM Plex Mono",monospace';g.lineWidth=1;
+ for(let v=-1;v<=3;v++){g.strokeStyle=v===0?mut:(dk?'rgba(255,255,255,.1)':'rgba(0,0,0,.09)');g.beginPath();g.moveTo(L,Y(v));g.lineTo(w-R,Y(v));g.stroke();g.fillStyle=mut;g.textAlign='right';g.textBaseline='middle';g.fillText(String(v),L-5,Y(v))}
+ for(let f=0;f<=12;f+=2){g.strokeStyle=dk?'rgba(255,255,255,.1)':'rgba(0,0,0,.09)';g.beginPath();g.moveTo(X(f),Tp);g.lineTo(X(f),h-B);g.stroke();g.fillStyle=mut;g.textAlign='center';g.textBaseline='top';g.fillText(String(f),X(f),h-B+4)}
+ g.fillStyle=mut;g.textAlign='right';g.fillText('f (10¹⁴ Hz)',w-R,h-12);g.textAlign='left';g.textBaseline='top';g.fillText('V stop (V)',L+4,Tp);
+ for(const id in S.data){const rows=S.data[id],q=fit(rows),me=id===S.metal;if(!rows.length)continue;g.globalAlpha=me?1:.35;
+  if(q){g.strokeStyle=me?(dk?'#E0A63A':'#A86A00'):mut;g.lineWidth=me?2:1.3;g.save();g.beginPath();g.rect(L,Tp,w-L-R,h-Tp-B);g.clip();g.beginPath();g.moveTo(X(0),Y(q.b));g.lineTo(X(13),Y(q.a*13+q.b));g.stroke();g.restore();
+   if(me&&q.f0>0&&q.f0<13){g.fillStyle=g.strokeStyle;g.textAlign='center';g.textBaseline='bottom';g.fillText('f₀',X(q.f0),Y(0)-4);g.beginPath();g.arc(X(q.f0),Y(0),3,0,6.3);g.fill()}}
+  for(const r of rows){const px=X(r.f.f),py=Y(r.Vs==null?0:r.Vs);g.beginPath();g.arc(px,py,5,0,6.3);if(r.Vs==null){g.strokeStyle=r.f.css;g.lineWidth=2;g.stroke();g.beginPath();g.moveTo(px-3,py-3);g.lineTo(px+3,py+3);g.moveTo(px+3,py-3);g.lineTo(px-3,py+3);g.stroke()}else{g.fillStyle=r.f.css;g.fill();g.strokeStyle=ink;g.lineWidth=1.2;g.stroke()}}
+  g.globalAlpha=1}}
+$('reset').onclick=()=>{Object.assign(S,{metal:'na',filt:null,done:{},data:{na:[],ca:[],zn:[],x:[]},t:{},bmin:null,bmax:null,solved:false});newMystery();K.takeOff();for(const id in slides){slides[id].userData.placed=false;K.home(slides[id])}setV(0);setB(60);setMetal('na');steps();say('Safety first: the lamp gives out ultraviolet light. Put on the goggles.')};
+
+/* ---------- every frame ---------- */
+function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now))/1000||dt0));frame.last=now;S.time+=dt;const f=filt(),m=metal(),on=lit(),ke=f?f.E-m.W:0;
+ // knobs: a slow hand makes a fine adjustment, a quick hand a coarse one
+ for(const it of [vk,bk]){const h=K.holder(it),u=it.userData;if(!h){u.lx=null;continue}const xw=h.world.x,dx=u.lx==null?0:xw-u.lx;u.lx=xw;if(!dx)continue;const q=clamp(Math.abs(dx)/dt/4,0,1);
+  if(u.dial==='V'){u.acc=(u.acc||0)+dx*(.3+1.9*q);if(Math.abs(u.acc)>=.01){const st=Math.trunc(u.acc*100)/100;u.acc-=st;setV(S.V+st)}}else{u.acc=(u.acc||0)+dx*(30+90*q);if(Math.abs(u.acc)>=1){const st=Math.trunc(u.acc);u.acc-=st;setB(S.bright+st)}}}
+ // slides: flat on the rack, turned across the beam in the lamp
+ for(const id in slides){const it=slides[id],inS=S.filt===id&&!K.holder(it),r=it.rotation,a=Math.min(1,dt*10);r.y+=((inS?1.0:0)-r.y)*a;r.z+=((inS?TH:0)-r.z)*a}
+ // meter
+ const I=on?current(f,m.W,S.bright,S.V):0;S.I+=(I-S.I)*Math.min(1,dt/.08);if(Math.abs(S.I-I)<.02)S.I=I;amm.show(fx(S.I,1),'nA');
+ $('rL').textContent=!K.safe()?'lamp off':!f?'no filter: shutter closed':f.name+', '+f.nm+' nm';$('rF').textContent=f?fx(f.f,2)+' × 10¹⁴ Hz':'–';$('rE').textContent=f?fx(f.E,2)+' eV':'–';$('rV').textContent=(S.V<0?'−':S.V>0?'+':'')+fx(Math.abs(S.V),2)+' V';$('rI').textContent=fx(S.I,1)+' nA';
+ // light
+ beam.visible=on;lamp.glow(f?f.hex:0,on?S.bright/100:0);if(on){beamM.color.setHex(f.hex);beamM.opacity=.06+.16*S.bright/100;phM.color.setHex(f.hex)}
+ const np=on?Math.max(2,Math.round(NP*S.bright/100)):0,wl=f?.42*Math.pow(f.nm/400,.9):.4;
+ photons.forEach((s,i)=>{s.visible=i<np;if(!s.visible)return;const u=(S.time*.55+s.userData.ph)%1,d=u*(BLEN-.25);s.position.set(NOSE.x+DIR.x*d+PERP.x*s.userData.off*(.3+.35*u),NOSE.y+DIR.y*d+PERP.y*s.userData.off*(.3+.35*u),.25+s.userData.off*.3);s.scale.set(wl,.17,1)});
+ // electrons: each leaves with up to KE(max); the field between the plates speeds it up or turns it back
+ S.acc+=on&&ke>0?14*S.bright/100*dt:0;while(S.acc>=1){S.acc--;const e=els.find(q=>!q.on);if(e){e.on=true;e.x=0;e.dir=1;e.ke=ke*(.12+.88*Math.random());e.y=(Math.random()-.5)*.85;e.z=(Math.random()-.5)*.7;e.s.visible=true}}
+ for(const e of els){if(!e.on)continue;const en=e.ke+S.V*(e.x/GAP);if(e.dir>0&&en<=.003)e.dir=-1;e.x+=e.dir*1.5*Math.sqrt(Math.max(.03,en))*dt;if(e.x<0||e.x>GAP||!S.filt){e.on=false;e.s.visible=false;continue}e.s.position.set(CAT.x+.1+e.x+(e.y*.3)*(1-e.x/GAP),CAT.y+e.y,e.z)}
+ // steps
+ const c=cur(),hold=(k,ok,sec)=>{S.t[k]=ok?(S.t[k]||0)+dt:0;return S.t[k]>=sec};
+ if(c==='violet'){if(hold('v',on&&f.id==='violet'&&S.I>1,.9))tick('violet','Electrons! Violet light knocks them out of the sodium, they cross the vacuum to the collector, and the ammeter reads '+fx(S.I,0)+' nA. Each violet photon carries hf = '+fx(f.E,2)+' eV, more than the '+fx(m.W,2)+' eV needed to free an electron (the work function). Now swap in the red filter.')}
+ else if(c==='red'){if(hold('r',on&&f.id==='red'&&S.bright>=95,1))tick('red','Nothing, even at full brightness. A red photon has only '+fx(f.E,2)+' eV, less than the work function, and an electron takes its energy from one photon only. More light means more photons, not bigger ones. A wave model cannot explain this. Now try the blue filter and change the brightness.')
+  else if(on&&f.id==='red'&&S.bright<95&&!S.t.redHint&&(S.t.rh=(S.t.rh||0)+dt)>1.5){S.t.redHint=1;say('Red light, and the ammeter reads zero. Maybe the light is just too dim? Turn the brightness right up to 100 % and see.')}}
+ else if(c==='bright'&&on&&ke>0&&S.V>=0){if(S.bmin==null){S.bmin={b:S.bright,I:S.I};S.bmax={b:S.bright,I:S.I}}if(S.bright<S.bmin.b)S.bmin={b:S.bright,I:I};if(S.bright>S.bmax.b)S.bmax={b:S.bright,I:I};
+  if(S.bmax.b-S.bmin.b>=40&&S.bmin.b>0)tick('bright','The current follows the brightness: '+fx(S.bmin.I,0)+' nA at '+S.bmin.b+' % and '+fx(S.bmax.I,0)+' nA at '+S.bmax.b+' %. More photons each second free more electrons each second. Next: how much energy does each electron have? Make the voltage negative until the current just reaches zero, then press Record.')}
+ else if(c==='safe'&&K.safe())steps()}
+
+/* ---------- heads-up layer ---------- */
+function hudDraw(g){const ink=K.ink(),dk=K.isDark(),f=filt(),m=metal(),on=lit(),amber=dk?'#E0A63A':'#A86A00';
+ FILT.forEach(q=>{const it=slides[q.id];if(S.filt!==q.id&&!K.holder(it))K.tag(q.name==='ultraviolet'?'UV':q.name,V(it.position.x,it.position.y-.62,0),ink,0,true)});
+ if(!S.filt)K.tag(K.safe()?'slide a filter in here':'filter slot',V(NOSE.x-.35,NOSE.y+.75,0),null,0);
+ if(on){const p=V(NOSE.x+DIR.x*BLEN*.5+1.9,NOSE.y+DIR.y*BLEN*.5+.1,0);K.tag((f.name==='ultraviolet'?'UV':f.name)+' photons: hf = '+fx(f.E,2)+' eV',p,ink,0,true)}
+ K.tag(m.name.toLowerCase()+' plate'+(S.metal==='x'?'':': W = '+fx(m.W,2)+' eV'),V(CAT.x-.2,TY-1.15,.6),ink,0,true);K.tag('collector '+(S.V<0?'(−)':S.V>0?'(+)':''),V(ANO.x+.25,TY-1.15,.6),S.V<0?(dk?'#7FB2FF':'#2F6FD0'):S.V>0?(dk?'#FF8A7A':'#C0392B'):null,0,true);
+ if(on&&f.E<=m.W)K.tag('no electrons',V(TX,TY+.05,.8),amber,0,true);else if(on&&S.I<.05&&S.V<0)K.tag('every electron is turned back',V(TX,TY+1.05,.8),amber,0,true);
+ const s=sup.g.position;K.tag('photocurrent',V(s.x,3.02,0));if(K.holder(vk)||K.holder(bk))K.tag('move left or right to turn',V(K.holder(vk)?vk.position.x:bk.position.x,(K.holder(vk)?vk.position.y:bk.position.y)+.75,0),amber,0,true)}
+
+K.gear({list:['gog'],say,worn:{gog:'Goggles on. These block ultraviolet light, and they stay on for as long as the lamp is in use.'},why:'The lamp gives out ultraviolet light, and ultraviolet damages your eyes.',ready:'Pick up the violet filter (400 nm) and slide it into the slot on the front of the lamp.',onWear:()=>steps(),x0:()=>-1.2});K.mirror($('mirror'));
+HandKit.themeButton($('themeBtn'),K);setV(0);setB(60);setMetal('na');K.start();steps();say('Safety first: the lamp gives out ultraviolet light. Put on the goggles.');
+new ResizeObserver(graph).observe($('graph'));
+window.__HK=Object.assign(K,{S,FILT,METALS,slides,vk,bk,SLOT,setV,setB,setMetal,record,current,fit,sup,amm,ballast,tube,lamp});
+})();
+</script>
+</body></html>
