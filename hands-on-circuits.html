@@ -215,7 +215,7 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00'
  if(!S.short)ALL.forEach(e=>{if(Math.abs(e.I)<.004)return;const fwd=(e.I>0)!==el,a=PEG[fwd?e.a:e.b],b=PEG[fwd?e.b:e.a],n=5;g.fillStyle=el?blue:amber;g.strokeStyle='rgba(0,0,0,.45)';g.lineWidth=1;
   for(let i=0;i<n;i++){const u=(i+e.ph)/n,p=sc(tmp.set(a.x+(b.x-a.x)*u,a.y+(b.y-a.y)*u,.5)),r=K.W*.0045+1.5;g.beginPath();g.arc(p[0],p[1],r,0,6.3);g.fill();g.stroke()}});
  // names of the parts in the trays
- parts.forEach(it=>{const u=it.userData;if(!u.edge&&!K.holder(it)&&(u.type!=='wire'||it===wires.filter(w=>!w.userData.edge&&!K.holder(w)).slice(-1)[0]))K.tag(u.type==='wire'?'wires':u.name,V(it.position.x,it.position.y-(u.type==='wire'?.32:.42),0),ink,0,true)});
+ if(K.W>520)parts.forEach(it=>{const u=it.userData;if(!u.edge&&!K.holder(it)&&(u.type!=='wire'||it===wires.filter(w=>!w.userData.edge&&!K.holder(w)).slice(-1)[0]))K.tag(u.type==='wire'?'wires':u.name,V(it.position.x,it.position.y-(u.type==='wire'?.32:.42),0),ink,0,true)});
  probes.forEach(p=>{if(p.userData.peg<0&&!K.holder(p))K.tag(p===probes[0]?'+':'−',V(p.position.x-.25,p.position.y+.25,.5),p===probes[0]?bad:ink,0,true)});
  K.tag(S.closed?'switch closed':'switch open: pinch to close',V(SW.mid.x,SW.mid.y+.72,0),S.closed?(dk?'#4ACB8A':'#1E8A55'):ink,0,true);
  const vals=$('showVals').checked&&!S.short;FREE.forEach(e=>{const it=e.part;if(!it||it.userData.type==='wire'||K.holder(it))return;const res=it.userData.type==='res',tx=vals?fx(Math.abs(e.I),2)+' A'+(K.W>620?' · '+fx(Math.abs(e.U),2)+' V':''):res?it.userData.name:'';if(tx)K.tag(tx,V(e.mid.x,e.mid.y-(e.id==='v2'&&K.W<=620?.4:.74),.3),ink,0,!vals)});

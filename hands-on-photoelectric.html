@@ -226,12 +226,12 @@ function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now
 
 /* ---------- heads-up layer ---------- */
 function hudDraw(g){const ink=K.ink(),dk=K.isDark(),f=filt(),m=metal(),on=lit(),amber=dk?'#E0A63A':'#A86A00';
- FILT.forEach(q=>{const it=slides[q.id];if(S.filt!==q.id&&!K.holder(it))K.tag(q.name==='ultraviolet'?'UV':q.name,V(it.position.x,it.position.y-.62,0),ink,0,true)});
- if(!S.filt)K.tag(K.safe()?'slide a filter in here':'filter slot',V(NOSE.x-.35,NOSE.y+.75,0),null,0);
+ const wide=K.W>520;if(wide)FILT.forEach(q=>{const it=slides[q.id];if(S.filt!==q.id&&!K.holder(it))K.tag(q.name==='ultraviolet'?'UV':q.name,V(it.position.x,it.position.y-.62,0),ink,0,true)});
+ if(!S.filt)K.tag(K.safe()&&wide?'slide a filter in here':'filter slot',V(NOSE.x-.35,NOSE.y+.75,0),null,0);
  if(on){const p=V(NOSE.x+DIR.x*BLEN*.5+1.9,NOSE.y+DIR.y*BLEN*.5+.1,0);K.tag((f.name==='ultraviolet'?'UV':f.name)+' photons: hf = '+fx(f.E,2)+' eV',p,ink,0,true)}
- K.tag(m.name.toLowerCase()+' plate'+(S.metal==='x'?'':': W = '+fx(m.W,2)+' eV'),V(CAT.x-.2,TY-1.15,.6),ink,0,true);K.tag('collector '+(S.V<0?'(−)':S.V>0?'(+)':''),V(ANO.x+.25,TY-1.15,.6),S.V<0?(dk?'#7FB2FF':'#2F6FD0'):S.V>0?(dk?'#FF8A7A':'#C0392B'):null,0,true);
+ K.tag(m.name.toLowerCase()+' plate'+(S.metal==='x'||!wide?'':': W = '+fx(m.W,2)+' eV'),V(CAT.x-.2,TY-1.15,.6),ink,0,true);K.tag('collector '+(S.V<0?'(−)':S.V>0?'(+)':''),V(ANO.x+.25,TY-1.15,.6),S.V<0?(dk?'#7FB2FF':'#2F6FD0'):S.V>0?(dk?'#FF8A7A':'#C0392B'):null,0,true);
  if(on&&f.E<=m.W)K.tag('no electrons',V(TX,TY+.05,.8),amber,0,true);else if(on&&S.I<.05&&S.V<0)K.tag('every electron is turned back',V(TX,TY+1.05,.8),amber,0,true);
- const s=sup.g.position;K.tag('photocurrent',V(s.x,3.02,0));if(K.holder(vk)||K.holder(bk))K.tag('move left or right to turn',V(K.holder(vk)?vk.position.x:bk.position.x,(K.holder(vk)?vk.position.y:bk.position.y)+.75,0),amber,0,true)}
+ const s=sup.g.position;if(wide)K.tag('photocurrent',V(s.x,3.02,0));if(K.holder(vk)||K.holder(bk))K.tag('move left or right to turn',V(K.holder(vk)?vk.position.x:bk.position.x,(K.holder(vk)?vk.position.y:bk.position.y)+.75,0),amber,0,true)}
 
 K.gear({list:['gog'],say,worn:{gog:'Goggles on. These block ultraviolet light, and they stay on for as long as the lamp is in use.'},why:'The lamp gives out ultraviolet light, and ultraviolet damages your eyes.',ready:'Pick up the violet filter (400 nm) and slide it into the slot on the front of the lamp.',onWear:()=>steps(),x0:()=>-1.2});K.mirror($('mirror'));
 HandKit.themeButton($('themeBtn'),K);setV(0);setB(60);setMetal('na');K.start();steps();say('Safety first: the lamp gives out ultraviolet light. Put on the goggles.');

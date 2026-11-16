@@ -91,7 +91,7 @@ const R0=d=>Math.hypot(d,COIL.a);
 function linkage(xm,dy,s){const xN=xm+s*MAG.pole,xS=xm-s*MAG.pole,on=(-(R0(CR-xN)-R0(CL-xN))+(R0(CR-xS)-R0(CL-xS)))*MAG.phi0/2*COIL.N/COIL.len;return on/Math.pow(1+Math.pow(dy/COIL.a/1.6,2),1.5)}
 
 const K=HandKit.create({stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
- layout(k){const lx=-k.halfW+1.75,gx=k.halfW-1.85;if(!S.bore)mag.userData.home.set(lx,COIL.y,0);token.userData.home.set(lx,1.05,.3);rest.position.x=lx;galv.g.position.set(gx,0,-.15);leads()},
+ layout(k){const lx=-k.halfW+1.75,gx=k.halfW-1.7;if(!S.bore)mag.userData.home.set(lx,COIL.y,0);token.userData.home.set(lx,1.05,.3);rest.position.x=lx;galv.g.position.set(gx,0,-.15);leads()},
  onGrab,onDrop,onFrame:frame,onHUD:hudDraw,
  targets(it){return it===mag&&!S.bore?[V(CL-.35,COIL.y)]:[]}});
 const scene=K.scene,P=PhysParts(K);
@@ -195,7 +195,7 @@ function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now
   if(S.still>1.3){if(cur()==='still')tick('still','The needle is back at zero. The magnet\'s field still passes through the coil, but it is not changing: no change in flux, no EMF, no current. Now pull the magnet out.');
    else if(S.ch&&S.ch.state==='test'&&QS[S.ch.i].type==='still'&&!hd)judge({type:'still',pole:S.s>0?'N':'S',dir:0})}}else S.still=0;
  // readouts and graph
- $('rPhi').textContent=fx(lam*1e3,2)+' mWb';$('rV').textContent=fx(Math.abs(S.v),2)+' m/s';$('rE').textContent=fx(S.emf*1e3,1)+' mV';$('rI').textContent=fx(S.I,0)+' µA';
+ $('rPhi').textContent=fx(lam*1e3,2)+' mWb';$('rV').textContent=fx(Math.abs(S.v),2)+' m/s';$('rE').textContent=(S.emf*1e3<=-.05?'−':'')+fx(Math.abs(S.emf*1e3),1)+' mV';$('rI').textContent=(S.I<=-.5?'−':'')+Math.round(Math.abs(S.I))+' µA';
  HIST.push([S.time,lam,S.emf]);while(HIST.length&&S.time-HIST[0][0]>6.2)HIST.shift();if((frame.n=(frame.n||0)+1)%2===0)graph()}
 
 let eMax=.002;
@@ -229,7 +229,7 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),x=mag.position.x,y=mag.posit
   if(Math.abs(S.v)>.03&&K.holder(mag)){const d=S.v>0?-1:1,p=sc(x,y+.62),L=22+38*s;g.strokeStyle=g.fillStyle=amber;g.lineWidth=4;g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(p[0]+d*L,p[1]);g.stroke();g.beginPath();g.moveTo(p[0]+d*(L+10),p[1]);g.lineTo(p[0]+d*L,p[1]-7);g.lineTo(p[0]+d*L,p[1]+7);g.closePath();g.fill();
    K.tag(S.v>0?'the coil pushes the magnet back':'the coil pulls the magnet back',V(x,y+1.05,0),amber)}}
  // labels
- const gx=galv.g.position.x;K.tag('I = '+(S.I>=.5?'+':'')+fx(S.I,0)+' µA',V(gx,3.1,0),ink,0,true);
+ const gx=galv.g.position.x;K.tag('I = '+(S.I>=.5?'+':S.I<=-.5?'−':'')+Math.round(Math.abs(S.I))+' µA',V(gx,3.1,0),ink,0,true);
  K.tag(COIL.N+' turns',V(COIL.x,COIL.y-1.55,.4));if(!K.holder(mag)&&!S.bore)K.tag('bar magnet',V(x,y-.55,0),ink,0,true);
  if(!K.holder(token))K.tag('turn the magnet round',V(token.position.x,token.position.y-.7,.3))}
 
