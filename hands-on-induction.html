@@ -1,0 +1,240 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hands-On Lab: Electromagnetic Induction</title>
+<meta name="description" content="Grade 12 physics camera lab: push a bar magnet into a coil with your own hand and watch the galvanometer. Faraday's law and Lenz's law with live flux and EMF graphs. Works with mouse or touch too.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="hand-kit.css">
+<style>
+.read{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;font-size:.92rem}
+.read dt{color:var(--muted)}.read dd{margin:0;font-family:var(--data);text-align:right;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-right:1.5px solid var(--line);background:var(--stage);padding:5px 11px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+#graph{display:block;width:100%;height:190px;border-radius:8px;background:var(--stage);border:1px solid var(--line)}
+.q{margin:0 0 8px;font-weight:700}.ctl{display:flex;flex-direction:column;gap:10px}
+</style>
+</head><body>
+<div class="wrap">
+ <a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+ <header>
+  <div>
+   <p class="eyebrow">Grade 12 Physics · Module 21 Electromagnetism · Inducing currents · Camera lab</p>
+   <h1>Hands-On Lab: Electromagnetic Induction</h1>
+   <p class="lede">Pick up the bar magnet and push it into the coil. The galvanometer shows the current you induce. Find out what makes the needle kick, which way it goes, and what makes the kick bigger. The camera follows your hand; pinch your thumb and first finger to hold the magnet.</p>
+  </div>
+  <div class="row"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
+ </header>
+ <div class="grid">
+  <div class="stage" id="stage">
+   <video id="video" playsinline muted autoplay hidden></video>
+   <canvas id="gl" aria-label="3-D lab bench with a bar magnet, a coil of copper wire on a stand and a galvanometer"></canvas>
+   <canvas id="hud" class="hud"></canvas>
+   <div class="intro" id="intro">
+    <h2>Your hand moves the magnet</h2>
+    <p>The camera follows your hand. Your video stays on this device and is never uploaded. With a mouse or a finger you drag the magnet instead.</p>
+    <div class="row" style="justify-content:center">
+     <button class="btn primary" id="startCam" type="button">Start with my camera</button>
+     <button class="btn" id="startMouse" type="button">Use mouse or touch</button>
+    </div>
+   </div>
+  </div>
+  <aside>
+   <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
+   <div class="card"><h3>What happened</h3><p class="say" id="say">Pick up the bar magnet. Its red end is the N pole.</p></div>
+   <div class="card"><h3>Lab steps</h3><ol class="steps" id="steps"></ol></div>
+   <div class="card" id="chal" hidden><h3>Challenge: predict the needle</h3><p class="q" id="chQ"></p>
+    <div class="row" id="chBtns"><button class="btn" type="button" data-a="-1">&larr; Left</button><button class="btn" type="button" data-a="0">No kick</button><button class="btn" type="button" data-a="1">Right &rarr;</button></div>
+    <p class="small" id="chNote" style="margin-top:8px"></p><div class="row" style="margin-top:8px"><button class="btn primary" id="chNext" type="button" hidden>Next question</button></div></div>
+   <div class="card"><h3>Flux and EMF, last 6 seconds</h3><canvas id="graph" aria-label="Graph of the flux linkage and the induced EMF against time"></canvas>
+    <p class="small" style="margin-top:8px">The EMF is the slope of the flux graph, with a minus sign: EMF = −N ΔΦ ÷ Δt.</p></div>
+   <div class="card"><h3>Measurements</h3>
+    <dl class="read">
+     <dt>Flux linkage NΦ</dt><dd id="rPhi">–</dd><dt>Magnet speed</dt><dd id="rV">–</dd><dt>Induced EMF</dt><dd id="rE">–</dd><dt>Current I = EMF ÷ R</dt><dd id="rI">–</dd><dt>Last kick</dt><dd id="rPk">–</dd>
+    </dl>
+    <p class="small" style="margin-top:8px">Coil and galvanometer together: R = 50 Ω. Coil 13 cm long, 5 cm wide.</p>
+   </div>
+   <div class="card ctl">
+    <div><h3>Coil</h3><div class="seg" id="turns"><button type="button" data-n="10" aria-pressed="false">10 turns</button><button type="button" data-n="20" aria-pressed="true">20 turns</button><button type="button" data-n="40" aria-pressed="false">40 turns</button></div></div>
+    <div class="row"><button class="btn" id="flip" type="button">Turn the magnet round</button><button class="btn" id="reset" type="button">Start again</button></div>
+    <label class="ck"><input type="checkbox" id="showField" checked> Show the magnet's field lines</label>
+    <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
+   </div>
+   <p class="small">Tip: with the camera, keep your hand about an arm's length away, with light on it. You can also pinch the round TURN token on the bench to turn the magnet round.</p>
+  </aside>
+ </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="hand-model.js"></script>
+<script src="hand-kit.js"></script>
+<script src="phys-parts.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const setStatus=(t,c)=>{$('status').textContent=t;$('status').className='status '+(c||'')};
+const say=t=>{$('say').textContent=t};
+if(!window.THREE){setStatus('The 3-D engine could not load. Check the internet connection and reload.','bad');return}
+const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),fx=(v,d)=>v.toFixed(d),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* ---------- the apparatus: real numbers ---------- */
+const M=0.05;                                             // metres per bench unit
+const COIL={x:.5,y:2.6,len:2.6,a:.5,N:20};                // bench units: a 13 cm coil, 5 cm across
+const MAG={len:2.2,pole:1.0,phi0:1.0e-4};                 // an 11 cm magnet; 0.10 mWb leaves its N pole
+const RG=50,FULL=300;                                     // ohms; µA at full scale
+const CL=COIL.x-COIL.len/2,CR=COIL.x+COIL.len/2,HALF=MAG.len/2,STOP=COIL.x+.2;
+const X1=CL-HALF+.3,X2=COIL.x-.6;                         // the magnet's centre passes these two marks on its way in or out
+/* Flux linkage (Wb) of the whole coil. Each pole is treated as a point source of flux; summing the flux through
+   every turn along the coil gives a closed form. s = +1 when the N pole faces the coil. Off the axis the linkage falls away. */
+const R0=d=>Math.hypot(d,COIL.a);
+function linkage(xm,dy,s){const xN=xm+s*MAG.pole,xS=xm-s*MAG.pole,on=(-(R0(CR-xN)-R0(CL-xN))+(R0(CR-xS)-R0(CL-xS)))*MAG.phi0/2*COIL.N/COIL.len;return on/Math.pow(1+Math.pow(dy/COIL.a/1.6,2),1.5)}
+
+const K=HandKit.create({stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
+ layout(k){const lx=-k.halfW+1.75,gx=k.halfW-1.85;if(!S.bore)mag.userData.home.set(lx,COIL.y,0);token.userData.home.set(lx,1.05,.3);rest.position.x=lx;galv.g.position.set(gx,0,-.15);leads()},
+ onGrab,onDrop,onFrame:frame,onHUD:hudDraw,
+ targets(it){return it===mag&&!S.bore?[V(CL-.35,COIL.y)]:[]}});
+const scene=K.scene,P=PhysParts(K);
+
+/* ---------- bench furniture ---------- */
+const coil=P.coil({len:COIL.len,r:.56,turns:COIL.N});coil.g.position.set(COIL.x,COIL.y,0);scene.add(coil.g);
+for(const s of [-1,1]){const st=P.stand(COIL.y-1.26,{fw:1.0,fd:1.0});st.position.set(COIL.x+.15+s*1.15,0,-.05);scene.add(st)}
+const rest=new T.Group();{const st=P.stand(COIL.y-.3,{fw:1.3,fd:1.0});rest.add(st);const tray=P.mesh(P.rbox(2.6,.1,.62,.04,.02),P.wood(),0,COIL.y-.25,0);tray.castShadow=true;tray.receiveShadow=true;rest.add(tray);
+ for(const s of [-1,1])rest.add(P.mesh(P.rbox(.08,.14,.62,.02,.01),P.wood(),s*1.26,COIL.y-.16,0))}scene.add(rest);
+const galv=P.galvanometer({full:FULL});galv.g.scale.setScalar(1.3);
+const lead=[P.cable(0x16191C,.042),P.cable(0xC62828,.042)];
+function leads(){coil.g.updateMatrixWorld(true);for(let i=0;i<2;i++){const a=coil.g.localToWorld(coil.posts[i].clone()),b=galv.post(i),m=P.hang(a,b,1.9,i?.5:.75);m.unshift(a.clone().add(V(0,.02,.05)));m.push(b.clone().add(V(0,0,.04)));lead[i].set(m)}}
+
+/* ---------- things to pick up ---------- */
+const mag=K.addItem('mag',P.barMagnet(MAG.len,.36),{name:'bar magnet',r:1.25,liftZ:0,snap:.25,firm:true});
+const token=new T.Group();{const d=P.mesh(new T.CylinderGeometry(.46,.46,.09,36),P.ivory);d.rotation.x=Math.PI/2;token.add(d);const rim=P.mesh(new T.TorusGeometry(.46,.025,8,36),P.std(0x0A6A88,.5));token.add(rim);
+ const face=new T.Mesh(new T.CircleGeometry(.43,32),new T.MeshBasicMaterial({transparent:true,map:P.tex(160,160,x=>{x.strokeStyle=x.fillStyle='#0A6A88';x.lineWidth=11;x.lineCap='round';x.beginPath();x.arc(80,70,40,Math.PI*.15,Math.PI*1.75);x.stroke();
+  x.beginPath();x.moveTo(98,18);x.lineTo(126,38);x.lineTo(92,50);x.closePath();x.fill();x.font='800 30px '+P.DISP;x.textAlign='center';x.fillText('TURN',80,146)})}));face.position.z=.048;token.add(face)}
+K.addItem('turn',token,{name:'',r:.6,fixed:true,liftZ:.3});
+
+/* ---------- state ---------- */
+const S={s:1,bore:false,zone:'out',done:{},lam:0,emf:0,I:0,v:0,th:0,om:0,pk:{I:0,E:0,v:0},gh:{a:0,t:-9},pushes:[],ref:null,time:0,px:null,py:null,still:0,slow:0,t1:0,t2:0,ch:null,told:{}};
+const STEPS=[['grab','Pick up the bar magnet'],['in','Push the N pole (red) into the coil and watch the needle'],['still','Hold the magnet still inside the coil'],['out','Pull the magnet out again'],['flip','Turn the magnet round and push the S pole in'],['fast','Push it in slowly, then quickly, and compare the kicks'],['turns','Change to the 40-turn coil and push the magnet in again']];
+const cur=()=>{for(const [k] of STEPS)if(!S.done[k])return k;return null};
+function steps(){const c=cur();$('steps').innerHTML=STEPS.map(([k,t])=>`<li class="${S.done[k]?'done':''}${k===c?' now':''}"><i></i><span>${t}</span></li>`).join('')}
+const side=d=>d<0?'left':d>0?'right':'nowhere';
+function tick(k,text){S.done[k]=true;say(text);steps();if(!cur()){setStatus('All steps done. Now try the challenge.','ok');startChallenge()}}
+function setTurns(n){COIL.N=n;coil.setTurns(n);leads();S.lam=linkage(mag.position.x,mag.position.y-COIL.y,1)*Math.cos(mag.rotation.y);document.querySelectorAll('#turns button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.n===n));
+ if(cur()==='turns'&&n===40)say('40 turns on the coil now. Push the magnet in at about the same speed as before.')}
+document.querySelectorAll('#turns button').forEach(b=>b.onclick=()=>setTurns(+b.dataset.n));
+function flip(){if(S.bore){say('Take the magnet out of the coil before you turn it round: there is no room to turn inside the tube.');return}S.s=-S.s;
+ if(cur()==='flip'||S.ch)say('The '+(S.s>0?'N':'S')+' pole now faces the coil.'+(cur()==='flip'?' Push it in.':''))}
+$('flip').onclick=flip;
+$('reset').onclick=()=>{Object.assign(S,{s:1,bore:false,zone:'out',done:{},pk:{I:0,E:0,v:0},pushes:[],ref:null,still:0,ch:null,told:{}});mag.userData.placed=false;K.resize();K.home(mag);setTurns(20);$('chal').hidden=true;steps();say('Pick up the bar magnet. Its red end is the N pole.')};
+
+function onGrab(it){if(it===token){flip();return}
+ if(it===mag&&!S.done.grab)tick('grab','You are holding the magnet. Line it up with the open end of the coil and push the red N pole in. Watch the needle while the magnet is moving.')}
+function onDrop(it){if(it!==mag)return;if(S.bore){mag.userData.placed=true;mag.userData.goal.copy(mag.position)}else{mag.userData.placed=false;K.home(mag)}}
+
+/* ---------- what counts as a push or a pull ---------- */
+function event(type){const pk=S.pk,dir=Math.abs(pk.I)<5?0:Math.sign(pk.I),pole=S.s>0?'N':'S',d={type,pole,I:pk.I,E:pk.E,v:(X2-X1)*M/Math.max(.02,Math.abs(S.t2-S.t1)),N:COIL.N,dir};S.pk={I:0,E:0,v:0};
+ const aI=fx(Math.abs(d.I),0)+' µA',aE=fx(Math.abs(d.E),1)+' mV';$('rPk').textContent=dir?(dir<0?'← ':'')+aI+(dir>0?' →':''):'none';
+ if(S.ch){if(S.ch.state==='test')judge(d);return}
+ const c=cur(),what=pole+' pole '+(type==='in'?'in':'out')+': the needle kicked to the '+side(dir)+', '+aI+' ('+aE+').';
+ if(c==='in'&&type==='in'){if(pole==='N')tick('in','The needle kicked to the '+side(dir)+': '+aI+', an EMF of '+aE+'. While the magnet moves, the flux through the coil changes, and a changing flux induces an EMF. Now hold the magnet still inside the coil.');else say('That was the S pole going in. Take the magnet out, turn it round, and push the red N pole in.')}
+ else if(c==='out'&&type==='out')tick('out','It kicked the other way, to the '+side(dir)+' ('+aI+'). Going in, the flux through the coil was rising; coming out it was falling, so the EMF and the current reversed. Now turn the magnet round and push the S pole in.');
+ else if(c==='flip'&&type==='in'){if(pole==='S')tick('flip','S pole in: the kick was to the '+side(dir)+', opposite to the N pole going in. The field through the coil now points the other way, so the change in flux has the opposite sign. Next: push the magnet in slowly, then quickly.');else say('That was still the N pole. Take the magnet out and turn it round first.')}
+ else if(c==='fast'&&type==='in'){S.pushes.push(d);const a=S.pushes.reduce((m,q)=>Math.abs(q.I)<Math.abs(m.I)?q:m),b=S.pushes.reduce((m,q)=>Math.abs(q.I)>Math.abs(m.I)?q:m);
+  if(S.pushes.length>1&&Math.abs(a.I)>4&&Math.abs(b.I)>=1.9*Math.abs(a.I)){S.ref=d;tick('fast','Slow push: '+fx(Math.abs(a.I),0)+' µA at '+fx(a.v,2)+' m/s. Quick push: '+fx(Math.abs(b.I),0)+' µA at '+fx(b.v,2)+' m/s. The same change in flux in less time gives a bigger EMF: EMF = −N ΔΦ ÷ Δt. Now change to the 40-turn coil.')}
+  else say('That push gave '+aI+' at '+fx(d.v,2)+' m/s. Take it out and push it in '+(Math.abs(d.I)>150?'much more slowly':'much faster')+' to compare.')}
+ else if(c==='turns'&&type==='in'){if(COIL.N!==40){S.ref=d;say('Choose the 40-turn coil first (under Coil), then push the magnet in.')}
+  else{const r=S.ref,k1=Math.abs(d.E)/Math.max(.01,d.v),k0=r?Math.abs(r.E)/Math.max(.01,r.v):0;tick('turns','40 turns: '+aE+' at '+fx(d.v,2)+' m/s, which is '+fx(k1,1)+' mV for each m/s.'+(r?' With '+r.N+' turns it was '+fx(k0,1)+' mV for each m/s.':'')+' Every turn links the same changing flux, so twice the turns gives twice the EMF.')}}
+ else if(c!=='grab')say(what)}
+
+/* ---------- challenge ---------- */
+const QS=[{pole:'S',type:'in',q:'The S pole faces the coil. You push the magnet in.',why:'The coil must push the S pole back, so its open end becomes an S pole. That is the opposite current from the N pole going in.'},
+ {pole:'N',type:'out',q:'The magnet went in N pole first and is inside. You pull it out.',why:'The flux is falling, so the coil tries to keep it: its open end becomes an S pole that pulls the N pole back.'},
+ {pole:'S',type:'out',q:'The magnet went in S pole first and is inside. You pull it out.',why:'The coil pulls the leaving S pole back with an N pole at its open end: the same current as when an N pole comes in.'},
+ {pole:'N',type:'still',q:'The magnet rests inside the coil and nobody moves it.',why:'A steady flux, however strong, induces nothing. Only a change in flux gives an EMF.'}];
+const answer=q=>q.type==='still'?0:(q.pole==='N'?-1:1)*(q.type==='in'?1:-1);        // N pole in: flux rising, EMF negative, needle left
+function startChallenge(){S.ch={i:0,score:0,state:'ask',pick:null};$('chal').hidden=false;ask()}
+function ask(){const c=S.ch,q=QS[c.i];c.state='ask';$('chQ').textContent='Question '+(c.i+1)+' of '+QS.length+': '+q.q+' Which way does the needle kick?';$('chNote').textContent='Choose first. Then do it and see.';$('chNext').hidden=true;document.querySelectorAll('#chBtns button').forEach(b=>{b.disabled=false;b.classList.remove('primary')})}
+document.querySelectorAll('#chBtns button').forEach(b=>b.onclick=()=>{const c=S.ch;if(!c||c.state!=='ask')return;c.pick=+b.dataset.a;c.state='test';S.still=0;b.classList.add('primary');document.querySelectorAll('#chBtns button').forEach(x=>x.disabled=true);
+ const q=QS[c.i];$('chNote').textContent='Prediction saved: '+(c.pick?'needle to the '+side(c.pick):'no kick')+'. Now test it: '+(q.type==='still'?'leave the magnet inside the coil and let go of it.':q.type==='in'?'start with the magnet outside, '+q.pole+' pole facing the coil, and push it in.':'put the magnet inside '+q.pole+' pole first, wait, then pull it out.')});
+function judge(d){const c=S.ch,q=QS[c.i];
+ if(d.type!==q.type||(q.type!=='still'&&d.pole!==q.pole)){if(d.type!=='still')say('That was the '+d.pole+' pole going '+d.type+'. The question is about: '+q.q);return}
+ const real=q.type==='still'?0:d.dir,ok=c.pick===real;if(ok)c.score++;c.state='done';
+ say((ok?'Correct. ':'Not this time. ')+'The needle '+(real?'kicked to the '+side(real):'stayed at zero')+'. '+q.why);
+ $('chNote').textContent=ok?'You predicted it.':'You predicted '+(c.pick?side(c.pick):'no kick')+'.';
+ if(c.i<QS.length-1){$('chNext').hidden=false;$('chNext').textContent='Next question'}else{$('chQ').textContent='Challenge finished: '+c.score+' of '+QS.length+' predicted correctly.';$('chNext').hidden=false;$('chNext').textContent='Try the challenge again';setStatus('Challenge finished: '+c.score+' of '+QS.length+'.','ok')}}
+$('chNext').onclick=()=>{const c=S.ch;if(!c)return;if(c.i<QS.length-1){c.i++;ask()}else startChallenge()};
+
+/* ---------- every frame ---------- */
+const HIST=[];
+function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now))/1000||dt0));frame.last=now;S.time+=dt;
+ const hd=K.holder(mag),target=S.s>0?0:Math.PI;mag.rotation.y+=(target-mag.rotation.y)*Math.min(1,dt*9);if(Math.abs(target-mag.rotation.y)<.004)mag.rotation.y=target;
+ // the magnet cannot pass through the windings: it goes in through the open end, along the axis, as far as the end stop
+ if(hd){let x=mag.position.x,y=mag.position.y;const px=S.px==null?x:S.px,py=S.py==null?y:S.py,dy=Math.abs(y-COIL.y);
+  if(S.bore){y=COIL.y;x=Math.min(x,STOP);if(x+HALF<CL-.02)S.bore=false}
+  else if(x+HALF>CL){
+   if(dy<.55&&px+HALF<=CL+.12&&mag.rotation.y===target){S.bore=true;y=COIL.y;x=Math.min(x,STOP)}
+   else if(dy<1.2&&x-HALF<CR+.45){if(px+HALF<=CL+.02){x=CL-HALF;if(!S.told.block&&dy>.55){S.told.block=1;say('The magnet is hitting the end of the coil. Line it up with the hole in the middle.')}}else y=COIL.y+(py>=COIL.y?1:-1)*1.2}}
+  else if(dy<.55&&x+HALF>CL-1.3)y+=(COIL.y-y)*(1-(CL-(x+HALF))/1.3)*.8;           // near the open end, the tube guides it in
+  mag.position.set(x,y,0);S.px=x;S.py=y}
+ else{if(S.px!=null&&!S.bore&&mag.position.x+HALF<CL)S.bore=false;S.px=mag.position.x;S.py=mag.position.y}
+ // Faraday's law: EMF = -d(N Phi)/dt, from how the linkage changed since the last frame
+ const x=mag.position.x,lam=linkage(x,mag.position.y-COIL.y,1)*Math.cos(mag.rotation.y),e=-(lam-S.lam)/dt,xp=frame.x==null?x:frame.x,vx=(x-xp)/dt*M;frame.x=x;S.lam=lam;
+ if((xp<X1)!==(x<X1))S.t1=S.time;if((xp<X2)!==(x<X2))S.t2=S.time;                    // timing gates: the mean speed between two marks
+ const a=Math.min(1,dt/.035);S.emf+=(e-S.emf)*a;S.v+=(vx-S.v)*a;S.I=S.emf/RG*1e6;
+ // the needle: a damped pointer, so a quick kick swings out and comes back as on a real meter
+ const tgt=clamp(S.I/FULL,-1.15,1.15),n=Math.ceil(dt/.006),h=dt/n;for(let i=0;i<n;i++){S.om+=(22*22*(tgt-S.th)-2*.82*22*S.om)*h;S.th+=S.om*h}galv.set(S.th);
+ const G=S.gh;if(Math.abs(S.th)>Math.abs(G.a)||(Math.sign(S.th)!==Math.sign(G.a)&&Math.abs(S.th)>.08&&S.time-G.t>.3)){G.a=S.th;G.t=S.time}
+ const age=S.time-G.t,op=Math.abs(G.a)<.05?0:clamp(1-(age-1.8)/.7,0,1)*.85;galv.ghost(G.a,op);if(age>2.5)G.a=0;
+ // pushes and pulls
+ if(Math.abs(S.I)>Math.abs(S.pk.I)){S.pk.I=S.I;S.pk.E=S.emf*1e3}
+ S.slow=Math.abs(S.v)<.02?S.slow+dt:0;
+ if(S.zone==='out'&&S.bore&&x>COIL.x-.5&&(x>=STOP-.08||S.slow>.2)){S.zone='in';event('in')}
+ else if(S.zone==='in'&&x<COIL.x-3.0){S.zone='out';event('out')}
+ else if(S.zone==='out'&&!S.bore&&Math.abs(S.pk.I)>12&&Math.abs(S.I)<2&&!hd){S.pk={I:0,E:0,v:0}}
+ if(S.zone==='in'&&Math.abs(S.v)<.02&&Math.abs(S.I)<4){S.still+=dt;
+  if(S.still>1.3){if(cur()==='still')tick('still','The needle is back at zero. The magnet\'s field still passes through the coil, but it is not changing: no change in flux, no EMF, no current. Now pull the magnet out.');
+   else if(S.ch&&S.ch.state==='test'&&QS[S.ch.i].type==='still'&&!hd)judge({type:'still',pole:S.s>0?'N':'S',dir:0})}}else S.still=0;
+ // readouts and graph
+ $('rPhi').textContent=fx(lam*1e3,2)+' mWb';$('rV').textContent=fx(Math.abs(S.v),2)+' m/s';$('rE').textContent=fx(S.emf*1e3,1)+' mV';$('rI').textContent=fx(S.I,0)+' µA';
+ HIST.push([S.time,lam,S.emf]);while(HIST.length&&S.time-HIST[0][0]>6.2)HIST.shift();if((frame.n=(frame.n||0)+1)%2===0)graph()}
+
+let eMax=.002;
+function graph(){const c=$('graph'),dpr=Math.min(2,window.devicePixelRatio||1),w=c.clientWidth,h=c.clientHeight;if(!w)return;if(c.width!==Math.round(w*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
+ const g=c.getContext('2d'),dk=K.isDark(),ink=dk?'#94A7AE':'#52646C',blue=dk?'#7FB2FF':'#2F6FD0',red=dk?'#FF8A7A':'#C0392B';g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+ const lMax=.72*COIL.N*MAG.phi0;let m=.0015;for(const p of HIST)m=Math.max(m,Math.abs(p[2]));eMax+=(m*1.2-eMax)*(m*1.2>eMax?.5:.03);
+ const half=h/2,tx=t=>w-(S.time-t)/6*w;g.font='600 11px "IBM Plex Mono",monospace';g.textBaseline='top';
+ [[1,lMax,blue,'NΦ, flux linkage (±'+fx(lMax*1e3,1)+' mWb)'],[2,eMax,red,'EMF (±'+fx(eMax*1e3,1)+' mV)']].forEach(([col,mx,colr,label],i)=>{const y0=half*i+half/2;g.strokeStyle=dk?'rgba(255,255,255,.14)':'rgba(0,0,0,.12)';g.lineWidth=1;g.beginPath();g.moveTo(0,y0);g.lineTo(w,y0);g.stroke();
+  g.strokeStyle=colr;g.lineWidth=2;g.lineJoin='round';g.beginPath();HIST.forEach((p,j)=>{const xx=tx(p[0]),yy=y0-clamp(p[col]/mx,-1.05,1.05)*(half/2-14);j?g.lineTo(xx,yy):g.moveTo(xx,yy)});g.stroke();g.fillStyle=ink;g.textAlign='left';g.fillText(label,6,half*i+4)});
+ g.strokeStyle=dk?'rgba(255,255,255,.2)':'rgba(0,0,0,.18)';g.beginPath();g.moveTo(0,half);g.lineTo(w,half);g.stroke()}
+
+/* ---------- heads-up layer ---------- */
+function hudDraw(g){const ink=K.ink(),dk=K.isDark(),x=mag.position.x,y=mag.position.y,se=Math.cos(mag.rotation.y),amber=dk?'#E0A63A':'#A86A00',RED=dk?'#FF8A7A':'#C0392B',BLUE=dk?'#7FB2FF':'#2F6FD0';
+ const sc=(px,py)=>K.toScreen(V(px,py,0));
+ // the magnet's field lines, from the N pole round to the S pole
+ if($('showField').checked&&Math.abs(se)>.25){const xN=x+se*MAG.pole,xS=x-se*MAG.pole;g.lineWidth=1.3;g.strokeStyle=g.fillStyle=dk?'rgba(148,190,205,.5)':'rgba(40,90,110,.4)';
+  for(let k=0;k<10;k++){const a0=(k+.5)/10*2*Math.PI;let px=xN+Math.cos(a0)*.24,py=y+Math.sin(a0)*.24,p=sc(px,py),q=p;g.beginPath();g.moveTo(p[0],p[1]);
+   for(let i=0;i<64;i++){const ax=px-xN,ay=py-y,bx=px-xS,by=py-y,ra=Math.pow(ax*ax+ay*ay,1.5),rb=Math.pow(bx*bx+by*by,1.5),ux=ax/ra-bx/rb,uy=ay/ra-by/rb,f=Math.hypot(ux,uy)||1;px+=ux/f*.21;py+=uy/f*.21;
+    if(Math.hypot(px-xS,py-y)<.25||Math.abs(px)>K.halfW+.6||py<.05||py>7.3)break;q=p;p=sc(px,py);g.lineTo(p[0],p[1]);
+    if(i===7){const an=Math.atan2(p[1]-q[1],p[0]-q[0]);g.stroke();g.beginPath();g.moveTo(p[0]+Math.cos(an)*7,p[1]+Math.sin(an)*7);g.lineTo(p[0]+Math.cos(an+2.5)*6,p[1]+Math.sin(an+2.5)*6);g.lineTo(p[0]+Math.cos(an-2.5)*6,p[1]+Math.sin(an-2.5)*6);g.closePath();g.fill();g.beginPath();g.moveTo(p[0],p[1])}}
+   g.stroke()}}
+ // the part of the magnet that is hidden inside the coil
+ if(x+HALF>CL+.05){const a=sc(Math.max(CL,x-HALF),y+.18),b=sc(x+HALF,y-.18);g.setLineDash([5,4]);g.lineWidth=2;g.strokeStyle=ink;g.strokeRect(a[0],a[1],b[0]-a[0],b[1]-a[1]);g.setLineDash([]);
+  K.tag(se>0?'N':'S',V(x+HALF-.3,y,0),se>0?RED:BLUE,0,true);if(x-HALF+.3>CL+.2)K.tag(se>0?'S':'N',V(x-HALF+.3,y,0),se>0?BLUE:RED,0,true)}
+ // the induced current: which way it goes round the coil, and the poles it gives the coil (Lenz's law)
+ const s=Math.min(1,Math.abs(S.I)/70);
+ if(s>.1){const up=S.emf<0,ph=(S.time*(1+2*s))%1;g.strokeStyle=amber;g.globalAlpha=.35+.65*s;g.lineWidth=3;g.lineCap='round';g.lineJoin='round';
+  for(let i=0;i<6;i++){const cx=CL+.4+i*(COIL.len-.8)/5;for(let j=0;j<2;j++){const u=(ph+j*.5)%1,yy=COIL.y+(up?-.45+u*.9:.45-u*.9),p=sc(cx,yy),d=up?1:-1;g.beginPath();g.moveTo(p[0]-7,p[1]+7*d);g.lineTo(p[0],p[1]);g.lineTo(p[0]+7,p[1]+7*d);g.stroke()}}
+  g.globalAlpha=1;const leftN=S.emf<0;K.tag(leftN?'N':'S',V(CL-.05,COIL.y+1.2,0),leftN?RED:BLUE,0,true);K.tag(leftN?'S':'N',V(CR+.05,COIL.y+1.2,0),leftN?BLUE:RED,0,true);
+  K.tag('induced current: the coil becomes a magnet',V(COIL.x,COIL.y+1.75,0),amber,0,true);
+  if(Math.abs(S.v)>.03&&K.holder(mag)){const d=S.v>0?-1:1,p=sc(x,y+.62),L=22+38*s;g.strokeStyle=g.fillStyle=amber;g.lineWidth=4;g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(p[0]+d*L,p[1]);g.stroke();g.beginPath();g.moveTo(p[0]+d*(L+10),p[1]);g.lineTo(p[0]+d*L,p[1]-7);g.lineTo(p[0]+d*L,p[1]+7);g.closePath();g.fill();
+   K.tag(S.v>0?'the coil pushes the magnet back':'the coil pulls the magnet back',V(x,y+1.05,0),amber)}}
+ // labels
+ const gx=galv.g.position.x;K.tag('I = '+(S.I>=.5?'+':'')+fx(S.I,0)+' µA',V(gx,3.1,0),ink,0,true);
+ K.tag(COIL.N+' turns',V(COIL.x,COIL.y-1.55,.4));if(!K.holder(mag)&&!S.bore)K.tag('bar magnet',V(x,y-.55,0),ink,0,true);
+ if(!K.holder(token))K.tag('turn the magnet round',V(token.position.x,token.position.y-.7,.3))}
+
+HandKit.themeButton($('themeBtn'),K);K.start();steps();S.lam=linkage(mag.position.x,0,1);
+window.__HK=Object.assign(K,{S,COIL,MAG,M,linkage,mag,token,galv,coil,setTurns,flip,event,QS,answer,HIST,startChallenge});
+})();
+</script>
+</body></html>
