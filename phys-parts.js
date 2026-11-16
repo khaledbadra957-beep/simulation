@@ -230,20 +230,20 @@
       var base = P.turned([[0, 0], [.46, 0], [.46, .08], [.4, .12], [.3, .12], [.3, .24], [.24, .3]], std(0xEDE7D8, .45), 32); base.rotation.x = PI / 2; g.add(base);
       var screw = P.turned([[.2, .2], [.215, .23], [.2, .26], [.215, .29], [.2, .32], [.215, .35], [.2, .38]], P.brass, 20); screw.rotation.x = PI / 2; g.add(screw);
       var globe = mesh(new T.SphereGeometry(.34, 28, 20), gl, 0, 0, .62); globe.scale.z = 1.12; g.add(globe);
-      [-1, 1].forEach(function (s) { var sup = mesh(new T.CylinderGeometry(.012, .012, .3, 6), P.steel, s * .09, 0, .5); sup.rotation.x = PI / 2; g.add(sup); g.add(mesh(new T.CylinderGeometry(.05, .05, .05, 10), P.brass, s * .42, 0, .1)).rotation; });
+      [-1, 1].forEach(function (s) { var sup = mesh(new T.CylinderGeometry(.012, .012, .3, 6), P.steel, s * .09, 0, .5); sup.rotation.x = PI / 2; g.add(sup); var scw = mesh(new T.CylinderGeometry(.05, .05, .05, 10), P.brass, s * .42, 0, .1); scw.rotation.x = PI / 2; g.add(scw); });
       var coil = mesh(new T.TorusGeometry(.09, .02, 6, 14, PI), fil, 0, 0, .65); coil.rotation.x = PI / 2; g.add(coil);
       var halo = new T.Sprite(new T.SpriteMaterial({ map: K.canvasTex(128, 128, function (x) { var gr = x.createRadialGradient(64, 64, 4, 64, 64, 64); gr.addColorStop(0, 'rgba(255,236,170,1)'); gr.addColorStop(.3, 'rgba(255,190,80,.55)'); gr.addColorStop(1, 'rgba(255,160,50,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128); }), transparent: true, opacity: 0, depthWrite: false })); halo.position.z = .75; g.add(halo);
-      return { g: g, glow: function (u) { var v = Math.max(0, Math.min(1.5, u)); gl.emissiveIntensity = v * 1.1; gl.opacity = .32 + .4 * Math.min(1, v); fil.emissiveIntensity = Math.min(1, u * 6) * 2.2; halo.material.opacity = Math.min(.95, v * .9); var s = .9 + 2.3 * v; halo.scale.set(s, s, 1); } };
+      return { g: g, glow: function (u) { var v = Math.max(0, Math.min(1.5, u)); gl.emissiveIntensity = v * 1.1; gl.opacity = .32 + .4 * Math.min(1, v); fil.emissiveIntensity = Math.min(1, u * 6) * 2.2; halo.material.opacity = Math.min(.8, v * .7); var s = .8 + 1.5 * v; halo.scale.set(s, s, 1); } };
     };
     /* resistor with colour bands on a printed plinth. bands: three hex colours */
     P.resistor = function (E, text, bands) {
-      var g = partBase(E, .52), body = new T.Group(); g.add(body);
+      var g = partBase(E, .52);
       g.add(mesh(P.rbox(1.0, .86, .07, .06, .015), std(0xF4F3EE, .5), 0, -.08, 0));
       var b = P.turned([[0, -.4], [.13, -.4], [.17, -.34], [.17, -.2], [.14, -.14], [.14, .14], [.17, .2], [.17, .34], [.13, .4], [0, .4]], std(0xD9C29A, .5), 20); b.rotation.z = PI / 2; b.position.set(0, .1, .2); g.add(b);
       (bands || []).concat([0xC9A227]).forEach(function (c, i) { var r = mesh(new T.CylinderGeometry(i === 3 ? .175 : (i === 0 ? .175 : .145), i === 3 ? .175 : (i === 0 ? .175 : .145), .06, 18), std(c, .45), i === 3 ? .27 : -.27 + i * .14, .1, .2); r.rotation.z = PI / 2; g.add(r); });
       [-1, 1].forEach(function (s) { var w = mesh(new T.CylinderGeometry(.025, .025, .14, 6), P.steel, s * .46, .1, .2); w.rotation.z = PI / 2; g.add(w); var d = mesh(new T.CylinderGeometry(.025, .025, .2, 6), P.steel, s * .52, .05, .11); d.rotation.x = PI / 2; g.add(d); });
-      var lb = P.label(text, .8, .24, { ink: '#1B2024', size: .82, res: 192 }); lb.position.set(0, -.3, .04); body.add(lb);
-      return { g: g, body: body };
+      var lb = P.label(text, .8, .24, { ink: '#1B2024', size: .82, res: 192 }); lb.position.set(0, -.3, .04); g.add(lb);
+      return { g: g };
     };
     /* insulated lead with a slight bow towards the student */
     P.wire = function (E, col) {
@@ -263,29 +263,29 @@
         var top = mesh(new T.CylinderGeometry(.302, .302, .22, 24), std(0xC8873A, .3, .7), s * .43 + .28, 0, .36); top.rotation.z = PI / 2; g.add(top); var nub = mesh(new T.CylinderGeometry(.09, .09, .06, 12), P.steel, s * .43 + .42, 0, .36); nub.rotation.z = PI / 2; g.add(nub); });
       g.add(mesh(P.rbox(.06, .7, .5, .02, .01), std(0xC62828, .5), .93, 0, .3)); g.add(mesh(P.rbox(.06, .7, .5, .02, .01), std(0x2B3238, .5), -.93, 0, .3));
       var cv = null, tx = ptex(256, 96, function (x) { cv = x; draw(x); }), text = '6 V'; function draw(x) { x.clearRect(0, 0, 256, 96); x.fillStyle = '#FFFFFF'; x.font = '800 64px ' + DISP; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text, 128, 52); }
-      var lb = mesh(new T.PlaneGeometry(.8, .3), new T.MeshBasicMaterial({ map: tx, transparent: true }), 0, 0, .67); body.add(lb);
+      body.add(mesh(P.rbox(.9, .4, .04, .06, .01), std(0x15181B, .5), 0, 0, .68)); var lb = mesh(new T.PlaneGeometry(.8, .3), new T.MeshBasicMaterial({ map: tx, transparent: true }), 0, 0, .705); body.add(lb);
       var plus = P.label('+', .3, .3, { ink: '#C62828', size: 1, res: 64 }); plus.position.set(.72, .56, .05); body.add(plus); var minus = P.label('−', .3, .3, { ink: '#1B2024', size: 1, res: 64 }); minus.position.set(-.72, .56, .05); body.add(minus);
       return { g: g, body: body, label: lb, signs: [plus, minus], setLabel: function (t) { text = t; draw(tx.image.getContext('2d')); tx.needsUpdate = true; } };
     };
     /* knife switch. set(closed, instantly) */
     P.knife = function (E) {
       var g = partBase(E, .62), bl = new T.Group(), open = 0, want = 0; g.add(mesh(P.rbox(1.5, .56, .1, .06, .02), std(0xF1EEE4, .45), 0, 0, .05));
-      [-1, 1].forEach(function (s) { g.add(mesh(P.rbox(.16, .2, .3, .03, .015), P.brass, s * .5, 0, .2)); g.add(mesh(new T.CylinderGeometry(.05, .05, .04, 10), P.brass, s * .66, 0, .12)).rotation; });
+      [-1, 1].forEach(function (s) { g.add(mesh(P.rbox(.16, .2, .3, .03, .015), P.brass, s * .5, 0, .2)); var scw = mesh(new T.CylinderGeometry(.05, .05, .04, 10), P.brass, s * .66, 0, .12); scw.rotation.x = PI / 2; g.add(scw); });
       bl.position.set(-.5, 0, .3); bl.add(mesh(P.rbox(1.12, .1, .06, .02, .01), std(0xC87A45, .3, .8), .5, 0, 0)); var kn = mesh(new T.SphereGeometry(.13, 16, 12), std(0x15181B, .45), 1.14, 0, .02); kn.scale.set(1.3, 1, 1); bl.add(kn); g.add(bl);
       return { g: g, set: function (closed, now) { want = closed ? 0 : 1; if (now) { open = want; bl.rotation.y = -open * .75; } }, step: function (dt) { open += (want - open) * Math.min(1, dt * 14); bl.rotation.y = -open * .75; } };
     };
-    /* test probe: the tip is at the origin and the handle leans away down to the right */
+    /* test probe: the tip is at the origin and the handle leans away down to the left; `tail` is where its lead joins */
     P.probe = function (col) {
       var g = new T.Group(), in1 = new T.Group(); in1.rotation.z = -.55; g.add(in1); in1.add(mesh(new T.CylinderGeometry(.012, .03, .34, 8), P.steel, 0, -.17, .1));
-      in1.add(mesh(new T.CylinderGeometry(.075, .05, .2, 12), std(col, .5), 0, -.44, .1)); in1.add(mesh(new T.CylinderGeometry(.075, .075, .85, 12), std(col, .5), 0, -.96, .1)); in1.add(mesh(new T.TorusGeometry(.08, .022, 6, 14), std(0x15181B, .6), 0, -.58, .1)).rotation.x = PI / 2;
-      g.tail = new T.Vector3(Math.sin(.55) * 1.4, -Math.cos(.55) * 1.4, .1); return g;
+      in1.add(mesh(new T.CylinderGeometry(.075, .05, .2, 12), std(col, .5), 0, -.44, .1)); in1.add(mesh(new T.CylinderGeometry(.075, .075, .85, 12), std(col, .5), 0, -.96, .1)); var grd = mesh(new T.TorusGeometry(.08, .022, 6, 14), std(0x15181B, .6), 0, -.58, .1); grd.rotation.x = PI / 2; in1.add(grd);
+      g.tail = new T.Vector3(-Math.sin(.55) * 1.38, -Math.cos(.55) * 1.38, .1); return g;
     };
     /* upright demonstration board with terminals. pegs: [[x, y], ...]; links: [[i, j], ...] printed as dashed gaps */
     P.board = function (w, h, cy, pegs, links) {
       var g = new T.Group(), sc = 96, cw = Math.round(w * sc), ch = Math.round(h * sc), X = function (x) { return (x + w / 2) * sc; }, Y = function (y) { return (cy + h / 2 - y) * sc; };
       var tx = K.canvasTex(cw, ch, function (x) { x.fillStyle = '#EEF2EE'; x.fillRect(0, 0, cw, ch); x.strokeStyle = 'rgba(40,70,80,.07)'; x.lineWidth = 1; for (var i = 0; i < cw; i += 24) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, ch); x.stroke(); } for (i = 0; i < ch; i += 24) { x.beginPath(); x.moveTo(0, i); x.lineTo(cw, i); x.stroke(); }
         x.strokeStyle = 'rgba(40,70,80,.34)'; x.lineWidth = 3; x.setLineDash([10, 9]); links.forEach(function (l) { x.beginPath(); x.moveTo(X(pegs[l[0]][0]), Y(pegs[l[0]][1])); x.lineTo(X(pegs[l[1]][0]), Y(pegs[l[1]][1])); x.stroke(); }); });
-      var face = mesh(new T.PlaneGeometry(w, h), std(0xffffff, .8, 0, { map: tx }), 0, cy, -.239); face.receiveShadow = true; g.add(face);
+      var face = mesh(new T.PlaneGeometry(w, h), std(0xffffff, .8, 0, { map: tx }), 0, cy, -.239); face.receiveShadow = true; g.add(face); g.face = face.material;
       var slab = mesh(P.rbox(w + .16, h + .16, .14, .1, .03), std(0x8A6B45, .7), 0, cy, -.32); slab.castShadow = true; g.add(slab);
       [-1, 1].forEach(function (s) { var leg = mesh(P.rbox(.16, cy - h / 2 + .2, .16, .03, .02), P.foot, s * (w / 2 - .5), (cy - h / 2 + .2) / 2 - .05, -.42); leg.castShadow = true; g.add(leg); var ft = mesh(P.rbox(.5, .1, 1.3, .04, .02), P.foot, s * (w / 2 - .5), .05, -.2); ft.castShadow = true; g.add(ft); });
       pegs.forEach(function (p) { var st = mesh(new T.CylinderGeometry(.06, .075, .26, 12), P.brass, p[0], p[1], -.11); st.rotation.x = PI / 2; st.castShadow = true; g.add(st); var hd = mesh(new T.CylinderGeometry(.085, .085, .05, 14), P.brass, p[0], p[1], .09); hd.rotation.x = PI / 2; g.add(hd); });
