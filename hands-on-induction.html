@@ -21,7 +21,7 @@
   <div>
    <p class="eyebrow">Grade 12 Physics · Module 21 Electromagnetism · Inducing currents · Camera lab</p>
    <h1>Hands-On Lab: Electromagnetic Induction</h1>
-   <p class="lede">Pick up the bar magnet and push it into the coil. The galvanometer shows the current you induce. Find out what makes the needle kick, which way it goes, and what makes the kick bigger. The camera follows your hand; pinch your thumb and first finger to hold the magnet.</p>
+   <p class="lede">Pick up the bar magnet and slide it along its track into the coil. The galvanometer shows the current you induce, and the orange pointer holds the last kick so you can read it. Find out what makes the needle kick, which way it goes, and what makes the kick bigger. The camera follows your hand; pinch your thumb and first finger to hold the magnet.</p>
   </div>
   <div class="row"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
  </header>
@@ -52,7 +52,7 @@
     <dl class="read">
      <dt>Flux linkage NΦ</dt><dd id="rPhi">–</dd><dt>Magnet speed</dt><dd id="rV">–</dd><dt>Induced EMF</dt><dd id="rE">–</dd><dt>Current I = EMF ÷ R</dt><dd id="rI">–</dd><dt>Last kick</dt><dd id="rPk">–</dd>
     </dl>
-    <p class="small" style="margin-top:8px">Coil and galvanometer together: R = 50 Ω. Coil 13 cm long, 5 cm wide.</p>
+    <p class="small" style="margin-top:8px">Coil and galvanometer together: R = 80 Ω. Coil 13 cm long, 5 cm wide.</p>
    </div>
    <div class="card ctl">
     <div><h3>Coil</h3><div class="seg" id="turns"><button type="button" data-n="10" aria-pressed="false">10 turns</button><button type="button" data-n="20" aria-pressed="true">20 turns</button><button type="button" data-n="40" aria-pressed="false">40 turns</button></div></div>
@@ -60,7 +60,7 @@
     <label class="ck"><input type="checkbox" id="showField" checked> Show the magnet's field lines</label>
     <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
    </div>
-   <p class="small">Tip: with the camera, keep your hand about an arm's length away, with light on it. You can also pinch the round TURN token on the bench to turn the magnet round.</p>
+   <p class="small">Tip: with the camera, keep your hand about an arm's length away, with light on it. The magnet slides smoothly behind your hand, so move it the way you would push a real one: a normal push gives a medium kick, and only a really quick push reaches the end of the scale. You can also pinch the round TURN token on the bench to turn the magnet round.</p>
   </aside>
  </div>
 </div>
@@ -82,7 +82,8 @@ const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),fx=(v,d)=>v.toFixed(d),clamp=(v
 const M=0.05;                                             // metres per bench unit
 const COIL={x:.5,y:2.6,len:2.6,a:.5,N:20};                // bench units: a 13 cm coil, 5 cm across
 const MAG={len:2.2,pole:1.0,phi0:1.0e-4};                 // an 11 cm magnet; 0.10 mWb leaves its N pole
-const RG=50,FULL=300;                                     // ohms; µA at full scale
+const RG=80,FULL=300;                                     // ohms; µA at full scale
+const SW=28,NW=22;                                         // how quickly the magnet follows the hand, and the needle's natural swing (rad/s)
 const CL=COIL.x-COIL.len/2,CR=COIL.x+COIL.len/2,HALF=MAG.len/2,STOP=COIL.x+.2;
 const X1=CL-HALF+.3,X2=COIL.x-.6;                         // the magnet's centre passes these two marks on its way in or out
 /* Flux linkage (Wb) of the whole coil. Each pole is treated as a point source of flux; summing the flux through
@@ -91,7 +92,7 @@ const R0=d=>Math.hypot(d,COIL.a);
 function linkage(xm,dy,s){const xN=xm+s*MAG.pole,xS=xm-s*MAG.pole,on=(-(R0(CR-xN)-R0(CL-xN))+(R0(CR-xS)-R0(CL-xS)))*MAG.phi0/2*COIL.N/COIL.len;return on/Math.pow(1+Math.pow(dy/COIL.a/1.6,2),1.5)}
 
 const K=HandKit.create({stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
- layout(k){const lx=-k.halfW+1.75,gx=k.halfW-1.7;if(!S.bore)mag.userData.home.set(lx,COIL.y,0);token.userData.home.set(lx,1.05,.3);rest.position.x=lx;galv.g.position.set(gx,0,-.15);leads()},
+ layout(k){const lx=-k.halfW+1.75,gx=k.halfW-1.7;if(!S.bore)mag.userData.home.set(lx,COIL.y,0);token.userData.home.set(lx,1.05,.3);rest.position.x=lx;layTrack(lx-1.35,CL-.04);galv.g.position.set(gx,0,-.15);leads()},
  onGrab,onDrop,onFrame:frame,onHUD:hudDraw,
  targets(it){return it===mag&&!S.bore?[V(CL-.35,COIL.y)]:[]}});
 const scene=K.scene,P=PhysParts(K);
@@ -99,8 +100,15 @@ const scene=K.scene,P=PhysParts(K);
 /* ---------- bench furniture ---------- */
 const coil=P.coil({len:COIL.len,r:.56,turns:COIL.N});coil.g.position.set(COIL.x,COIL.y,0);scene.add(coil.g);
 for(const s of [-1,1]){const st=P.stand(COIL.y-1.26,{fw:1.0,fd:1.0});st.position.set(COIL.x+.15+s*1.15,0,-.05);scene.add(st)}
-const rest=new T.Group();{const st=P.stand(COIL.y-.3,{fw:1.3,fd:1.0});rest.add(st);const tray=P.mesh(P.rbox(2.6,.1,.62,.04,.02),P.wood(),0,COIL.y-.25,0);tray.castShadow=true;tray.receiveShadow=true;rest.add(tray);
- for(const s of [-1,1])rest.add(P.mesh(P.rbox(.08,.14,.62,.02,.01),P.wood(),s*1.26,COIL.y-.16,0))}scene.add(rest);
+const rest=P.stand(COIL.y-.3,{fw:1.3,fd:1.0});scene.add(rest);
+/* aluminium track: the magnet slides along it from its rest into the coil, like a cart on a runway */
+const TRK={y:COIL.y-.21,L:-5,R:CL},track=new T.Group(),alu=P.std(0xC9CED3,.32,.75,{envMapIntensity:1.1});
+{const base=P.mesh(new T.BoxGeometry(1,.05,.62),alu,.5,0,0);base.receiveShadow=true;base.castShadow=true;track.add(base);
+ for(const z of [-.3,.3]){const lip=P.mesh(new T.BoxGeometry(1,.09,.035),alu,.5,.045,z);lip.castShadow=true;track.add(lip)}
+ const tex=P.tex(1024,40,(x,w,h)=>{x.fillStyle='#E9EDEF';x.fillRect(0,0,w,h);x.strokeStyle=x.fillStyle='#3B4A52';x.font='600 20px '+P.MONO;x.textAlign='center';for(let i=0;i<=50;i++){const px=i*w/50;x.lineWidth=i%5?1.5:3;x.beginPath();x.moveTo(px,0);x.lineTo(px,i%10===0?22:i%5===0?16:9);x.stroke();if(i%10===0&&i>0&&i<50)x.fillText(String(i),px,37)}});
+ const scale=new T.Mesh(new T.PlaneGeometry(1,.085),new T.MeshBasicMaterial({map:tex}));scale.position.set(.5,.045,.32);track.add(scale);track.userData.tex=tex}
+scene.add(track);const prop=P.stand(TRK.y-.03,{fw:.9,fd:.9});scene.add(prop);
+function layTrack(a,b){TRK.L=a;TRK.R=b;track.position.set(a,TRK.y,0);track.scale.x=b-a;prop.position.set(b-.7,0,-.05);const cm=(b-a)*M*100;track.userData.tex.repeat.set(cm/50,1)}
 const galv=P.galvanometer({full:FULL});galv.g.scale.setScalar(1.3);
 const lead=[P.cable(0x16191C,.042),P.cable(0xC62828,.042)];
 function leads(){coil.g.updateMatrixWorld(true);for(let i=0;i<2;i++){const a=coil.g.localToWorld(coil.posts[i].clone()),b=galv.post(i),m=P.hang(a,b,1.9,i?.5:.75);m.unshift(a.clone().add(V(0,.02,.05)));m.push(b.clone().add(V(0,0,.04)));lead[i].set(m)}}
@@ -113,7 +121,7 @@ const token=new T.Group();{const d=P.mesh(new T.CylinderGeometry(.46,.46,.09,36)
 K.addItem('turn',token,{name:'',r:.6,fixed:true,liftZ:.3});
 
 /* ---------- state ---------- */
-const S={s:1,bore:false,zone:'out',done:{},lam:0,emf:0,I:0,v:0,th:0,om:0,pk:{I:0,E:0,v:0},gh:{a:0,t:-9},pushes:[],ref:null,time:0,px:null,py:null,still:0,slow:0,t1:0,t2:0,ch:null,told:{}};
+const S={s:1,bore:false,zone:'out',done:{},lam:0,emf:0,I:0,v:0,th:0,om:0,pk:{I:0,E:0,v:0},gh:{a:0,t:-9},pushes:[],ref:null,time:0,px:null,py:null,still:0,slow:0,t1:0,t2:0,ch:null,told:{},ax:null,ay:null,mv:0,mvy:0};
 const STEPS=[['grab','Pick up the bar magnet'],['in','Push the N pole (red) into the coil and watch the needle'],['still','Hold the magnet still inside the coil'],['out','Pull the magnet out again'],['flip','Turn the magnet round and push the S pole in'],['fast','Push it in slowly, then quickly, and compare the kicks'],['turns','Change to the 40-turn coil and push the magnet in again']];
 const cur=()=>{for(const [k] of STEPS)if(!S.done[k])return k;return null};
 function steps(){const c=cur();$('steps').innerHTML=STEPS.map(([k,t])=>`<li class="${S.done[k]?'done':''}${k===c?' now':''}"><i></i><span>${t}</span></li>`).join('')}
@@ -169,22 +177,32 @@ const HIST=[];
 function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now))/1000||dt0));frame.last=now;S.time+=dt;
  const hd=K.holder(mag),target=S.s>0?0:Math.PI;mag.rotation.y+=(target-mag.rotation.y)*Math.min(1,dt*9);if(Math.abs(target-mag.rotation.y)<.004)mag.rotation.y=target;
  // the magnet cannot pass through the windings: it goes in through the open end, along the axis, as far as the end stop
- if(hd){let x=mag.position.x,y=mag.position.y;const px=S.px==null?x:S.px,py=S.py==null?y:S.py,dy=Math.abs(y-COIL.y);
+ if(hd){let x=mag.position.x,y=mag.position.y;const px=S.px==null?x:S.px,py=S.py==null?y:S.py;
+  if(Math.abs(y-COIL.y)<.6&&x-HALF>TRK.L-.4&&x+HALF<CL+.15)y=COIL.y;                  // over the track: it sits in the channel
+  const dy=Math.abs(y-COIL.y);
   if(S.bore){y=COIL.y;x=Math.min(x,STOP);if(x+HALF<CL-.02)S.bore=false}
   else if(x+HALF>CL){
    if(dy<.55&&px+HALF<=CL+.12&&mag.rotation.y===target){S.bore=true;y=COIL.y;x=Math.min(x,STOP)}
    else if(dy<1.2&&x-HALF<CR+.45){if(px+HALF<=CL+.02){x=CL-HALF;if(!S.told.block&&dy>.55){S.told.block=1;say('The magnet is hitting the end of the coil. Line it up with the hole in the middle.')}}else y=COIL.y+(py>=COIL.y?1:-1)*1.2}}
-  else if(dy<.55&&x+HALF>CL-1.3)y+=(COIL.y-y)*(1-(CL-(x+HALF))/1.3)*.8;           // near the open end, the tube guides it in
-  mag.position.set(x,y,0);S.px=x;S.py=y}
- else{if(S.px!=null&&!S.bore&&mag.position.x+HALF<CL)S.bore=false;S.px=mag.position.x;S.py=mag.position.y}
+  /* The hand gives where the magnet should go; the magnet slides there smoothly, like a weighted cart. The camera sees the hand
+     only 15 to 30 times a second, so without this the magnet would move in little jumps, and each jump would flick the needle.
+     A movement smaller than 2 mm (hand tremor) does not move it at all. */
+  if(S.ax==null){S.ax=px;S.ay=py}
+  const D=.04;if(Math.abs(x-S.ax)>D)S.ax=x-Math.sign(x-S.ax)*D;if(Math.abs(y-S.ay)>D)S.ay=y-Math.sign(y-S.ay)*D;
+  let mx=px,my=py;const ns=Math.ceil(dt/.004),hh=dt/ns;
+  for(let i=0;i<ns;i++){S.mv+=(SW*SW*(S.ax-mx)-2*SW*S.mv)*hh;mx+=S.mv*hh;S.mvy+=(SW*SW*(S.ay-my)-2*SW*S.mvy)*hh;my+=S.mvy*hh}
+  if(S.bore){my=COIL.y;S.mvy=0;if(mx>STOP){mx=STOP;S.mv=Math.min(0,S.mv)}}
+  else if(mx+HALF>CL&&Math.abs(my-COIL.y)>.3&&mx-HALF<CR+.45&&px+HALF<=CL+.02){mx=CL-HALF;S.mv=Math.min(0,S.mv)}
+  mag.position.set(mx,my,0);S.px=mx;S.py=my}
+ else{if(S.px!=null&&!S.bore&&mag.position.x+HALF<CL)S.bore=false;S.px=mag.position.x;S.py=mag.position.y;S.ax=S.ay=null;S.mv=S.mvy=0}
  // Faraday's law: EMF = -d(N Phi)/dt, from how the linkage changed since the last frame
  const x=mag.position.x,lam=linkage(x,mag.position.y-COIL.y,1)*Math.cos(mag.rotation.y),e=-(lam-S.lam)/dt,xp=frame.x==null?x:frame.x,vx=(x-xp)/dt*M;frame.x=x;S.lam=lam;
  if((xp<X1)!==(x<X1))S.t1=S.time;if((xp<X2)!==(x<X2))S.t2=S.time;                    // timing gates: the mean speed between two marks
- const a=Math.min(1,dt/.035);S.emf+=(e-S.emf)*a;S.v+=(vx-S.v)*a;S.I=S.emf/RG*1e6;
+ const a=Math.min(1,dt/.03);S.emf+=(e-S.emf)*a;S.v+=((hd?S.mv*M:vx)-S.v)*a;S.I=S.emf/RG*1e6;
  // the needle: a damped pointer, so a quick kick swings out and comes back as on a real meter
- const tgt=clamp(S.I/FULL,-1.15,1.15),n=Math.ceil(dt/.006),h=dt/n;for(let i=0;i<n;i++){S.om+=(22*22*(tgt-S.th)-2*.82*22*S.om)*h;S.th+=S.om*h}galv.set(S.th);
- const G=S.gh;if(Math.abs(S.th)>Math.abs(G.a)||(Math.sign(S.th)!==Math.sign(G.a)&&Math.abs(S.th)>.08&&S.time-G.t>.3)){G.a=S.th;G.t=S.time}
- const age=S.time-G.t,op=Math.abs(G.a)<.05?0:clamp(1-(age-1.8)/.7,0,1)*.85;galv.ghost(G.a,op);if(age>2.5)G.a=0;
+ const tgt=clamp(S.I/FULL,-1.15,1.15),n=Math.ceil(dt/.006),h=dt/n;for(let i=0;i<n;i++){S.om+=(NW*NW*(tgt-S.th)-2*1.0*NW*S.om)*h;S.th+=S.om*h}galv.set(S.th);
+ const G=S.gh;if(Math.abs(tgt)>Math.abs(G.a)||(Math.sign(tgt)!==Math.sign(G.a)&&Math.abs(tgt)>.08&&S.time-G.t>.3)){G.a=tgt;G.t=S.time}   // the orange pointer marks the true peak of the kick
+ const age=S.time-G.t,op=Math.abs(G.a)<.05?0:clamp(1-(age-3.5)/.8,0,1)*.85;galv.ghost(G.a,op);if(age>4.3)G.a=0;      // the orange pointer holds the last kick for a few seconds so it can be read
  // pushes and pulls
  if(Math.abs(S.I)>Math.abs(S.pk.I)){S.pk.I=S.I;S.pk.E=S.emf*1e3}
  S.slow=Math.abs(S.v)<.02?S.slow+dt:0;
@@ -229,7 +247,7 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),x=mag.position.x,y=mag.posit
   if(Math.abs(S.v)>.03&&K.holder(mag)){const d=S.v>0?-1:1,p=sc(x,y+.62),L=22+38*s;g.strokeStyle=g.fillStyle=amber;g.lineWidth=4;g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(p[0]+d*L,p[1]);g.stroke();g.beginPath();g.moveTo(p[0]+d*(L+10),p[1]);g.lineTo(p[0]+d*L,p[1]-7);g.lineTo(p[0]+d*L,p[1]+7);g.closePath();g.fill();
    K.tag(S.v>0?'the coil pushes the magnet back':'the coil pulls the magnet back',V(x,y+1.05,0),amber)}}
  // labels
- const gx=galv.g.position.x;K.tag('I = '+(S.I>=.5?'+':S.I<=-.5?'−':'')+Math.round(Math.abs(S.I))+' µA',V(gx,3.1,0),ink,0,true);
+ const gx=galv.g.position.x;if(S.gh&&Math.abs(S.gh.a)>.03&&S.time-S.gh.t<4.3)K.tag('last kick: '+(S.gh.a<0?'← ':'')+Math.round(Math.abs(S.gh.a)*FULL)+' µA'+(S.gh.a>0?' →':''),V(gx,3.62,0),amber,0,true);K.tag('I = '+(S.I>=.5?'+':S.I<=-.5?'−':'')+Math.round(Math.abs(S.I))+' µA',V(gx,3.1,0),ink,0,true);
  K.tag(COIL.N+' turns',V(COIL.x,COIL.y-1.55,.4));if(!K.holder(mag)&&!S.bore)K.tag('bar magnet',V(x,y-.55,0),ink,0,true);
  if(!K.holder(token))K.tag('turn the magnet round',V(token.position.x,token.position.y-.7,.3))}
 
