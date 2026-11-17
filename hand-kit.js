@@ -221,6 +221,7 @@
     })();
     var REST = HM ? null : OPEN.map(function (p) { return { x: p[0], y: p[1], z: p[2] }; }), RL = HM ? HM.L0 : [];   // rest length of each finger bone, in the order the skin uses: bone b joins point (b % 4 ? b : 0) to point b + 1
     if (!HM) for (var rb = 0; rb < 20; rb++) { var ra = REST[rb % 4 ? rb : 0], rc = REST[rb + 1]; RL.push(Math.hypot(rc.x - ra.x, rc.y - ra.y, rc.z - ra.z)); }
+    var HAND_MIN = .72, HAND_MAX = 1.08, TW = new T.Vector3();                 // drawn size of a tracked hand, wrist to middle knuckle, in bench units
     var RS = HM ? Math.hypot(window.HAND_MODEL.rest[9][0] - window.HAND_MODEL.rest[0][0], window.HAND_MODEL.rest[9][1] - window.HAND_MODEL.rest[0][1], window.HAND_MODEL.rest[9][2] - window.HAND_MODEL.rest[0][2]) : 1.0;   // wrist to middle knuckle at rest
     /* skin tones, and the blue lab glove */
     var TONES = [['t1', 0xF1CDB6, 'Skin tone 1'], ['t2', 0xDDA987, 'Skin tone 2'], ['t3', 0xC0875F, 'Skin tone 3'], ['t4', 0x94603F, 'Skin tone 4'], ['t5', 0x63402C, 'Skin tone 5'], ['glove', 0x3E8FCB, 'Blue lab glove']];
@@ -303,6 +304,12 @@
           P[c].copy(P[pa]).addScaledVector(tv, R.bl[b] * R.sc);
         }
         size = R.sc * RS;
+        /* a hand close to the camera looks huge in the picture; on the bench it would hide the apparatus. Keep the drawn hand within
+           a sensible size (the mouse hand is 0.9), shrinking or growing it around the pinch point so grabbing still lines up. */
+        var want = Math.max(HAND_MIN, Math.min(HAND_MAX, size));
+        if (want !== size) { var f = want / size; tv.addVectors(P[4], P[8]).multiplyScalar(.5); for (i = 0; i < 21; i++) P[i].sub(tv).multiplyScalar(f).add(tv); size = want; }
+        tv.addVectors(P[4], P[8]).multiplyScalar(.5); planePoint(h.cur.sx, h.cur.sy, tv.z, TW).sub(tv); for (i = 0; i < 21; i++) P[i].add(TW);   // the drawn pinch point sits exactly on the cursor
+        R.raw = R.sc * RS;
       } else {                                            // mouse or touch: a posed hand whose pinch point is the pointer
         h.pose += ((h.pinch ? 1 : 0) - h.pose) * .35; size = .9; var s = size / 1.0, flip = NH > 1 && h.i === 0 ? -1 : 1, a = h.pose;
         var mx = (OPEN[4][0] + OPEN[8][0]) / 2 * (1 - a) + PINCH[4][0] * a * .5 + PINCH[8][0] * a * .5, my = (OPEN[4][1] + OPEN[8][1]) / 2 * (1 - a) + (PINCH[4][1] + PINCH[8][1]) / 2 * a;

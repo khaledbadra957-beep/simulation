@@ -91,8 +91,8 @@ const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),fx=(v,d)=>v.toFixed(d),clamp=(v
 const M=0.05;                                             // metres per bench unit
 const COIL={x:.5,y:2.6,len:2.6,a:.5,N:20};                // bench units: a 13 cm coil, 5 cm across
 const MAG={len:2.2,pole:1.0,phi0:1.0e-4};                 // an 11 cm magnet; 0.10 mWb leaves its N pole
-const RG=80,FULL=300;                                     // ohms; µA at full scale
-const SW=28,NW=22;                                         // how quickly the magnet follows the hand, and the needle's natural swing (rad/s)
+const RG=80,FULL=100;                                     // ohms; µA at full scale
+const SW=18,NW=22;                                         // how quickly the magnet follows the hand, and the needle's natural swing (rad/s)
 const CL=COIL.x-COIL.len/2,CR=COIL.x+COIL.len/2,HALF=MAG.len/2,STOP=COIL.x+.2;
 const X1=CL-HALF+.3,X2=COIL.x-.6;                         // the magnet's centre passes these two marks on its way in or out
 /* Flux linkage (Wb) of the whole coil. Each pole is treated as a point source of flux; summing the flux through
@@ -118,7 +118,7 @@ const TRK={y:COIL.y-.21,L:-5,R:CL},track=new T.Group(),alu=P.std(0xC9CED3,.32,.7
  const scale=new T.Mesh(new T.PlaneGeometry(1,.085),new T.MeshBasicMaterial({map:tex}));scale.position.set(.5,.045,.32);track.add(scale);track.userData.tex=tex}
 scene.add(track);const prop=P.stand(TRK.y-.03,{fw:.9,fd:.9});scene.add(prop);
 function layTrack(a,b){TRK.L=a;TRK.R=b;track.position.set(a,TRK.y,0);track.scale.x=b-a;prop.position.set(b-.7,0,-.05);const cm=(b-a)*M*100;track.userData.tex.repeat.set(cm/50,1)}
-const galv=P.galvanometer({full:FULL});galv.g.scale.setScalar(1.3);
+const galv=P.galvanometer({full:FULL,majors:5,steps:5});galv.g.scale.setScalar(1.3);
 const lead=[P.cable(0x16191C,.042),P.cable(0xC62828,.042)];
 function leads(){coil.g.updateMatrixWorld(true);for(let i=0;i<2;i++){const a=coil.g.localToWorld(coil.posts[i].clone()),b=galv.post(i),m=P.hang(a,b,1.9,i?.5:.75);m.unshift(a.clone().add(V(0,.02,.05)));m.push(b.clone().add(V(0,0,.04)));lead[i].set(m)}}
 
@@ -178,7 +178,7 @@ function event(type){const pk=S.pk,dir=Math.abs(pk.I)<5?0:Math.sign(pk.I),pole=S
  else if(c==='out'&&type==='out')tick('out','It kicked the other way, to the '+side(dir)+' ('+aI+'). Going in, the flux through the coil was rising; coming out it was falling, so the EMF and the current reversed. Now turn the magnet round and push the S pole in.');
  else if(c==='flip'&&type==='in'){if(pole==='S')tick('flip','S pole in: the kick was to the '+side(dir)+', opposite to the N pole going in. The field through the coil now points the other way, so the change in flux has the opposite sign. Next: push the magnet in slowly, then quickly.');else say('That was still the N pole. Take the magnet out and turn it round first.')}
  else if(c==='fast'&&type==='in'){S.pushes.push(d);const a=S.pushes.reduce((m,q)=>Math.abs(q.I)<Math.abs(m.I)?q:m),b=S.pushes.reduce((m,q)=>Math.abs(q.I)>Math.abs(m.I)?q:m);
-  if(S.pushes.length>1&&Math.abs(a.I)>4&&Math.abs(b.I)>=1.9*Math.abs(a.I)){S.ref=d;tick('fast','Slow push: '+fx(Math.abs(a.I),0)+' µA at '+fx(a.v,2)+' m/s. Quick push: '+fx(Math.abs(b.I),0)+' µA at '+fx(b.v,2)+' m/s. The same change in flux in less time gives a bigger EMF: EMF = −N ΔΦ ÷ Δt. Now change to the 40-turn coil.')}
+  if(S.pushes.length>1&&Math.abs(a.I)>1.5&&Math.abs(b.I)>=1.9*Math.abs(a.I)){S.ref=d;tick('fast','Slow push: '+fx(Math.abs(a.I),0)+' µA at '+fx(a.v,2)+' m/s. Quick push: '+fx(Math.abs(b.I),0)+' µA at '+fx(b.v,2)+' m/s. The same change in flux in less time gives a bigger EMF: EMF = −N ΔΦ ÷ Δt. Now change to the 40-turn coil.')}
   else say('That push gave '+aI+' at '+fx(d.v,2)+' m/s. Take it out and push it in '+(Math.abs(d.I)>150?'much more slowly':'much faster')+' to compare.')}
  else if(c==='turns'&&type==='in'){if(COIL.N!==40){S.ref=d;say('Choose the 40-turn coil first (under Coil), then push the magnet in.')}
   else{const r=S.ref,k1=Math.abs(d.E)/Math.max(.01,d.v),k0=r?Math.abs(r.E)/Math.max(.01,r.v):0;tick('turns','40 turns: '+aE+' at '+fx(d.v,2)+' m/s, which is '+fx(k1,1)+' mV for each m/s.'+(r?' With '+r.N+' turns it was '+fx(k0,1)+' mV for each m/s.':'')+' Every turn links the same changing flux, so twice the turns gives twice the EMF.')}}
