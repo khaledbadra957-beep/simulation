@@ -1,0 +1,232 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hands-On Lab: Circuit Builder</title>
+<meta name="description" content="Grade 12 physics camera lab: build series and parallel circuits on a board with your own hand. Bulbs, resistors, wires, a switch, an ammeter and a voltmeter with real readings. Works with mouse or touch too.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="hand-kit.css">
+<style>
+.read{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;font-size:.92rem}
+.read dt{color:var(--muted)}.read dd{margin:0;font-family:var(--data);text-align:right;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-right:1.5px solid var(--line);background:var(--stage);padding:5px 11px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.ctl{display:flex;flex-direction:column;gap:10px}.tab.ok::after{content:" ✓";color:var(--ok)}
+.target{font:700 1.05rem/1.3 var(--data);margin:0 0 6px}
+</style>
+</head><body>
+<div class="wrap">
+ <a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+ <header>
+  <div>
+   <p class="eyebrow">Grade 12 Physics · Module 19 Electric current and circuits · Simple circuits · Camera lab</p>
+   <h1>Hands-On Lab: Circuit Builder</h1>
+   <p class="lede">Build circuits on the board with your own hand. Pick up a bulb, a resistor or a wire and drop it into a gap between two terminals, close the switch, and measure with the ammeter and the voltmeter. The camera follows both of your hands; pinch your thumb and first finger to pick a part up, and hold a voltmeter probe in each hand.</p>
+  </div>
+  <div class="row"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
+ </header>
+ <div class="tabs" role="tablist" id="tabs"></div>
+ <div class="grid">
+  <div class="stage" id="stage">
+   <video id="video" playsinline muted autoplay hidden></video>
+   <canvas id="gl" aria-label="3-D circuit board with a battery, a switch and eight terminals, with bulbs, resistors, wires, an ammeter and a voltmeter to place"></canvas>
+   <canvas id="hud" class="hud"></canvas>
+   <div class="intro" id="intro">
+    <h2>Pinch a part, drop it in a gap</h2>
+    <p>The camera follows both of your hands. Your video stays on this device and is never uploaded. Pinch the switch to open or close it. On a touch screen you can use two fingers.</p>
+    <div class="row" style="justify-content:center">
+     <button class="btn primary" id="startCam" type="button">Start with my camera</button>
+     <button class="btn" id="startMouse" type="button">Use mouse or touch</button>
+    </div>
+   </div>
+  </div>
+  <aside>
+   <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
+   <div class="card"><h3>What happened</h3><p class="say" id="say"></p></div>
+   <div class="card"><h3 id="taskH">Lab steps</h3><p class="target" id="target" hidden></p><ol class="steps" id="steps"></ol><div class="row" style="margin-top:8px"><button class="btn primary" id="next" type="button" hidden>Next target</button></div></div>
+   <div class="card"><h3>Measurements</h3>
+    <dl class="read">
+     <dt>Battery</dt><dd id="rB">–</dd><dt>Current from the battery</dt><dd id="rI">–</dd><dt>Whole circuit, R = V ÷ I</dt><dd id="rR">–</dd><dt>Ammeter</dt><dd id="rA">–</dd><dt>Voltmeter</dt><dd id="rV">–</dd>
+    </dl>
+    <p class="small" style="margin-top:8px">Each bulb: 10 Ω. Resistors: 10 Ω, 20 Ω and 30 Ω.</p>
+   </div>
+   <div class="card ctl">
+    <div><h3>Battery</h3><div class="seg" id="emf"><button type="button" data-v="3" aria-pressed="false">3 V</button><button type="button" data-v="6" aria-pressed="true">6 V</button><button type="button" data-v="9" aria-pressed="false">9 V</button></div></div>
+    <label class="ck"><input type="checkbox" id="showVals"> Show the current and voltage of every part</label>
+    <label class="ck"><input type="checkbox" id="showEl"> Show electron flow (− to +) instead of conventional current</label>
+    <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
+    <div class="row"><button class="btn" id="reset" type="button">Clear the board</button></div>
+   </div>
+   <p class="small">Tips: a part dropped on a gap that is in use swaps places with the part there. To add a wire quickly, pinch a terminal and drag to the next terminal. The ammeter goes in the loop; the voltmeter probes touch the two ends of a part.</p>
+  </aside>
+ </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="hand-model.js"></script>
+<script src="hand-kit.js"></script>
+<script src="phys-parts.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const setStatus=(t,c)=>{$('status').textContent=t;$('status').className='status '+(c||'')};
+const say=t=>{$('say').textContent=t};
+if(!window.THREE){setStatus('The 3-D engine could not load. Check the internet connection and reload.','bad');return}
+const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),fx=(v,d)=>v.toFixed(d);
+
+/* ---------- the board: eight terminals in two rows, ten gaps ---------- */
+const E=2.1,COLS=[-3.15,-1.05,1.05,3.15],TOP=4.05,BOT=1.95;
+const PEG=COLS.map(x=>V(x,TOP)).concat(COLS.map(x=>V(x,BOT)));                       // 0-3 along the top, 4-7 along the bottom
+const mkE=(id,a,b,fixed)=>({id,a,b,fixed:!!fixed,mid:PEG[a].clone().add(PEG[b]).multiplyScalar(.5),ang:PEG[a].y===PEG[b].y?0:Math.PI/2,part:null,I:0,U:0,ph:0});
+const BAT=mkE('battery',0,4,true),SW=mkE('switch',0,1,true),FREE=[mkE('t1',1,2),mkE('t2',2,3),mkE('b0',4,5),mkE('b1',5,6),mkE('b2',6,7),mkE('v1',1,5),mkE('v2',2,6),mkE('v3',3,7)],ALL=[BAT,SW].concat(FREE);
+const RW=.0002,RB=.002,RBULB=10,PRATED=3.6;                                           // ohms: a wire or the ammeter, inside the battery, one bulb; watts at 6 V
+const S={tab:0,emf:6,closed:false,done:{},hold:0,V:new Float64Array(8),Ib:0,short:false,shortT:0,meas:{},told:{},time:0,ammEdge:null,ch:0,chDone:false};
+
+const K=HandKit.create({hands:2,stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
+ layout(k){const lx=-k.halfW+1.05,rx=k.halfW-1.05;trayL.position.x=lx;trayR.position.x=rx;
+  bulbs.forEach((b,i)=>b.userData.home.set(lx,5.6-i*.8,0));ress.forEach((r,i)=>r.userData.home.set(lx,3.1-i*.8,0));wires.forEach((w,i)=>w.userData.home.set(rx,5.85-i*.2,0));amm.userData.home.set(rx,3.55,0);
+  volt.g.position.set(rx-.45,0,.25);probes[0].userData.home.set(rx-1.0,2.4,.4);probes[1].userData.home.set(rx-.4,2.4,.4);S.cab=null},
+ onGrab,onDrop,onRelease,onFrame:frame,onHUD:hudDraw,
+ onPinchEmpty(p,h){const i=nearPeg(p,.5);if(i>=0)h.wireFrom=i},
+ targets(it){const u=it.userData;return u.kind==='part'?FREE.map(e=>e.mid):u.kind==='probe'?PEG:[]}});
+const scene=K.scene,P=PhysParts(K);
+
+/* ---------- fixed apparatus ---------- */
+const board=P.board(7.5,3.4,3.0,PEG.map(p=>[p.x,p.y]),ALL.map(e=>[e.a,e.b]));scene.add(board);
+const bat=P.cellPack(E);bat.g.position.copy(BAT.mid);bat.g.rotation.z=Math.PI/2;bat.body.rotation.z=-Math.PI/2;bat.signs[0].position.set(.6,.82,.05);bat.signs[1].position.set(.6,-.82,.05);P.cast(bat.g);scene.add(bat.g);
+const knife=P.knife(E);knife.set(false,true);
+const trayM=P.std(0xD9DFDC,.8),mkTray=(h,cy)=>{const g=new T.Group(),m=P.mesh(P.rbox(1.75,h,.08,.08,.02),trayM,0,cy,-.34);m.receiveShadow=true;g.add(m);scene.add(g);return g};
+const trayL=mkTray(5.1,3.55),trayR=mkTray(3.2,4.65);
+const volt=P.meter({w:1.7,h:1.2,d:.5,col:0xF2B41F,title:'VOLTMETER',unit:'V'});scene.add(volt.g);
+const cab=[P.cable(0xC62828,.035),P.cable(0x16191C,.035)];
+
+/* ---------- parts to pick up ---------- */
+const parts=[];
+function mk(id,type,obj,R,name){const it=K.addItem(id,obj.g,{kind:'part',type,R,name,r:.72,scale:.62,part:obj,firm:true,edge:null});it.scale.setScalar(.62);it.traverse(m=>{if(m.isMesh&&m.material.transparent)m.castShadow=false});parts.push(it);return it}
+const bulbs=[0,1,2].map(i=>mk('bulb'+i,'bulb',P.bulb(E),RBULB,'bulb'));
+const ress=[[10,[0x6B3F1D,0x111111,0x111111]],[20,[0xC62828,0x111111,0x111111]],[30,[0xE67E22,0x111111,0x111111]]].map(([r,b])=>mk('res'+r,'res',P.resistor(E,r+' Ω',b),r,r+' Ω'));
+const wires=[0x2E7D5B,0x2E7D5B,0x2E7D5B,0x2F6FD0,0x2F6FD0,0xE0A63A,0xE0A63A,0x8E44AD].map((c,i)=>mk('wire'+i,'wire',P.wire(E,c),RW,'wire'));
+const ammP=P.inlineMeter(E,'AMMETER'),amm=mk('amm','amm',ammP,RW,'ammeter');
+const sw=K.addItem('sw',knife.g,{kind:'switch',fixed:true,r:.8});sw.userData.home.copy(SW.mid);
+const probes=[0xC62828,0x16191C].map((c,i)=>K.addItem('probe'+i,P.probe(c),{kind:'probe',r:.5,grabY:-.35,liftZ:.9,peg:-1,name:i?'black probe (−)':'red probe (+)'}));
+
+const nearPeg=(p,r)=>{let b=-1,bd=r;PEG.forEach((q,i)=>{const d=Math.hypot(q.x-p.x,q.y-p.y);if(d<bd){bd=d;b=i}});return b};
+function place(it,e){const u=it.userData,old=e.part,f=u.from;u.from=null;
+ if(old&&old!==it){unplace(old,false);if(f&&f!==e&&!f.part){old.userData.from=null;place(old,f)}else{old.userData.scale=.62;K.home(old)}}   // a part that came from another gap swaps places with the one it lands on
+ e.part=it;u.edge=e;u.placed=true;u.scale=1;u.goal.set(e.mid.x,e.mid.y,0);changed()}
+function unplace(it,goHome){const u=it.userData;if(u.edge){u.edge.part=null;u.edge=null}u.placed=false;if(goHome){u.scale=.62;K.home(it)}changed()}
+function changed(){S.meas={};S.hold=0}
+function setSwitch(on){S.closed=on;knife.set(on);changed()}
+function starter(){parts.forEach(it=>{if(it.userData.edge)unplace(it,true);else{it.userData.scale=.62;K.home(it)}});probes.forEach(p=>{p.userData.peg=-1;p.userData.placed=false;K.home(p)});['b0','b1','b2'].forEach((id,i)=>place(wires[i],FREE.find(e=>e.id===id)));setSwitch(false);S.short=false;S.ammEdge=null}
+
+function onGrab(it,h){const u=it.userData;
+ if(u.kind==='switch'){S.tripped=false;setSwitch(!S.closed);return}
+ if(u.kind==='part'){u.from=u.edge;if(u.edge)unplace(it,false);u.scale=1}
+ else if(u.kind==='probe'){u.peg=-1;u.placed=false}}
+function onDrop(it){const u=it.userData;
+ if(u.kind==='part'){let best=null,bd=1.0;FREE.forEach(e=>{const d=Math.hypot(e.mid.x-it.position.x,e.mid.y-it.position.y);if(d<bd){bd=d;best=e}});
+  if(best)place(it,best);else{const nearFixed=[BAT,SW].some(e=>Math.hypot(e.mid.x-it.position.x,e.mid.y-it.position.y)<.9);if(nearFixed)say('The battery and the switch stay where they are. Drop the part into one of the eight open gaps.');u.scale=.62;u.placed=false;u.from=null;K.home(it)}}
+ else if(u.kind==='probe'){const i=nearPeg(it.position,.8);if(i>=0){u.peg=i;u.placed=true;u.goal.set(PEG[i].x,PEG[i].y,.14)}else{u.peg=-1;u.placed=false;K.home(it)}}}
+function onRelease(h){if(h.wireFrom==null)return;const a=h.wireFrom;h.wireFrom=null;const b=nearPeg(h.world,.8);if(b<0||b===a)return;
+ const e=FREE.find(q=>(q.a===a&&q.b===b)||(q.a===b&&q.b===a));
+ if(!e){say(ALL.some(q=>(q.a===a&&q.b===b)||(q.a===b&&q.b===a))?'That gap belongs to the battery or the switch.':'A wire on this board only reaches from one terminal to the next one along a dashed line.');return}
+ if(e.part){say('There is already a part in that gap. Pick it up first, or drop a new part on it to swap.');return}
+ const w=wires.find(q=>!q.userData.edge&&!K.holder(q));if(!w){say('All eight wires are in use.');return}place(w,e)}
+
+/* ---------- the circuit: node voltages by Kirchhoff's current law ---------- */
+function solve(){const n=8,G=[],J=new Float64Array(n);for(let i=0;i<n;i++){G.push(new Float64Array(n));G[i][i]=1e-9}
+ const add=(a,b,g)=>{G[a][a]+=g;G[b][b]+=g;G[a][b]-=g;G[b][a]-=g};
+ add(0,4,1/RB);J[0]+=S.emf/RB;J[4]-=S.emf/RB;if(S.closed)add(0,1,1/RW);FREE.forEach(e=>{if(e.part)add(e.a,e.b,1/e.part.userData.R)});
+ const idx=[0,1,2,3,5,6,7],m=7,A=idx.map(i=>{const r=new Float64Array(m+1);idx.forEach((j,c)=>r[c]=G[i][j]);r[m]=J[i];return r});   // terminal 4, the battery's − end, is 0 V
+ for(let c=0;c<m;c++){let p=c;for(let r=c+1;r<m;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;const t=A[c];A[c]=A[p];A[p]=t;const d=A[c][c];for(let r=c+1;r<m;r++){const f=A[r][c]/d;if(f)for(let q=c;q<=m;q++)A[r][q]-=f*A[c][q]}}
+ const x=new Float64Array(m);for(let r=m-1;r>=0;r--){let s=A[r][m];for(let q=r+1;q<m;q++)s-=A[r][q]*x[q];x[r]=s/A[r][r]}
+ const Vn=S.V;Vn.fill(0);idx.forEach((i,c)=>Vn[i]=x[c]);
+ S.Ib=(S.emf-(Vn[0]-Vn[4]))/RB;BAT.I=-S.Ib;BAT.U=Vn[0]-Vn[4];SW.U=Vn[0]-Vn[1];SW.I=S.closed?SW.U/RW:0;FREE.forEach(e=>{e.U=Vn[e.a]-Vn[e.b];e.I=e.part?e.U/e.part.userData.R:0})}
+
+/* ---------- tasks ---------- */
+const lit=()=>bulbs.filter(b=>b.userData.edge&&Math.abs(b.userData.edge.I)>.01).map(b=>b.userData.edge);
+const same=(a,b)=>Math.abs(a-b)<=.012*Math.max(Math.abs(a),Math.abs(b))+.003;
+const inSeries=L=>L.every(e=>same(Math.abs(e.I),S.Ib)),fullV=L=>L.every(e=>same(Math.abs(e.U),BAT.U)&&BAT.U>.9*S.emf);
+const ammI=()=>amm.userData.edge?Math.abs(amm.userData.edge.I):0,A2=v=>fx(v,2)+' A',V2=v=>fx(v,2)+' V';
+const noBulb=()=>!bulbs.some(b=>b.userData.edge&&Math.abs(b.userData.edge.I)>.003);
+const TASKS=[
+ {tab:'1 · Series',intro:'Series circuit: put two bulbs into one loop, so the current has to go through one and then the other. Then pinch the switch to close it.',steps:[
+  ['build','Put two bulbs in one loop and close the switch',()=>{const L=lit();return S.closed&&L.length===2&&inSeries(L)&&'Both bulbs glow, but dimly: they share the battery\'s '+S.emf+' V. There is only one path for the current, so this is a series circuit. Now put the ammeter into the loop: drop it on one of the wires to swap them.'}],
+  ['amm','Put the ammeter into the loop',()=>{const L=lit();if(L.length>=2&&inSeries(L)&&ammI()>.01){S.ammEdge=amm.userData.edge.id;S.amm1=ammI();return 'The ammeter reads '+A2(ammI())+'. An ammeter goes in the loop, so that the current passes through it. Now move it to a different gap in the same loop.'}}],
+  ['amm2','Move the ammeter to another place in the loop',()=>{const L=lit();return L.length>=2&&inSeries(L)&&ammI()>.01&&amm.userData.edge.id!==S.ammEdge&&'The same reading: '+A2(ammI())+'. In a series circuit the current is the same everywhere. The bulbs do not use current up; they turn electrical energy into light and heat. Now use the voltmeter: touch its two probes on the two ends of a bulb.'}],
+  ['volt','Measure the voltage across each bulb, then across the battery',()=>{const L=lit();if(L.length<2||!L.every(e=>S.meas[e.id]!=null)||S.meas.bat==null)return false;return L.map(e=>V2(S.meas[e.id])).join(' + ')+' = '+V2(L.reduce((a,e)=>a+Math.round(S.meas[e.id]*100)/100,0))+', and the battery gives '+V2(S.meas.bat)+'. In series the voltages across the parts add up to the battery voltage. Now add a third bulb to the loop.'}],
+  ['third','Add a third bulb to the same loop',()=>{const L=lit();return S.closed&&L.length===3&&inSeries(L)&&'Three bulbs in series are dimmer still. The current fell to '+A2(S.Ib)+' because the resistance of the loop went up: R = R₁ + R₂ + R₃ = 30 Ω. Now take one bulb out and leave its gap empty.'}],
+  ['gap','Take one bulb out and leave the gap open',()=>S.closed&&S.Ib<.002&&bulbs.filter(b=>b.userData.edge).length>=2&&'Every bulb goes out. A series circuit has one path only: break it anywhere and the current stops everywhere. Open the Parallel tab next.']]},
+ {tab:'2 · Parallel',intro:'Parallel circuit: give each bulb its own branch, joined straight across the battery. Put bulbs in two of the upright gaps and join the top rail with a wire, then close the switch.',steps:[
+  ['build','Put two bulbs in separate branches and close the switch',()=>{const L=lit();return S.closed&&L.length===2&&fullV(L)&&same(L.reduce((a,e)=>a+Math.abs(e.I),0),S.Ib)&&'Both bulbs are at full brightness. Each one is joined straight across the battery, so each has its own path: a parallel circuit. Now measure the voltage across each bulb.'}],
+  ['volt','Measure the voltage across each bulb',()=>{const L=lit();return L.length>=2&&fullV(L)&&L.every(e=>S.meas[e.id]!=null)&&L.map(e=>V2(S.meas[e.id])).join(' and ')+': every branch of a parallel circuit has the same voltage as the battery. Now put the ammeter in the main line, in a gap next to the battery.'}],
+  ['main','Put the ammeter in the main line, next to the battery',()=>{const L=lit();if(L.length>=2&&fullV(L)&&ammI()>.01&&same(ammI(),S.Ib)){S.amm1=ammI();return 'The main line carries '+A2(ammI())+'. Now move the ammeter into one branch, so that only one bulb\'s current passes through it.'}}],
+  ['branch','Move the ammeter into one branch',()=>{const L=lit(),a=ammI();return L.length>=2&&fullV(L)&&a>.01&&a<.9*S.Ib&&L.some(e=>same(Math.abs(e.I),a))&&'This branch carries '+A2(a)+', and the main line carried '+A2(S.Ib)+' = '+L.map(e=>fx(Math.abs(e.I),2)).join(' + ')+' A. The currents in the branches add up to the current from the battery. Now add a third bulb in a branch of its own.'}],
+  ['third','Add a third bulb in its own branch',()=>{const L=lit();return S.closed&&L.length===3&&fullV(L)&&'All three are still at full brightness, and the battery now supplies '+A2(S.Ib)+'. Each new branch is one more path, so the total resistance goes down: 1/R = 1/R₁ + 1/R₂ + 1/R₃, R = '+fx(BAT.U/S.Ib,2)+' Ω. Now take one bulb out.'}],
+  ['out','Take one bulb out',()=>{const L=lit();return S.closed&&L.length===2&&fullV(L)&&bulbs.filter(b=>b.userData.edge).length===2&&'The other two stay lit at the same brightness: each branch is its own path. This is why the lamps and sockets in a house are wired in parallel. Try the Resistor challenge next.'}]]},
+ {tab:'3 · Resistor challenge',intro:'Use only the three resistors, wires and the ammeter. Put the ammeter in the main line next to the battery, close the switch, and make it show the target current.',steps:[]}];
+const GOALS=[[60,'all three in series: R = 10 + 20 + 30 = 60 Ω'],[12,'20 Ω and 30 Ω in parallel: 1/R = 1/20 + 1/30, R = 12 Ω'],[22,'10 Ω in series with the parallel pair of 20 Ω and 30 Ω: R = 10 + 12 = 22 Ω'],[60/11,'all three in parallel: 1/R = 1/10 + 1/20 + 1/30, R = 5.45 Ω'],[30,'two of them in series, 10 Ω + 20 Ω = 30 Ω, or the 30 Ω one alone'],[7.5,'10 Ω and 30 Ω in parallel: 1/R = 1/10 + 1/30, R = 7.5 Ω']];
+const key=k=>S.tab+':'+k;
+function steps(){const t=TASKS[S.tab],ch=S.tab===2;$('taskH').textContent=ch?'Resistor challenge':'Lab steps';$('target').hidden=!ch;$('next').hidden=!(ch&&S.chDone);
+ if(ch){const g=GOALS[S.ch];$('target').textContent='Target '+(S.ch+1)+' of '+GOALS.length+': '+fx(S.emf/g[0],2)+' A';
+  $('steps').innerHTML=[['Use only resistors and wires',noBulb()&&!!ress.some(r=>r.userData.edge)],['Ammeter in the main line',!!amm.userData.edge&&ammI()>.003&&same(ammI(),S.Ib)],['Ammeter reads '+fx(S.emf/g[0],2)+' A',S.chDone]].map(([x,d])=>`<li class="${d?'done':''}"><i></i><span>${x}</span></li>`).join('')}
+ else{let first=true;$('steps').innerHTML=t.steps.map(([k,x])=>{const d=!!S.done[key(k)],now=!d&&first;if(!d)first=false;return `<li class="${d?'done':''}${now?' now':''}"><i></i><span>${x}</span></li>`}).join('')}
+ document.querySelectorAll('#tabs .tab').forEach((b,i)=>{b.setAttribute('aria-selected',i===S.tab);b.classList.toggle('ok',i<2?TASKS[i].steps.every(([k])=>S.done[i+':'+k]):!!S.done['2:all'])})}
+function setTab(i){S.tab=i;S.hold=0;S.chDone=false;starter();steps();say(TASKS[i].intro+(i===2?' First target: '+fx(S.emf/GOALS[S.ch][0],2)+' A.':''))}
+$('tabs').innerHTML=TASKS.map((t,i)=>`<button class="tab" role="tab" aria-selected="false" data-i="${i}" type="button">${t.tab}</button>`).join('');
+document.querySelectorAll('#tabs .tab').forEach(b=>b.onclick=()=>setTab(+b.dataset.i));
+$('next').onclick=()=>{S.ch=(S.ch+1)%GOALS.length;S.chDone=false;S.hold=0;steps();say('Next target: '+fx(S.emf/GOALS[S.ch][0],2)+' A. Rearrange the resistors.')};
+$('reset').onclick=()=>{starter();say('Board cleared: the bottom rail is wired, the switch is open.')};
+document.querySelectorAll('#emf button').forEach(b=>b.onclick=()=>{S.emf=+b.dataset.v;bat.setLabel(S.emf+' V');document.querySelectorAll('#emf button').forEach(x=>x.setAttribute('aria-pressed',x===b));changed();steps();say('Battery: '+S.emf+' V.'+(S.emf===9?' The bulbs are made for 6 V, so on 9 V a single bulb is far too bright.':''))});
+function check(dt){const t=TASKS[S.tab];
+ if(S.tab===2){if(S.chDone)return;const g=GOALS[S.ch],tg=S.emf/g[0],ok=S.closed&&noBulb()&&ammI()>.003&&same(ammI(),S.Ib)&&Math.abs(ammI()-tg)<=.015*tg+.002;S.hold=ok?S.hold+dt:0;
+  if(S.hold>.8){S.chDone=true;S.done[key('g'+S.ch)]=true;if(GOALS.every((q,i)=>S.done[key('g'+i)]))S.done['2:all']=true;say('Target reached: '+A2(ammI())+'. R = V ÷ I = '+fx(BAT.U/S.Ib,1)+' Ω, which is '+g[1]+'.'+(S.done['2:all']?' You have made all six.':''));steps()}
+  else if((check.n=(check.n||0)+1)%20===0)steps();return}
+ const st=t.steps.find(([k])=>!S.done[key(k)]);if(!st)return;const r=st[2]();S.hold=r?S.hold+dt:0;
+ if(S.hold>.7){S.hold=0;S.done[key(st[0])]=true;say(r);steps();if(t.steps.every(([k])=>S.done[key(k)]))setStatus(t.tab.slice(4)+' circuit: all steps done.','ok')}}
+
+/* ---------- every frame ---------- */
+const tmp=new T.Vector3();
+function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now))/1000||dt0));frame.last=now;S.time+=dt;knife.step(dt);
+ parts.forEach(it=>{const u=it.userData,tz=u.edge?u.edge.ang:0;it.rotation.z+=(tz-it.rotation.z)*Math.min(1,dt*12);if(u.part.body)u.part.body.rotation.z=-it.rotation.z});
+ solve();
+ // a path with almost no resistance across the battery: the breaker opens the switch
+ if(S.Ib>10){S.shortT+=dt;if(!S.short){S.short=true;
+   say('Short circuit! There is a path from one end of the battery to the other with almost no resistance'+(amm.userData.edge&&Math.abs(amm.userData.edge.I)>10&&S.tab!==2?' (an ammeter has almost none, so never connect it straight across the battery or across a part)':'')+'. A huge current flows, the wires get hot and the battery is damaged. The breaker is opening the switch.')}
+  if(S.shortT>1.3){setSwitch(false);S.tripped=true}}
+ else{S.shortT=0;S.short=false}
+ bulbs.forEach(b=>{const e=b.userData.edge,p=e&&!S.short?e.I*e.I*RBULB/PRATED:0;b.userData.g=(b.userData.g||0)+(p-(b.userData.g||0))*Math.min(1,dt*9);b.userData.part.glow(Math.pow(b.userData.g,.75))});
+ // meters
+ ammP.show(amm.userData.edge?fx(Math.min(99.99,ammI()),2):'0.00','A',!amm.userData.edge);
+ probes.forEach(q=>{if(!K.holder(q))return;const i=nearPeg(q.position,.42);q.userData.peg=i;if(i>=0)q.position.set(PEG[i].x,PEG[i].y,.14)});    // a probe held on a terminal reads at once: hold one in each hand
+ const pr=probes[0].userData.peg,pb=probes[1].userData.peg,both=pr>=0&&pb>=0,vr=both?S.V[pr]-S.V[pb]:0;volt.show(both?fx(vr,2):'-.--','V',!both);
+ if(both&&!S.short){const e=FREE.find(q=>(q.a===pr&&q.b===pb)||(q.a===pb&&q.b===pr)),bk=e&&e.part&&e.part.userData.type==='bulb'&&Math.abs(e.I)>.01?e.id:Math.abs(Math.abs(vr)-BAT.U)<.02*S.emf&&S.Ib>.01&&(!e||!e.part||e.part.userData.type!=='bulb'||lit().length<2)?'bat':null;
+  if(bk&&S.meas[bk]==null){S.meas[bk]=Math.abs(vr);const c=TASKS[S.tab].steps.find(([k])=>!S.done[key(k)]);if(c&&c[0]==='volt'){const L=lit(),left=L.filter(q=>S.meas[q.id]==null).length;say(V2(Math.abs(vr))+' across '+(bk==='bat'?'the battery':'this bulb')+'. '+(left?'Now the '+(left>1?'other bulbs':'other bulb')+'.':S.tab===0&&S.meas.bat==null?'Now the battery: put the probes on its two terminals.':''))}}}
+ $('rB').textContent=S.emf+' V';$('rI').textContent=S.short?'short circuit':A2(S.Ib<.0005?0:S.Ib);$('rR').textContent=S.Ib>.003&&!S.short?fx(BAT.U/S.Ib,1)+' Ω':'open circuit';$('rA').textContent=amm.userData.edge?A2(ammI()):'not in the circuit';$('rV').textContent=both?V2(vr):'probes not placed';
+ ALL.forEach(e=>{e.ph=(e.ph+Math.min(2.6,Math.abs(e.I)*1.7+(Math.abs(e.I)>.004?.25:0))*dt)%1});
+ // voltmeter leads follow the probes
+ const kq=probes.map(p=>p.position.x.toFixed(2)+p.position.y.toFixed(2)+p.position.z.toFixed(2)).join()+volt.g.position.x.toFixed(2);if(kq!==S.cab){S.cab=kq;volt.g.updateMatrixWorld(true);probes.forEach((p,i)=>{p.updateMatrixWorld(true);const a=p.localToWorld(p.tail.clone()),b=volt.post(1-i);cab[i].set([a,V(a.x-.05,Math.max(.12,a.y-.7),a.z+.25),V(b.x+(a.x-b.x)*.3,.07,b.z+.6),V(b.x,.09,b.z+.3),b])})}
+ check(dt)}
+
+/* ---------- heads-up layer ---------- */
+function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00',blue=dk?'#7FB2FF':'#2F6FD0',bad=dk?'#FF8A7A':'#C0392B',el=$('showEl').checked,sc=v=>K.toScreen(v);
+ // moving charge on every part that carries a current
+ if(!S.short)ALL.forEach(e=>{if(Math.abs(e.I)<.004)return;const fwd=(e.I>0)!==el,a=PEG[fwd?e.a:e.b],b=PEG[fwd?e.b:e.a],n=5;g.fillStyle=el?blue:amber;g.strokeStyle='rgba(0,0,0,.45)';g.lineWidth=1;
+  for(let i=0;i<n;i++){const u=(i+e.ph)/n,p=sc(tmp.set(a.x+(b.x-a.x)*u,a.y+(b.y-a.y)*u,.5)),r=K.W*.0045+1.5;g.beginPath();g.arc(p[0],p[1],r,0,6.3);g.fill();g.stroke()}});
+ // names of the parts in the trays
+ if(K.W>520)parts.forEach(it=>{const u=it.userData;if(!u.edge&&!K.holder(it)&&(u.type!=='wire'||it===wires.filter(w=>!w.userData.edge&&!K.holder(w)).slice(-1)[0]))K.tag(u.type==='wire'?'wires':u.name,V(it.position.x,it.position.y-(u.type==='wire'?.32:.42),0),ink,0,true)});
+ probes.forEach(p=>{if(p.userData.peg<0&&!K.holder(p))K.tag(p===probes[0]?'+':'−',V(p.position.x-.25,p.position.y+.25,.5),p===probes[0]?bad:ink,0,true)});
+ K.tag(S.closed?'switch closed':'switch open: pinch to close',V(SW.mid.x,SW.mid.y+.72,0),S.closed?(dk?'#4ACB8A':'#1E8A55'):ink,0,true);
+ const vals=$('showVals').checked&&!S.short;FREE.forEach(e=>{const it=e.part;if(!it||it.userData.type==='wire'||K.holder(it))return;const res=it.userData.type==='res',tx=vals?fx(Math.abs(e.I),2)+' A'+(K.W>620?' · '+fx(Math.abs(e.U),2)+' V':''):res?it.userData.name:'';if(tx)K.tag(tx,V(e.mid.x,e.mid.y-(e.id==='v2'&&K.W<=620?.4:.74),.3),ink,0,!vals)});
+ if(S.short){const p=sc(V(BAT.mid.x,BAT.mid.y,.5)),r=K.W*.07*(1+.12*Math.sin(S.time*20));g.strokeStyle=bad;g.lineWidth=5;g.beginPath();g.arc(p[0],p[1],r,0,6.3);g.stroke();K.tag('SHORT CIRCUIT',V(0,5.2,.5),bad,0,true)}
+ else if(S.tripped&&!S.closed)K.tag('breaker tripped: fix the circuit, then close the switch',V(0,5.2,.5),bad,0,true);
+ // a wire being drawn from terminal to terminal
+ K.hands.forEach(h=>{if(h.wireFrom==null||!h.pinch)return;const a=sc(V(PEG[h.wireFrom].x,PEG[h.wireFrom].y,.1));g.setLineDash([7,6]);g.strokeStyle=amber;g.lineWidth=4;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(h.cur.sx,h.cur.sy);g.stroke();g.setLineDash([])})}
+
+const theme0=K.theme;K.theme=()=>{theme0();const dk=K.isDark();board.face.color.set(dk?0x6C7D85:0xFFFFFF);trayM.color.set(dk?0x2A3A41:0xD9DFDC)};   // the white board and trays go slate grey in dark mode
+HandKit.themeButton($('themeBtn'),K);K.start();setTab(0);K.items.forEach(it=>{if(it.userData.placed)it.position.copy(it.userData.goal)});
+window.__HK=Object.assign(K,{S,PEG,FREE,ALL,BAT,SW,parts,bulbs,ress,wires,amm,probes,place,unplace,setSwitch,setTab,solve,starter,TASKS,GOALS});
+})();
+</script>
+</body></html>
