@@ -13,6 +13,8 @@
 .seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 #graph{display:block;width:100%;height:190px;border-radius:8px;background:var(--stage);border:1px solid var(--line)}
 .q{margin:0 0 8px;font-weight:700}.ctl{display:flex;flex-direction:column;gap:10px}
+table.data{width:100%;border-collapse:collapse;font-size:.86rem}table.data th,table.data td{padding:3px 4px;text-align:right;border-bottom:1px solid var(--line);font-family:var(--data);font-variant-numeric:tabular-nums}table.data th{font-weight:600;color:var(--muted)}table.data td:first-child,table.data th:first-child{text-align:left}
+.target{font:700 1.05rem/1.3 var(--data);margin:0 0 6px}
 </style>
 </head><body>
 <div class="wrap">
@@ -43,6 +45,13 @@
    <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
    <div class="card"><h3>What happened</h3><p class="say" id="say">Pick up the bar magnet. Its red end is the N pole.</p></div>
    <div class="card"><h3>Lab steps</h3><ol class="steps" id="steps"></ol></div>
+   <div class="card" id="myst" hidden><h3 id="mystH">Mystery coil</h3>
+    <p class="small" style="margin:0 0 8px">This coil is wrapped in paper, so you cannot count its turns. Push the magnet from its rest all the way in to the stop. The data logger records how long the push took and the average EMF. Use Faraday's law: average EMF = N ΔΦ ÷ Δt.</p>
+    <p class="target" id="mystPhi" style="font-size:.95rem"></p>
+    <table class="data" id="mystTbl"></table>
+    <div class="row" style="margin-top:10px"><label for="mystN" style="font-weight:700">N =</label><input id="mystN" type="number" min="1" max="200" step="1" inputmode="numeric" style="width:6em;font:inherit;padding:5px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)"><button class="btn primary" id="mystCheck" type="button">Check</button></div>
+    <p class="small" id="mystNote" style="margin-top:8px"></p>
+    <div class="row" style="margin-top:6px"><button class="btn" id="mystNew" type="button">New mystery coil</button></div></div>
    <div class="card" id="chal" hidden><h3>Challenge: predict the needle</h3><p class="q" id="chQ"></p>
     <div class="row" id="chBtns"><button class="btn" type="button" data-a="-1">&larr; Left</button><button class="btn" type="button" data-a="0">No kick</button><button class="btn" type="button" data-a="1">Right &rarr;</button></div>
     <p class="small" id="chNote" style="margin-top:8px"></p><div class="row" style="margin-top:8px"><button class="btn primary" id="chNext" type="button" hidden>Next question</button></div></div>
@@ -55,7 +64,7 @@
     <p class="small" style="margin-top:8px">Coil and galvanometer together: R = 80 Ω. Coil 13 cm long, 5 cm wide.</p>
    </div>
    <div class="card ctl">
-    <div><h3>Coil</h3><div class="seg" id="turns"><button type="button" data-n="10" aria-pressed="false">10 turns</button><button type="button" data-n="20" aria-pressed="true">20 turns</button><button type="button" data-n="40" aria-pressed="false">40 turns</button></div></div>
+    <div><h3>Coil</h3><div class="seg" id="turns"><button type="button" data-n="10" aria-pressed="false">10 turns</button><button type="button" data-n="20" aria-pressed="true">20 turns</button><button type="button" data-n="40" aria-pressed="false">40 turns</button><button type="button" data-n="x" aria-pressed="false">Mystery coil</button></div></div>
     <div class="row"><button class="btn" id="flip" type="button">Turn the magnet round</button><button class="btn" id="reset" type="button">Start again</button></div>
     <label class="ck"><input type="checkbox" id="showField" checked> Show the magnet's field lines</label>
     <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
@@ -121,15 +130,36 @@ const token=new T.Group();{const d=P.mesh(new T.CylinderGeometry(.46,.46,.09,36)
 K.addItem('turn',token,{name:'',r:.6,fixed:true,liftZ:.3});
 
 /* ---------- state ---------- */
-const S={s:1,bore:false,zone:'out',done:{},lam:0,emf:0,I:0,v:0,th:0,om:0,pk:{I:0,E:0,v:0},gh:{a:0,t:-9},pushes:[],ref:null,time:0,px:null,py:null,still:0,slow:0,t1:0,t2:0,ch:null,told:{},ax:null,ay:null,mv:0,mvy:0};
+const S={s:1,bore:false,zone:'out',done:{},lam:0,emf:0,I:0,v:0,th:0,om:0,pk:{I:0,E:0,v:0},gh:{a:0,t:-9},pushes:[],ref:null,time:0,px:null,py:null,still:0,slow:0,t1:0,t2:0,ch:null,told:{},ax:null,ay:null,mv:0,mvy:0,log:{on:false},my:false,mys:null};
 const STEPS=[['grab','Pick up the bar magnet'],['in','Push the N pole (red) into the coil and watch the needle'],['still','Hold the magnet still inside the coil'],['out','Pull the magnet out again'],['flip','Turn the magnet round and push the S pole in'],['fast','Push it in slowly, then quickly, and compare the kicks'],['turns','Change to the 40-turn coil and push the magnet in again']];
 const cur=()=>{for(const [k] of STEPS)if(!S.done[k])return k;return null};
 function steps(){const c=cur();$('steps').innerHTML=STEPS.map(([k,t])=>`<li class="${S.done[k]?'done':''}${k===c?' now':''}"><i></i><span>${t}</span></li>`).join('')}
 const side=d=>d<0?'left':d>0?'right':'nowhere';
 function tick(k,text){S.done[k]=true;say(text);steps();if(!cur()){setStatus('All steps done. Now try the challenge.','ok');startChallenge()}}
-function setTurns(n){COIL.N=n;coil.setTurns(n);leads();S.lam=linkage(mag.position.x,mag.position.y-COIL.y,1)*Math.cos(mag.rotation.y);document.querySelectorAll('#turns button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.n===n));
+/* ---------- mystery coil: wrapped in paper, a letter on the wrap. Each letter always has the same number of turns, so a teacher can give
+   a whole class the same coil with a link (...hands-on-induction.html?coil=C) and know the answer. ---------- */
+const MYS={A:15,B:25,C:30,D:35,E:45,F:50,G:55,H:60};
+const sleeve=new T.Group();{const pm=P.std(0xF3EBD6,.85,0,{map:P.tex(512,256,(x,w,h)=>{x.fillStyle='#F3EBD6';x.fillRect(0,0,w,h);x.strokeStyle='rgba(120,100,60,.18)';for(let i=0;i<40;i++){x.lineWidth=1;x.beginPath();x.moveTo(0,Math.random()*h);x.lineTo(w,Math.random()*h);x.stroke()}})});
+ const tube=P.mesh(new T.CylinderGeometry(.64,.64,2.32,40,1,true),pm);tube.rotation.z=Math.PI/2;sleeve.add(tube);
+ for(const sx of [-1,1]){const band=P.mesh(new T.CylinderGeometry(.646,.646,.08,40,1,true),P.std(0xC9A227,.6));band.rotation.z=Math.PI/2;band.position.x=sx*1.06;sleeve.add(band)}
+ const lab=new T.Mesh(new T.PlaneGeometry(1.1,.62),new T.MeshBasicMaterial({transparent:true,map:P.tex(320,180,(x,w,h)=>{x.fillStyle='#FFFBEE';x.fillRect(8,8,w-16,h-16);x.strokeStyle='#1B2024';x.lineWidth=5;x.strokeRect(8,8,w-16,h-16);x.fillStyle='#1B2024';x.textAlign='center';x.textBaseline='middle';x.font='800 64px '+P.DISP;x.fillText('N = ?',w/2,72);x.font='700 38px '+P.MONO;x.fillText('coil '+(S.mys&&S.mys.letter||'?'),w/2,138)})}));
+ lab.position.set(0,.06,.66);sleeve.add(lab);sleeve.userData.lab=lab;sleeve.visible=false;coil.g.add(sleeve)}
+function sleeveLabel(){const t=sleeve.userData.lab.material.map,x=t.image.getContext('2d'),w=320,h=180;x.clearRect(0,0,w,h);x.fillStyle='#FFFBEE';x.fillRect(8,8,w-16,h-16);x.strokeStyle='#1B2024';x.lineWidth=5;x.strokeRect(8,8,w-16,h-16);x.fillStyle='#1B2024';x.textAlign='center';x.textBaseline='middle';x.font='800 64px '+P.DISP;x.fillText('N = ?',w/2,72);x.font='700 38px '+P.MONO;x.fillText('coil '+S.mys.letter,w/2,138);t.needsUpdate=true}
+const dPhi1=()=>(linkage(STOP,0,1)-linkage(mag.userData.home.x,0,1))/COIL.N;      // change in flux through one turn (average over the coil) from the rest to the stop
+function mystery(letter){const L=Object.keys(MYS);letter=letter&&MYS[letter]?letter:L.filter(q=>!S.mys||q!==S.mys.letter)[Math.floor(Math.random()*(L.length-1))];
+ S.mys={letter,N:MYS[letter],tries:0,pushes:[],solved:false};sleeveLabel();$('mystH').textContent='Mystery coil '+letter;$('mystN').value='';$('mystNote').textContent='';setTurns('x')}
+function mystTable(){const m=S.mys;$('mystPhi').textContent='ΔΦ for one turn, rest → stop: '+fx(dPhi1()*1e3,4)+' mWb';
+ $('mystTbl').innerHTML=m.pushes.length?'<tr><th>Push</th><th>Δt (s)</th><th>average EMF (mV)</th></tr>'+m.pushes.map((q,i)=>`<tr><td>${i+1}${q.dir<0?' (out)':''}</td><td>${fx(q.dt,2)}</td><td>${fx(Math.abs(q.avg)*1e3,2)}</td></tr>`).join(''):'<tr><td style="font-family:var(--body);color:var(--muted)">No full pushes yet: start at the rest, push all the way to the stop.</td></tr>'}
+$('mystNew').onclick=()=>mystery();
+$('mystCheck').onclick=()=>{const m=S.mys;if(!m)return;const g=Math.round(+$('mystN').value);if(!g){$('mystNote').textContent='Type a whole number of turns first.';return}
+ if(!m.pushes.length){$('mystNote').textContent='Measure first: make at least one full push and use its numbers.';return}
+ m.tries++;const q=m.pushes[m.pushes.length-1],est=Math.abs(q.avg)*q.dt/dPhi1(),tol=Math.max(1,Math.round(m.N*.06));
+ if(Math.abs(g-m.N)<=tol){m.solved=true;$('mystNote').innerHTML='<b style="color:var(--ok)">Correct: coil '+m.letter+' has '+m.N+' turns.</b> From your last push: N = EMF × Δt ÷ ΔΦ = '+fx(Math.abs(q.avg)*1e3,2)+' mV × '+fx(q.dt,2)+' s ÷ '+fx(dPhi1()*1e3,4)+' mWb ≈ '+fx(est,1)+'. A faster push gives a bigger EMF but a shorter Δt: the product stays the same.';say('Coil '+m.letter+' solved: '+m.N+' turns. Try another mystery coil, or check your method on the 20-turn coil.')}
+ else{$('mystNote').innerHTML=(g<m.N?'Too few.':'Too many.')+' '+(m.tries<3?'Multiply the average EMF by Δt to get N ΔΦ, then divide by ΔΦ for one turn. Watch the units: mV × s ÷ mWb.':'Using your last push: '+fx(Math.abs(q.avg)*1e3,2)+' mV × '+fx(q.dt,2)+' s = '+fx(Math.abs(q.avg)*q.dt*1e3,2)+' mWb, and ÷ '+fx(dPhi1()*1e3,4)+' mWb ≈ '+fx(est,1)+' turns.')}};
+function setTurns(n){const my=n==='x';if(my&&!S.mys){mystery();return}if(my)n=S.mys.N;sleeve.visible=my;$('myst').hidden=!my;S.my=my;if(my)mystTable();
+ COIL.N=n;coil.setTurns(n);leads();S.lam=linkage(mag.position.x,mag.position.y-COIL.y,1)*Math.cos(mag.rotation.y);document.querySelectorAll('#turns button').forEach(b=>b.setAttribute('aria-pressed',my?b.dataset.n==='x':+b.dataset.n===n));
  if(cur()==='turns'&&n===40)say('40 turns on the coil now. Push the magnet in at about the same speed as before.')}
-document.querySelectorAll('#turns button').forEach(b=>b.onclick=()=>setTurns(+b.dataset.n));
+document.querySelectorAll('#turns button').forEach(b=>b.onclick=()=>setTurns(b.dataset.n==='x'?'x':+b.dataset.n));
 function flip(){if(S.bore){say('Take the magnet out of the coil before you turn it round: there is no room to turn inside the tube.');return}S.s=-S.s;
  if(cur()==='flip'||S.ch)say('The '+(S.s>0?'N':'S')+' pole now faces the coil.'+(cur()==='flip'?' Push it in.':''))}
 $('flip').onclick=flip;
@@ -198,6 +228,11 @@ function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now
  // Faraday's law: EMF = -d(N Phi)/dt, from how the linkage changed since the last frame
  const x=mag.position.x,lam=linkage(x,mag.position.y-COIL.y,1)*Math.cos(mag.rotation.y),e=-(lam-S.lam)/dt,xp=frame.x==null?x:frame.x,vx=(x-xp)/dt*M;frame.x=x;S.lam=lam;
  if((xp<X1)!==(x<X1))S.t1=S.time;if((xp<X2)!==(x<X2))S.t2=S.time;                    // timing gates: the mean speed between two marks
+ /* data logger: from when the EMF first rises until it has died away, add up EMF × time. Average EMF = that sum ÷ Δt. */
+ const L=S.log;if(Math.abs(e)>2e-5){if(!L.on){L.on=true;L.t0=S.time-dt;L.sum=0;L.x0=xp}L.sum+=e*dt;L.t1=S.time}
+ else if(L.on&&S.time-L.t1>.35){L.on=false;const span=L.t1-L.t0,full=(L.x0<mag.userData.home.x+.6&&x>STOP-.06)?1:(L.x0>STOP-.06&&x<mag.userData.home.x+.6)?-1:0;
+  if(S.my&&full&&span>.05){S.mys.pushes.push({dt:span,avg:L.sum/span,dir:full});if(S.mys.pushes.length>6)S.mys.pushes.shift();mystTable();say('Push recorded: Δt = '+fx(span,2)+' s, average EMF = '+fx(Math.abs(L.sum/span)*1e3,2)+' mV.'+(S.mys.pushes.length===1?' Now work out N, or push again and compare.':''))}
+  else if(S.my&&!full&&span>.05&&!S.told.full){S.told.full=1;say('For the mystery coil, start with the magnet on its rest and push it all the way in to the stop, in one go. Then the flux through each turn changes by the ΔΦ given.')}}
  const a=Math.min(1,dt/.03);S.emf+=(e-S.emf)*a;S.v+=((hd?S.mv*M:vx)-S.v)*a;S.I=S.emf/RG*1e6;
  // the needle: a damped pointer, so a quick kick swings out and comes back as on a real meter
  const tgt=clamp(S.I/FULL,-1.15,1.15),n=Math.ceil(dt/.006),h=dt/n;for(let i=0;i<n;i++){S.om+=(NW*NW*(tgt-S.th)-2*1.0*NW*S.om)*h;S.th+=S.om*h}galv.set(S.th);
@@ -213,7 +248,7 @@ function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now
   if(S.still>1.3){if(cur()==='still')tick('still','The needle is back at zero. The magnet\'s field still passes through the coil, but it is not changing: no change in flux, no EMF, no current. Now pull the magnet out.');
    else if(S.ch&&S.ch.state==='test'&&QS[S.ch.i].type==='still'&&!hd)judge({type:'still',pole:S.s>0?'N':'S',dir:0})}}else S.still=0;
  // readouts and graph
- $('rPhi').textContent=fx(lam*1e3,2)+' mWb';$('rV').textContent=fx(Math.abs(S.v),2)+' m/s';$('rE').textContent=(S.emf*1e3<=-.05?'−':'')+fx(Math.abs(S.emf*1e3),1)+' mV';$('rI').textContent=(S.I<=-.5?'−':'')+Math.round(Math.abs(S.I))+' µA';
+ $('rPhi').textContent=S.my?'hidden for the mystery coil':fx(lam*1e3,2)+' mWb';$('rV').textContent=fx(Math.abs(S.v),2)+' m/s';$('rE').textContent=(S.emf*1e3<=-.05?'−':'')+fx(Math.abs(S.emf*1e3),1)+' mV';$('rI').textContent=(S.I<=-.5?'−':'')+Math.round(Math.abs(S.I))+' µA';
  HIST.push([S.time,lam,S.emf]);while(HIST.length&&S.time-HIST[0][0]>6.2)HIST.shift();if((frame.n=(frame.n||0)+1)%2===0)graph()}
 
 let eMax=.002;
@@ -221,7 +256,7 @@ function graph(){const c=$('graph'),dpr=Math.min(2,window.devicePixelRatio||1),w
  const g=c.getContext('2d'),dk=K.isDark(),ink=dk?'#94A7AE':'#52646C',blue=dk?'#7FB2FF':'#2F6FD0',red=dk?'#FF8A7A':'#C0392B';g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
  const lMax=.72*COIL.N*MAG.phi0;let m=.0015;for(const p of HIST)m=Math.max(m,Math.abs(p[2]));eMax+=(m*1.2-eMax)*(m*1.2>eMax?.5:.03);
  const half=h/2,tx=t=>w-(S.time-t)/6*w;g.font='600 11px "IBM Plex Mono",monospace';g.textBaseline='top';
- [[1,lMax,blue,'NΦ, flux linkage (±'+fx(lMax*1e3,1)+' mWb)'],[2,eMax,red,'EMF (±'+fx(eMax*1e3,1)+' mV)']].forEach(([col,mx,colr,label],i)=>{const y0=half*i+half/2;g.strokeStyle=dk?'rgba(255,255,255,.14)':'rgba(0,0,0,.12)';g.lineWidth=1;g.beginPath();g.moveTo(0,y0);g.lineTo(w,y0);g.stroke();
+ [[1,lMax,blue,S.my?'NΦ, flux linkage':'NΦ, flux linkage (±'+fx(lMax*1e3,1)+' mWb)'],[2,eMax,red,'EMF (±'+fx(eMax*1e3,1)+' mV)']].forEach(([col,mx,colr,label],i)=>{const y0=half*i+half/2;g.strokeStyle=dk?'rgba(255,255,255,.14)':'rgba(0,0,0,.12)';g.lineWidth=1;g.beginPath();g.moveTo(0,y0);g.lineTo(w,y0);g.stroke();
   g.strokeStyle=colr;g.lineWidth=2;g.lineJoin='round';g.beginPath();HIST.forEach((p,j)=>{const xx=tx(p[0]),yy=y0-clamp(p[col]/mx,-1.05,1.05)*(half/2-14);j?g.lineTo(xx,yy):g.moveTo(xx,yy)});g.stroke();g.fillStyle=ink;g.textAlign='left';g.fillText(label,6,half*i+4)});
  g.strokeStyle=dk?'rgba(255,255,255,.2)':'rgba(0,0,0,.18)';g.beginPath();g.moveTo(0,half);g.lineTo(w,half);g.stroke()}
 
@@ -248,11 +283,12 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),x=mag.position.x,y=mag.posit
    K.tag(S.v>0?'the coil pushes the magnet back':'the coil pulls the magnet back',V(x,y+1.05,0),amber)}}
  // labels
  const gx=galv.g.position.x;if(S.gh&&Math.abs(S.gh.a)>.03&&S.time-S.gh.t<4.3)K.tag('last kick: '+(S.gh.a<0?'← ':'')+Math.round(Math.abs(S.gh.a)*FULL)+' µA'+(S.gh.a>0?' →':''),V(gx,3.62,0),amber,0,true);K.tag('I = '+(S.I>=.5?'+':S.I<=-.5?'−':'')+Math.round(Math.abs(S.I))+' µA',V(gx,3.1,0),ink,0,true);
- K.tag(COIL.N+' turns',V(COIL.x,COIL.y-1.55,.4));if(!K.holder(mag)&&!S.bore)K.tag('bar magnet',V(x,y-.55,0),ink,0,true);
+ K.tag(S.my?'coil '+S.mys.letter+': ? turns':COIL.N+' turns',V(COIL.x,COIL.y-1.55,.4));if(!K.holder(mag)&&!S.bore)K.tag('bar magnet',V(x,y-.55,0),ink,0,true);
  if(!K.holder(token))K.tag('turn the magnet round',V(token.position.x,token.position.y-.7,.3))}
 
 HandKit.themeButton($('themeBtn'),K);K.start();steps();S.lam=linkage(mag.position.x,0,1);
-window.__HK=Object.assign(K,{S,COIL,MAG,M,linkage,mag,token,galv,coil,setTurns,flip,event,QS,answer,HIST,startChallenge});
+try{const c=(new URLSearchParams(location.search).get('coil')||'').toUpperCase();if(MYS[c])mystery(c)}catch(e){}
+window.__HK=Object.assign(K,{MYS,mystery,mystTable,dPhi1,S,COIL,MAG,M,linkage,mag,token,galv,coil,setTurns,flip,event,QS,answer,HIST,startChallenge});
 })();
 </script>
 </body></html>
