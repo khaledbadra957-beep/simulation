@@ -51,7 +51,11 @@ table.data{width:100%;border-collapse:collapse;font-size:.86rem}table.data th,ta
     <table class="data" id="mystTbl"></table>
     <div class="row" style="margin-top:10px"><label for="mystN" style="font-weight:700">N =</label><input id="mystN" type="number" min="1" max="200" step="1" inputmode="numeric" style="width:6em;font:inherit;padding:5px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)"><button class="btn primary" id="mystCheck" type="button">Check</button></div>
     <p class="small" id="mystNote" style="margin-top:8px"></p>
-    <div class="row" style="margin-top:6px"><button class="btn" id="mystNew" type="button">New mystery coil</button></div></div>
+    <div class="row" style="margin-top:6px"><button class="btn" id="mystNew" type="button">New mystery coil</button></div>
+    <details style="margin-top:10px"><summary class="small" style="cursor:pointer">For the teacher: a mystery coil with your own number of turns</summary>
+     <p class="small" style="margin:8px 0">Choose the number of turns. You get a link to share: everyone who opens it gets the same wrapped coil. The number is coded, so it cannot be read from the link.</p>
+     <div class="row"><input id="tN" type="number" min="5" max="100" step="1" placeholder="e.g. 37" inputmode="numeric" style="width:6em;font:inherit;padding:4px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)"><button class="btn" id="tMake" type="button">Make link</button></div>
+     <p class="small" id="tOut" style="margin-top:8px;word-break:break-all"></p></details></div>
    <div class="card" id="chal" hidden><h3>Challenge: predict the needle</h3><p class="q" id="chQ"></p>
     <div class="row" id="chBtns"><button class="btn" type="button" data-a="-1">&larr; Left</button><button class="btn" type="button" data-a="0">No kick</button><button class="btn" type="button" data-a="1">Right &rarr;</button></div>
     <p class="small" id="chNote" style="margin-top:8px"></p><div class="row" style="margin-top:8px"><button class="btn primary" id="chNext" type="button" hidden>Next question</button></div></div>
@@ -64,7 +68,8 @@ table.data{width:100%;border-collapse:collapse;font-size:.86rem}table.data th,ta
     <p class="small" style="margin-top:8px">Coil and galvanometer together: R = 80 Ω. Coil 13 cm long, 5 cm wide.</p>
    </div>
    <div class="card ctl">
-    <div><h3>Coil</h3><div class="seg" id="turns"><button type="button" data-n="10" aria-pressed="false">10 turns</button><button type="button" data-n="20" aria-pressed="true">20 turns</button><button type="button" data-n="40" aria-pressed="false">40 turns</button><button type="button" data-n="x" aria-pressed="false">Mystery coil</button></div></div>
+    <div><h3>Coil</h3><div class="seg" id="turns"><button type="button" data-n="10" aria-pressed="false">10 turns</button><button type="button" data-n="20" aria-pressed="true">20 turns</button><button type="button" data-n="40" aria-pressed="false">40 turns</button><button type="button" data-n="x" aria-pressed="false">Mystery coil</button></div>
+     <label class="row" style="margin-top:8px;font-size:.95rem" for="nTurns">Or choose any number of turns: <input id="nTurns" type="number" min="5" max="100" step="1" value="20" inputmode="numeric" style="width:5.5em;font:inherit;padding:4px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)"></label></div>
     <div class="row"><button class="btn" id="flip" type="button">Turn the magnet round</button><button class="btn" id="reset" type="button">Start again</button></div>
     <label class="ck"><input type="checkbox" id="showField" checked> Show the magnet's field lines</label>
     <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
@@ -139,6 +144,10 @@ function tick(k,text){S.done[k]=true;say(text);steps();if(!cur()){setStatus('All
 /* ---------- mystery coil: wrapped in paper, a letter on the wrap. Each letter always has the same number of turns, so a teacher can give
    a whole class the same coil with a link (...hands-on-induction.html?coil=C) and know the answer. ---------- */
 const MYS={A:15,B:25,C:30,D:35,E:45,F:50,G:55,H:60};
+/* a teacher's own number of turns travels in the link as a short code, so students cannot read it off: Q followed by 37 N + 11 in base 36 */
+const encN=n=>'Q'+(n*37+11).toString(36).toUpperCase();
+const decN=c=>{if(!/^Q[0-9A-Z]{1,4}$/.test(c))return 0;const v=(parseInt(c.slice(1),36)-11)/37;return Number.isInteger(v)&&v>=5&&v<=100?v:0};
+const turnsOf=c=>MYS[c]||decN(c);
 const sleeve=new T.Group();{const pm=P.std(0xF3EBD6,.85,0,{map:P.tex(512,256,(x,w,h)=>{x.fillStyle='#F3EBD6';x.fillRect(0,0,w,h);x.strokeStyle='rgba(120,100,60,.18)';for(let i=0;i<40;i++){x.lineWidth=1;x.beginPath();x.moveTo(0,Math.random()*h);x.lineTo(w,Math.random()*h);x.stroke()}})});
  const tube=P.mesh(new T.CylinderGeometry(.64,.64,2.32,40,1,true),pm);tube.rotation.z=Math.PI/2;sleeve.add(tube);
  for(const sx of [-1,1]){const band=P.mesh(new T.CylinderGeometry(.646,.646,.08,40,1,true),P.std(0xC9A227,.6));band.rotation.z=Math.PI/2;band.position.x=sx*1.06;sleeve.add(band)}
@@ -146,17 +155,20 @@ const sleeve=new T.Group();{const pm=P.std(0xF3EBD6,.85,0,{map:P.tex(512,256,(x,
  lab.position.set(0,.06,.66);sleeve.add(lab);sleeve.userData.lab=lab;sleeve.visible=false;coil.g.add(sleeve)}
 function sleeveLabel(){const t=sleeve.userData.lab.material.map,x=t.image.getContext('2d'),w=320,h=180;x.clearRect(0,0,w,h);x.fillStyle='#FFFBEE';x.fillRect(8,8,w-16,h-16);x.strokeStyle='#1B2024';x.lineWidth=5;x.strokeRect(8,8,w-16,h-16);x.fillStyle='#1B2024';x.textAlign='center';x.textBaseline='middle';x.font='800 64px '+P.DISP;x.fillText('N = ?',w/2,72);x.font='700 38px '+P.MONO;x.fillText('coil '+S.mys.letter,w/2,138);t.needsUpdate=true}
 const dPhi1=()=>(linkage(STOP,0,1)-linkage(mag.userData.home.x,0,1))/COIL.N;      // change in flux through one turn (average over the coil) from the rest to the stop
-function mystery(letter){const L=Object.keys(MYS);letter=letter&&MYS[letter]?letter:L.filter(q=>!S.mys||q!==S.mys.letter)[Math.floor(Math.random()*(L.length-1))];
- S.mys={letter,N:MYS[letter],tries:0,pushes:[],solved:false};sleeveLabel();$('mystH').textContent='Mystery coil '+letter;$('mystN').value='';$('mystNote').textContent='';setTurns('x')}
+function mystery(letter){const L=Object.keys(MYS);letter=letter&&turnsOf(letter)?letter:L.filter(q=>!S.mys||q!==S.mys.letter)[Math.floor(Math.random()*(L.length-1))];
+ S.mys={letter,N:turnsOf(letter),tries:0,pushes:[],solved:false};sleeveLabel();$('mystH').textContent='Mystery coil '+letter;$('mystN').value='';$('mystNote').textContent='';setTurns('x')}
 function mystTable(){const m=S.mys;$('mystPhi').textContent='ΔΦ for one turn, rest → stop: '+fx(dPhi1()*1e3,4)+' mWb';
  $('mystTbl').innerHTML=m.pushes.length?'<tr><th>Push</th><th>Δt (s)</th><th>average EMF (mV)</th></tr>'+m.pushes.map((q,i)=>`<tr><td>${i+1}${q.dir<0?' (out)':''}</td><td>${fx(q.dt,2)}</td><td>${fx(Math.abs(q.avg)*1e3,2)}</td></tr>`).join(''):'<tr><td style="font-family:var(--body);color:var(--muted)">No full pushes yet: start at the rest, push all the way to the stop.</td></tr>'}
 $('mystNew').onclick=()=>mystery();
+$('nTurns').onchange=e=>{const v=Math.round(+e.target.value);if(v>=5&&v<=100)setTurns(v);else{e.target.value=COIL.N;say('Choose between 5 and 100 turns.')}};
+$('tMake').onclick=()=>{const v=Math.round(+$('tN').value);if(!(v>=5&&v<=100)){$('tOut').textContent='Choose a whole number from 5 to 100.';return}
+ const url=location.origin+location.pathname+'?coil='+encN(v);$('tOut').innerHTML='<b>Coil '+encN(v)+'</b> ('+v+' turns): <a href="'+url+'">'+url+'</a>';try{navigator.clipboard.writeText(url).then(()=>{$('tOut').insertAdjacentHTML('beforeend',' <span style="color:var(--ok)">copied</span>')}).catch(()=>{})}catch(e){}};
 $('mystCheck').onclick=()=>{const m=S.mys;if(!m)return;const g=Math.round(+$('mystN').value);if(!g){$('mystNote').textContent='Type a whole number of turns first.';return}
  if(!m.pushes.length){$('mystNote').textContent='Measure first: make at least one full push and use its numbers.';return}
  m.tries++;const q=m.pushes[m.pushes.length-1],est=Math.abs(q.avg)*q.dt/dPhi1(),tol=Math.max(1,Math.round(m.N*.06));
  if(Math.abs(g-m.N)<=tol){m.solved=true;$('mystNote').innerHTML='<b style="color:var(--ok)">Correct: coil '+m.letter+' has '+m.N+' turns.</b> From your last push: N = EMF × Δt ÷ ΔΦ = '+fx(Math.abs(q.avg)*1e3,2)+' mV × '+fx(q.dt,2)+' s ÷ '+fx(dPhi1()*1e3,4)+' mWb ≈ '+fx(est,1)+'. A faster push gives a bigger EMF but a shorter Δt: the product stays the same.';say('Coil '+m.letter+' solved: '+m.N+' turns. Try another mystery coil, or check your method on the 20-turn coil.')}
  else{$('mystNote').innerHTML=(g<m.N?'Too few.':'Too many.')+' '+(m.tries<3?'Multiply the average EMF by Δt to get N ΔΦ, then divide by ΔΦ for one turn. Watch the units: mV × s ÷ mWb.':'Using your last push: '+fx(Math.abs(q.avg)*1e3,2)+' mV × '+fx(q.dt,2)+' s = '+fx(Math.abs(q.avg)*q.dt*1e3,2)+' mWb, and ÷ '+fx(dPhi1()*1e3,4)+' mWb ≈ '+fx(est,1)+' turns.')}};
-function setTurns(n){const my=n==='x';if(my&&!S.mys){mystery();return}if(my)n=S.mys.N;sleeve.visible=my;$('myst').hidden=!my;S.my=my;if(my)mystTable();
+function setTurns(n){const my=n==='x';if(my&&!S.mys){mystery();return}if(my)n=S.mys.N;else{n=Math.max(5,Math.min(100,Math.round(n)||20));$('nTurns').value=n}$('nTurns').disabled=my;sleeve.visible=my;$('myst').hidden=!my;S.my=my;if(my)mystTable();
  COIL.N=n;coil.setTurns(n);leads();S.lam=linkage(mag.position.x,mag.position.y-COIL.y,1)*Math.cos(mag.rotation.y);document.querySelectorAll('#turns button').forEach(b=>b.setAttribute('aria-pressed',my?b.dataset.n==='x':+b.dataset.n===n));
  if(cur()==='turns'&&n===40)say('40 turns on the coil now. Push the magnet in at about the same speed as before.')}
 document.querySelectorAll('#turns button').forEach(b=>b.onclick=()=>setTurns(b.dataset.n==='x'?'x':+b.dataset.n));
@@ -287,8 +299,8 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),x=mag.position.x,y=mag.posit
  if(!K.holder(token))K.tag('turn the magnet round',V(token.position.x,token.position.y-.7,.3))}
 
 HandKit.themeButton($('themeBtn'),K);K.start();steps();S.lam=linkage(mag.position.x,0,1);
-try{const c=(new URLSearchParams(location.search).get('coil')||'').toUpperCase();if(MYS[c])mystery(c)}catch(e){}
-window.__HK=Object.assign(K,{MYS,mystery,mystTable,dPhi1,S,COIL,MAG,M,linkage,mag,token,galv,coil,setTurns,flip,event,QS,answer,HIST,startChallenge});
+try{const c=(new URLSearchParams(location.search).get('coil')||'').toUpperCase();if(turnsOf(c))mystery(c)}catch(e){}
+window.__HK=Object.assign(K,{MYS,encN,decN,mystery,mystTable,dPhi1,S,COIL,MAG,M,linkage,mag,token,galv,coil,setTurns,flip,event,QS,answer,HIST,startChallenge});
 })();
 </script>
 </body></html>
