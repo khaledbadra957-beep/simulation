@@ -183,11 +183,11 @@
     'pulse-at-a-boundary.html': {
       big: 'When a pulse reaches a boundary, part reflects and part is transmitted. A heavier (slower) medium flips the reflected pulse; a lighter one does not.',
       tryThis: [
-        'Choose Heavier → lighter. Is the reflected pulse upright or inverted?',
-        'Now Lighter → heavier. What changed?',
-        'Rigid wall: how much passes through?',
-        'Same spring: why is there no reflection?',
-        'Turn on labels and compare the sizes of reflected and transmitted pulses.'
+        'Spring 2: choose Lighter. Is the reflected pulse upright or inverted?',
+        'Now choose Heavier. What changed?',
+        'Wall: how much passes through?',
+        'Same: why is there no reflection?',
+        'Drag the knob on the pulse down to send an upside-down pulse. Does the rule still hold?'
       ],
       words: [['Incident', 'the pulse that arrives'], ['Reflected', 'the pulse that comes back'], ['Transmitted', 'the pulse that passes into the second medium'], ['Inverted', 'flipped upside down']],
       goals: ['Predict whether the reflected pulse is inverted.', 'Compare speeds and widths of transmitted pulses.', 'Explain energy sharing at a boundary.'],
