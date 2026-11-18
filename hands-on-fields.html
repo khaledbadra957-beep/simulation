@@ -1,0 +1,292 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hands-On Lab: Electric Fields</title>
+<meta name="description" content="Grade 12 physics camera lab: hold a test charge near charged spheres and read the force, then map equipotential lines on conducting paper with a voltmeter probe. Coulomb's law, E = F/q, field lines and E = ΔV/d. Works with mouse or touch too.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="hand-kit.css">
+<style>
+.read{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;font-size:.92rem}
+.read dt{color:var(--muted)}.read dd{margin:0;font-family:var(--data);text-align:right;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-right:1.5px solid var(--line);background:var(--stage);padding:5px 11px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.ctl{display:flex;flex-direction:column;gap:10px}.tab.ok::after{content:" ✓";color:var(--ok)}
+table.data{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:8px}table.data th,table.data td{padding:3px 4px;text-align:right;border-bottom:1px solid var(--line);font-family:var(--data);font-variant-numeric:tabular-nums}table.data th{font-weight:600;color:var(--muted)}table.data td:first-child,table.data th:first-child{text-align:left;font-family:var(--body)}
+</style>
+</head><body>
+<div class="wrap">
+ <a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+ <header>
+  <div>
+   <p class="eyebrow">Grade 12 Physics · Module 18 Electrostatics · Measuring electric fields · Camera lab</p>
+   <h1>Hands-On Lab: Electric Fields</h1>
+   <p class="lede">Hold a test charge near charged spheres and read the force on it. Then map the field on conducting paper with a voltmeter probe. The camera follows your hand; pinch your thumb and first finger to pick something up, and hold it still for a moment to take a reading.</p>
+  </div>
+  <div class="row"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
+ </header>
+ <div class="tabs" role="tablist" id="tabs"></div>
+ <div class="grid">
+  <div class="stage" id="stage">
+   <video id="video" playsinline muted autoplay hidden></video>
+   <canvas id="gl" aria-label="3-D lab bench with charged spheres on an acrylic panel and a force sensor with a test charge, or a conducting-paper board with electrodes, a voltmeter and a supply"></canvas>
+   <canvas id="hud" class="hud"></canvas>
+   <div class="intro" id="intro">
+    <h2>Pinch to hold, keep still to read</h2>
+    <p>The camera follows your hand. Your video stays on this device and is never uploaded.</p>
+    <div class="row" style="justify-content:center">
+     <button class="btn primary" id="startCam" type="button">Start with my camera</button>
+     <button class="btn" id="startMouse" type="button">Use mouse or touch</button>
+    </div>
+   </div>
+  </div>
+  <aside>
+   <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
+   <div class="card"><h3>What happened</h3><p class="say" id="say"></p></div>
+   <div class="card"><h3>Lab steps</h3><ol class="steps" id="steps"></ol></div>
+   <div class="card" id="card1"><h3>Measurements</h3>
+    <dl class="read"><dt>Distance to the sphere</dt><dd id="rD">–</dd><dt>Force on the test charge F</dt><dd id="rF">–</dd><dt>Test charge q</dt><dd id="rQ">–</dd><dt>Field E = F ÷ q</dt><dd id="rE">–</dd></dl>
+    <table class="data" id="tbl1"></table>
+   </div>
+   <div class="card" id="card2" hidden><h3>Measurements</h3>
+    <dl class="read"><dt>Supply</dt><dd>6.00 V</dd><dt>Voltmeter (probe)</dt><dd id="rV">–</dd><dt>Pins placed</dt><dd id="rN">0</dd></dl>
+    <p class="small" style="margin-top:8px" id="eLine"></p>
+   </div>
+   <div class="card ctl" id="ctl1">
+    <div><h3>Test charge</h3><div class="seg" id="qsel"><button type="button" data-q="1" aria-pressed="true">+1 nC</button><button type="button" data-q="2" aria-pressed="false">+2 nC</button></div></div>
+    <label class="ck"><input type="checkbox" id="lines1" checked> Show field lines</label>
+    <label class="ck"><input type="checkbox" id="vec1"> Show field arrows everywhere</label>
+   </div>
+   <div class="card ctl" id="ctl2" hidden>
+    <div><h3>Electrodes</h3><div class="seg" id="esel"><button type="button" data-e="plates" aria-pressed="true">Parallel plates</button><button type="button" data-e="points" aria-pressed="false">Two points</button></div></div>
+    <label class="ck"><input type="checkbox" id="lines2"> Show equipotentials and field lines</label>
+    <div class="row"><button class="btn" id="clearPins" type="button">Remove the pins</button></div>
+   </div>
+   <div class="card">
+    <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
+    <div class="row" style="margin-top:10px"><button class="btn" id="reset" type="button">Start this tab again</button></div>
+   </div>
+   <p class="small">Tip: to take a reading, hold the probe still for about a second; a ring fills up while you wait. With mouse or touch you can also let go of the probe on the panel or the paper and it stays there.</p>
+  </aside>
+ </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="hand-model.js"></script>
+<script src="hand-kit.js"></script>
+<script src="phys-parts.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const setStatus=(t,c)=>{$('status').textContent=t;$('status').className='status '+(c||'')};
+const say=t=>{$('say').textContent=t};
+if(!window.THREE){setStatus('The 3-D engine could not load. Check the internet connection and reload.','bad');return}
+const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),fx=(v,d)=>v.toFixed(d),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* ---------- real numbers ---------- */
+const U=0.04,KC=8.99e9,QS=20e-9;                         // metres per bench unit; Coulomb constant; sphere charge 20 nC
+const CY=3.3,SLOT=[V(-2.5,CY,.3),V(2.5,CY,.3)];           // the two holders on the panel, 20 cm apart
+const PAN={x0:-4.0,x1:4.0,y0:1.5,y1:5.1};                  // the acrylic panel (32 cm by 14.4 cm)
+const TIP=1.32;                                             // the test charge sits this far above the sensor's grab point
+const S={tab:0,q:1,done:{},rec:{},hold:0,tipPrev:null,tipV:0,pins:[],elec:'plates',time:0,told:{}};
+
+const K=HandKit.create({stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
+ layout(k){const lx=-k.halfW+.95,rx=k.halfW-1.05;tray.position.x=lx;spheres.forEach((s,i)=>{const u=s.userData;u.home.set(lx,5.2-i*1.25,.3);if(u.slot!=null)u.goal.copy(SLOT[u.slot])});
+  if(!sensor.userData.placed)sensor.userData.home.set(rx,.95,.3);
+  sup.g.position.set(-k.halfW+1.5,0,.1);vm.g.position.set(k.halfW-1.45,0,.15);if(!rprobe.userData.placed)rprobe.userData.home.set(k.halfW-1.6,2.25,.35);wires2()},
+ onGrab,onDrop,onFrame:frame,onHUD:hudDraw,
+ targets(it){const u=it.userData;return u.charge?SLOT.filter((p,i)=>!slotted(i)||slotted(i)===it):[]}});
+const scene=K.scene,P=PhysParts(K);
+const G1=new T.Group(),G2=new T.Group();scene.add(G1,G2);
+
+/* ================= tab 1: charges and the test charge ================= */
+{// acrylic panel with a 1 cm grid, holders, and a cm scale from the left holder
+ const w=PAN.x1-PAN.x0,h=PAN.y1-PAN.y0,ppc=40,cw=Math.round(w*U*100*ppc),ch=Math.round(h*U*100*ppc);
+ const tex=P.tex(cw,ch,(x)=>{x.clearRect(0,0,cw,ch);for(let i=0;i<=w*U*100;i++){x.strokeStyle=i%5?'rgba(40,80,100,.12)':'rgba(40,80,100,.28)';x.lineWidth=i%5?1:2;x.beginPath();x.moveTo(i*ppc,0);x.lineTo(i*ppc,ch);x.stroke()}
+  for(let j=0;j<=h*U*100;j++){x.strokeStyle=j%5?'rgba(40,80,100,.12)':'rgba(40,80,100,.28)';x.lineWidth=j%5?1:2;x.beginPath();x.moveTo(0,ch-j*ppc);x.lineTo(cw,ch-j*ppc);x.stroke()}
+  const x0=(SLOT[0].x-PAN.x0)*U*100*ppc,yb=ch-14;x.fillStyle='#24414F';x.font='600 22px '+P.MONO;x.textAlign='center';x.strokeStyle='#24414F';
+  for(let c=0;c<=26;c++){const px=x0+c*ppc;x.lineWidth=c%5?1.5:3;x.beginPath();x.moveTo(px,ch);x.lineTo(px,ch-(c%5?12:22));x.stroke();if(c%5===0)x.fillText(c+' cm',px,ch-30)}});
+ const pane=P.mesh(new T.BoxGeometry(w,h,.06),new T.MeshPhysicalMaterial({color:0xDCEFF6,transparent:true,opacity:.28,roughness:.05,depthWrite:false,envMapIntensity:1.3}),(PAN.x0+PAN.x1)/2,(PAN.y0+PAN.y1)/2,-.05);G1.add(pane);
+ const grid=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false}));grid.position.set((PAN.x0+PAN.x1)/2,(PAN.y0+PAN.y1)/2,-.015);G1.add(grid);
+ const edge=new T.Mesh(new T.BoxGeometry(w+.08,.08,.1),K.edgeMat);[PAN.y0,PAN.y1].forEach(y=>{const e=edge.clone();e.position.set((PAN.x0+PAN.x1)/2,y,-.05);G1.add(e)});
+ [PAN.x0,PAN.x1].forEach(x=>{const e=new T.Mesh(new T.BoxGeometry(.08,h,.1),K.edgeMat);e.position.set(x,(PAN.y0+PAN.y1)/2,-.05);G1.add(e)});
+ [-3.2,3.2].forEach(x=>{const st=P.stand(PAN.y0+.05,{fw:1.0,fd:.9});st.position.set(x,0,-.25);G1.add(st)});
+ SLOT.forEach(p=>{const hold=P.turned([[0,0],[.13,0],[.13,.05],[.07,.08],[.06,.3],[0,.3]],P.std(0x22272B,.4,.2),20);hold.rotation.x=Math.PI/2;hold.position.set(p.x,p.y,-.02);G1.add(hold)})}
+const tray=new T.Group();{const m=P.mesh(P.rbox(1.6,3.9,.08,.08,.02),P.std(0xD9DFDC,.8),0,4.0,-.3);m.receiveShadow=true;tray.add(m)}G1.add(tray);
+/* charged spheres: polished metal on an acrylic handle */
+function chargedSphere(sign){const g=new T.Group(),metal=P.std(0xD6DCE0,.18,.9,{envMapIntensity:1.3});g.add(P.mesh(new T.SphereGeometry(.34,32,24),metal));
+ const rod=P.mesh(new T.CylinderGeometry(.05,.05,1.0,12),new T.MeshPhysicalMaterial({color:0xE6F4FA,transparent:true,opacity:.45,roughness:.05,depthWrite:false}),0,-.82,0);g.add(rod);
+ g.add(P.mesh(new T.CylinderGeometry(.1,.12,.24,16),P.std(0x22272B,.45,.1),0,-1.38,0));
+ const ring=P.mesh(new T.TorusGeometry(.36,.025,8,40),P.std(sign>0?0xC62828:0x2F6FD0,.45),0,0,0);ring.rotation.x=Math.PI/2;g.add(ring);
+ const lab=P.label(sign>0?'+':'−',.3,.3,{ink:sign>0?'#C62828':'#2F6FD0',size:1,res:96,weight:'800',font:P.DISP});lab.position.set(0,0,.345);g.add(lab);return g}
+const spheres=[1,-1,1].map((s,i)=>K.addItem('q'+i,chargedSphere(s),{charge:s*QS,name:(s>0?'+':'−')+'20 nC',r:.7,grabY:-.75,liftZ:.3,slot:null}));
+const slotted=i=>spheres.find(s=>s.userData.slot===i)||null;
+/* force sensor with a test charge on an insulating rod */
+const sensor=new T.Group();let sLcd,tipBall;{const body=P.mesh(P.rbox(1.05,.62,.42,.08,.03),P.std(0xF2B41F,.55),0,0,0);sensor.add(body);
+ sLcd=P.lcd(.64);sLcd.m.position.set(-.1,.05,.225);sensor.add(sLcd.m);const t=P.label('FORCE',.5,.1,{ink:'#2A2F34',size:.8,res:160});t.position.set(-.1,-.22,.215);sensor.add(t);
+ const hook=P.mesh(new T.CylinderGeometry(.06,.06,.16,12),P.steel,0,.38,0);sensor.add(hook);
+ sensor.add(P.mesh(new T.CylinderGeometry(.035,.035,TIP-.5,10),new T.MeshPhysicalMaterial({color:0xE6F4FA,transparent:true,opacity:.5,roughness:.05,depthWrite:false}),0,.38+(TIP-.5)/2,0));
+ tipBall=P.mesh(new T.SphereGeometry(.1,20,16),P.std(0xE04A3A,.35,.3));tipBall.position.set(0,TIP,0);sensor.add(tipBall)}
+K.addItem('sensor',sensor,{r:.75,liftZ:.3,firm:true,name:'force sensor'});
+sLcd.show('0.0','µN');
+const tipPos=()=>V(sensor.position.x,sensor.position.y+TIP*sensor.scale.y,0);
+
+/* the field of the spheres in the holders (N/C), at a point on the panel */
+function field(x,y){let ex=0,ey=0;for(const s of spheres){const u=s.userData;if(u.slot==null)continue;const p=SLOT[u.slot],dx=(x-p.x)*U,dy=(y-p.y)*U,r=Math.max(.018,Math.hypot(dx,dy)),e=KC*u.charge/(r*r*r);ex+=e*dx;ey+=e*dy}return [ex,ey]}
+const onPanel=p=>p.x>PAN.x0&&p.x<PAN.x1&&p.y>PAN.y0&&p.y<PAN.y1;
+function placed(){return spheres.filter(s=>s.userData.slot!=null)}
+
+/* ================= tab 2: mapping the field on conducting paper ================= */
+const PAPER={x0:-3.5,x1:3.5,y0:1.55,y1:4.95},NX=140,NY=68,H=(PAPER.x1-PAPER.x0)/NX;    // 28 cm by 13.6 cm of paper, 2 mm cells
+const EL={plates:[{t:'bar',x:-1.25,v:0},{t:'bar',x:1.25,v:6}],points:[{t:'dot',x:-1.25,v:0},{t:'dot',x:1.25,v:6}]};    // electrodes 10 cm apart
+const PCY=(PAPER.y0+PAPER.y1)/2,BARH=1.25,DOTR=.14;
+let VG=new Float32Array((NX+1)*(NY+1)),FIX=new Uint8Array((NX+1)*(NY+1));
+function solve(){const n=NX+1,E=EL[S.elec];VG.fill(3);FIX.fill(0);
+ for(let j=0;j<=NY;j++)for(let i=0;i<=NX;i++){const x=PAPER.x0+i*H,y=PAPER.y0+j*H,k=j*n+i;VG[k]=6*clamp((x+1.25)/2.5,0,1);
+  for(const e of E){const inE=e.t==='bar'?Math.abs(x-e.x)<=H*1.01&&Math.abs(y-PCY)<=BARH:Math.hypot(x-e.x,y-PCY)<=DOTR;if(inE){FIX[k]=1;VG[k]=e.v}}}
+ for(let it=0;it<700;it++)for(let j=0;j<=NY;j++)for(let i=0;i<=NX;i++){const k=j*n+i;if(FIX[k])continue;const l=i>0?VG[k-1]:VG[k+1],r=i<NX?VG[k+1]:VG[k-1],d=j>0?VG[k-n]:VG[k+n],u=j<NY?VG[k+n]:VG[k-n];VG[k]+=1.9*((l+r+d+u)/4-VG[k])}}
+function volt(x,y){const fi=clamp((x-PAPER.x0)/H,0,NX-1e-6),fj=clamp((y-PAPER.y0)/H,0,NY-1e-6),i=Math.floor(fi),j=Math.floor(fj),a=fi-i,b=fj-j,n=NX+1,k=j*n+i;
+ return VG[k]*(1-a)*(1-b)+VG[k+1]*a*(1-b)+VG[k+n]*(1-a)*b+VG[k+n+1]*a*b}
+const onPaper=p=>p.x>PAPER.x0+.05&&p.x<PAPER.x1-.05&&p.y>PAPER.y0+.05&&p.y<PAPER.y1-.05;
+// the board: wooden frame, black conducting paper with a faint 1 cm grid, silver-paint electrodes with brass terminals
+{const w=PAPER.x1-PAPER.x0,h=PAPER.y1-PAPER.y0,cx=(PAPER.x0+PAPER.x1)/2;
+ const frame=P.mesh(P.rbox(w+.5,h+.5,.16,.08,.03),P.wood(),cx,PCY,-.18);frame.castShadow=true;G2.add(frame);
+ const ppc=36,cw=Math.round(w*U*100*ppc),ch=Math.round(h*U*100*ppc),tex=P.tex(cw,ch,x=>{x.fillStyle='#2A2D30';x.fillRect(0,0,cw,ch);for(let i=0;i<9000;i++){x.fillStyle='rgba(255,255,255,'+(Math.random()*.035)+')';x.fillRect(Math.random()*cw,Math.random()*ch,2,2)}
+  x.strokeStyle='rgba(255,255,255,.08)';x.lineWidth=1;for(let i=0;i<=w*U*100;i++){x.beginPath();x.moveTo(i*ppc,0);x.lineTo(i*ppc,ch);x.stroke()}for(let j=0;j<=h*U*100;j++){x.beginPath();x.moveTo(0,j*ppc);x.lineTo(cw,j*ppc);x.stroke()}});
+ const paper=new T.Mesh(new T.PlaneGeometry(w,h),P.std(0xffffff,.9,0,{map:tex}));paper.position.set(cx,PCY,-.085);paper.receiveShadow=true;G2.add(paper);
+ [-2.9,2.9].forEach(x=>{const st=P.stand(PAPER.y0-.2,{fw:1.0,fd:.9});st.position.set(x,0,-.35);G2.add(st)})}
+const silver=P.std(0xDCE1E4,.32,.85,{envMapIntensity:1.2}),elGroup={plates:new T.Group(),points:new T.Group()};G2.add(elGroup.plates,elGroup.points);
+EL.plates.forEach(e=>{elGroup.plates.add(P.mesh(P.rbox(.12,BARH*2,.025,.02,.008),silver,e.x,PCY,-.07))});
+EL.points.forEach(e=>{const d=P.mesh(new T.CylinderGeometry(DOTR,DOTR,.025,28),silver,e.x,PCY,-.07);d.rotation.x=Math.PI/2;elGroup.points.add(d)});
+const TERM=[V(-1.25,PAPER.y1+.08,-.05),V(1.25,PAPER.y1+.08,-.05)];      // terminal posts at the top edge, joined to the electrodes by silver strips
+TERM.forEach((p,i)=>{const post=P.post(i?0xC62828:0x16191C);post.position.copy(p);post.position.y-=.05;G2.add(post);
+ for(const k of ['plates','points']){const top=k==='plates'?PCY+BARH:PCY+DOTR,len=PAPER.y1-top;elGroup[k].add(P.mesh(new T.BoxGeometry(.05,len,.02),silver,p.x,top+len/2,-.072))}});
+const sup=P.supply({w:2.1,h:1.35,col:0xDDE3E6,title:'DC SUPPLY',knobLabel:'VOLTAGE',scale:['0','12']});G2.add(sup.g);sup.show('6.00','V');sup.knob.set(.5);
+const vm=P.meter({w:1.7,h:1.2,d:.5,col:0xF2B41F,title:'VOLTMETER',unit:'V'});G2.add(vm.g);
+const rprobe=K.addItem('rprobe',P.probe(0xC62828),{r:.6,grabY:-.45,liftZ:.12,firm:true,name:'red probe'});
+const lead2=[P.cable(0xC62828,.04),P.cable(0x16191C,.04),P.cable(0xC62828,.04),P.cable(0x16191C,.04)];lead2.forEach(c=>G2.add(c.mesh));
+function wires2(){sup.g.updateMatrixWorld(true);vm.g.updateMatrixWorld(true);const s0=sup.post(0),s1=sup.post(1);
+ // supply leads go up the left side and along the top of the frame to the terminals
+ const up=PAPER.y1+.55,lx=PAPER.x0-.55;
+ lead2[0].set([s1,V(s1.x+.05,s1.y+.5,.4),V(lx+.1,1.9,-.05),V(lx+.1,up,-.1),V(TERM[1].x-.6,up+.12,-.1),V(TERM[1].x,TERM[1].y+.45,-.05),TERM[1].clone().add(V(0,.22,0))]);
+ lead2[1].set([s0,V(s0.x+.05,s0.y+.6,.4),V(lx-.1,1.9,-.05),V(lx-.1,up-.1,-.12),V(TERM[0].x-.5,up,-.12),V(TERM[0].x,TERM[0].y+.45,-.05),TERM[0].clone().add(V(0,.22,0))]);
+ // the voltmeter's COM lead to the supply's 0 V terminal, along the front of the bench
+ const v0=vm.post(0);lead2[3].set([v0,V(v0.x,v0.y-.04,v0.z+.35),V(v0.x-1.2,.06,1.15),V(s0.x+1.6,.06,1.1),V(s0.x,s0.y-.05,s0.z+.35),s0.clone().add(V(.04,0,0))]);S.cab=null}
+const pinG=new T.SphereGeometry(.07,14,10),pins=[];
+function vcol(v,txt){const c=new T.Color();c.setHSL((1-clamp(v/6,0,1))*.66,.8,txt&&!K.isDark()?.36:.55);return c}
+
+/* ---------- tabs and steps ---------- */
+const TABS=[{name:'1 · Charges and the test charge',steps:[['place','Put a +20 nC sphere in the left holder'],['d10','Hold the test charge 10 cm from the sphere and keep it still'],['d20','Now hold it 20 cm from the sphere'],['q2','Switch to the +2 nC test charge and measure at 10 cm again'],['dip','Put the −20 nC sphere in the right holder and measure halfway between them'],['null','Swap the −20 nC sphere for the other +20 nC sphere and find where the force is zero']]},
+ {name:'2 · Mapping the field',steps:[['eq3','Parallel plates: place three pins at 3.0 V, spread out from top to bottom'],['e24','Place one pin at 2.0 V and one at 4.0 V, at the same height'],['pts','Two points: place three pins at 2.0 V around the left electrode']]}];
+const key=k=>S.tab+':'+k,isDone=k=>!!S.done[key(k)];
+function steps(){const t=TABS[S.tab];let first=true;$('steps').innerHTML=t.steps.map(([k,x])=>{const d=isDone(k),now=!d&&first;if(!d)first=false;return `<li class="${d?'done':''}${now?' now':''}"><i></i><span>${x}</span></li>`}).join('');
+ document.querySelectorAll('#tabs .tab').forEach((b,i)=>{b.setAttribute('aria-selected',i===S.tab);b.classList.toggle('ok',TABS[i].steps.every(([k])=>S.done[i+':'+k]))})}
+const cur=()=>{const t=TABS[S.tab];for(const [k] of t.steps)if(!isDone(k))return k;return null};
+function tick(k,text){S.done[key(k)]=true;say(text);steps();if(!cur())setStatus(S.tab?'Field mapping done. Tick the box to see the equipotentials and field lines.':'All steps done on this tab. Try the Mapping the field tab next.','ok')}
+function setTab(i){S.tab=i;S.hold=0;G1.visible=i===0;G2.visible=i===1;
+ for(const it of [...spheres,sensor]){it.userData.hidden=i!==0;it.visible=i===0}rprobe.userData.hidden=i!==1;rprobe.visible=i===1;
+ ['card1','ctl1'].forEach(id=>$(id).hidden=i!==0);['card2','ctl2'].forEach(id=>$(id).hidden=i!==1);
+ if(i===1&&!S.solved){solve();S.solved=true}K.resize();steps();
+ say(i===0?(isDone('place')?'Hold the force sensor so that the small red test charge is near the sphere, and keep it still.':'Pick up a +20 nC sphere by its handle and put it in the left holder on the panel.'):'The left electrode is at 0 V and the right one at 6 V. Pick up the red probe, touch the paper and hold it still: a pin marks the spot with its voltage.')}
+$('tabs').innerHTML=TABS.map((t,i)=>`<button class="tab" role="tab" aria-selected="false" data-i="${i}" type="button">${t.name}</button>`).join('');
+document.querySelectorAll('#tabs .tab').forEach(b=>b.onclick=()=>setTab(+b.dataset.i));
+document.querySelectorAll('#qsel button').forEach(b=>b.onclick=()=>{S.q=+b.dataset.q;tipBall.scale.setScalar(S.q===2?1.3:1);document.querySelectorAll('#qsel button').forEach(x=>x.setAttribute('aria-pressed',x===b));S.hold=0;S.anc=null;S.taken=false;
+ say('Test charge: +'+S.q+' nC.'+(cur()==='q2'&&S.q===2?' Hold it 10 cm from the sphere again.':''))});
+function setElec(e){S.elec=e;elGroup.plates.visible=e==='plates';elGroup.points.visible=e==='points';document.querySelectorAll('#esel button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.e===e));solve();clearPins();
+ say(e==='plates'?'Parallel plates: two silver bars, 10 cm apart.':'Two point electrodes, 10 cm apart.'+(cur()==='pts'?' Place three pins at 2.0 V around the left one.':''))}
+document.querySelectorAll('#esel button').forEach(b=>b.onclick=()=>setElec(b.dataset.e));
+function clearPins(){pins.forEach(m=>G2.remove(m));pins.length=0;S.pins=[];$('rN').textContent='0'}
+$('clearPins').onclick=()=>{clearPins();say('Pins removed.')};
+$('reset').onclick=()=>{TABS[S.tab].steps.forEach(([k])=>delete S.done[key(k)]);if(S.tab===0){S.rec={};spheres.forEach(s=>{s.userData.slot=null;s.userData.placed=false;K.home(s)});sensor.userData.placed=false;K.home(sensor);table1()}else{clearPins();setElec('plates')}steps();setTab(S.tab)};
+
+function onGrab(it){const u=it.userData;if(u.charge){u.slot=null;u.placed=false}if(it===sensor||it===rprobe){it.userData.placed=false}S.hold=0}
+function onDrop(it){const u=it.userData;S.taken=false;
+ if(u.charge){let best=-1,bd=1.1;SLOT.forEach((p,i)=>{const d=Math.hypot(p.x-it.position.x,p.y-(it.position.y+u.grabY*0)-0);if(d<bd&&!slotted(i)){bd=d;best=i}});
+  if(best>=0){u.slot=best;u.placed=true;u.goal.copy(SLOT[best]);if(cur()==='place'&&best===0&&u.charge>0&&placed().length===1)tick('place','The sphere is in its holder, carrying +20 nC. Now pick up the force sensor and hold the red test charge 10 cm to the right of the sphere. The scale along the bottom starts at the holder.');
+   else if(placed().length===1&&best===1&&cur()==='place')say('Put it in the LEFT holder: the centimetre scale along the bottom starts there.')}
+  else{u.slot=null;u.placed=false;K.home(it)}}
+ else if(it===sensor){if(onPanel(tipPos())){u.placed=true;u.goal.copy(it.position)}else{u.placed=false;K.home(it)}}
+ else if(it===rprobe){if(onPaper(it.position)){u.placed=true;u.goal.set(it.position.x,it.position.y,.12)}else{u.placed=false;K.home(it)}}}
+
+/* ---------- tab 1 readings ---------- */
+function table1(){const r=S.rec,rows=[['10 cm, +1 nC',r.d10],['20 cm, +1 nC',r.d20],['10 cm, +2 nC',r.q2],['halfway, + and −',r.dip],['zero point, + and +',r.null]].filter(q=>q[1]);
+ $('tbl1').innerHTML=rows.length?'<tr><th>Reading</th><th>F (µN)</th><th>E (N/C)</th></tr>'+rows.map(([n,q])=>`<tr><td>${n}</td><td>${fx(q.F*1e6,1)}</td><td>${Math.round(q.E).toLocaleString('en')}</td></tr>`).join(''):''}
+function reading1(){const t=tipPos();const [ex,ey]=field(t.x,t.y),E=Math.hypot(ex,ey),F=E*S.q*1e-9,ps=placed(),near=ps.length?Math.min(...ps.map(s=>Math.hypot(t.x-SLOT[s.userData.slot].x,t.y-SLOT[s.userData.slot].y)*U*100)):null;
+ return {t,ex,ey,E,F,near,ps,dx:ps.length===1?(t.x-SLOT[ps[0].userData.slot].x)*U*100:null}}
+function take1(r){const c=cur(),ps=r.ps,one=ps.length===1&&ps[0].userData.charge>0&&ps[0].userData.slot===0,rec=(k)=>{S.rec[k]={F:r.F,E:r.E,near:r.near};table1()};
+ const away=Math.abs(r.ex)>1e-9&&Math.sign(r.ex)===Math.sign(r.t.x-SLOT[0].x);
+ if(c==='d10'){if(!one){say('For this step, have only the +20 nC sphere in the LEFT holder.');return}if(S.q!==1){say('Use the +1 nC test charge for this step.');return}if(Math.abs(r.near-10)>.6){say(fx(r.near,1)+' cm from the centre of the sphere. Move to 10 cm and hold still.');return}
+  rec('d10');tick('d10','At 10 cm the force is '+fx(r.F*1e6,1)+' µN, pointing away from the sphere: like charges repel. The field there is E = F ÷ q = '+fx(r.F*1e6,1)+' µN ÷ 1 nC = '+Math.round(r.E).toLocaleString('en')+' N/C. Now move the test charge to 20 cm.')}
+ else if(c==='d20'){if(!one||S.q!==1)return;if(Math.abs(r.near-20)>.8){say(fx(r.near,1)+' cm. Move to 20 cm and hold still.');return}rec('d20');const k=S.rec.d10.F/r.F;
+  tick('d20','At 20 cm: '+fx(r.F*1e6,1)+' µN. Twice as far, and the force is '+fx(k,1)+' times smaller, about 4 = 2²: F ∝ 1/r² (Coulomb\'s law, F = kQq/r²). Now switch to the +2 nC test charge and measure at 10 cm again.')}
+ else if(c==='q2'){if(!one)return;if(S.q!==2){say('Switch the test charge to +2 nC first (under Test charge).');return}if(Math.abs(r.near-10)>.6){say(fx(r.near,1)+' cm. Go back to 10 cm.');return}rec('q2');
+  tick('q2','With +2 nC the force doubled: '+fx(r.F*1e6,1)+' µN against '+fx(S.rec.d10.F*1e6,1)+' µN. But E = F ÷ q stays the same: '+Math.round(r.E).toLocaleString('en')+' N/C now, '+Math.round(S.rec.d10.E).toLocaleString('en')+' N/C before'+(Math.abs(r.E/S.rec.d10.E-1)>.015?' (a little different only because you are not at exactly the same spot)':'')+'. The field belongs to the sphere, not to the test charge. Next: put the −20 nC sphere in the right holder.')}
+ else if(c==='dip'){const a=slotted(0),b=slotted(1);if(!(a&&b&&a.userData.charge>0&&b.userData.charge<0)){say('Put a +20 nC sphere in the left holder and the −20 nC sphere in the right one.');return}const m=Math.hypot(r.t.x,r.t.y-CY)*U*100;if(m>1.0){say('Halfway between them is the 10 cm mark. You are '+fx(m,1)+' cm from it.');return}rec('dip');
+  tick('dip','Halfway, the force is '+fx(r.F*1e6,1)+' µN, pointing from the + sphere towards the − sphere: the + sphere pushes the test charge and the − sphere pulls it, the same way. Both fields add: E = 2kQ/r² = '+Math.round(r.E).toLocaleString('en')+' N/C. Look at the field lines: they start on + and end on −. Last step: swap the −20 nC sphere for the other +20 nC sphere.')}
+ else if(c==='null'){const a=slotted(0),b=slotted(1);if(!(a&&b&&a.userData.charge>0&&b.userData.charge>0)){say('Put a +20 nC sphere in each holder.');return}if(r.F>.04*(S.rec.dip?S.rec.dip.F:8e-5)*S.q){say('The force here is '+fx(r.F*1e6,1)+' µN. Find the place where it drops to zero: watch the arrow get shorter.');return}rec('null');
+  tick('null','The force is almost zero here, '+fx(r.near,1)+' cm from each sphere. The two spheres push the test charge equally hard in opposite directions, so the fields cancel: E = 0. No field line passes through this point.')}}
+
+/* ---------- tab 2 pins ---------- */
+function addPin(p){const v=volt(p.x,p.y),m=new T.Mesh(pinG,P.std(vcol(v).getHex(),.35,.2));m.position.set(p.x,p.y,-.02);G2.add(m);pins.push(m);S.pins.push({x:p.x,y:p.y,v});if(pins.length>30){G2.remove(pins.shift());S.pins.shift()}$('rN').textContent=String(S.pins.length);check2(v)}
+function check2(v){const c=cur(),near=(a,t)=>S.pins.filter(q=>Math.abs(q.v-t)<=.1);
+ if(c==='eq3'&&S.elec==='plates'){const q=near(0,3);if(q.length>=3){const ys=q.map(p=>p.y),xs=q.map(p=>(p.x+1.25)*U*100);if(Math.max(...ys)-Math.min(...ys)>=1.2)tick('eq3','Three points at 3.0 V: '+xs.map(x=>fx(x,1)+' cm').join(', ')+' from the 0 V plate. They lie on a straight line parallel to the plates, halfway across: an equipotential line. Moving along it takes no work. Next: place a pin at 2.0 V and one at 4.0 V at about the same height.');
+   else say('Good, '+q.length+' pins at 3.0 V. Spread them out more from top to bottom.')}else say('Pin at '+fx(v,2)+' V.'+(Math.abs(v-3)<=.1?' That is one at 3.0 V.':' Look for 3.0 V: within 0.1 V counts.'))}
+ else if(c==='e24'&&S.elec==='plates'){const a=near(0,2),b=near(0,4);let best=null;for(const p of a)for(const q of b){const dy=Math.abs(p.y-q.y);if(dy<.5&&(!best||dy<best.dy))best={p,q,dy}}
+  if(best){const d=Math.abs(best.q.x-best.p.x)*U,E=(best.q.v-best.p.v)/d;S.E24={d,E};$('eLine').textContent='E = ΔV ÷ d = '+fx(best.q.v-best.p.v,2)+' V ÷ '+fx(d*100,1)+' cm = '+Math.round(E)+' V/m';
+   tick('e24','The pins are '+fx(d*100,1)+' cm apart and differ by '+fx(best.q.v-best.p.v,2)+' V, so E = ΔV ÷ d = '+Math.round(E)+' V/m. Check with the whole gap: 6.0 V ÷ 10 cm = 60 V/m. Between parallel plates the field is uniform: the same everywhere. Now switch to Two points.')}
+  else say('Pin at '+fx(v,2)+' V. You need one at 2.0 V and one at 4.0 V, at about the same height.')}
+ else if(c==='pts'&&S.elec==='points'){const q=near(0,2);if(q.length>=3){const ys=q.map(p=>p.y);if(Math.max(...ys)-Math.min(...ys)>=.8){$('lines2').checked=true;tick('pts','The 2.0 V pins curve round the 0 V electrode: near a point the equipotentials are rings, not straight lines. The field lines are now drawn: wherever they cross an equipotential they cross it at a right angle, and the field is strongest where the lines crowd together.')}else say('Spread the 2.0 V pins out more, round the electrode.')}else say('Pin at '+fx(v,2)+' V.')}
+ else say('Pin at '+fx(v,2)+' V.')}
+
+/* ---------- every frame ---------- */
+function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now))/1000||dt0));frame.last=now;S.time+=dt;
+ const probe=S.tab===0?sensor:rprobe,held=!!K.holder(probe),tp=S.tab===0?tipPos():V(rprobe.position.x,rprobe.position.y),pv=S.tipPrev||tp.clone();S.tipV+=((tp.distanceTo(pv)/dt)-S.tipV)*Math.min(1,dt*10);S.tipPrev=tp.clone();
+ /* a reading is taken when the tip stays within about 7 mm of one spot for a second. A real hand always trembles a little,
+    so this looks at where the tip stays, not at how fast it jiggles. */
+ const active=(S.tab===0?onPanel(tp)&&placed().length>0:onPaper(tp))&&(held||probe.userData.placed);
+ if(active){if(!S.anc||tp.distanceTo(S.anc)>.18){S.anc=tp.clone();S.hold=0;S.taken=false}else S.hold+=dt}else{S.hold=0;S.anc=null;S.taken=false}
+ if(S.tab===0){const r=reading1();sLcd.show(fx(r.F*1e6,1),'µN');$('rD').textContent=r.near==null?'no sphere in a holder':fx(r.near,1)+' cm';$('rF').textContent=fx(r.F*1e6,1)+' µN';$('rQ').textContent='+'+S.q+' nC';$('rE').textContent=Math.round(r.E).toLocaleString('en')+' N/C';
+  if(S.hold>=.9&&!S.taken){S.taken=true;take1(r)}S.last1=r}
+ else{const v=onPaper(tp)?volt(tp.x,tp.y):null;vm.show(v==null?'-.--':fx(v,2),'V',v==null);$('rV').textContent=v==null?'probe not on the paper':fx(v,2)+' V';
+  if(S.hold>=.9&&!S.taken){S.taken=true;const far=S.pins.every(q=>Math.hypot(q.x-tp.x,q.y-tp.y)>.18);if(far)addPin(tp)}
+  const kq=rprobe.position.x.toFixed(2)+rprobe.position.y.toFixed(2);if(kq!==S.cab){S.cab=kq;rprobe.updateMatrixWorld(true);const a=rprobe.localToWorld(rprobe.tail.clone()),b=vm.post(1);lead2[2].set([a,V(a.x-.1,Math.max(.12,a.y-.7),a.z+.25),V(b.x+(a.x-b.x)*.3,.07,b.z+.6),V(b.x,.09,b.z+.3),b])}}}
+
+/* ---------- heads-up layer ---------- */
+function arrow(g,x0,y0,x1,y1,col,w){const a=Math.atan2(y1-y0,x1-x0);g.strokeStyle=g.fillStyle=col;g.lineWidth=w||3;g.lineCap='round';g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();g.beginPath();g.moveTo(x1+Math.cos(a)*7,y1+Math.sin(a)*7);g.lineTo(x1+Math.cos(a+2.5)*7,y1+Math.sin(a+2.5)*7);g.lineTo(x1+Math.cos(a-2.5)*7,y1+Math.sin(a-2.5)*7);g.closePath();g.fill()}
+function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00',RED=dk?'#FF8A7A':'#C0392B',BLUE=dk?'#7FB2FF':'#2F6FD0',sc=(x,y,z)=>K.toScreen(V(x,y,z||0));
+ const ring=(p,u)=>{if(u<=0)return;g.strokeStyle=amber;g.lineWidth=4;g.beginPath();g.arc(p[0],p[1],16,-Math.PI/2,-Math.PI/2+Math.min(1,u)*2*Math.PI);g.stroke()};
+ if(S.tab===0){const ps=placed();
+  // field lines from the + spheres (or into the − ones), clipped to the panel
+  if($('lines1').checked&&ps.length){g.lineWidth=1.3;g.strokeStyle=g.fillStyle=dk?'rgba(148,190,205,.55)':'rgba(40,90,110,.45)';const src=ps.some(s=>s.userData.charge>0)?ps.filter(s=>s.userData.charge>0):ps,dir=src[0].userData.charge>0?1:-1;
+   for(const s of src){const c=SLOT[s.userData.slot];for(let k=0;k<14;k++){const a0=(k+.5)/14*2*Math.PI;let x=c.x+Math.cos(a0)*.38,y=c.y+Math.sin(a0)*.38,p=sc(x,y),q=p;g.beginPath();g.moveTo(p[0],p[1]);
+    for(let i=0;i<140;i++){const [ex,ey]=field(x,y),f=Math.hypot(ex,ey)||1;x+=dir*ex/f*.07;y+=dir*ey/f*.07;if(x<PAN.x0||x>PAN.x1||y<PAN.y0||y>PAN.y1||ps.some(o=>o!==s&&Math.hypot(x-SLOT[o.userData.slot].x,y-SLOT[o.userData.slot].y)<.34))break;q=p;p=sc(x,y);g.lineTo(p[0],p[1]);
+     if(i===14){const an=Math.atan2(p[1]-q[1],p[0]-q[0])+(dir<0?Math.PI:0);g.stroke();g.beginPath();g.moveTo(p[0]+Math.cos(an)*6,p[1]+Math.sin(an)*6);g.lineTo(p[0]+Math.cos(an+2.5)*6,p[1]+Math.sin(an+2.5)*6);g.lineTo(p[0]+Math.cos(an-2.5)*6,p[1]+Math.sin(an-2.5)*6);g.closePath();g.fill();g.beginPath();g.moveTo(p[0],p[1])}}g.stroke()}}}
+  if($('vec1').checked&&ps.length){for(let x=PAN.x0+.5;x<PAN.x1;x+=.75)for(let y=PAN.y0+.4;y<PAN.y1;y+=.7){if(ps.some(o=>Math.hypot(x-SLOT[o.userData.slot].x,y-SLOT[o.userData.slot].y)<.5))continue;const [ex,ey]=field(x,y),E=Math.hypot(ex,ey);if(E<1)continue;const L=Math.min(26,6+Math.sqrt(E)*.12),p=sc(x,y);
+    arrow(g,p[0]-ex/E*L/2,p[1]+ey/E*L/2,p[0]+ex/E*L/2,p[1]-ey/E*L/2,dk?'rgba(224,166,58,.55)':'rgba(179,107,0,.5)',2)}}
+  spheres.forEach(s=>{const u=s.userData;if(!K.holder(s))K.tag(u.name,V(s.position.x,s.position.y+.58,.4),u.charge>0?RED:BLUE,0,true)});
+  // the force on the test charge
+  const r=S.last1;if(r&&ps.length&&onPanel(r.t)){const p=sc(r.t.x,r.t.y,.3);if(r.F>1e-9){const L=clamp(14+Math.sqrt(r.F*1e6)*9,16,90);arrow(g,p[0],p[1],p[0]+r.ex/r.E*L,p[1]-r.ey/r.E*L,amber,4)}
+   K.tag('F = '+fx(r.F*1e6,1)+' µN'+(r.dx!=null?' · '+fx(r.near,1)+' cm':''),V(r.t.x,r.t.y+.55,.3),amber,0,true);ring(p,S.hold/.9)}
+  if(!K.holder(sensor)&&!sensor.userData.placed)K.tag('force sensor',V(sensor.position.x,sensor.position.y-.55,.3),ink,0,true);
+  SLOT.forEach((p,i)=>{if(!slotted(i))K.tag(i?'holder':'holder (0 cm)',V(p.x,p.y-.55,.3),null)})}
+ else{
+  if($('lines2').checked){// equipotentials every 1 V (marching squares on the solved grid) and field lines from the 6 V electrode
+   const n=NX+1;g.lineWidth=2;for(let L=1;L<=5;L++){g.strokeStyle=vcol(L).getStyle();g.beginPath();for(let j=0;j<NY;j+=2)for(let i=0;i<NX;i+=2){const a=VG[j*n+i],b=VG[j*n+i+2],c=VG[(j+2)*n+i+2],d=VG[(j+2)*n+i],x=PAPER.x0+i*H,y=PAPER.y0+j*H,s=2*H,pts=[];
+     const e=(v1,v2,x1,y1,x2,y2)=>{if((v1-L)*(v2-L)<0){const t=(L-v1)/(v2-v1);pts.push([x1+(x2-x1)*t,y1+(y2-y1)*t])}};e(a,b,x,y,x+s,y);e(b,c,x+s,y,x+s,y+s);e(c,d,x+s,y+s,x,y+s);e(d,a,x,y+s,x,y);
+     if(pts.length>=2){const p=sc(pts[0][0],pts[0][1],-.06),q=sc(pts[1][0],pts[1][1],-.06);g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1])}}g.stroke();// label the line where it crosses a row near the bottom; a small ring that does not reach it is labelled on its outer side
+    const find=(y,a,b)=>{if((volt(a,y)-L)*(volt(b,y)-L)>0)return null;for(let it=0;it<30;it++){const m=(a+b)/2;if((volt(m,y)-L)*(volt(a,y)-L)>0)a=m;else b=m}return (a+b)/2};
+    const ly=PAPER.y0+.42;let lx=find(ly,-1.15,1.15),lyy=ly;if(lx==null){lyy=PCY;lx=L<3?find(PCY,PAPER.x0+.1,EL[S.elec][0].x-DOTR-.02):find(PCY,EL[S.elec][1].x+DOTR+.02,PAPER.x1-.1);if(lx!=null)lx+=L<3?-.28:.28}
+    if(lx!=null)K.tag(L+' V',V(lx,lyy,-.06),vcol(L,true).getStyle())}
+   g.strokeStyle='rgba(255,255,255,.75)';g.lineWidth=1.4;const e6=EL[S.elec][1];for(let k=0;k<13;k++){let x,y;if(S.elec==='plates'){x=e6.x-.08;y=PCY-BARH+.1+k*(2*BARH-.2)/12}else{const a=(k+.5)/13*2*Math.PI;x=e6.x+Math.cos(a)*(DOTR+.03);y=PCY+Math.sin(a)*(DOTR+.03)}
+    let p=sc(x,y,-.06);g.beginPath();g.moveTo(p[0],p[1]);for(let i=0;i<260;i++){const vx=volt(x+.02,y)-volt(x-.02,y),vy=volt(x,y+.02)-volt(x,y-.02),f=Math.hypot(vx,vy);if(f<1e-5||!onPaper(V(x,y)))break;x-=vx/f*.05;y-=vy/f*.05;if(volt(x,y)<.03)break;p=sc(x,y,-.06);g.lineTo(p[0],p[1])}g.stroke()}}
+  S.pins.forEach(q=>K.tag(fx(q.v,2)+' V',V(q.x,q.y+.24,-.02),dk?'#E7EFF1':'#13232B'));
+  const e=EL[S.elec];K.tag('0 V',V(e[0].x,PAPER.y1-.3,-.06),BLUE,0,true);K.tag('6 V',V(e[1].x,PAPER.y1-.3,-.06),RED,0,true);
+  const tp=V(rprobe.position.x,rprobe.position.y);if(onPaper(tp)){ring(sc(tp.x,tp.y,.12),S.hold/.9);K.tag(fx(volt(tp.x,tp.y),2)+' V',V(tp.x+.55,tp.y+.25,.12),amber,0,true)}
+  else if(!K.holder(rprobe))K.tag('red probe',V(rprobe.position.x-.3,rprobe.position.y-.75,.35),ink,0,true)}}
+
+HandKit.themeButton($('themeBtn'),K);elGroup.points.visible=false;K.start();setTab(0);table1();
+window.__HK=Object.assign(K,{S,spheres,sensor,rprobe,SLOT,field,volt,solve,setTab,setElec,tipPos,PAPER,PAN,U,TABS,pins});
+})();
+</script>
+</body></html>
