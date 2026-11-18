@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><link rel="stylesheet" href="site.css">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 </head><body>
 <title>Kepler's Laws Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,7 +48,7 @@ p{margin:0}
 
 /* ---------- PhET-style stage ---------- */
 .sim{position:relative;background:#000;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;gap:8px;
-  padding-bottom:10px;color:#fff;font:14px/1.3 Arial,Helvetica,sans-serif}
+  padding-bottom:10px;color:#fff;font:14px/1.3 var(--body)}
 .sim .stagecv{display:block;width:100%;background:#000;touch-action:none;order:0}
 .sim .ovl,.sim .ovr{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;padding:0 8px;align-items:start}
 .sim .ovb{order:1;align-self:center}
@@ -78,10 +78,10 @@ p{margin:0}
 .ck.sub{padding-left:25px}
 .ck.off{opacity:.4;cursor:default}
 .ic{width:30px;height:14px;flex:none}
-.sqb{font:13px Arial,Helvetica,sans-serif;color:#000;background:#E8E8E8;border:1px solid #9A9A9A;border-radius:5px;padding:5px 8px;cursor:pointer}
+.sqb{font:13px var(--body);color:#000;background:#E8E8E8;border:1px solid #9A9A9A;border-radius:5px;padding:5px 8px;cursor:pointer}
 .sqb:hover{background:#FFF}
 .sqb:disabled{opacity:.4;cursor:default;background:#E8E8E8}
-.pp select,.pp input[type=number]{font:14px Arial,Helvetica,sans-serif;color:#000;background:#FFF;border:1px solid #9A9A9A;border-radius:5px;padding:4px 6px;width:100%;min-width:0}
+.pp select,.pp input[type=number]{font:14px var(--body);color:#000;background:#FFF;border:1px solid #9A9A9A;border-radius:5px;padding:4px 6px;width:100%;min-width:0}
 .pp input[type=range]{width:100%;margin:0;height:24px;accent-color:#E8E8E8}
 .vals{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0}
 .vals dt{font-weight:700}
@@ -90,12 +90,12 @@ p{margin:0}
 .stepper output{font-size:20px;font-weight:700;min-width:2ch;text-align:center}
 .stepper .sqb{width:30px;padding:3px 0}
 .phead{display:flex;align-items:center;justify-content:center;position:relative;min-height:22px}
-.coll{position:absolute;left:0;top:0;width:22px;height:22px;padding:0;font:700 15px/1 Arial;color:#000;background:#E8E8E8;border:1px solid #9A9A9A;border-radius:4px;cursor:pointer}
+.coll{position:absolute;left:0;top:0;width:22px;height:22px;padding:0;font:700 15px/1 var(--body);color:#000;background:#E8E8E8;border:1px solid #9A9A9A;border-radius:4px;cursor:pointer}
 .ratio{margin:0;text-align:center;font:13px ui-monospace,Menlo,Consolas,monospace}
 .gwrap{display:grid;grid-template-columns:32px minmax(0,1fr);gap:4px}
 .vbtns{display:flex;flex-direction:column;justify-content:space-around;gap:4px}
 .hbtns{display:flex;justify-content:space-around;gap:4px;padding-left:36px}
-.pw{font:13px Arial,Helvetica,sans-serif;color:#000;background:#E8E8E8;border:1px solid #9A9A9A;border-radius:4px;padding:3px 0;cursor:pointer;min-width:30px}
+.pw{font:13px var(--body);color:#000;background:#E8E8E8;border:1px solid #9A9A9A;border-radius:4px;padding:3px 0;cursor:pointer;min-width:30px}
 .pw[aria-pressed="true"]{background:#FFE36E;border-color:#FFE36E;font-weight:700}
 .ticks{position:relative;height:16px;font-size:11px;color:#DDD;margin:0 8px}
 .ticks span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
@@ -104,7 +104,7 @@ p{margin:0}
 .omsg{margin:0;color:#FF8A80;font-weight:700;font-size:13px}
 .omsg:empty,.okmsg:empty,.tmsg:empty{display:none}
 .zoomrow{display:flex;align-items:center;gap:6px}
-.zb{width:24px;height:24px;flex:none;border-radius:50%;padding:0;font:700 16px/1 Arial;color:#000;background:#E8E8E8;border:1px solid #9A9A9A;cursor:pointer}
+.zb{width:24px;height:24px;flex:none;border-radius:50%;padding:0;font:700 16px/1 var(--body);color:#000;background:#E8E8E8;border:1px solid #9A9A9A;cursor:pointer}
 .resetRow{display:flex;justify-content:flex-end}
 .resetAll{width:46px;height:46px;border-radius:50%;padding:0;border:1px solid #A85200;cursor:pointer;display:grid;place-items:center;
   background:radial-gradient(circle at 35% 30%,#FFD29A,#F7941D 55%,#D96F00)}
@@ -128,13 +128,13 @@ p{margin:0}
 .pp table.data th{color:#BBB;font-weight:700;font-size:12px}
 .pp table.data th:first-child,.pp table.data td:first-child{text-align:left}
 .pp table.data td{font-family:ui-monospace,Menlo,Consolas,monospace;color:#FFF}
-.pp table.data td:first-child{font-family:Arial,Helvetica,sans-serif;font-weight:700}
+.pp table.data td:first-child{font-family:var(--body);font-weight:700}
 .pp table.data td:last-child{color:#FFE36E}
 .tablewrap{overflow-x:auto}
 .calc .row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .calc label{display:flex;flex-direction:column;gap:3px;font-size:12.5px;font-weight:700}
 .steps{font:13px ui-monospace,Menlo,Consolas,monospace;background:#151515;border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:3px;overflow-wrap:anywhere}
-.steps b{font-family:Arial,Helvetica,sans-serif;color:#FFE36E}
+.steps b{font-family:var(--body);color:#FFE36E}
 
 /* ---------- lesson text under the stage ---------- */
 .below{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:14px;align-items:start}
@@ -148,6 +148,7 @@ p{margin:0}
 .try ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:5px;max-width:84ch}
 .foot{font-size:.84rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;max-width:92ch}
 </style>
+<link rel="stylesheet" href="site.css">
 
 <div class="wrap" id="app">
 <style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
@@ -473,7 +474,7 @@ var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)')
 var C = { text:'#FFFFFF', dim:'#9A9A9A', grid:'#2E2E2E', sun:'#FFD84A', planet:'#7E9BFF', mars:'#FF6B5A', amber:'#F2A93B',
   vel:'#33FF33', grav:'#4C8BFF', a:'#FF8C1A', b:'#A7E86A', c:'#D1A8FF', focus:'#4C8BFF', string:'#E2C291',
   apo:'#00E5FF', peri:'#FFE600', per:'#FFE36E', mag:'#FF4FFF', bad:'#FF6B6B' };
-var SANS = 'Arial, Helvetica, sans-serif', MONO = 'ui-monospace, Menlo, Consolas, monospace';
+var SANS = '"Atkinson Hyperlegible", Arial, sans-serif', MONO = '"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace';
 
 /* ---------- canvas helpers ---------- */
 var stages = [];

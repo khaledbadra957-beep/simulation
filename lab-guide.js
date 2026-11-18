@@ -282,17 +282,17 @@
 
   var css = '' +
     '.lg-btn{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));z-index:60;display:flex;align-items:center;gap:8px;' +
-    'font:700 15px/1 system-ui,-apple-system,"Segoe UI",sans-serif;padding:12px 16px;border-radius:999px;border:0;cursor:pointer;background:#0A6A88;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.22)}' +
+    'font:700 15px/1 var(--body,system-ui,-apple-system,"Segoe UI",sans-serif);padding:12px 16px;border-radius:999px;border:0;cursor:pointer;background:#0A6A88;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.22)}' +
     '.lg-btn:focus-visible,.lg-x:focus-visible,.lg-tab:focus-visible,.lg-pres:focus-visible{outline:3px solid #F59E5B;outline-offset:2px}' +
     '.lg-btn .q{width:20px;height:20px;border-radius:50%;background:#fff;color:#0A6A88;display:inline-flex;align-items:center;justify-content:center;font-size:13px}' +
     '.lg-back{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:70}' +
     '.lg-panel{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);z-index:71;background:Canvas;color:CanvasText;box-shadow:-10px 0 30px rgba(0,0,0,.25);display:flex;flex-direction:column;' +
-    'font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding-top:env(safe-area-inset-top,0px)}' +
+    'font:16px/1.5 var(--body,system-ui,-apple-system,"Segoe UI",sans-serif);padding-top:env(safe-area-inset-top,0px)}' +
     '.lg-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px 16px 8px}' +
     '.lg-head b{font-size:18px}' +
-    '.lg-x{border:1.5px solid color-mix(in srgb,CanvasText 25%,transparent);background:none;color:inherit;border-radius:9px;padding:6px 12px;font:600 14px system-ui;cursor:pointer}' +
+    '.lg-x{border:1.5px solid color-mix(in srgb,CanvasText 25%,transparent);background:none;color:inherit;border-radius:9px;padding:6px 12px;font:600 14px var(--body,system-ui);cursor:pointer}' +
     '.lg-tabs{display:flex;gap:4px;padding:0 16px;border-bottom:1.5px solid color-mix(in srgb,CanvasText 18%,transparent)}' +
-    '.lg-tab{border:0;background:none;color:inherit;opacity:.65;padding:10px 12px;font:700 15px system-ui;border-bottom:3px solid transparent;margin-bottom:-1.5px;cursor:pointer}' +
+    '.lg-tab{border:0;background:none;color:inherit;opacity:.65;padding:10px 12px;font:700 15px var(--body,system-ui);border-bottom:3px solid transparent;margin-bottom:-1.5px;cursor:pointer}' +
     '.lg-tab[aria-selected="true"]{opacity:1;border-bottom-color:#0A6A88}' +
     '.lg-body{overflow:auto;padding:14px 16px 28px;display:flex;flex-direction:column;gap:14px}' +
     '.lg-big{margin:0;padding:12px 14px;border-left:4px solid #0A6A88;background:color-mix(in srgb,#0A6A88 10%,transparent);border-radius:0 10px 10px 0;font-weight:600}' +
@@ -310,7 +310,7 @@
     '.lg-mis{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}' +
     '.lg-mis small{display:block;opacity:.75}' +
     '.lg-ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:5px}' +
-    '.lg-pres{align-self:flex-start;border:1.5px solid #0A6A88;background:none;color:inherit;border-radius:9px;padding:8px 12px;font:700 14px system-ui;cursor:pointer}' +
+    '.lg-pres{align-self:flex-start;border:1.5px solid #0A6A88;background:none;color:inherit;border-radius:9px;padding:8px 12px;font:700 14px var(--body,system-ui);cursor:pointer}' +
     'html.lg-present{font-size:125%}html.lg-present body{font-size:1.15em}html.lg-present .lede,html.lg-present footer{display:none!important}' +
     '.lg-btn,.lg-panel button{width:auto!important;min-width:0!important;margin:0!important;text-transform:none!important;letter-spacing:normal!important;flex:none}' +
     '.lg-btn{left:auto!important;top:auto!important}' +
@@ -409,13 +409,13 @@
     'html.lg-simple .status,html.lg-simple .verdict{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;cursor:pointer;position:relative}' +
     'html.lg-simple .status.lg-open,html.lg-simple .verdict.lg-open{display:block;-webkit-line-clamp:unset}' +
     'html.lg-simple .lg-more::after{content:"… Why? ▾";position:absolute;right:0;bottom:0;padding:0 10px 0 2.2em;font-weight:700;background:linear-gradient(90deg,transparent,var(--lg-bg,Canvas) 1.8em)}' +
-    '.lg-mode{display:inline-flex;border:1.5px solid currentColor;border-radius:999px;overflow:hidden;font:700 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif;opacity:.9;vertical-align:middle}' +
+    '.lg-mode{display:inline-flex;border:1.5px solid currentColor;border-radius:999px;overflow:hidden;font:700 13px/1 var(--body,system-ui,-apple-system,"Segoe UI",sans-serif);opacity:.9;vertical-align:middle}' +
     '.lg-mode button{border:0!important;background:none!important;color:inherit!important;padding:8px 12px!important;font:inherit!important;cursor:pointer;margin:0!important;width:auto!important;border-radius:0!important;text-transform:none!important;letter-spacing:normal!important}' +
     '.lg-mode button[aria-pressed="true"]{background:#0A6A88!important;color:#fff!important}' +
     '.lg-mode.float{position:fixed;left:max(14px,env(safe-area-inset-left,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));z-index:60;background:Canvas;color:CanvasText;box-shadow:0 6px 18px rgba(0,0,0,.18)}' +
     '@keyframes lgPulse{0%{box-shadow:0 0 0 0 rgba(245,158,91,.9)}100%{box-shadow:0 0 0 14px rgba(245,158,91,0)}}' +
     'html.lg-simple .lg-start{animation:lgPulse 1.4s ease-out infinite;position:relative}' +
-    'html.lg-simple .lg-start::after{content:"Start here";position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);background:#F59E5B;color:#1C1203;font:700 12px system-ui,sans-serif;padding:3px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:5}' +
+    'html.lg-simple .lg-start::after{content:"Start here";position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);background:#F59E5B;color:#1C1203;font:700 12px var(--body,system-ui,sans-serif);padding:3px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:5}' +
     '@media (prefers-reduced-motion: reduce){html.lg-simple .lg-start{animation:none;outline:3px solid #F59E5B;outline-offset:2px}}' +
     '@media print{.lg-mode{display:none}}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -445,6 +445,9 @@
   var tabBar = document.querySelector('[role="tablist"], .tabs');
   var hasTabs = !!(tabBar && ph.intro);
   var title = (document.querySelector('h1') || {}).textContent || document.title;
+  var esc2 = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var eyebrow = ((document.querySelector('.eyebrow') || {}).textContent || '').trim();
+  var LAST = 'lg:last:' + file;
   var PHASES = [
     { id: 'intro', name: 'Intro', desc: 'Start here: the main idea with only a few controls.' },
     { id: 'lab', name: 'Lab', desc: hasTabs ? 'Every tab, tool and option. Explore freely.' : 'Every tool and option, with explanations and teacher notes.' }
@@ -455,9 +458,9 @@
     lab: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect width="120" height="80" rx="10" fill="#FCEFD9"/><path d="M48 14 h16 M52 14 v20 L36 64 q-2 4 3 4 h34 q5 0 3-4 L60 34 V14" fill="#fff" stroke="#8A5A12" stroke-width="3" stroke-linejoin="round"/><path d="M41 56 h30 l4 8 q1 4 -3 4 H40 q-4 0 -3-4z" fill="#F59E5B"/><circle cx="88" cy="26" r="9" fill="none" stroke="#8A5A12" stroke-width="3"/><path d="M88 13 v-4 M88 43 v-4 M75 26 h-4 M105 26 h-4" stroke="#8A5A12" stroke-width="3"/><path d="M84 52 h16 M84 60 h10" stroke="#8A5A12" stroke-width="3" stroke-linecap="round"/></svg>',
     game: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect width="120" height="80" rx="10" fill="#EDE5FA"/><path d="M46 16 h28 v14 q0 16 -14 16 q-14 0 -14 -16z" fill="#F2B640" stroke="#7A5A10" stroke-width="2.5"/><path d="M46 20 h-8 q0 12 10 12 M74 20 h8 q0 12 -10 12" fill="none" stroke="#7A5A10" stroke-width="2.5"/><path d="M60 46 v10 M50 64 h20 v-8 h-20z" fill="#F2B640" stroke="#7A5A10" stroke-width="2.5"/><path d="M92 18 l3 6 6 1 -4.5 4 1 6 -5.5-3 -5.5 3 1-6 -4.5-4 6-1z" fill="#8E5BC8"/></svg>'
   };
-  css = '.lg-nav{position:fixed;left:0;right:0;bottom:0;z-index:58;display:flex;align-items:center;gap:6px;padding:6px max(12px,env(safe-area-inset-right,0px)) max(6px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:#13232B;color:#F5F6F2;box-shadow:0 -4px 16px rgba(0,0,0,.18);font:600 14px/1.1 system-ui,-apple-system,"Segoe UI",sans-serif}' +
+  css = '.lg-nav{position:fixed;left:0;right:0;bottom:0;z-index:58;display:flex;align-items:center;gap:6px;padding:6px max(12px,env(safe-area-inset-right,0px)) max(6px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:#13232B;color:#F5F6F2;box-shadow:0 -4px 16px rgba(0,0,0,.18);font:600 14px/1.1 var(--body,system-ui,-apple-system,"Segoe UI",sans-serif)}' +
     '.lg-nav .ttl{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:28vw;margin-right:auto}' +
-    '.lg-nav button.ph{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;color:#C9D4D8;padding:4px 8px;border-radius:8px;cursor:pointer;font:600 12px system-ui,sans-serif;width:auto;margin:0;text-transform:none;letter-spacing:normal}' +
+    '.lg-nav button.ph{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;color:#C9D4D8;padding:4px 8px;border-radius:8px;cursor:pointer;font:600 12.5px var(--body,system-ui,sans-serif);width:auto;margin:0;text-transform:none;letter-spacing:normal}' +
     '.lg-nav button.ph svg{width:46px;height:30px;border-radius:5px;opacity:.75;border:2px solid transparent}' +
     '.lg-nav button.ph[aria-current="true"]{color:#F59E5B}.lg-nav button.ph[aria-current="true"] svg{opacity:1;border-color:#F59E5B}' +
     '.lg-nav button.ph:focus-visible{outline:3px solid #F59E5B;outline-offset:1px}' +
@@ -465,15 +468,17 @@
     '.lg-nav .home svg{width:26px;height:26px;opacity:1;border:0}' +
     '@media (max-width:560px){.lg-nav .ttl{display:none}.lg-nav{justify-content:center}.lg-nav button.ph svg{width:38px;height:25px}.lg-nav .lg-btn .gtxt{display:none}}' +
     'body{padding-bottom:78px!important}' +
-    '.lg-home{position:fixed;inset:0;z-index:80;background:#0E171B;color:#F5F6F2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,4vh,40px);padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));overflow:auto;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}' +
-    '.lg-home h1{margin:0;font:800 clamp(30px,6vw,56px)/1.05 "Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;text-align:center;letter-spacing:-.02em}' +
-    '.lg-home .sub{margin:0;color:#B8C8CE;font-size:15px;text-align:center}' +
-    '.lg-home .cards{display:flex;flex-wrap:wrap;gap:18px;justify-content:center}' +
-    '.lg-home .card{width:min(250px,80vw);background:#1D3038;border:3px solid transparent;border-radius:16px;padding:14px;color:inherit;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:8px;font:inherit;margin:0;transition:transform .12s,border-color .12s}' +
-    '.lg-home .card:hover,.lg-home .card:focus-visible{border-color:#F59E5B;transform:translateY(-3px);outline:none}' +
+    '.lg-home{position:fixed;inset:0;z-index:80;background-color:var(--bg,#F5F6F2);background-image:linear-gradient(var(--paper-line,rgba(19,35,43,.045)) 1px,transparent 1px),linear-gradient(90deg,var(--paper-line,rgba(19,35,43,.045)) 1px,transparent 1px);background-size:28px 28px;color:var(--ink,#13232B);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(14px,3vh,28px);padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));overflow:auto;font-family:var(--body,system-ui,sans-serif)}' +
+    '.lg-home .ey{margin:0;font:500 13px/1.3 var(--data,ui-monospace,monospace);color:var(--muted,#52646C);text-align:center;max-width:60ch}' +
+    '.lg-home h1{margin:-6px 0 0;font:800 clamp(30px,5.5vw,54px)/1.05 var(--display,system-ui,sans-serif);text-align:center;letter-spacing:-.02em;text-wrap:balance}' +
+    '.lg-home .sub{margin:0;color:var(--muted,#52646C);font-size:16px;text-align:center}' +
+    '.lg-home .cards{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}' +
+    '.lg-home .card{width:min(250px,80vw);background:var(--surface,#fff);border:2px solid var(--line,#D3DAD4);border-radius:16px;padding:12px 12px 14px;color:inherit;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px;font:inherit;margin:0;transition:transform .12s,border-color .12s,box-shadow .12s}' +
+    '.lg-home .card:hover,.lg-home .card:focus-visible{border-color:var(--accent,#0A6A88);transform:translateY(-2px);box-shadow:0 8px 22px rgba(19,35,43,.12);outline:none}' +
+    '.lg-home .card.last{border-color:var(--accent,#0A6A88)}' +
     '.lg-home .card svg{width:100%;height:auto;border-radius:10px}' +
-    '.lg-home .card b{font-size:22px}.lg-home .card span{color:#B8C8CE;font-size:14px;line-height:1.4}' +
-    '.lg-home .back{color:#B8C8CE;font-size:14px}' +
+    '.lg-home .card b{font:800 22px/1.15 var(--display,system-ui,sans-serif)}.lg-home .card span{color:var(--muted,#52646C);font-size:14.5px;line-height:1.4}' +
+    '.lg-home .back{display:inline-flex;align-items:center;gap:6px;color:inherit;font-weight:700;font-size:14px;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;opacity:.85}.lg-home .back:hover,.lg-home .back:focus-visible{opacity:1}' +
     '@media (prefers-reduced-motion: reduce){.lg-home .card{transition:none}}' +
     '@media print{.lg-nav,.lg-home{display:none}}' +
     (hasTabs ? 'html[data-phase="intro"] ' + (tabBar.className ? '.' + tabBar.className.trim().split(/\s+/)[0] : '[role=tablist]') + ',html[data-phase="game"] ' + (tabBar.className ? '.' + tabBar.className.trim().split(/\s+/)[0] : '[role=tablist]') + '{display:none!important}' : '') +
@@ -481,7 +486,7 @@
   st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var nav = document.createElement('nav'); nav.className = 'lg-nav'; nav.setAttribute('aria-label', 'Screens');
-  nav.innerHTML = '<span class="ttl">' + title.replace(/[<>&]/g, '') + '</span><button type="button" class="ph home" data-ph="home" aria-label="Home screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 L12 3 L21 11 V21 H14 V14 H10 V21 H3 Z" fill="#F5F6F2"/></svg>Home</button>' +
+  nav.innerHTML = '<span class="ttl">' + esc2(title) + '</span><button type="button" class="ph home" data-ph="home" aria-label="Home screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 L12 3 L21 11 V21 H14 V14 H10 V21 H3 Z" fill="#F5F6F2"/></svg>Home</button>' +
     PHASES.map(function (q) { return '<button type="button" class="ph" data-ph="' + q.id + '">' + ICON[q.id] + q.name + '</button>'; }).join('');
   document.body.appendChild(nav);
   function moveGuide() { var g = document.querySelector('.lg-btn'); if (g && g.parentNode !== nav) { nav.appendChild(g); if (!g.querySelector('.gtxt')) g.innerHTML = g.innerHTML.replace('Guide', '<span class="gtxt">Guide</span>'); } }
@@ -491,6 +496,7 @@
   function setPhase(id, push) {
     var home = document.querySelector('.lg-home'); if (home) home.remove();
     root.setAttribute('data-phase', id);
+    try { localStorage.setItem(LAST, id); } catch (e) { }
     mode = id === 'intro' ? 'simple' : 'full';
     root.classList.toggle('lg-simple', mode === 'simple');
     if (id === 'intro' && hasTabs) clickTab(ph.intro);
@@ -502,17 +508,20 @@
   }
   function showHome() {
     var h = document.createElement('div'); h.className = 'lg-home'; h.setAttribute('role', 'dialog'); h.setAttribute('aria-label', title + ': choose a screen');
-    h.innerHTML = '<h1>' + title.replace(/[<>&]/g, '') + '</h1><p class="sub">Choose a screen</p><div class="cards">' +
-      PHASES.map(function (q) { return '<button type="button" class="card" data-ph="' + q.id + '">' + ICON[q.id] + '<b>' + q.name + '</b><span>' + q.desc + '</span></button>'; }).join('') +
+    var last = null; try { last = localStorage.getItem(LAST); } catch (e) { }
+    h.innerHTML = (eyebrow ? '<p class="ey">' + esc2(eyebrow) + '</p>' : '') + '<h1>' + esc2(title) + '</h1><p class="sub">Where do you want to start?</p><div class="cards">' +
+      PHASES.map(function (q) { return '<button type="button" class="card' + (q.id === last ? ' last' : '') + '" data-ph="' + q.id + '">' + ICON[q.id] + '<b>' + q.name + '</b><span>' + q.desc + (q.id === last ? ' <i>(where you were last time)</i>' : '') + '</span></button>'; }).join('') +
       '</div><a class="back" href="index.html">← All simulations</a>';
     document.body.appendChild(h);
     h.querySelectorAll('[data-ph]').forEach(function (b) { b.onclick = function () { setPhase(b.dataset.ph); }; });
-    var first = h.querySelector('.card'); if (first) first.focus();
+    var first = h.querySelector('.card.last') || h.querySelector('.card'); if (first) first.focus();
     nav.querySelectorAll('[data-ph]').forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.ph === 'home')); });
   }
   nav.addEventListener('click', function (e) { var b = e.target.closest('[data-ph]'); if (!b) return; if (b.dataset.ph === 'home') showHome(); else setPhase(b.dataset.ph); });
   // a lab tab clicked inside the page while in Lab keeps you in Lab; the old Simple/Full switch is gone
   var start = (location.hash || '').slice(1);
+  var saved = null; try { saved = localStorage.getItem(LAST); } catch (e) { }
+  if (!PHASES.some(function (q) { return q.id === start; }) && PHASES.some(function (q) { return q.id === saved; })) start = saved;   // back to the screen used last time; Home is one tap away
   if (PHASES.some(function (q) { return q.id === start; })) setPhase(start, false); else { root.setAttribute('data-phase', 'intro'); root.classList.add('lg-simple'); showHome(); }
   window.addEventListener('hashchange', function () { var h = (location.hash || '').slice(1); if (PHASES.some(function (q) { return q.id === h; }) && root.getAttribute('data-phase') !== h) setPhase(h, false); });
 
