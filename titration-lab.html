@@ -133,6 +133,36 @@ ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;
 ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .runs{display:flex;flex-wrap:wrap;gap:6px}
 .runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+.rlgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.rlf{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.9rem;min-width:0}
+.rlf.rlwide{grid-column:1/-1}
+.rlf input,.rlf select,.rltable input,#rlPh{font:inherit;font-family:var(--data);font-variant-numeric:tabular-nums;padding:7px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);min-width:0;width:100%}
+.rlf select{font-family:var(--body)}
+.rlunc summary,.rlph summary{cursor:pointer;font-weight:700;color:var(--muted);min-height:36px;display:flex;align-items:center;gap:6px}
+.rlunc .rlgrid{margin-top:8px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.rltable td{padding:4px 6px}
+.rltable input{width:6.2em;padding:5px 7px;text-align:right}
+.rltable input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.rltable tr.conc td:nth-child(4){color:var(--ok);font-weight:700}
+.rltable tr.out td:nth-child(4){color:var(--muted);text-decoration:line-through}
+.rltable tbody tr{cursor:default}
+.rltable .del{border:0;background:none;color:var(--muted);font-size:1.1rem;padding:4px 8px}
+.rlres{margin:0;font-family:var(--data);font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums}
+.rlres small{display:block;font-family:var(--body);font-size:.88rem;font-weight:400;color:var(--muted)}
+.rlbars{display:flex;flex-direction:column;gap:5px}
+.rlbar{display:grid;grid-template-columns:7.5em minmax(0,1fr) 4em;gap:8px;align-items:center;font-size:.85rem}
+.rlbar i{display:block;height:10px;border-radius:5px;background:var(--brass)}
+.rlbar b{font-family:var(--data);font-weight:600;text-align:right}
+#rlLine{height:110px}
+#rlCurve{height:260px}
+.rlerr{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.rlerr li{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface)}
+.rlerr li .dir{font-family:var(--data);font-weight:700;min-width:4.6em;white-space:nowrap}
+.rlerr li.hi .dir{color:var(--bad)} .rlerr li.lo .dir{color:var(--a)}
+.rlerr li.dim{opacity:.45}
+#rlPh{resize:vertical;margin-top:6px}
+@media (max-width:520px){.rlgrid,.rlunc .rlgrid{grid-template-columns:minmax(0,1fr)}.rltable input{width:4.4em;padding:5px 5px}.rltable th,.rltable td{padding:4px 4px;font-size:.8125rem}.rltable .del{padding:4px}}
+.rlres.empty{font-family:var(--body);font-size:1rem;font-weight:400;color:var(--muted)}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style><script src="lab-viz.js"></script><link rel="stylesheet" href="site.css">
@@ -156,7 +186,8 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   <button class="tab" role="tab" aria-selected="true" data-tab="dil">1 · Dilution</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="prep">2 · Prepare from a solid</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="tit">3 · Titration</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="chal">4 · Challenge</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="real">4 · Real lab</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="chal">5 · Challenge</button>
  </div>
 
  <!-- ================= TAB 1: DILUTION ================= -->
@@ -269,7 +300,56 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   </div>
  </section>
 
- <!-- ================= TAB 4: CHALLENGE ================= -->
+
+ <!-- ================= TAB 4: REAL LAB (your own measurements, margin of error) ================= -->
+ <section class="bench" id="p-real" role="tabpanel" hidden>
+  <div class="grid2">
+   <div class="col">
+    <div class="card">
+     <h3>1 · Your set-up</h3>
+     <div class="rlgrid">
+      <label class="rlf rlwide"><span>Reaction</span><select id="rlRx" class="sel"></select></label>
+      <label class="rlf"><span>Burette: C<sub>b</sub> (mol/L)</span><input id="rlCb" inputmode="decimal" autocomplete="off"></label>
+      <label class="rlf"><span>Flask: V<sub>a</sub> (mL)</span><input id="rlVa" inputmode="decimal" autocomplete="off"></label>
+      <label class="rlf rlwide"><span>True value (from the teacher, if known), mol/L</span><input id="rlTrue" inputmode="decimal" autocomplete="off" placeholder="optional"></label>
+     </div>
+     <details class="rlunc"><summary>Glassware uncertainty</summary>
+      <div class="rlgrid">
+       <label class="rlf"><span>Each burette reading ± (mL)</span><input id="rlUb" inputmode="decimal" value="0.05"></label>
+       <label class="rlf"><span>Pipette ± (mL)</span><input id="rlUp" inputmode="decimal" value="0.06"></label>
+       <label class="rlf"><span>C<sub>b</sub> ± (%)</span><input id="rlUc" inputmode="decimal" value="0.5"></label>
+      </div>
+     </details>
+    </div>
+    <div class="card">
+     <div class="benchhead"><h3>2 · Your burette readings</h3><button class="btn small" id="rlAdd" type="button">+ Trial</button></div>
+     <div class="tablewrap"><table class="rltable"><thead><tr><th>Trial</th><th>Initial (mL)</th><th>Final (mL)</th><th>Titre (mL)</th><th>Rough?</th><th></th></tr></thead><tbody id="rlTb"></tbody></table></div>
+     <p class="note" id="rlConc"></p>
+    </div>
+    <details class="card rlph"><summary><b>pH meter readings</b> <span class="note">(optional)</span></summary>
+     <p class="note">Volume added and pH, one pair per line, for example <span class="mono">10.0, 2.4</span></p>
+     <textarea id="rlPh" rows="5" spellcheck="false" placeholder="0, 1.0&#10;5, 1.2&#10;10, 1.5"></textarea>
+    </details>
+   </div>
+   <div class="col">
+    <div class="card">
+     <h3>3 · Your result</h3>
+     <p class="rlres empty" id="rlRes">Enter at least one trial.</p>
+     <div class="rlbars" id="rlBars" aria-label="Where the uncertainty comes from"></div>
+     <canvas class="stage" id="rlLine" aria-label="Number line: your value with its margin of error, and the true value"></canvas>
+     <p class="status" id="rlVerdict" aria-live="polite" hidden></p>
+    </div>
+    <div class="card" id="rlWhy" hidden>
+     <h3>What could explain it?</h3>
+     <p class="note" id="rlWhyLead"></p>
+     <ul class="rlerr" id="rlErr"></ul>
+    </div>
+    <canvas class="stage" id="rlCurve" aria-label="Your pH readings over the model curve" hidden></canvas>
+    <div class="transport"><button class="btn small" id="rlClear" type="button">Clear my data</button><span class="note">Saved on this device only.</span></div>
+   </div>
+  </div>
+ </section>
+ <!-- ================= TAB 5: CHALLENGE ================= -->
  <section class="bench" id="p-chal" role="tabpanel" hidden>
   <div class="grid2">
    <div class="col">
@@ -310,7 +390,7 @@ $('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('d
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
 let tab='dil';
 $$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
- ['dil','prep','tit','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
+ ['dil','prep','tit','real','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
 $('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');$$('.bench').forEach(x=>x.classList.remove('fs'));
  if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
  $('#fsBtn').textContent=on?'Exit full screen':'Full screen';drawAll()};
@@ -636,7 +716,89 @@ function nextQ(){if(!order.length||qi>=order.length-1){order=shuffle([...QS.keys
   const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
 $('#qNext').onclick=nextQ;
 
-function drawAll(){if(!C.ink)readColors();if(tab==='dil'&&dil.st)drawDil();if(tab==='prep'&&prep.s)drawPrep();if(tab==='tit')drawTit()}
+
+/* =========================================================
+   TAB 4 — REAL LAB: the student's own measurements, with a margin of error
+   C = k × Cb × V / Va, where k comes from the reaction (HCl 1, CH3COOH 1, H2SO4 ½, Fe²⁺ 5).
+   Percentage uncertainties add: titre (two burette readings), pipette, Cb.
+   ========================================================= */
+const RL_KEY='tit-real-v1';
+const rlK=r=>r.type==='rx'?5:1/r.z;
+const rl={rx:'hcl',Cb:'0.10',Va:'20',tru:'',ub:'0.05',up:'0.06',uc:'0.5',trials:[{i:'',f:'',rough:false},{i:'',f:'',rough:false},{i:'',f:'',rough:false}],ph:''};
+try{const s=JSON.parse(localStorage.getItem(RL_KEY)||'null');if(s&&s.trials)Object.assign(rl,s)}catch(e){}
+const rlSave=()=>{try{localStorage.setItem(RL_KEY,JSON.stringify(rl))}catch(e){}};
+RX.forEach(r=>$('#rlRx').insertAdjacentHTML('beforeend',`<option value="${r.id}">${r.name}</option>`));
+const RL_ERR=[
+ {d:+1,t:'Went past the end point (too much from the burette)'},
+ {d:+1,t:'Burette rinsed with water, not with the burette solution (it got diluted)'},
+ {d:+1,t:'Air bubble in the burette tip that came out during the titration'},
+ {d:+1,t:'Flask rinsed with the unknown solution instead of water'},
+ {d:-1,t:'Stopped too early: the colour had not changed for good'},
+ {d:-1,t:'Pipette rinsed with water, not with the unknown (it got diluted)'},
+ {d:-1,t:'Some unknown splashed out or stayed in the pipette'},
+ {d:-1,t:'Indicator changes colour too early for this acid (e.g. methyl orange with CH₃COOH)'}];
+function rlRows(){const tb=$('#rlTb');tb.innerHTML='';
+ rl.trials.forEach((t,n)=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${n+1}</td><td><input data-k="i" value="${t.i}" inputmode="decimal" aria-label="Trial ${n+1} initial reading"></td><td><input data-k="f" value="${t.f}" inputmode="decimal" aria-label="Trial ${n+1} final reading"></td><td class="mono" data-v></td><td><input type="checkbox" data-k="rough" ${t.rough?'checked':''} aria-label="Trial ${n+1} is a rough trial"></td><td><button class="del" type="button" aria-label="Delete trial ${n+1}">×</button></td>`;
+  tr.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>{t[inp.dataset.k]=inp.type==='checkbox'?inp.checked:inp.value;rlCalc()}));
+  tr.querySelector('.del').onclick=()=>{rl.trials.splice(n,1);if(!rl.trials.length)rl.trials.push({i:'',f:'',rough:false});rlRows();rlCalc()};
+  tb.appendChild(tr)})}
+function rlFill(){$('#rlRx').value=rl.rx;$('#rlCb').value=rl.Cb;$('#rlVa').value=rl.Va;$('#rlTrue').value=rl.tru;$('#rlUb').value=rl.ub;$('#rlUp').value=rl.up;$('#rlUc').value=rl.uc;$('#rlPh').value=rl.ph;rlRows()}
+[['#rlCb','Cb'],['#rlVa','Va'],['#rlTrue','tru'],['#rlUb','ub'],['#rlUp','up'],['#rlUc','uc'],['#rlPh','ph']].forEach(([id,k])=>$(id).addEventListener('input',e=>{rl[k]=e.target.value;rlCalc()}));
+$('#rlRx').addEventListener('change',e=>{rl.rx=e.target.value;const r=RX.find(x=>x.id===rl.rx);rl.Cb=String(r.Cb);rl.Va=String(r.Va);$('#rlCb').value=rl.Cb;$('#rlVa').value=rl.Va;rlCalc()});
+$('#rlAdd').onclick=()=>{if(rl.trials.length<8){rl.trials.push({i:'',f:'',rough:false});rlRows();rlCalc();const ins=$$('#rlTb input[data-k="i"]');ins[ins.length-1].focus()}};
+$('#rlClear').onclick=()=>{if(!confirm('Clear all your readings?'))return;rl.trials=[{i:'',f:'',rough:false},{i:'',f:'',rough:false},{i:'',f:'',rough:false}];rl.tru='';rl.ph='';rlFill();rlCalc()};
+let rlOut=null;
+function rlCalc(){rlSave();const r=RX.find(x=>x.id===rl.rx),Cb=num(rl.Cb),Va=num(rl.Va),ub=Math.abs(num(rl.ub))||0,up=Math.abs(num(rl.up))||0,uc=Math.abs(num(rl.uc))||0,tru=num(rl.tru);
+ const rows=$$('#rlTb tr');const V=[];
+ rl.trials.forEach((t,n)=>{const a=num(t.i),b=num(t.f),v=b-a,cell=rows[n].querySelector('[data-v]');rows[n].className='';
+  if(isFinite(a)&&isFinite(b)&&v>0){cell.textContent=fx(v,2);if(!t.rough)V.push({n,v})}else cell.textContent=(isFinite(a)&&isFinite(b))?'check':''});
+ // concordant: the largest group of titres within 0.10 mL of each other
+ let best=[];const sv=[...V].sort((a,b)=>a.v-b.v);
+ for(let i=0;i<sv.length;i++){const g=sv.filter(x=>x.v>=sv[i].v-1e-9&&x.v<=sv[i].v+0.10+1e-9);if(g.length>best.length)best=g}
+ const used=best.length>=2?best:V;
+ V.forEach(x=>{const c=best.length>=2?(best.includes(x)?'conc':'out'):'';if(c)rows[x.n].classList.add(c)});
+ $('#rlConc').textContent=!V.length?'Titre = final − initial. Tick "Rough?" for a fast first trial: it is left out.':best.length>=2?`Concordant (within 0.10 mL): trials ${best.map(x=>x.n+1).sort((a,b)=>a-b).join(', ')}. Mean titre = ${fx(best.reduce((s,x)=>s+x.v,0)/best.length,2)} mL.`:V.length===1?'One titre so far. Do at least two that agree within 0.10 mL.':'No two titres agree within 0.10 mL yet: do another trial.';
+ rlOut=null;$('#rlWhy').hidden=true;$('#rlVerdict').hidden=true;$('#rlBars').innerHTML='';
+ if(!used.length||!isFinite(Cb)||!isFinite(Va)||Cb<=0||Va<=0){$('#rlRes').textContent='Enter at least one trial.';$('#rlRes').classList.add('empty');drawReal();return}
+ $('#rlRes').classList.remove('empty');
+ const Vm=used.reduce((s,x)=>s+x.v,0)/used.length,k=rlK(r),C=k*Cb*Vm/Va;
+ const pV=2*ub/Vm*100,pP=up/Va*100,pC=uc,pT=pV+pP+pC,U=C*pT/100;
+ const d=U>0?Math.max(0,1-Math.floor(Math.log10(U))):4,dd=Math.min(5,Math.max(3,d));
+ $('#rlRes').innerHTML=`C(${r.acid}) = ${fx(C,dd)} ± ${fx(U,dd)} mol/L<small>${k===1?'':k+' × '}C<sub>b</sub> × V / V<sub>a</sub> = ${k===1?'':k+' × '}${Cb} × ${fx(Vm,2)} / ${Va}. Margin of error ± ${fx(pT,1)}%.</small>`;
+ const mx=Math.max(pV,pP,pC,0.01);
+ $('#rlBars').innerHTML=[['Burette',pV],['Pipette',pP],['C of burette',pC]].map(([n,p])=>`<div class="rlbar"><span>${n}</span><i style="width:${Math.max(2,p/mx*100)}%"></i><b>${fx(p,2)}%</b></div>`).join('');
+ rlOut={C,U,pT,tru:isFinite(tru)&&tru>0?tru:null,r,dd};
+ if(rlOut.tru){const err=(C-tru)/tru*100,inside=Math.abs(C-tru)<=U,st=$('#rlVerdict');st.hidden=false;
+  st.className='status '+(inside?'ok':'bad');
+  st.textContent=inside?`✓ Within your margin of error. Your error ${fx(Math.abs(err),1)}% ≤ uncertainty ${fx(pT,1)}%: random error explains the difference.`:`Outside your margin of error. Your value is ${fx(Math.abs(err),1)}% too ${err>0?'high':'low'} (uncertainty only ${fx(pT,1)}%): something systematic happened.`;
+  const dir=err>0?1:-1;$('#rlWhy').hidden=false;
+  $('#rlWhyLead').textContent=inside?'No experiment is perfect. Small differences come from reading the burette, the size of the last drop and judging the colour.':`Your result is too ${dir>0?'high':'low'}. These mistakes push it that way:`;
+  $('#rlErr').innerHTML=inside?'':RL_ERR.filter(e=>e.d===dir).map(e=>`<li class="${e.d>0?'hi':'lo'}"><span class="dir">${e.d>0?'↑ high':'↓ low'}</span><span>${e.t}</span></li>`).join('')}
+ drawReal()}
+function rlPHpts(){return (rl.ph||'').split(/\n/).map(l=>l.split(/[,;\t ]+/).map(num)).filter(p=>p.length>=2&&isFinite(p[0])&&isFinite(p[1]))}
+function rlModelPH(r,Ca,Vb,Cb,Va){const Vt=(Va+Vb)/1000,na=Ca*Va/1000,Na=Cb*Vb/1000/Vt,Ct=na/Vt;const A=h=>r.Ka?Ct*r.Ka/(r.Ka+h):r.z*Ct;let lo=-15,hi=1;for(let i=0;i<70;i++){const m=(lo+hi)/2,h=Math.pow(10,m);const f=h+Na-Kw/h-A(h);if(f>0)hi=m;else lo=m}return -(lo+hi)/2}
+function drawReal(){const cv=$('#rlLine');if(!cv||$('#p-real').hidden)return;
+ const {x,w,h}=fit(cv);x.clearRect(0,0,w,h);
+ if(!rlOut){txt(x,'Your value ± margin appears here.',14,h/2+4,C.muted,13);rlCurveDraw();return}
+ const {C:c,U,tru,dd}=rlOut,ctr=tru??c,span=Math.max(3*U,(tru?Math.abs(c-tru):0)*1.6,c*0.01),lo=ctr-span,hi=ctr+span,X=v=>20+(v-lo)/(hi-lo)*(w-40),y=h*0.55;
+ x.strokeStyle=C.line;x.lineWidth=1.5;x.beginPath();x.moveTo(14,y);x.lineTo(w-14,y);x.stroke();
+ for(let i=0;i<=4;i++){const v=lo+(hi-lo)*i/4,px=X(v);x.beginPath();x.moveTo(px,y-4);x.lineTo(px,y+4);x.stroke();txt(x,fx(v,dd),px,y+22,C.muted,12,i===0?'left':i===4?'right':'center')}
+ x.fillStyle='rgba(184,145,58,.28)';x.fillRect(X(c-U),y-14,X(c+U)-X(c-U),28);
+ x.strokeStyle=C.ink;x.lineWidth=2;x.beginPath();x.moveTo(X(c-U),y-10);x.lineTo(X(c-U),y+10);x.moveTo(X(c+U),y-10);x.lineTo(X(c+U),y+10);x.moveTo(X(c-U),y);x.lineTo(X(c+U),y);x.stroke();
+ x.fillStyle=C.accent;x.beginPath();x.arc(X(c),y,6,0,7);x.fill();txt(x,'you',X(c)-11,y-22,C.accent,12);
+ if(tru){x.strokeStyle=C.rose;x.lineWidth=2.5;x.beginPath();x.moveTo(X(tru),y-26);x.lineTo(X(tru),y+12);x.stroke();txt(x,'true',X(tru)-12,14,C.rose,12)}
+ rlCurveDraw()}
+function rlCurveDraw(){const cv=$('#rlCurve'),pts=rlPHpts(),r=RX.find(z=>z.id===rl.rx);const show=pts.length>=2&&r.type==='ab';cv.hidden=!show;if(!show)return;
+ const {x,w,h}=fit(cv),L=40,R=14,T=14,B=30;x.clearRect(0,0,w,h);
+ const Cb=num(rl.Cb),Va=num(rl.Va),Ca=rlOut?(rlOut.tru||rlOut.C):null,vmax=Math.max(...pts.map(p=>p[0]),Ca?rlK(r)>0?(Ca*Va/(rlK(r)*Cb))*1.6:25:25);
+ const X=v=>L+v/vmax*(w-L-R),Y=p=>T+(14-p)/14*(h-T-B);
+ x.strokeStyle=C.grid;x.lineWidth=1;for(let p=0;p<=14;p+=2){x.beginPath();x.moveTo(L,Y(p));x.lineTo(w-R,Y(p));x.stroke();txt(x,String(p),L-22,Y(p)+4,C.muted,11)}
+ txt(x,'V added (mL)',w-R-80,h-8,C.muted,11);txt(x,'pH',6,T+8,C.muted,11);
+ if(Ca&&isFinite(Cb)&&isFinite(Va)){x.strokeStyle=C.accent;x.lineWidth=2.5;x.beginPath();for(let i=0;i<=160;i++){const v=vmax*i/160,p=rlModelPH(r,Ca,v,Cb,Va);i?x.lineTo(X(v),Y(p)):x.moveTo(X(v),Y(p))}x.stroke();txt(x,'model',X(vmax*0.04),Y(13),C.accent,12)}
+ x.fillStyle=C.rose;pts.forEach(p=>{x.beginPath();x.arc(X(p[0]),Y(p[1]),4.5,0,7);x.fill()});txt(x,'your readings',X(vmax*0.04),Y(11.8),C.rose,12)}
+$('#rlPh').addEventListener('input',()=>drawReal());
+rlFill();rlCalc();
+function drawAll(){if(!C.ink)readColors();if(tab==='dil'&&dil.st)drawDil();if(tab==='prep'&&prep.s)drawPrep();if(tab==='tit')drawTit();if(tab==='real')drawReal()}
 addEventListener('resize',drawAll);
 readColors();dilTask();prepTask();newUnknown();setQuestion();nextQ();themeLabel();requestAnimationFrame(loop);
 </script>
