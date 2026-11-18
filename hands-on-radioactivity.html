@@ -1,0 +1,436 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hands-On Lab: Radioactivity</title>
+<meta name="description" content="Grade 12 physics camera lab: measure the background count with a Geiger-Müller tube, find what stops alpha, beta and gamma radiation, check the inverse-square law, and shake a protactinium generator to measure a half-life. Mystery source and mystery generator for exercises. Works with mouse or touch too.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="hand-kit.css">
+<style>
+.read{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;font-size:.92rem}
+.read dt{color:var(--muted)}.read dd{margin:0;font-family:var(--data);text-align:right;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-right:1.5px solid var(--line);background:var(--stage);padding:5px 10px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.ctl{display:flex;flex-direction:column;gap:10px}
+.tw{max-height:230px;overflow:auto;margin-top:8px}
+table.data{width:100%;border-collapse:collapse;font-size:.8rem}table.data th,table.data td{padding:3px 4px;text-align:right;border-bottom:1px solid var(--line);font-family:var(--data);font-variant-numeric:tabular-nums;white-space:nowrap}table.data th{font-weight:600;color:var(--muted);position:sticky;top:0;background:var(--card,var(--bg))}table.data td:first-child,table.data th:first-child{text-align:left;font-family:var(--body)}
+#graph{width:100%;height:220px;display:block;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+.ans{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.quiz p{margin:.2rem 0 .5rem}.quiz .ans button.right{background:var(--ok);color:#fff;border-color:var(--ok)}.quiz .ans button.wrong{opacity:.55;text-decoration:line-through}
+.inl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.inl input{width:6.5em;padding:5px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);font:inherit;font-family:var(--data)}
+details summary{cursor:pointer;font-weight:700}details select{padding:4px 6px;border-radius:8px;border:1.5px solid var(--line);background:var(--stage);color:var(--ink);font:inherit}
+.code{font-family:var(--data);word-break:break-all;font-size:.82rem}
+/* on a small screen the hand-colour buttons would cover the absorber plates: move them to the empty top middle */
+@media (max-width:560px){#stage .tones{left:50%;bottom:auto;top:4px;transform:translateX(-50%) scale(.72);transform-origin:top center}}
+</style>
+</head><body>
+<div class="wrap">
+ <a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
+ <header>
+  <div>
+   <p class="eyebrow">Grade 12 Physics · Module 24 Nuclear physics · Radioactive decay and half-life · Camera lab</p>
+   <h1>Hands-On Lab: Radioactivity</h1>
+   <p class="lede">Count the clicks of a Geiger-Müller tube. Measure the background, find what stops alpha, beta and gamma radiation, test the inverse-square law, then shake a protactinium generator and measure its half-life. The camera follows your hand; pinch your thumb and first finger to pick something up. Sources are always held with tongs.</p>
+  </div>
+  <div class="row"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
+ </header>
+ <div class="grid">
+  <div class="stage" id="stage">
+   <video id="video" playsinline muted autoplay hidden></video>
+   <canvas id="gl" aria-label="3-D lab bench with a Geiger-Müller tube on an optical bench, a sliding source holder, absorber plates, a lead box of sealed sources, two generator bottles and a scaler-timer"></canvas>
+   <canvas id="hud" class="hud"></canvas>
+   <div class="intro" id="intro">
+    <h2>Pinch to hold, press the scaler buttons to count</h2>
+    <p>The camera follows your hand. Your video stays on this device and is never uploaded.</p>
+    <div class="row" style="justify-content:center">
+     <button class="btn primary" id="startCam" type="button">Start with my camera</button>
+     <button class="btn" id="startMouse" type="button">Use mouse or touch</button>
+    </div>
+   </div>
+  </div>
+  <aside>
+   <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
+   <div class="card"><h3>What happened</h3><p class="say" id="say"></p><div class="ans" id="xAns" hidden></div></div>
+   <div class="card"><h3>Lab steps</h3><ol class="steps" id="steps"></ol></div>
+   <div class="card ctl">
+    <div><h3>Scaler</h3><div class="row"><button class="btn primary" id="hStart" type="button">Start</button><button class="btn" id="hReset" type="button">Reset</button></div></div>
+    <div><h3>Count for</h3><div class="seg" id="msel"><button type="button" data-m="10">10 s</button><button type="button" data-m="60">60 s</button><button type="button" data-m="log">Logger, every 10 s</button><button type="button" data-m="inf">Until stopped</button></div></div>
+    <div><h3>Time speed</h3><div class="seg" id="ssel"><button type="button" data-s="1">×1</button><button type="button" data-s="2">×2</button><button type="button" data-s="5">×5</button><button type="button" data-s="10">×10</button></div></div>
+    <dl class="read"><dt>Count rate now (about)</dt><dd id="rR">–</dd><dt>Source distance d</dt><dd id="rD">–</dd><dt>Absorber</dt><dd id="rA">none</dd><dt>Background</dt><dd id="rB">not measured yet</dd></dl>
+   </div>
+   <div class="card"><h3>Counts</h3><p class="small" style="margin:0">Corrected count rate = count rate − background.</p><div class="tw"><table class="data" id="runs"></table></div></div>
+   <div class="card"><h3>Half-life graph</h3>
+    <canvas id="graph" aria-label="Graph of corrected counts in each 10 second interval against time"></canvas>
+    <div class="inl"><label class="ck"><input type="checkbox" id="lnG"> ln(counts)</label><label class="ck"><input type="checkbox" id="fitG"> Best-fit curve</label></div>
+    <div class="inl"><label for="tHalf">My half-life:</label><input id="tHalf" type="number" min="1" step="1" inputmode="decimal"><span>s</span><button class="btn" id="tCheck" type="button">Check</button></div>
+    <p class="small" id="hlNote" style="margin:6px 0 0"></p>
+   </div>
+   <div class="card ctl">
+    <label class="ck"><input type="checkbox" id="tracks" checked> Show the radiation reaching the tube</label>
+    <label class="ck"><input type="checkbox" id="model" checked> Show 100 model nuclei for a generator in the holder (larger screens)</label>
+    <label class="ck"><input type="checkbox" id="snd" checked> Clicks (sound)</label>
+    <div class="row"><button class="btn" id="shake" type="button">Shake the generator for me</button></div>
+   </div>
+   <div class="card quiz" id="quiz"><h3>Check yourself</h3><div id="qz"></div></div>
+   <div class="card">
+    <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
+    <div class="row" style="margin-top:10px"><button class="btn" id="reset" type="button">Start the lab again</button></div>
+   </div>
+   <div class="card"><details id="teach"><summary>For teachers: set the mystery source and generator</summary>
+    <p class="small">With no setting, each student gets a random mystery. Choose values to make a link everyone shares.</p>
+    <div class="inl"><label>Source X gives out <select id="tType"><option value="0">alpha</option><option value="1">beta</option><option value="2">gamma</option><option value="3">beta and gamma</option></select></label></div>
+    <div class="inl"><label>Generator X half-life <input id="tT" type="number" min="20" max="200" value="100"> s</label></div>
+    <div class="inl"><button class="btn" id="tMake" type="button">Make the link</button><button class="btn" id="tShow" type="button">Show this page's answers</button></div>
+    <p class="code" id="tOut"></p></details></div>
+   <p class="small">Tip: the scaler counts in lab seconds. Speed up time to save waiting; the clicks speed up too. Hold a generator bottle and shake your hand to mix the two liquids.</p>
+  </aside>
+ </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="hand-model.js"></script>
+<script src="hand-kit.js"></script>
+<script src="phys-parts.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const setStatus=(t,c)=>{$('status').textContent=t;$('status').className='status '+(c||'')};
+const say=t=>{$('say').textContent=t};
+if(!window.THREE){setStatus('The 3-D engine could not load. Check the internet connection and reload.','bad');return}
+const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),fx=(v,d)=>v.toFixed(d),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),PI=Math.PI;
+
+/* ---------- the physics ---------- */
+const CM=4;                                   // centimetres per bench unit along the optical bench
+const TY=1.75,SH=3.55,D_MIN=1.5,D_MAX=22;      // beam height, shelf top, nearest and furthest source distance (cm)
+const BKG=.42;                                // background: 0.42 counts per second = 25 counts per minute
+const ABS={paper:{name:'paper',a:.002,b:.97,g:1},al:{name:'aluminium 3 mm',a:0,b:.004,g:.97},pb:{name:'lead 10 mm',a:0,b:.002,g:.55}};
+const RANGE_A=3.8;                            // alpha particles from Am-241 travel about 3.8 cm in air
+const D0=.5;                                  // the counting gas sits about 5 mm behind the window
+const XT=[[{t:'a',A:600}],[{t:'b',A:700}],[{t:'g',A:900}],[{t:'b',A:500},{t:'g',A:600}]],XN=['alpha','beta','gamma','beta and gamma'];
+// a teacher's link carries ?x=CODE: (half-life × 4 + type) × 37 + 11, in base 36
+const enc=(ty,th)=>'R'+((th*4+ty)*37+11).toString(36).toUpperCase();
+function dec(s){if(!s||s[0].toUpperCase()!=='R')return null;const n=parseInt(s.slice(1),36);if(!isFinite(n)||(n-11)%37)return null;const m=(n-11)/37,ty=m%4,th=(m-ty)/4;return th>=20&&th<=200?{ty,th}:null}
+const MYS=dec(new URLSearchParams(location.search).get('x'))||{ty:Math.floor(Math.random()*4),th:Math.round(40+Math.random()*100),rnd:true};
+const GEN={pa:{name:'Pa-234m generator',th:72,A:120},gx:{name:'Generator X',th:MYS.th,A:110}};
+const S={done:{},runs:[],bkg:null,speed:1,mode:'10',on:false,el:0,n:0,fin:false,rate:0,rec:{},told:{},logs:[],log:null,time:0,streaks:[],xTry:0,hlTry:{}};
+
+function pois(m){if(m<=0)return 0;if(m<30){const L=Math.exp(-m);let k=0,p=1;do{k++;p*=Math.random()}while(p>L);return k-1}let u=0;for(let i=0;i<12;i++)u+=Math.random();return Math.max(0,Math.round(m+Math.sqrt(m)*(u-6)))}
+
+const K=HandKit.create({stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
+ layout,onGrab,onDrop,onFrame:frame,onHUD:hudDraw,
+ targets(it){const u=it.userData;if(u.src||u.gen)return mounted()&&mounted()!==it?[]:[V(cart.position.x-(u.gen?BR:CAP),TY)];if(u.abs)return slotted()&&slotted()!==it?[]:[V(G.TX-SLX,TY)];return []}});
+const scene=K.scene,P=PhysParts(K);
+const G={TX:4.7};                              // x of the tube's window; set by layout()
+
+/* ================= the bench ================= */
+const CAP=.15,BR=.42,SLX=.2;                  // half-length of a source capsule, radius of a generator bottle, absorber holder in front of the window
+// shelf along the back for the lead box, the generators and the scaler
+const shelf=new T.Group();{const b=P.mesh(P.rbox(1,.1,1.6,.03,.02),P.wood('#A8794A'),0,SH-.05,-.3);b.receiveShadow=true;b.castShadow=true;shelf.add(b);shelf.userData.b=b}scene.add(shelf);
+const shelfLegs=[0,1].map(()=>{const l=P.mesh(new T.CylinderGeometry(.06,.06,SH-.1,12),P.steel,0,(SH-.1)/2,-.9);l.castShadow=true;scene.add(l);return l});
+// optical bench: an aluminium rail with a centimetre scale that starts at the tube window
+const RAIL_L=(D_MAX+1.5)/CM,rail=new T.Group(),alu=P.std(0xC9CED3,.32,.75,{envMapIntensity:1.1});
+{const base=P.mesh(new T.BoxGeometry(RAIL_L,.1,.7),alu,-RAIL_L/2,.05,0);base.receiveShadow=true;base.castShadow=true;rail.add(base);
+ for(const z of [-.32,.32]){const lip=P.mesh(new T.BoxGeometry(RAIL_L,.15,.05),alu,-RAIL_L/2,.075,z);lip.castShadow=true;rail.add(lip)}
+ const pc=50,cw=Math.round(RAIL_L*CM*pc),tex=P.tex(cw,48,(x,w,h)=>{x.fillStyle='#E9EDEF';x.fillRect(0,0,w,h);x.strokeStyle=x.fillStyle='#3B4A52';x.font='700 24px '+P.MONO;x.textAlign='center';
+  for(let c=0;c<=RAIL_L*CM;c++){const px=w-c*pc;x.lineWidth=c%5?1.5:3;x.beginPath();x.moveTo(px,0);x.lineTo(px,c%5?10:20);x.stroke();if(c%5===0&&c>0)x.fillText(String(c),px,42);if(c===0){x.textAlign='right';x.fillText('0 cm',px-4,42);x.textAlign='center'}}});
+ const scale=new T.Mesh(new T.PlaneGeometry(RAIL_L,.14),new T.MeshBasicMaterial({map:tex}));scale.position.set(-RAIL_L/2,.16,.36);scale.rotation.x=-.5;rail.add(scale)}
+scene.add(rail);
+// Geiger-Müller tube on a stand, window facing the source
+const TL=1.6,tube=new T.Group();{const body=P.mesh(new T.CylinderGeometry(.28,.28,TL,36),P.std(0x9AA5AC,.3,.8,{envMapIntensity:1}),TL/2,0,0);body.rotation.z=PI/2;tube.add(body);
+ const ring=P.mesh(new T.CylinderGeometry(.31,.31,.14,36),P.dark,.07,0,0);ring.rotation.z=PI/2;tube.add(ring);
+ const win=P.mesh(new T.CircleGeometry(.22,32),new T.MeshStandardMaterial({color:0x8A6A3A,transparent:true,opacity:.8,roughness:.3,metalness:.2}),-.002,0,0);win.rotation.y=-PI/2;tube.add(win);
+ for(const s of [-1,0,1]){const g=P.mesh(new T.BoxGeometry(.006,.44,.016),P.dark,-.008,0,s*.1);tube.add(g)}
+ const back=P.mesh(new T.CylinderGeometry(.12,.17,.26,16),P.dark,TL+.13,0,0);back.rotation.z=PI/2;tube.add(back);
+ const lab=P.label('G-M TUBE',.8,.18,{ink:'#1E2A30',size:.8,res:256});lab.position.set(TL*.72,0,.285);tube.add(lab);
+ G.led=P.mesh(new T.SphereGeometry(.06,12,10),new T.MeshBasicMaterial({color:0x5A1A1A}),TL*.2,.25,.13);tube.add(G.led)}
+scene.add(tube);const tubeStand=P.stand(TY-.28,{fw:1.0,fd:1.0});scene.add(tubeStand);
+const clampT=P.mesh(new T.BoxGeometry(.22,.4,.66),P.dark,0,TY,0);scene.add(clampT);
+// absorber holder in front of the window: a foot and two slotted uprights
+const bracket=new T.Group();{bracket.add(P.mesh(P.rbox(.36,.08,1.1,.03,.02),P.foot,0,.04,0));for(const z of [-.47,.47]){const u=P.mesh(new T.BoxGeometry(.12,TY+.62,.07),P.dark,0,(TY+.62)/2,z);u.castShadow=true;bracket.add(u)}}
+scene.add(bracket);
+// scaler-timer on the shelf, with three push buttons
+const scaler=new T.Group();let lcdN,lcdT,lcdM;{const c=P.mesh(P.rbox(3.0,2.05,1.0,.09,.04),P.std(0x31434C,.55,.1),0,1.025,-.25);c.castShadow=true;scaler.add(c);
+ const t=P.label('SCALER · TIMER',1.9,.2,{ink:'#E8EEF0',size:.8,res:360,font:P.DISP,weight:'800'});t.position.set(-.35,1.86,.255);scaler.add(t);
+ lcdN=P.lcd(1.55);lcdN.m.position.set(-.55,1.38,.27);scaler.add(lcdN.m);lcdT=P.lcd(.95);lcdT.m.position.set(.88,1.52,.27);scaler.add(lcdT.m);lcdM=P.lcd(.72);lcdM.m.position.set(.88,1.08,.27);scaler.add(lcdM.m);
+ [['COUNTS',-.55,1.0,1],['TIME',.88,1.28,.6],['COUNT FOR',.88,.88,.7]].forEach(([s,x,y,w])=>{const l=P.label(s,w,.12,{ink:'#B9C7CD',size:.8,res:200});l.position.set(x,y,.256);scaler.add(l)});
+ [['START / STOP',-.9],['RESET',-.05],['MODE',.8]].forEach(([s,x])=>{const l=P.label(s,.8,.12,{ink:'#B9C7CD',size:.8,res:220});l.position.set(x,.2,.256);scaler.add(l)});
+ G.led2=P.mesh(new T.SphereGeometry(.06,12,10),new T.MeshBasicMaterial({color:0x5A1A1A}),1.3,.52,.27);scaler.add(G.led2)}
+scene.add(scaler);
+const leadMat=P.std(0x5B6268,.75,.2),gm=P.cable(0x16191C,.05);
+// lead box for the sealed sources
+const box=new T.Group();{const m=P.mesh(P.rbox(2.8,.95,1.1,.05,.03),leadMat,0,.475,-.15);m.castShadow=true;box.add(m);
+ const tre=P.label('',.6,.6,{});tre.material.map=P.tex(128,128,x=>{x.fillStyle='#F2C21B';x.fillRect(0,0,128,128);x.fillStyle='#15181B';x.beginPath();x.arc(64,64,11,0,7);x.fill();for(let i=0;i<3;i++){const a=-PI/2+i*2*PI/3;x.beginPath();x.moveTo(64+Math.cos(a-.52)*18,64+Math.sin(a-.52)*18);x.arc(64,64,52,a-.52,a+.52);x.arc(64,64,18,a+.52,a-.52,true);x.fill()}});tre.material.transparent=false;tre.position.set(-.95,.45,.405);box.add(tre);
+ const l=P.label('SEALED SOURCES',1.6,.2,{ink:'#E8EEF0',size:.8,res:360});l.position.set(.3,.47,.405);box.add(l)}
+scene.add(box);
+// absorber rack on the bench
+const rack=P.mesh(P.rbox(2.5,.12,.65,.04,.02),P.wood(),0,.06,0);rack.castShadow=true;scene.add(rack);
+
+/* ---------- things to pick up ---------- */
+// the carriage: a block that slides along the rail, with a clamp for a source rod and a platform for a bottle
+const cart=new T.Group();{const blk=P.mesh(P.rbox(1.0,.3,.72,.05,.02),P.std(0x2E7FBF,.5),-.5,-TY+.3,0);cart.add(blk);
+ const post=P.mesh(new T.CylinderGeometry(.05,.05,TY-.45,10),P.steel,-.97,-(TY-.45)/2-.02,0);cart.add(post);
+ const col=P.mesh(new T.CylinderGeometry(.09,.09,.16,14),P.dark,-.93,0,0);col.rotation.z=PI/2;cart.add(col);
+ const mk=P.mesh(new T.BoxGeometry(.035,.15,.74),P.std(0xF2B41F,.4),0,-TY+.32,0);cart.add(mk)}   // yellow line: the front of the holder, where d is read
+const cartI=K.addItem('cart',cart,{name:'source holder',r:.7,grabY:-TY+.3,liftZ:0,placed:true,firm:true});
+const cartX=()=>cart.position.x,dist=()=>(G.TX-cartX())*CM;
+// sealed sources: a coloured capsule on a rod, always handled with tongs
+function source(col,txt){const g=new T.Group(),inner=new T.Group();g.add(inner);
+ const cap=P.mesh(new T.CylinderGeometry(.22,.22,2*CAP,28),P.steel,0,0,0);inner.add(cap);const face=P.mesh(new T.CylinderGeometry(.18,.18,.02,28),P.std(col,.4),0,CAP+.005,0);inner.add(face);
+ const rod=P.mesh(new T.CylinderGeometry(.05,.05,.7,10),P.steel,0,-CAP-.35,0);inner.add(rod);inner.add(P.mesh(new T.CylinderGeometry(.075,.075,.12,10),P.dark,0,-CAP-.7,0));
+ const lab=P.label(txt,.4,.16,{ink:'#10202A',bg:'#F4F1E6',size:.72,res:200});lab.position.set(0,0,.225);inner.add(lab);
+ const tongs=new T.Group();for(const s of [-1,1]){const a=P.mesh(new T.BoxGeometry(.045,.72,.035),P.steel,s*.14,-.52,.16);a.rotation.z=s*.17;tongs.add(a);const tip=P.mesh(new T.BoxGeometry(.06,.14,.05),P.steel,s*.23,-.14,.16);tongs.add(tip)}
+ const piv=P.mesh(new T.CylinderGeometry(.055,.055,.07,10),P.dark,0,-.86,.16);piv.rotation.x=PI/2;tongs.add(piv);tongs.visible=false;g.add(tongs);g.inner=inner;g.tongs=tongs;return g}
+const srcs=[['am','Am-241',0xC62828,[{t:'a',A:600}]],['sr','Sr-90',0x2F6FD0,[{t:'b',A:700}]],['co','Co-60',0x2E9E5B,[{t:'g',A:900}]],['x','SOURCE X',0x7B3FB0,XT[MYS.ty]]].map(([id,txt,col,em],i)=>
+ K.addItem(id,source(col,txt.replace('SOURCE ','')),{name:txt,src:true,em,r:.66,grabY:-.62,liftZ:.3,firm:true,slotI:i}));
+// generator bottles: a yellow uranium salt solution under a clear solvent; shaking carries protactinium into the top layer
+function bottle(name,tag){const g=new T.Group(),R=BR;
+ const glass=P.turned([[0,-1.3],[R,-1.3],[R,.3],[R*.55,.46],[R*.4,.5],[0,.5]],K.glass(.3),36);g.add(glass);
+ const lo=P.mesh(new T.CylinderGeometry(R-.035,R-.035,1.12,32),K.liquid(0xE6D24A,.65),0,-.72,0);g.add(lo);
+ const hi=P.mesh(new T.CylinderGeometry(R-.035,R-.035,.42,32),K.liquid(0xF4F1E0,.35),0,.05,0);g.add(hi);
+ const mix=P.mesh(new T.CylinderGeometry(R-.03,R-.03,1.56,32),new T.MeshStandardMaterial({color:0xEFE6A8,transparent:true,opacity:0,roughness:.6,depthWrite:false}),0,-.5,0);g.add(mix);
+ g.add(P.mesh(new T.CylinderGeometry(R*.45,R*.45,.2,20),P.dark,0,.6,0));
+ const lab=P.label(tag,.72,.3,{ink:'#10202A',bg:'#F4F1E6',size:.42,res:220,font:P.DISP,weight:'800'});lab.position.set(0,-.7,R+.006);g.add(lab);g.mix=mix;return g}
+const gens=[['pa','Pa-234m'],['gx','GEN X']].map(([id,tag],i)=>{const b=bottle(GEN[id].name,tag);return K.addItem(id,b,{name:GEN[id].name,gen:id,r:.75,grabY:-.45,liftZ:.3,firm:true,pOrg:0,pAq:1,mixv:0,ext:false,grid:null,slotI:i})});
+// absorber plates
+function plate(kind){const g=new T.Group(),th={paper:.025,al:.07,pb:.16}[kind],col={paper:0xF7F5EE,al:0xCDD3D8,pb:0x5E656B}[kind],mat=kind==='paper'?P.std(col,.9):P.std(col,kind==='al'?.3:.6,kind==='al'?.8:.3);
+ g.add(P.mesh(new T.BoxGeometry(.72,1.0,th),mat,0,0,0));const t=P.label({paper:'PAPER',al:'Al 3 mm',pb:'Pb 10 mm'}[kind],.66,.17,{ink:kind==='pb'?'#EDEFF0':'#1E2A30',size:.75,res:220});t.position.set(0,.28,th/2+.003);g.add(t);return g}
+const plates=['paper','al','pb'].map((k,i)=>K.addItem('p_'+k,plate(k),{name:ABS[k].name,abs:k,r:.55,grabY:0,liftZ:.3,firm:true,slotI:i}));
+// scaler buttons (pinch or press them)
+function button(col){const g=new T.Group(),b=P.mesh(new T.CylinderGeometry(.2,.21,.14,26),P.std(col,.45),0,0,0);b.rotation.x=PI/2;g.add(b);g.cap=b;return g}
+const btns=[['bStart',0x2FA36B,-.9],['bReset',0x8A949A,-.05],['bMode',0x2F6FD0,.8]].map(([id,col,x])=>K.addItem(id,button(col),{name:'',btn:true,bx:x,r:.36,fixed:true,liftZ:.3}));
+const mounted=()=>[...srcs,...gens].find(it=>it.userData.mount)||null,slotted=()=>plates.find(p=>p.userData.slot)||null;
+
+function layout(k){const hw=k.halfW;G.TX=hw-2.45;
+ shelf.userData.b.scale.x=2*hw-.4;shelfLegs[0].position.x=-hw+.35;shelfLegs[1].position.x=hw-.35;
+ rail.position.set(G.TX,0,0);tube.position.set(G.TX,TY,0);tubeStand.position.set(G.TX+.42,0,-.05);clampT.position.x=G.TX+.42;bracket.position.set(G.TX-SLX,0,0);
+ scaler.position.set(hw-1.75,SH,0);btns.forEach(b=>{b.userData.home.set(scaler.position.x+b.userData.bx,SH+.5,.3);b.userData.goal.copy(b.userData.home)});
+ box.position.set(-hw+1.75,SH,0);srcs.forEach((s,i)=>s.userData.home.set(box.position.x-.99+i*.66,SH+1.17,.15));
+ gens.forEach((g,i)=>g.userData.home.set(-hw+3.8+i*1.05,SH+1.3,.1));
+ const rx=(-hw+G.TX-RAIL_L)/2;rack.position.set(rx,0,.1);plates.forEach((p,i)=>p.userData.home.set(rx-.8+i*.8,.63,.1));
+ const cu=cartI.userData;if(!cu.set){cu.set=1;cu.home.set(G.TX-5/CM,TY,0)}else cu.home.set(clamp(cart.position.x,G.TX-D_MAX/CM,G.TX-D_MIN/CM),TY,0);cu.goal.copy(cu.home);cart.position.x=cu.home.x;
+ cables()}
+function cables(){const a=V(G.TX+TL+.26,TY,0),b=V(scaler.position.x-1.35,SH+.4,-.3);gm.set([a,V(a.x+.3,TY+.05,-.1),V(a.x+.4,SH-.7,-.7),V(b.x+.1,SH-.15,-.8),b])}
+
+/* ---------- where each thing sits (a source counts as in the box once it is on its way back there) ---------- */
+function mountPos(it){return V(cartX()-(it.userData.gen?BR:CAP),TY,0)}
+const inBox=it=>it.userData.src&&!it.userData.mount&&!K.holder(it)&&it.userData.goal.distanceTo(it.userData.home)<.01;
+
+/* ---------- the count rate at the tube (counts per second), and what makes it ---------- */
+function emitPoint(it){return it.userData.gen?V(it.position.x+BR,it.position.y,it.position.z):V(it.position.x+(it.userData.face?CAP:0),it.position.y,it.position.z)}
+function parts(){const out=[],ab=slotted();
+ for(const it of [...srcs,...gens]){const u=it.userData;if(inBox(it))continue;const p=emitPoint(it),dx=(G.TX-p.x)*CM,dy=(p.y-TY)*CM,dz=p.z*CM,r=Math.hypot(Math.max(0,dx),dy,dz),geo=1/((r+D0)*(r+D0));
+  const facing=dx>-.5?1:.03,through=ab&&p.x<G.TX-.2&&Math.abs(p.y-TY)<.45&&Math.abs(p.z)<.5;
+  const em=u.gen?[{t:'b',A:GEN[u.gen].A*u.pOrg}]:u.em;          // the tube looks at the top layer only
+  for(const e of em){const air=e.t==='a'?1/(1+Math.exp((r-RANGE_A)/.25)):e.t==='b'?Math.exp(-r/150):1,f=through?ABS[ab.userData.abs][e.t]:1,raw=e.A*geo*facing;
+   out.push({it,t:e.t,rate:raw*air*f,emit:raw,air,f,r,p})}}
+ return out}
+const totalRate=()=>BKG+parts().reduce((s,q)=>s+q.rate,0);
+
+/* ---------- the scaler ---------- */
+const MODES={'10':{t:10,lab:'10',u:'s'},'60':{t:60,lab:'60',u:'s'},'log':{t:300,lab:'LOG',u:''},'inf':{t:Infinity,lab:'---',u:''}};
+const ORDER=['10','60','log','inf'];
+function setMode(m){if(S.on)stopCount(true);S.mode=m;document.querySelectorAll('#msel button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));lcdM.show(MODES[m].lab,MODES[m].u);
+ if(m==='log')say('Logger: the scaler records the counts in every 10 s for up to 5 minutes, and plots them on the half-life graph.')}
+function setSpeed(s){S.speed=s;document.querySelectorAll('#ssel button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.s===s))}
+/* what is set up for a count; 'others' lists anything else out that adds more than 9 counts a minute */
+function setup(){const m=mounted(),ab=slotted(),by={};for(const q of parts())if(q.it!==m)by[q.it.userData.id]=(by[q.it.userData.id]||0)+q.rate;
+ return {src:m?m.userData.id:null,abs:ab?ab.userData.abs:null,d:m?dist():null,others:Object.keys(by).filter(k=>by[k]>.15)}}
+function startCount(){ensureAudio();if(S.on){stopCount();return}S.on=true;S.el=0;S.n=0;S.fin=false;S.cfg=setup();S.ivN=0;S.changed=false;
+ if(S.mode==='log'){const m=mounted();S.log={gen:m&&m.userData.gen?m.userData.gen:null,src:S.cfg.src,d:S.cfg.d,pts:[],p0:m&&m.userData.gen?m.userData.pOrg:0};S.logs.push(S.log);drawGraph();
+  if(!S.log.gen)say('The logger is running, but there is no generator in the holder. For the half-life, put a freshly shaken generator in the holder first.');
+  else if(S.log.p0<.05)say('The logger is running, but the top layer has hardly any protactinium in it. Shake the generator first, then start the logger straight away.');
+  else if(S.log.p0<.3)say('Logging, but a lot of the protactinium has already decayed since you shook it, so the counts will be small. That still works; next time start the logger sooner after shaking.');
+  else say('Logging every 10 s. Watch the counts fall. Leave everything where it is until the logger stops after 5 minutes, or press STOP when the counts are down near background.')}
+ else say(S.mode==='inf'?'Counting. Press START / STOP again to stop.':'Counting for '+S.mode+' s.')
+ $('hStart').textContent='Stop';press(btns[0])}
+function stopCount(quiet){if(!S.on)return;S.on=false;$('hStart').textContent='Start';const c=S.cfg;
+ if(S.mode==='log'){S.log=null;check();return}
+ if(S.el<5-1e-6){if(!quiet)say('Stopped after only '+fx(S.el,1)+' s: too short to keep. Count for at least 10 s.');return}
+ const run={src:c.src,abs:c.abs,d:c.d,t:S.el,n:S.n,cpm:S.n/S.el*60,others:c.others,changed:S.changed};S.runs.push(run);S.changed=false;table();if(!quiet)check(run)}
+function resetCount(){if(S.on){S.on=false;$('hStart').textContent='Start';if(S.mode==='log')S.log=null}S.el=0;S.n=0;S.fin=false;press(btns[1])}
+function press(b){b.cap.position.z=-.06;setTimeout(()=>b.cap.position.z=0,140)}
+$('hStart').onclick=startCount;$('hReset').onclick=resetCount;
+document.querySelectorAll('#msel button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+document.querySelectorAll('#ssel button').forEach(b=>b.onclick=()=>setSpeed(+b.dataset.s));
+
+/* ---------- clicks ---------- */
+let AC=null,lastClick=0;
+function ensureAudio(){if(AC||!window.AudioContext&&!window.webkitAudioContext)return;try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){AC=null}}
+['startCam','startMouse'].forEach(id=>$(id).addEventListener('click',ensureAudio));
+function click(){if(!AC||!$('snd').checked)return;const t=AC.currentTime;if(t-lastClick<.012)return;lastClick=t;try{const n=AC.createBufferSource(),b=AC.createBuffer(1,220,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<220;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/22);n.buffer=b;const gn=AC.createGain();gn.gain.value=.35;n.connect(gn).connect(AC.destination);n.start(t)}catch(e){}}
+
+/* ---------- steps ---------- */
+const STEPS=[['bkg','Measure the background count: all sources in the lead box, count for 60 s'],['abs','Strontium-90 in the holder at about 2 cm: count for 10 s with no absorber, then behind paper, then behind aluminium'],
+ ['idx','Source X at about 2 cm: count with no absorber, paper, aluminium and lead, then decide what it gives out'],['inv','Cobalt-60: count for 60 s at 10 cm and at 20 cm'],
+ ['hl','Shake the Pa-234m generator, put it in the holder close to the tube, and log the counts for at least 2 minutes. Find its half-life'],['myst','Mystery: find the half-life of Generator X']];
+const isDone=k=>!!S.done[k],cur=()=>{for(const [k] of STEPS)if(!isDone(k))return k;return null};
+function steps(){let first=true;$('steps').innerHTML=STEPS.map(([k,x])=>{const d=isDone(k),now=!d&&first;if(!d)first=false;return `<li class="${d?'done':''}${now?' now':''}"><i></i><span>${x}</span></li>`}).join('')}
+function tick(k,text){S.done[k]=true;say(text);steps();if(!cur())setStatus('All the steps are done. Try the Check yourself questions.','ok')}
+
+const lab=id=>id?({am:'Am-241',sr:'Sr-90',co:'Co-60',x:'Source X',pa:'Pa-234m gen.',gx:'Generator X'})[id]:'none',absName=a=>a?ABS[a].name:'none';
+const corr=cpm=>S.bkg==null?null:cpm-S.bkg;
+function table(){const rows=S.runs.slice(-14).reverse();$('runs').innerHTML=rows.length?'<tr><th>Source</th><th>Absorber</th><th>d (cm)</th><th>t (s)</th><th>Counts</th><th>Rate (/min)</th><th>Corrected</th></tr>'+rows.map(r=>`<tr><td>${r.src?lab(r.src):'(background)'}</td><td>${r.abs?{paper:'paper',al:'Al',pb:'Pb'}[r.abs]:'–'}</td><td>${r.d==null?'–':fx(r.d,1)}</td><td>${fx(r.t,0)}</td><td>${r.n}</td><td>${Math.round(r.cpm)}</td><td>${r.src&&S.bkg!=null?Math.round(r.cpm-S.bkg):'–'}</td></tr>`).join(''):'<tr><td class="small">No counts yet. Press START on the scaler.</td></tr>'}
+const near=(a,b,t)=>Math.abs(a-b)<=t;
+function check(run){const c=cur();
+ if(!run){checkLog();return}
+ if(run.others.length&&run.src!==null||run.others.length&&c==='bkg'){say('Counted '+run.n+' in '+fx(run.t,0)+' s, but '+run.others.map(lab).join(' and ')+(run.others.length>1?' are':' is')+' out of the lead box and adds counts. Put sources back in the box when you are not using them, then count again.');return}
+ if(run.changed){say('Counted '+run.n+' in '+fx(run.t,0)+' s, but something was moved during the count. Keep everything still while the scaler counts.');return}
+ if(c==='bkg'){if(run.src){say('Counted '+run.n+' in '+fx(run.t,0)+' s with '+lab(run.src)+' in the holder. For the background, put every source back in the lead box first.');return}
+  if(run.t<59.5){say(run.n+' counts in '+fx(run.t,0)+' s. The background is small and random, so count for a full 60 s to get a fair average.');return}
+  S.bkg=run.cpm;$('rB').textContent=Math.round(S.bkg)+' counts/min';table();
+  tick('bkg','Background: '+run.n+' counts in '+fx(run.t,0)+' s = '+Math.round(run.cpm)+' counts per minute, with no source at all. It comes from rocks, building materials, the air (radon) and cosmic rays. From now on, take this away from every count rate. Next: take the strontium-90 source out with the tongs and put it in the holder about 2 cm from the window.');return}
+ const bk=S.bkg==null?25:S.bkg,cr=r=>Math.round(r.cpm-bk);
+ if(c==='abs'){if(run.src!=='sr'){if(run.src)say('That count was for '+lab(run.src)+'. This step uses strontium-90.');return}if(run.d>3.5){say('Strontium-90 at '+fx(run.d,1)+' cm. Slide the holder to about 2 cm from the window, then count again.');return}
+  S.rec['sr_'+(run.abs||'none')]=run;const a=S.rec.sr_none,b=S.rec.sr_paper,cc=S.rec.sr_al;
+  if(a&&b&&cc)tick('abs','Strontium-90: '+cr(a)+' /min with nothing in the way, '+cr(b)+' /min behind paper, '+cr(cc)+' /min behind aluminium (corrected). Paper hardly changes it, 3 mm of aluminium stops nearly all of it: strontium-90 gives out beta particles, fast electrons. Next: put strontium-90 back in the box, and test Source X in the same way, with all four absorbers.');
+  else say('Strontium-90'+(run.abs?' behind '+absName(run.abs):' with no absorber')+': '+cr(run)+' counts per minute after taking away the background. Still to do: '+[a?'':'no absorber',b?'':'paper',cc?'':'aluminium'].filter(Boolean).join(', ')+'. Put a plate in the holder in front of the window, or take it out.');return}
+ if(c==='idx'){if(run.src!=='x'){if(run.src)say('That count was for '+lab(run.src)+'. This step uses Source X.');return}if(run.d>3.2){say('Source X at '+fx(run.d,1)+' cm. Some radiation only goes a few centimetres in air, so test it close: about 2 cm.');return}
+  S.rec['x_'+(run.abs||'none')]=run;const need=['none','paper','al','pb'].filter(k=>!S.rec['x_'+k]);
+  if(need.length)say('Source X'+(run.abs?' behind '+absName(run.abs):' with no absorber')+': '+cr(run)+' /min corrected. Still to do: '+need.map(k=>k==='none'?'no absorber':absName(k)).join(', ')+'.');
+  else xQuestion();return}
+ if(c==='inv'){if(run.src!=='co'){if(run.src)say('That count was for '+lab(run.src)+'. This step uses cobalt-60.');return}if(run.abs){say('Take the absorber out of the holder for this step.');return}if(run.t<29.5){say('Count for 60 s at each distance: the rates here are small, and longer counts are less spread out by chance.');return}
+  if(near(run.d,10,.6))S.rec.co10=run;else if(near(run.d,20,.6))S.rec.co20=run;else{say('Cobalt-60 at '+fx(run.d,1)+' cm: '+cr(run)+' /min corrected. Slide the holder to 10 cm or 20 cm.');return}
+  const a=S.rec.co10,b=S.rec.co20;if(!(a&&b)){say('Cobalt-60 at '+fx(run.d,1)+' cm: '+cr(run)+' /min corrected. Now count at '+(a?'20':'10')+' cm.');return}
+  const k=(a.cpm-bk)/Math.max(1,b.cpm-bk);if(k<2.8||k>5.3){say('10 cm: '+cr(a)+' /min, 20 cm: '+cr(b)+' /min, so the rate fell by '+fx(k,1)+' times. Counts are random, so one short count can be off. Count again for 60 s at each distance.');delete S.rec.co10;delete S.rec.co20;return}
+  tick('inv','10 cm: '+cr(a)+' /min, 20 cm: '+cr(b)+' /min (corrected). Twice as far, about '+fx(k,1)+' times fewer counts: close to 2² = 4. Gamma rays spread out from a point, so the count rate falls as 1/d², like light from a lamp. (It is a little under 4 because the counting gas sits a few millimetres behind the window.) Next: the half-life. Put cobalt-60 away, pick up the Pa-234m generator and shake it.');return}
+ say('Counted '+run.n+' in '+fx(run.t,0)+' s: '+Math.round(run.cpm)+' counts per minute'+(run.src&&S.bkg!=null?', '+cr(run)+' after taking away the background.':'.'))}
+function xQuestion(){const r=k=>Math.round(S.rec['x_'+k].cpm-(S.bkg==null?25:S.bkg));$('xAns').hidden=false;
+ say('Source X, corrected counts per minute: no absorber '+r('none')+', paper '+r('paper')+', aluminium '+r('al')+', lead '+r('pb')+'. What does Source X give out?');
+ $('xAns').innerHTML=XN.map((n,i)=>`<button class="btn" type="button" data-i="${i}">${n}</button>`).join('');
+ $('xAns').querySelectorAll('button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;S.xTry++;
+  if(i===MYS.ty){$('xAns').hidden=true;tick('idx','Yes: '+XN[i]+'. '+['Paper stops alpha particles, so the count falls to background behind paper. Alpha particles are helium nuclei: big, slow and strongly ionising, so they lose their energy quickly.','Beta particles pass through paper but 3 mm of aluminium stops them.','Gamma rays pass through paper and aluminium almost untouched; only thick lead cuts them down, and even 10 mm of lead lets about half through.','Aluminium takes away a big part (the beta particles) but not all; the rest gets through aluminium and is cut down by lead: gamma rays. Caesium-137 is a source like this.'][i]+' Next: cobalt-60 at 10 cm and at 20 cm.')}
+  else{b.disabled=true;say('Not '+XN[i]+'. '+['Look at paper: alpha particles would be stopped completely by paper.','Look at aluminium: beta particles are stopped almost completely by 3 mm of aluminium.','Look at aluminium: gamma rays go through aluminium almost untouched.','With beta and gamma, aluminium would remove part of the count but not all of it.'][i]+' Try again.')}})}
+function checkLog(){const L=S.logs[S.logs.length-1];if(!L)return;drawGraph();if(!L.gen){say('That log had no generator in it.');return}
+ const n=L.pts.length;if(L.p0<.05){say('The counts stayed low and flat: nothing had been shaken into the top layer, so there was nothing to decay. Pick up the generator, shake it, put it straight back in the holder and log again.');return}
+ if(n<12){say('Only '+n*10+' s were logged. Log for at least 2 minutes (12 points) to see the counts fall far enough.');return}
+ say('Logged '+n+' points for '+(L.gen==='pa'?'the Pa-234m generator':'Generator X')+'. Read the half-life from the graph: the time for the corrected counts to fall to half. Type it in under the graph and press Check.')}
+
+/* ---------- half-life answers (the fit uses the middle of each 10 s interval) ---------- */
+function fitLog(L){const b=(S.bkg==null?25:S.bkg)/6;let sx=0,sy=0,sxx=0,sxy=0,n=0;for(const p of L.pts){const c=p.n-b,t=p.t-5;if(c<4)continue;const y=Math.log(c);sx+=t;sy+=y;sxx+=t*t;sxy+=t*y;n++}if(n<4)return null;const m=(n*sxy-sx*sy)/(n*sxx-sx*sx),c0=(sy-m*sx)/n;return m<0?{lam:-m,c0,th:Math.log(2)/-m}:null}
+$('tCheck').onclick=()=>{const L=[...S.logs].reverse().find(l=>l.gen&&l.p0>=.05&&l.pts.length>=12),v=parseFloat($('tHalf').value);
+ if(!L){$('hlNote').textContent='First log a freshly shaken generator for at least 2 minutes.';return}if(!(v>0)){$('hlNote').textContent='Type your half-life in seconds.';return}
+ const g=GEN[L.gen],ok=Math.abs(v-g.th)<=.15*g.th,k=L.gen==='pa'?'hl':'myst';S.hlTry[k]=(S.hlTry[k]||0)+1;
+ if(ok){$('hlNote').textContent='Within 15% of the true value.';$('fitG').checked=true;drawGraph();const f=fitLog(L);
+  if(k==='hl'&&!isDone('hl'))tick('hl','Half-life about '+Math.round(v)+' s. The accepted value for protactinium-234m is 72 s'+(f?'; the best-fit curve through your points gives '+Math.round(f.th)+' s':'')+'. In every 72 s half of the nuclei that are left decay. Each decay is random, but with so many nuclei the fall is smooth: an exponential. Last step: Generator X.');
+  else if(k==='myst'&&!isDone('myst'))tick('myst','Generator X: half-life about '+Math.round(v)+' s'+(f?' (best fit '+Math.round(f.th)+' s)':'')+'. '+(MYS.rnd?'':'Your teacher set it to '+g.th+' s.'));
+  else say('That fits: within 15% of the true half-life.')}
+ else{$('hlNote').textContent=(v<g.th?'Too short.':'Too long.')+' Take two points on a smooth curve through the data: when do the corrected counts fall to half?'+(S.hlTry[k]>=2?' Tick ln(counts): the slope of the straight line is −λ, and T½ = ln 2 ÷ λ.':'');}};
+
+/* ---------- picking up and putting down ---------- */
+function onGrab(it,h){const u=it.userData;
+ if(u.btn){if(it===btns[0])startCount();else if(it===btns[1])resetCount();else{setMode(ORDER[(ORDER.indexOf(S.mode)+1)%ORDER.length]);press(it)}return}
+ S.changed=S.on;
+ if(u.src||u.gen){u.mount=false;u.placed=false;if(u.src){it.tongs.visible=true;if(!S.told.tongs){S.told.tongs=1;say('Sealed sources are only ever held with tongs, at arm\'s length, pointing away from people. Take one out only for as long as you need it.')}}}
+ if(u.abs){u.slot=false;u.placed=false}}
+function onDrop(it){const u=it.userData;if(u.btn)return;S.changed=S.on;
+ if(it===cartI){u.placed=true;u.goal.copy(cart.position);return}
+ if(u.src||u.gen){if(u.src)it.tongs.visible=false;const mp=mountPos(it),m=mounted();
+  if(it.position.distanceTo(mp)<.85&&(!m||m===it)){u.mount=true;u.placed=true;u.goal.copy(mp);
+   if(u.gen&&u.mixv>.3)say('The layers are still mixed. Wait a few seconds until they separate, then start the logger.');else if(u.gen&&u.pOrg<.05&&!S.told.noShake){S.told.noShake=1;say('The generator is in the holder, but nothing has been shaken into the top layer yet, so it hardly counts. Pick it up and shake it first.')}
+   else if(u.gen)say(GEN[u.gen].name+' in the holder, '+fx(dist(),1)+' cm from the window. Choose Logger on the scaler, then press START.');
+   else say(lab(u.id)+' in the holder, '+fx(dist(),1)+' cm from the window.')}
+  else if(it.position.distanceTo(mp)<.85&&m){say('The holder already has '+lab(m.userData.id)+' in it. Put that one back first.');u.placed=false;K.home(it)}
+  else{u.placed=false;K.home(it);if(u.src&&!S.told.back){S.told.back=1;say('The source went back into the lead box. Let go of it over the holder on the rail to put it in.')}}}
+ else if(u.abs){const sp=V(G.TX-SLX,TY),sl=slotted();if(it.position.distanceTo(sp)<.8&&(!sl||sl===it)){u.slot=true;u.placed=true;u.goal.copy(sp).setZ(.0);say(ABS[u.abs].name[0].toUpperCase()+ABS[u.abs].name.slice(1)+' in front of the window.')}
+  else if(it.position.distanceTo(sp)<.8&&sl){say('There is already '+ABS[sl.userData.abs].name+' in front of the window. Take it out first.');K.home(it)}else{u.placed=false;K.home(it)}}}
+
+/* ---------- shaking a generator ---------- */
+$('shake').onclick=()=>{const g=gens.find(q=>K.holder(q))||mounted()&&mounted().userData.gen&&mounted()||gens[0];shaken(g);say('Shaken: the protactinium moves into the clear top layer. Now the top layer gets weaker as the protactinium decays.')};
+function shaken(g){const u=g.userData;u.mixv=1;if(!u.ext){u.ext=true;u.pOrg=Math.min(1,u.pOrg+.92*u.pAq);u.pAq*=.08;u.grid=Array.from({length:100},(_,i)=>i<Math.round(100*u.pOrg)?1:0).sort(()=>Math.random()-.5)}}
+
+/* ---------- every frame ---------- */
+function frame(dt0,now){const rdt=Math.min(.1,Math.max(.004,(now-(frame.last||now))/1000||dt0));frame.last=now;const dt=rdt*S.speed;S.time+=dt;
+ // the carriage slides along the rail only
+ const ch=K.holder(cartI);if(ch){cart.position.y=TY;cart.position.z=0;cart.position.x=clamp(cart.position.x,G.TX-D_MAX/CM,G.TX-D_MIN/CM-(mounted()&&mounted().userData.gen?.02:0))}
+ for(const it of [...srcs,...gens]){const u=it.userData;if(u.mount){const mp=mountPos(it);u.goal.copy(mp);if(ch)it.position.copy(mp)}
+  if(u.src){const tgt=(u.mount||K.holder(it))?-PI/2:0;it.inner.rotation.z+=(tgt-it.inner.rotation.z)*Math.min(1,rdt*10);u.face=Math.abs(it.inner.rotation.z)>1.2}}
+ plates.forEach(p=>{const tg=p.userData.slot?PI/2-.35:0;p.rotation.y+=(tg-p.rotation.y)*Math.min(1,rdt*10)});
+ // generators: protactinium in the top layer decays; the uranium in the bottom layer makes more
+ gens.forEach(g=>{const u=g.userData,lam=Math.log(2)/GEN[u.gen].th,hd=K.holder(g);
+  /* a shake is three turns within 1 s. A turn is when the bottle comes back more than 0.15 units (6 mm) against the way it was last
+     swinging. That catches any shake bigger than a centimetre from about once a second, but not hand tremor or carrying the bottle about. */
+  if(hd){const p=g.position,sh=u.sh||(u.sh={e:p.clone(),d:null,rev:[]}),H=.15,w=p.clone().sub(sh.e);
+   if(!sh.d){if(w.length()>H){sh.d=w.clone().normalize();sh.e.copy(p)}}
+   else{const along=w.dot(sh.d);if(along>0)sh.e.copy(p);else if(along<-H){sh.rev.push(now);sh.d=w.normalize();sh.e.copy(p)}}
+   sh.rev=sh.rev.filter(t=>now-t<1000);u.shk=sh.rev.length>=2?(u.shk||0)+rdt:0;
+   if(sh.rev.length>=3&&u.mixv<1){shaken(g);if(!S.told['sh'+u.gen]){S.told['sh'+u.gen]=1;say('Shaking mixes the two liquids. The protactinium-234m made by the uranium dissolves in the clear solvent, which floats to the top when you stop. Put the bottle in the holder close to the tube.')}}}
+  else{u.sh=null;u.shk=0}
+  if(u.mixv>0&&!(hd&&u.shk>0)){u.mixv=Math.max(0,u.mixv-dt/9);if(u.mixv<.25)u.ext=false}
+  u.pOrg*=Math.exp(-lam*dt);u.pAq=1-(1-u.pAq)*Math.exp(-lam*dt);
+  if(u.grid){const q=1-Math.exp(-lam*dt);for(let i=0;i<100;i++)if(u.grid[i]&&Math.random()<q)u.grid[i]=0}
+  g.mix.material.opacity=.85*u.mixv;g.rotation.z=hd&&u.shk>0?Math.sin(now/40)*.12:g.rotation.z*.8});
+ // counts: random, at the average rate the sources give
+ const ps=parts(),R=BKG+ps.reduce((s,q)=>s+q.rate,0),n=pois(R*dt);
+ S.rate+=(R-S.rate)*Math.min(1,dt/3);
+ if(n){for(let i=0;i<Math.min(n,3);i++)setTimeout(click,i*rdt*1000/3);G.flash=now;
+  if($('tracks').checked){let left=Math.min(n,2);for(const q of ps){if(!left)break;if(Math.random()<q.rate/R*n){S.streaks.push({q,t:now,hit:true});left--}}}}
+ if($('tracks').checked)for(const q of ps){const lost=q.emit-q.rate;if(lost>.5&&Math.random()<Math.min(.5,lost*dt*.4))S.streaks.push({q,t:now,hit:false})}
+ S.streaks=S.streaks.filter(s=>now-s.t<260).slice(-40);
+ const lit=now-(G.flash||0)<60;G.led.material.color.set(lit?0xFF3B30:0x5A1A1A);G.led2.material.color.set(lit?0xFF3B30:0x5A1A1A);
+ if(S.on){const lim=MODES[S.mode].t,step=Math.min(dt,lim-S.el),nn=step<dt?pois(R*step):n;S.el+=step;S.n+=nn;
+  if(S.mode==='log'&&S.log){S.ivN+=nn;const k=Math.floor(S.el/10+1e-9);while(S.log.pts.length<k){S.log.pts.push({t:(S.log.pts.length+1)*10,n:S.ivN});S.ivN=0;drawGraph()}}
+  if(S.el>=lim-1e-9){S.el=lim;S.fin=true;stopCount()}}
+ lcdN.show(String(S.n),'');lcdT.show(fx(S.el,S.el<100?1:0),'s');
+ // the side panel
+ $('rR').textContent=Math.round(S.rate*60)+' counts/min';const m=mounted();$('rD').textContent=m?fx(dist(),1)+' cm ('+lab(m.userData.id)+')':fx(dist(),1)+' cm (holder empty)';$('rA').textContent=slotted()?ABS[slotted().userData.abs].name:'none';
+ // reminders
+ const out=srcs.filter(s=>!inBox(s)&&!s.userData.mount&&!K.holder(s));if(out.length&&!S.told.out){S.told.out=1;say('A source is lying out of its box. Sources go back into the lead box straight after use.')}}
+
+/* ---------- graph ---------- */
+function drawGraph(){const c=$('graph'),w=c.clientWidth||300,h=c.clientHeight||220,dpr=Math.min(2,window.devicePixelRatio||1);if(c.width!==Math.round(w*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+ const dk=K.isDark(),ink=dk?'#C9D6DB':'#24414F',grid=dk?'rgba(200,220,230,.12)':'rgba(40,80,100,.12)',acc=dk?'#F2B84B':'#B36B00',L=[...S.logs].reverse().find(l=>l.pts.length)||S.log,lnM=$('lnG').checked,b=(S.bkg==null?25:S.bkg)/6;
+ const X0=44,Y0=h-30,X1=w-10,Y1=12;g.font='600 11px '+P.MONO;g.fillStyle=ink;g.strokeStyle=grid;g.lineWidth=1;
+ const pts=L?L.pts.map(p=>({t:p.t,c:p.n-b,n:p.n})):[],ymax=lnM?Math.max(3,Math.ceil(Math.log(Math.max(2,...pts.map(p=>p.c))))):Math.max(20,Math.ceil(Math.max(0,...pts.map(p=>p.c+Math.sqrt(p.n)))/20)*20),ymin=lnM?0:0;
+ const sx=t=>X0+(X1-X0)*t/300,sy=v=>Y0-(Y0-Y1)*(v-ymin)/(ymax-ymin);
+ for(let t=0;t<=300;t+=60){g.beginPath();g.moveTo(sx(t),Y0);g.lineTo(sx(t),Y1);g.stroke();g.textAlign='center';g.fillText(String(t),sx(t),Y0+13)}
+ const ys=lnM?1:ymax/4;for(let v=0;v<=ymax+1e-9;v+=ys){g.beginPath();g.moveTo(X0,sy(v));g.lineTo(X1,sy(v));g.stroke();g.textAlign='right';g.fillText(lnM?String(v):String(Math.round(v)),X0-5,sy(v)+4)}
+ g.textAlign='center';g.fillText('time (s)',(X0+X1)/2,h-3);g.save();g.translate(11,(Y0+Y1)/2);g.rotate(-PI/2);g.fillText(lnM?'ln(corrected counts)':'corrected counts per 10 s',0,0);g.restore();
+ if(!pts.length){g.fillStyle=dk?'#94A7AE':'#52646C';g.fillText('Choose Logger on the scaler and press START',(X0+X1)/2,(Y0+Y1)/2);return}
+ g.fillStyle=g.strokeStyle=acc;g.lineWidth=1.5;for(const p of pts){const x=sx(p.t-5);if(lnM){if(p.c<1)continue;g.beginPath();g.arc(x,sy(Math.log(p.c)),3.2,0,7);g.fill()}else{const e=Math.sqrt(Math.max(1,p.n));g.beginPath();g.moveTo(x,sy(Math.max(ymin,p.c-e)));g.lineTo(x,sy(Math.min(ymax,p.c+e)));g.stroke();g.beginPath();g.arc(x,sy(Math.max(ymin,p.c)),3.2,0,7);g.fill()}}
+ if($('fitG').checked){const f=fitLog(L);if(f){g.strokeStyle=dk?'#7FB2FF':'#2F6FD0';g.lineWidth=2;g.beginPath();for(let t=0;t<=300;t+=5){const v=f.c0-f.lam*t;const y=lnM?v:Math.exp(v);if(t===0)g.moveTo(sx(t),sy(clamp(y,ymin,ymax)));else g.lineTo(sx(t),sy(clamp(y,ymin,ymax)))}g.stroke();g.fillStyle=g.strokeStyle;g.textAlign='right';g.fillText('best fit: T½ = '+Math.round(f.th)+' s',X1-4,Y1+12)}}}
+['lnG','fitG'].forEach(id=>$(id).onchange=drawGraph);addEventListener('resize',drawGraph);
+
+/* ---------- heads-up layer ---------- */
+function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00',sc=v=>K.toScreen(v),now=performance.now(),wide=K.W>520;
+ // radiation on its way to the tube
+ for(const s of S.streaks){const q=s.q,u=(now-s.t)/180;if(u>1.4)continue;const a=emitPoint(q.it),ab=slotted();let ex=G.TX;
+  if(!s.hit){if(q.t==='a'&&q.air<.5)ex=Math.min(G.TX,a.x+RANGE_A/CM*(.85+Math.random()*.1));else if(ab)ex=G.TX-SLX;else continue}
+  const A=sc(a),B=sc(V(ex,TY+(s.hit?0:0),0)),t0=clamp(u-.35,0,1),t1=clamp(u,0,1);if(t1<=t0)continue;
+  const P0=[A[0]+(B[0]-A[0])*t0,A[1]+(B[1]-A[1])*t0],P1=[A[0]+(B[0]-A[0])*t1,A[1]+(B[1]-A[1])*t1];
+  g.lineCap='round';if(q.t==='a'){g.strokeStyle=dk?'#FF8A7A':'#D0402F';g.lineWidth=4}else if(q.t==='b'){g.strokeStyle=dk?'#7FB2FF':'#2F6FD0';g.lineWidth=2}else{g.strokeStyle=dk?'#B7E36B':'#5E9E1E';g.lineWidth=2}
+  g.beginPath();if(q.t==='g'){const L=Math.hypot(P1[0]-P0[0],P1[1]-P0[1]),nx=-(P1[1]-P0[1])/(L||1),ny=(P1[0]-P0[0])/(L||1);for(let i=0;i<=12;i++){const f=i/12,w=Math.sin(f*PI*4)*4;g.lineTo(P0[0]+(P1[0]-P0[0])*f+nx*w,P0[1]+(P1[1]-P0[1])*f+ny*w)}}else{g.moveTo(P0[0],P0[1]);g.lineTo(P1[0],P1[1])}g.stroke()}
+ // labels
+ const m=mounted();K.tag('d = '+fx(dist(),1)+' cm',V(cartX()-.3,TY+.78,.3),amber,0,true);
+ if(wide)K.tag('≈ '+Math.round(S.rate*60)+' /min',V(G.TX+TL*.55,TY+.62,.3),dk?'#E7EFF1':'#13232B',0,true);
+ if(slotted()&&wide)K.tag(ABS[slotted().userData.abs].name,V(G.TX-SLX,TY+1.32,.3),ink);else if(wide)K.tag('absorber holder',V(G.TX-SLX,TY+1.32,.3),null);
+ gens.forEach(gn=>{const u=gn.userData;if(u.mixv>.05)K.tag(u.mixv>.5?'mixed':'separating…',V(gn.position.x,gn.position.y+.75,.3),amber,0,true)});
+ if(S.speed>1)K.tag('time ×'+S.speed,V(scaler.position.x,SH+2.38,.3),amber,0,true);
+ // 100 model nuclei of the generator in the holder (the counts come from far more nuclei than this)
+ if(m&&m.userData.gen&&m.userData.grid&&$('model').checked&&wide){const gr=m.userData.grid,left=gr.reduce((a,b)=>a+b,0),cs=9,W0=cs*10;g.font='600 11px '+P.MONO;const bw=Math.max(W0,g.measureText('model Pa-234m nuclei').width)+16,x0=8+bw/2-W0/2,y0=10,cx=8+bw/2;
+  g.fillStyle=dk?'rgba(15,27,32,.8)':'rgba(255,255,255,.88)';g.fillRect(8,y0-4,bw,W0+38);
+  for(let i=0;i<100;i++){g.fillStyle=gr[i]?(dk?'#F2B84B':'#E08A00'):(dk?'rgba(200,220,230,.22)':'rgba(40,80,100,.2)');g.beginPath();g.arc(x0+(i%10+.5)*cs,y0+(Math.floor(i/10)+.5)*cs,cs*.36,0,7);g.fill()}
+  g.fillStyle=ink;g.textAlign='center';g.fillText(left+' of 100 left',cx,y0+W0+13);g.fillText('model Pa-234m nuclei',cx,y0+W0+27)}}
+
+/* ---------- check yourself ---------- */
+const QZ=[['A count rate falls to background when a sheet of paper is put in front of the source. The source gives out…',['alpha','beta','gamma'],0,'Alpha particles are stopped by paper, or by a few centimetres of air.'],
+ ['Why take the background count away from every reading?',['the tube adds false counts at random','radiation from the room is counted with the source','the source gets weaker during the count'],1,'Background radiation (rocks, radon, cosmic rays) is counted all the time, source or not.'],
+ ['A sample counts 800 per minute after correction. Its half-life is 2 minutes. What does it count 6 minutes later?',['400 per minute','200 per minute','100 per minute'],2,'6 minutes is three half-lives: 800 → 400 → 200 → 100.'],
+ ['The distance from a gamma source is doubled. The count rate becomes about…',['half','a quarter','the same'],1,'Gamma rays spread out from the source: rate ∝ 1/d², so twice as far gives 1/4.'],
+ ['Two counts: 9 in 10 s, and 1100 in 100 s. Which gives the more trustworthy count rate?',['the 9 counts','the 1100 counts','both the same'],1,'Random counts spread by about √N: ±3 in 9 is ±33%, but ±33 in 1100 is only ±3%.'],
+ ['You cannot say when one nucleus will decay. What can you say?',['nothing at all','the chance that it decays in a given time','the exact time if you know its age'],1,'Each nucleus has the same chance of decaying each second, whatever its age. That is why half of a large number decay in each half-life.']];
+$('qz').innerHTML=QZ.map((q,i)=>`<div data-q="${i}"><p>${i+1}. ${q[0]}</p><div class="ans">${q[1].map((a,j)=>`<button class="btn" type="button" data-j="${j}">${a}</button>`).join('')}</div><p class="small" hidden></p></div>`).join('');
+$('qz').querySelectorAll('[data-q]').forEach(d=>{const q=QZ[+d.dataset.q];d.querySelectorAll('button').forEach(b=>b.onclick=()=>{const j=+b.dataset.j,n=d.querySelector('p.small');n.hidden=false;if(j===q[2]){b.classList.add('right');d.querySelectorAll('button').forEach(x=>x.disabled=true);n.textContent='Right. '+q[3]}else{b.classList.add('wrong');b.disabled=true;n.textContent='Not quite. Try again.'}})});
+
+/* ---------- teacher ---------- */
+$('tMake').onclick=()=>{const ty=+$('tType').value,th=clamp(Math.round(+$('tT').value||100),20,200);$('tT').value=th;const u=location.origin+location.pathname+'?x='+enc(ty,th);$('tOut').textContent=u;try{navigator.clipboard.writeText(u).then(()=>{$('tOut').textContent=u+'  (copied)'},()=>{})}catch(e){}};
+$('tShow').onclick=()=>{$('tOut').textContent='This page: Source X gives out '+XN[MYS.ty]+'; Generator X half-life '+MYS.th+' s'+(MYS.rnd?' (random for this visit).':' (from the link).')};
+
+$('reset').onclick=()=>{location.href=location.pathname+location.search};
+const theme0=K.theme;K.theme=()=>{theme0();drawGraph()};
+HandKit.themeButton($('themeBtn'),K);K.start();setMode('10');setSpeed(1);steps();table();drawGraph();lcdN.show('0','');lcdT.show('0.0','s');
+say('Start with the background count. All the sources are in the lead box. Press START / STOP on the scaler (or Start in the panel) after choosing 60 s with MODE. Tip: set Time speed to ×5 to save waiting.');
+window.__HK=Object.assign(K,{S,srcs,gens,plates,cart:cartI,btns,parts,totalRate,mounted,slotted,dist,G,GEN,MYS,setMode,setSpeed,startCount,stopCount,resetCount,shaken,fitLog,STEPS,TY,CM,enc,dec,inBox,mountPos});
+})();
+</script>
+</body></html>
