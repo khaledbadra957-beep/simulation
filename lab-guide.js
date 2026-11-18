@@ -544,3 +544,9 @@
     if (go) { go.classList.add('lg-start'); var off = function () { go.classList.remove('lg-start'); go.removeEventListener('click', off, true); }; go.addEventListener('click', off, true); }
   }
 })();
+
+/* phones: the intro text under the title is cut to three lines (site.css); a tap opens or closes it */
+(function () {
+  function hook() { document.querySelectorAll('.wrap > header .lede').forEach(function (el) { if (el.dataset.tap) return; el.dataset.tap = '1'; el.addEventListener('click', function () { el.classList.toggle('open'); }); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
+})();
