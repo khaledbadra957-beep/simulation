@@ -7,13 +7,13 @@
 <meta name="description" content="Interactive science, physics and chemistry simulations for Grades 7–12, designed and built by Mr Khaled.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 :root{
   --bg:#F5F6F2; --grid:#E4E8E1; --surface:#FFFFFF; --ink:#13232B; --muted:#52646C; --text:#3A4B53; --line:#D3DAD4; --dash:#C6D2D1;
   --phys:#0A6A88; --phys-soft:#E1EEF2; --chem:#8A2F86; --chem-soft:#F4E4F2; --accent:#C2410C;
   --hero:#13232B; --hero-ink:#F5F6F2; --hero-muted:#C9D4D8; --hero-accent:#F59E5B;
-  --sans:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --sans:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif; --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -52,7 +52,8 @@ a{color:inherit}
 .hero{display:flex;flex-wrap:wrap;gap:40px;align-items:stretch}
 .intro{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:20px;justify-content:center}
 .eyebrow{font:500 13px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:0}
-h1{margin:0;font-size:clamp(44px,6vw,76px);line-height:.98;letter-spacing:-.02em;font-weight:700}
+h1{margin:0;font-family:var(--display);font-size:clamp(44px,6vw,76px);line-height:.98;letter-spacing:-.025em;font-weight:800}
+h2,h3,.brand b{font-family:var(--display);font-weight:800}
 .lede{margin:0;font-size:19px;line-height:1.55;color:var(--text);max-width:560px}
 .filters{display:flex;flex-direction:column;gap:10px;margin-top:8px}
 .group{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;border:0}
