@@ -519,6 +519,27 @@
     };
     if (o.startCam) o.startCam.onclick = k.startCamera; if (o.startMouse) o.startMouse.onclick = k.startMouse;
     if (o.showCam) o.showCam.onchange = function (e) { video.hidden = !e.target.checked || !video.srcObject; };
+    /* ---------- full screen (styles in site.css): the bench and its side panel fill the screen ---------- */
+    (function () {
+      var grid = stage.parentElement, row = document.querySelector('header .row');
+      if (!grid || !grid.classList.contains('grid') || !row) return;
+      var b = document.createElement('button'); b.className = 'btn'; b.type = 'button'; b.textContent = 'Full screen'; row.insertBefore(b, row.firstChild);
+      var x = document.createElement('button'); x.className = 'fs-x'; x.type = 'button'; x.textContent = '✕ Exit full screen'; stage.appendChild(x);
+      var hint = document.createElement('p'); hint.className = 'rot-hint';
+      hint.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="11" rx="2"/><path d="M8 4h5a4 4 0 0 1 4 4" /><path d="M15 6l2 2-2 2"/></svg>Turn your phone sideways and tap Full screen for a bigger bench.';
+      grid.parentNode.insertBefore(hint, grid);
+      var set = function (on) { grid.classList.toggle('fs-on', on); root.classList.toggle('fs-lock', on); b.textContent = on ? 'Exit full screen' : 'Full screen'; if (on) x.focus(); else b.focus(); };
+      var toggle = function () {
+        var on = !grid.classList.contains('fs-on'); set(on);
+        try { if (on && root.requestFullscreen) root.requestFullscreen().catch(function () { }); else if (!on && document.fullscreenElement) document.exitFullscreen().catch(function () { }); } catch (e) { }
+      };
+      x.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+      b.onclick = toggle; x.onclick = toggle;
+      document.addEventListener('fullscreenchange', function () { if (!document.fullscreenElement && grid.classList.contains('fs-on')) set(false); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && grid.classList.contains('fs-on') && !document.fullscreenElement) set(false); });
+      k.fullScreen = toggle;
+    })();
+
     k.start = function () { k.theme(); new ResizeObserver(resize).observe(stage); resize(); k.items.forEach(function (it) { it.position.copy(it.userData.home); it.userData.goal.copy(it.userData.home); }); requestAnimationFrame(frame); if (location.hash === '#mouse') k.startMouse(); };
     if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { k.theme(); });
     return k;
@@ -531,4 +552,10 @@
     label();
   }
   window.HandKit = { create: create, themeButton: themeButton, isDark: isDark };
+})();
+
+/* phones: the intro text under the title is cut to three lines (site.css); a tap opens or closes it */
+(function () {
+  function hook() { document.querySelectorAll('.wrap > header .lede').forEach(function (el) { if (el.dataset.tap) return; el.dataset.tap = '1'; el.addEventListener('click', function () { el.classList.toggle('open'); }); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
 })();

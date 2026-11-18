@@ -1,0 +1,78 @@
+/* site.css: shared page layout for every lab page, loaded after each page's own styles.
+   Step 1: lab pages give the screen to the simulation.
+   - a compact header: the back link sits beside the title, the title is smaller, the gaps are tighter
+   - camera labs: the 3-D bench stays in view while the side panel scrolls, and a full-screen mode */
+
+/* ---------- compact lab header (every page whose .wrap starts with the "All simulations" link) ---------- */
+.wrap:has(> .mk-home){row-gap:12px;padding-top:max(14px,env(safe-area-inset-top,0px))}
+.wrap > .mk-home{margin:0;padding:6px 12px;font-size:13.5px;opacity:.85}
+.wrap:has(> .mk-home) > header{gap:10px 16px;align-items:center}
+.wrap:has(> .mk-home) .eyebrow{font-size:13px;letter-spacing:.02em;text-transform:none}
+.wrap:has(> .mk-home) h1{font-size:clamp(1.55rem,1.05rem + 1.5vw,2.25rem);margin:.08em 0 .12em;line-height:1.05}
+.wrap:has(> .mk-home) .lede{font-size:.98rem;line-height:1.45;max-width:78ch}
+.wrap:has(> .mk-home) .tabs{margin-top:-2px}
+.wrap:has(> .mk-home) .tab{padding:8px 14px}
+
+@media (min-width:760px){
+  /* back link in its own column, level with the title block */
+  .wrap:has(> .mk-home){display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:18px;align-items:start}
+  .wrap:has(> .mk-home) > *{grid-column:1 / -1;min-width:0}
+  .wrap > .mk-home{grid-column:1;grid-row:1;margin-top:4px}
+  .wrap:has(> .mk-home) > header{grid-column:2;grid-row:1}
+  /* title block on the left, the page's buttons on the right: never pushed under the text */
+  .wrap:has(> .mk-home) > header{flex-wrap:nowrap;align-items:flex-start}
+  .wrap:has(> .mk-home) > header > :first-child{flex:1 1 auto;min-width:0}
+  .wrap:has(> .mk-home) > header > :last-child:not(:first-child){flex:none}
+}
+
+/* ---------- camera labs: keep the bench in view ---------- */
+.wrap:has(> .grid > .stage){max-width:1560px}
+@media (min-width:901px){
+  .grid:has(> .stage){grid-template-columns:minmax(0,1fr) minmax(280px,320px)}
+  .grid > .stage{position:sticky;top:12px;z-index:1}
+}
+
+/* full screen: the bench and its side panel fill the screen. The page adds .fs-on; real full screen is asked for too where the browser allows it */
+.grid.fs-on{position:fixed;inset:0;z-index:50;max-width:none;margin:0;padding:max(10px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));
+  background:var(--bg);overflow:auto;grid-template-columns:minmax(0,1fr) minmax(260px,300px);align-items:start;gap:10px}
+/* the bench gets an exact size that fits the screen (height and width), so its proportions stay right */
+.grid.fs-on{--fsh:min(calc(100vh - 20px),calc((100vw - 340px) / var(--ar,1.7778)))}
+.grid.fs-on > .stage{position:relative;top:0;aspect-ratio:auto;height:var(--fsh);width:calc(var(--fsh) * var(--ar,1.7778));max-width:100%;justify-self:center}
+.grid.fs-on > aside{max-height:calc(100vh - 20px);overflow:auto;padding-right:2px}
+@supports (height:100dvh){
+  .grid.fs-on{--fsh:min(calc(100dvh - 20px),calc((100vw - 340px) / var(--ar,1.7778)))}
+  .grid.fs-on > aside{max-height:calc(100dvh - 20px)}
+}
+@media (max-width:900px){
+  /* a phone or a narrow window: the bench takes the whole screen; the side panel is one scroll below it */
+  .grid.fs-on{grid-template-columns:minmax(0,1fr);--fsh:min(calc(100vh - 20px),calc((100vw - 20px) / var(--ar,1.7778)))}
+  @supports (height:100dvh){.grid.fs-on{--fsh:min(calc(100dvh - 20px),calc((100vw - 20px) / var(--ar,1.7778)))}}
+  .grid.fs-on > aside{max-height:none}
+}
+html.fs-lock,html.fs-lock body{overflow:hidden}
+
+/* hint for a phone held upright: the bench is small */
+.rot-hint{display:none}
+@media (max-width:600px) and (orientation:portrait){
+  .rot-hint{display:flex;align-items:center;gap:8px;margin:0;font-size:.9rem;color:var(--muted)}
+  .rot-hint svg{flex:none}
+}
+
+/* the way out of full screen, on the bench itself (a phone has no Esc key) */
+.fs-x{display:none}
+.grid.fs-on .fs-x{display:flex;position:absolute;top:8px;right:8px;z-index:3;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:700 14px/1 var(--body,system-ui);cursor:pointer}
+
+/* ---------- phones ---------- */
+@media (max-width:600px){
+  /* the long intro text shows three lines; tap it to read the rest */
+  .wrap:has(> .mk-home) .lede{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;cursor:pointer}
+  .wrap:has(> .mk-home) .lede.open{display:block}
+  .wrap:has(> .mk-home) .eyebrow{font-size:12px}
+  /* the start message on a small bench */
+  .stage .intro{gap:6px;padding:10px}
+  .stage .intro h2{font-size:1.05rem;line-height:1.2}
+  .stage .intro p{font-size:.8rem;line-height:1.35}
+  .stage .intro .btn{padding:6px 11px;font-size:.88rem}
+}
+/* the hand-colour buttons only matter once the lab has started */
+.stage:has(> .intro:not([hidden])) .tones{display:none}
