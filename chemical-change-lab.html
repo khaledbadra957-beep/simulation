@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16p
 .wrap{max-width:1180px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
 @media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
 header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
-.eyebrow{margin:0;font-family:var(--data);font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.eyebrow{margin:0;font-family:var(--data);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.1rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
 h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.3rem;text-wrap:balance}
 h3{margin:0;font-size:1rem}
@@ -58,7 +58,7 @@ svg.stage{width:100%;height:auto;background:var(--stage);border:1.5px solid var(
 .pick[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
 .pick .tick{font-family:var(--data);margin-left:4px}
 .panel{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.panel .lbl{font-family:var(--data);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+.panel .lbl{font-family:var(--data);font-size:.8125rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
 .obs{margin:0;min-height:3em}
 .checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px}
 .checks label{display:flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer}
@@ -73,11 +73,11 @@ svg.stage{width:100%;height:auto;background:var(--stage);border:1.5px solid var(
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .read{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .cell{background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0}
-.cell .k{font-size:.78rem;color:var(--muted);font-weight:700}
+.cell .k{font-size:.8125rem;color:var(--muted);font-weight:700}
 .cell .v{font-family:var(--data);font-weight:600;font-size:1.35rem;font-variant-numeric:tabular-nums}
 table.t{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 table.t th,table.t td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}
-table.t th{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+table.t th{font-size:.8125rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 table.t td.n{font-family:var(--data);font-weight:600}
 .scroll{overflow-x:auto}
 .ok{color:var(--ok);font-weight:700}

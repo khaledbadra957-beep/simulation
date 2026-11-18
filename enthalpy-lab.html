@@ -34,7 +34,7 @@
 [hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
 .wrap{max-width:1200px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px;display:flex;flex-direction:column;gap:18px}
-.eyebrow{margin:0;font-family:var(--mono);font-size:.74rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.eyebrow{margin:0;font-family:var(--mono);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:700;font-size:clamp(2rem,5vw,3rem);line-height:1.05;text-wrap:balance}
 h2,h3{margin:0;text-wrap:balance}
 p{margin:0}
@@ -45,7 +45,7 @@ p{margin:0}
 @media (max-width:900px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:520px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tab{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:1px;min-width:0}
-.tab small{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tab small{font-family:var(--mono);font-size:.8125rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .tab b{font-size:.98rem;line-height:1.25}
 .tab:hover{border-color:var(--ink)}
 .tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 -4px 0 var(--accent)}
@@ -54,7 +54,7 @@ p{margin:0}
 .lab{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
 @media (max-width:880px){.lab{grid-template-columns:minmax(0,1fr)}}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.card h3{font-family:var(--mono);font-size:.74rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.card h3{font-family:var(--mono);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .law{font-family:var(--display);font-size:1.12rem;font-weight:600;line-height:1.35;border-left:4px solid var(--accent);padding:.2em 0 .2em .8em}
 .stage svg{display:block;width:100%;height:auto}
 .caption{font-size:.87rem;color:var(--muted)}
@@ -77,7 +77,7 @@ input[type=range]{width:100%;margin:0;height:26px;accent-color:var(--accent)}
 /* step-by-step solutions */
 .steps{display:flex;flex-direction:column;gap:8px}
 .step{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--sunk);display:flex;flex-direction:column;gap:4px}
-.step .tag{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.step .tag{font-family:var(--mono);font-size:.8125rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
 .step .math{font-family:var(--mono);font-size:.95rem;overflow-x:auto;line-height:2}
 .step.new{animation:pop .35s ease}
 @keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
@@ -94,11 +94,11 @@ input[type=range]{width:100%;margin:0;height:26px;accent-color:var(--accent)}
 .exlist{display:flex;flex-direction:column;gap:6px}
 .exlist .btn{text-align:left;font-weight:400}
 .exlist .btn[aria-pressed="true"]{font-weight:700}
-.progress{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.progress{font-family:var(--mono);font-size:.8125rem;color:var(--muted)}
 
 table.data{width:100%;border-collapse:collapse;font-size:.88rem}
 table.data th,table.data td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
-table.data th{font-size:.74rem;color:var(--muted);font-weight:700}
+table.data th{font-size:.8125rem;color:var(--muted);font-weight:700}
 table.data th:first-child,table.data td:first-child{text-align:left}
 table.data td{font-family:var(--mono)}
 table.data td:first-child{font-family:var(--body)}
@@ -123,14 +123,14 @@ table.data td:first-child{font-family:var(--body)}
 .eqin input{flex:1;font-family:var(--mono)}
 #fEq{font-family:var(--mono)}
 .eqchip{font:inherit;font-size:.85rem;color:var(--accent);background:none;border:1px dashed var(--accent);border-radius:999px;padding:.05em .6em;cursor:pointer;margin:2px 0}
-table.data td .sub{font-size:.76rem;color:var(--muted);font-family:var(--body)}
+table.data td .sub{font-size:.8125rem;color:var(--muted);font-family:var(--body)}
 table.data td .miss{color:var(--bad)}
 table.data td.nm{font-family:var(--body);color:var(--muted)}
 .hfin{max-width:8em}
 .feq{font-family:var(--mono);font-size:.82rem;margin-top:4px;line-height:1.5;overflow-wrap:anywhere;color:var(--ink)}
 .feq .dh{color:var(--accent);font-weight:600;white-space:nowrap}
 .feq .x2{color:var(--muted)}
-.feq .eqchip{display:table;font-family:var(--body);font-size:.74rem;margin-top:2px}
+.feq .eqchip{display:table;font-family:var(--body);font-size:.8125rem;margin-top:2px}
 .tablewrap.tall{max-height:420px;overflow-y:auto}
 .tablewrap.tall th{position:sticky;top:0;background:var(--surface)}
 .check{display:flex;gap:6px;align-items:center}

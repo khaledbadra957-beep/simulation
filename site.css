@@ -98,12 +98,31 @@ html.fs-lock,html.fs-lock body{overflow:hidden}
   /* the long intro text shows three lines; tap it to read the rest */
   .wrap:has(> .mk-home) .lede{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;cursor:pointer}
   .wrap:has(> .mk-home) .lede.open{display:block}
-  .wrap:has(> .mk-home) .eyebrow{font-size:12px}
+  .wrap:has(> .mk-home) .eyebrow{font-size:13px}
   /* the start message on a small bench */
   .stage .intro{gap:6px;padding:10px}
   .stage .intro h2{font-size:1.05rem;line-height:1.2}
-  .stage .intro p{font-size:.8rem;line-height:1.35}
+  .stage .intro p{font-size:.8125rem;line-height:1.35}
   .stage .intro .btn{padding:6px 11px;font-size:.88rem}
 }
 /* the hand-colour buttons only matter once the lab has started */
 .stage:has(> .intro:not([hidden])) .tones{display:none}
+
+/* ---------- step 4: easy to read and easy to press ---------- */
+/* small labels are raised to 13 px in each page's own styles */
+/* touch screens (phones, tablets, smartboards): everything you press is at least 44 px */
+@media (any-pointer:coarse){
+  html body :is(button,select,.btn,a.btn,[role="tab"],summary):not(.tones button):not(.lg-nav button){min-height:44px}
+  html body :is(button,.btn,a.btn,[role="tab"]):not(.tones button):not(.lg-nav button){min-width:44px}
+  html body .lg-nav button{min-height:44px;min-width:44px}
+  html body .wrap > .mk-home{min-height:44px;display:inline-flex;align-items:center}
+  html body input:is([type="text"],[type="number"],[type="search"],:not([type])){min-height:44px}
+  html body input[type="range"]{height:44px}
+  html body input:is([type="checkbox"],[type="radio"]){width:22px;height:22px}
+  html body label:has(> input:is([type="checkbox"],[type="radio"])){min-height:44px;align-items:center}
+  html body label:has(> input:is([type="checkbox"],[type="radio"])):not([style*="display"]){display:inline-flex;gap:8px}
+  /* the round hand-colour buttons keep their size but get a bigger invisible area to tap */
+  .tones{gap:12px}
+  .tones button{position:relative;width:26px;height:26px}
+  .tones button::after{content:"";position:absolute;inset:-9px}
+}

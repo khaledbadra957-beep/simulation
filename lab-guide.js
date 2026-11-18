@@ -460,7 +460,7 @@
   };
   css = '.lg-nav{position:fixed;left:0;right:0;bottom:0;z-index:58;display:flex;align-items:center;gap:6px;padding:6px max(12px,env(safe-area-inset-right,0px)) max(6px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:#13232B;color:#F5F6F2;box-shadow:0 -4px 16px rgba(0,0,0,.18);font:600 14px/1.1 var(--body,system-ui,-apple-system,"Segoe UI",sans-serif)}' +
     '.lg-nav .ttl{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:28vw;margin-right:auto}' +
-    '.lg-nav button.ph{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;color:#C9D4D8;padding:4px 8px;border-radius:8px;cursor:pointer;font:600 12.5px var(--body,system-ui,sans-serif);width:auto;margin:0;text-transform:none;letter-spacing:normal}' +
+    '.lg-nav button.ph{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;color:#C9D4D8;padding:4px 8px;border-radius:8px;cursor:pointer;font:600 13.5px var(--body,system-ui,sans-serif);width:auto;margin:0;text-transform:none;letter-spacing:normal}' +
     '.lg-nav button.ph svg{width:46px;height:30px;border-radius:5px;opacity:.75;border:2px solid transparent}' +
     '.lg-nav button.ph[aria-current="true"]{color:#F59E5B}.lg-nav button.ph[aria-current="true"] svg{opacity:1;border-color:#F59E5B}' +
     '.lg-nav button.ph:focus-visible{outline:3px solid #F59E5B;outline-offset:1px}' +
@@ -557,5 +557,88 @@
 /* phones: the intro text under the title is cut to three lines (site.css); a tap opens or closes it */
 (function () {
   function hook() { document.querySelectorAll('.wrap > header .lede').forEach(function (el) { if (el.dataset.tap) return; el.dataset.tap = '1'; el.addEventListener('click', function () { el.classList.toggle('open'); }); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
+})();
+
+/* the same page tools on every lab: Full screen and Dark mode in the top right.
+   A lab that already has its own button keeps it; this only adds what is missing. */
+(function () {
+  var file = (location.pathname.split('/').pop() || 'index.html');
+  var KEY = 'lg-theme:' + file;
+  var root = document.documentElement;
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  function hook() {
+    var header = document.querySelector('.wrap > header');
+    if (!header || header.dataset.lgTools) return;
+    header.dataset.lgTools = '1';
+    var txt = function (re) { return Array.prototype.some.call(header.querySelectorAll('button'), function (b) { return re.test(b.textContent); }); };
+    var needTheme = !document.getElementById('themeBtn') && !txt(/dark mode|light mode/i);
+    var needFs = !document.getElementById('fsBtn') && !txt(/full screen/i) && !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+    if (!needTheme && !needFs) return;
+
+    // where the buttons go: next to the page's own buttons, or in a new box on the right
+    var box = (document.getElementById('themeBtn') || document.getElementById('fsBtn') || {}).parentElement || header.querySelector('.head-actions,.tools,.row');
+    if (!box || !header.contains(box)) {
+      var kids = Array.prototype.slice.call(header.children);
+      if (kids.every(function (k) { return /^(P|H1|H2)$/.test(k.tagName); })) {
+        var text = document.createElement('div');
+        kids.forEach(function (k) { text.appendChild(k); });
+        header.appendChild(text);
+        header.classList.add('lg-hd');
+      }
+      box = document.createElement('div');
+      box.className = 'lg-tools';
+      header.appendChild(box);
+      header.classList.add('lg-hd');
+    }
+    if (box.classList.contains('head-actions')) {   // a column with its own note: our buttons get a row at the top
+      var row = document.createElement('div'); row.className = 'lg-tools'; box.insertBefore(row, box.firstChild); box = row;
+    }
+    var cls = box.querySelector('.btn') ? 'btn' + (box.querySelector('.btn.small') ? ' small' : '') : 'lg-tool';
+    function make(label) { var b = document.createElement('button'); b.type = 'button'; b.className = cls; b.textContent = label; return b; }
+
+    if (needFs) {
+      var fs = make('Full screen');
+      var fsEl = function () { return document.fullscreenElement || document.webkitFullscreenElement; };
+      var sync = function () { fs.textContent = fsEl() ? 'Exit full screen' : 'Full screen'; setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 120); };
+      fs.addEventListener('click', function () {
+        try {
+          if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+          else { var p = (root.requestFullscreen || root.webkitRequestFullscreen).call(root); if (p && p.catch) p.catch(function () {}); }
+        } catch (e) {}
+      });
+      document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
+      box.insertBefore(fs, box.firstChild);
+    }
+    if (needTheme) {
+      var th = make('Dark mode');
+      try { var saved = localStorage.getItem(KEY); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch (e) {}
+      var label = function () { th.textContent = isDark() ? 'Light mode' : 'Dark mode'; };
+      th.addEventListener('click', function () {
+        var n = isDark() ? 'light' : 'dark';
+        root.setAttribute('data-theme', n);
+        try { localStorage.setItem(KEY, n); } catch (e) {}
+        label();
+        window.dispatchEvent(new Event('resize'));   // labs that draw on a canvas redraw with the new colours
+      });
+      if (window.matchMedia) { var mq = matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', label); }
+      label();
+      box.appendChild(th);
+    }
+  }
+  var css = document.createElement('style');
+  css.textContent =
+    '.wrap > header.lg-hd{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:10px 16px}' +
+    '.wrap > header.lg-hd > div:first-child{flex:1 1 320px;min-width:0}' +
+    '.lg-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}' +
+    '.lg-tool{font:700 14px/1 var(--body,system-ui,sans-serif);min-height:40px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line,#D3DAD4);background:var(--surface,#FBFBF8);color:var(--ink,#13232B);cursor:pointer;white-space:nowrap}' +
+    '.lg-tool:hover{border-color:var(--accent,#0A6A88);color:var(--accent,#0A6A88)}' +
+    '.lg-tool:focus-visible{outline:3px solid var(--accent,#0A6A88);outline-offset:2px}' +
+    '@media (any-pointer:coarse){.lg-tool{min-height:44px}}';
+  document.head.appendChild(css);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
 })();
