@@ -85,7 +85,7 @@
         post: function (i) { return g.localToWorld(posts[i].clone()); } };
       me.show('0.00', o.unit || ''); return me;
     };
-    /* centre-zero galvanometer with a moving needle. o: { full (µA at full scale), unit }. set(a) and ghost(a) take -1..1 */
+    /* centre-zero galvanometer with a moving needle. o: { full (µA at full scale), unit, majors (numbered divisions each side), steps (small steps in each) }. set(a) and ghost(a) take -1..1 */
     P.galvanometer = function (o) {
       o = o || {}; var full = o.full || 300, g = new T.Group(), body = new T.Group(); g.add(body); body.rotation.x = -.14;
       body.add(mesh(P.rbox(2.3, 2.05, .7, .16, .05), std(0x1E2326, .42, .05), 0, 1.06, 0));
@@ -95,8 +95,9 @@
         var cx = 256, cy = 300, R = 226; x.strokeStyle = '#1B2024'; x.fillStyle = '#1B2024'; x.lineCap = 'butt';
         x.lineWidth = 12; x.strokeStyle = '#C9D6DC'; x.beginPath(); x.arc(cx, cy, R - 62, -PI / 2 - SP, -PI / 2 + SP); x.stroke();        // the mirror strip that real meters have
         x.strokeStyle = '#1B2024'; x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, R, -PI / 2 - SP, -PI / 2 + SP); x.stroke();
-        for (var i = -30; i <= 30; i++) { var a = -PI / 2 + i / 30 * SP, big = i % 10 === 0, mid = i % 5 === 0, l = big ? 30 : mid ? 21 : 13; x.lineWidth = big ? 4 : 2; x.beginPath(); x.moveTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); x.lineTo(cx + Math.cos(a) * (R - l), cy + Math.sin(a) * (R - l)); x.stroke();
-          if (big) { x.save(); x.translate(cx + Math.cos(a) * (R + 22), cy + Math.sin(a) * (R + 22)); x.rotate(a + PI / 2); x.font = '700 25px ' + MONO; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(String(Math.abs(Math.round(i / 30 * full))), 0, 0); x.restore(); } }
+        var MJ = o.majors || 3, ST = o.steps || 10, NT = MJ * ST;          // numbered divisions each side, and small steps in each
+        for (var i = -NT; i <= NT; i++) { var a = -PI / 2 + i / NT * SP, big = i % ST === 0, mid = ST % 2 === 0 && i % (ST / 2) === 0, l = big ? 30 : mid ? 21 : 13; x.lineWidth = big ? 4 : 2; x.beginPath(); x.moveTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); x.lineTo(cx + Math.cos(a) * (R - l), cy + Math.sin(a) * (R - l)); x.stroke();
+          if (big) { x.save(); x.translate(cx + Math.cos(a) * (R + 22), cy + Math.sin(a) * (R + 22)); x.rotate(a + PI / 2); x.font = '700 25px ' + MONO; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(String(Math.abs(Math.round(i / NT * full))), 0, 0); x.restore(); } }
         x.font = '800 62px ' + DISP; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('G', cx, 214); x.font = '600 24px ' + MONO; x.fillText(o.unit || 'µA', cx, 258);
         x.font = '700 30px ' + MONO; x.fillText('−', 60, 250); x.fillText('+', 452, 250);
       });

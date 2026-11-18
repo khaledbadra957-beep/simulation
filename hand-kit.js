@@ -126,14 +126,30 @@
     function setPinch(h, on) { if (on === h.pinch) return; h.pinch = on; if (on) grab(h); else drop(h); }
     var REACH = 1.3;                                   // the middle of the camera picture covers the whole bench
     k.mapX = function (x) { return k.W / 2 + ((1 - x) * k.W - k.W / 2) * REACH; }; k.mapY = function (y) { return k.H / 2 + (y * k.H - k.H / 2) * REACH; };
-    function feedHand(h, lms, now) {
-      if (h.ptr) { h.lms = lms || null; return; }      // a mouse or finger on the screen wins over the camera
+    /* One Euro filter (Casiez, Roussel and Vogel 2012): smooths hard while the hand is still, follows quickly when it moves.
+       The tracker's points jitter by a few pixels every frame; without this the 3-D hand shakes. Depth is the noisiest, so it is smoothed most. */
+    var EURO = { xy: [1.2, 9], z: [.35, 1.2] };
+    function euro(f, x, dt, mc, beta) {
+      if (f.x == null) { f.x = x; f.dx = 0; return x; }
+      var ad = 1 / (1 + 1 / (2 * Math.PI * 1.0 * dt)), d = (x - f.x) / dt; f.dx += (d - f.dx) * ad;
+      var fc = mc + beta * Math.abs(f.dx), a = 1 / (1 + 1 / (2 * Math.PI * fc * dt)); f.x += (x - f.x) * a; return f.x;
+    }
+    function smoothHand(h, lms, now) {
+      var dt = Math.max(.008, Math.min(.1, (now - (h.ft || now - 33)) / 1000)), fresh = !h.sm || now - h.seen > 300; h.ft = now;
+      if (fresh) { h.ef = []; h.sm = []; for (var i = 0; i < 21; i++) { h.ef.push([{}, {}, {}]); h.sm.push({ x: 0, y: 0, z: 0 }); } }
+      for (var j = 0; j < 21; j++) { var q = lms[j], e = h.ef[j], o = h.sm[j];
+        o.x = euro(e[0], q.x, dt, EURO.xy[0], EURO.xy[1]); o.y = euro(e[1], q.y, dt, EURO.xy[0], EURO.xy[1]); o.z = euro(e[2], q.z || 0, dt, EURO.z[0], EURO.z[1]); }
+      return h.sm;
+    }
+    k.euro = EURO;
+    function feedHand(h, raw, now) {
+      if (h.ptr) { h.lms = raw ? smoothHand(h, raw, now) : null; if (raw) h.seen = now; return; }      // a mouse or finger on the screen wins over the camera
       var firm = !!(h.held && h.held.userData.firm);   // firm items (a flask being turned over) are not dropped by a short tracking hiccup
-      if (!lms) { h.lms = null; if (h.pinch && now - h.seen > (firm ? 1500 : 450)) setPinch(h, false); if (now - h.seen > 1200 && st.mode === 'cam') h.cur.has = false; return; }
-      h.lms = lms; h.seen = now;
+      if (!raw) { h.lms = null; if (h.pinch && now - h.seen > (firm ? 1500 : 450)) setPinch(h, false); if (now - h.seen > 1200 && st.mode === 'cam') h.cur.has = false; return; }
+      var lms = smoothHand(h, raw, now); h.lms = lms; h.seen = now;
       var px = function (i) { return (1 - lms[i].x) * k.W; }, py = function (i) { return lms[i].y * k.H; };
-      var tx = (k.mapX(lms[4].x) + k.mapX(lms[8].x)) / 2, ty = (k.mapY(lms[4].y) + k.mapY(lms[8].y)) / 2, a = h.cur.has ? .5 : 1;
-      setCursor(h, h.cur.sx + (tx - h.cur.sx) * a, h.cur.sy + (ty - h.cur.sy) * a);
+      var tx = (k.mapX(lms[4].x) + k.mapX(lms[8].x)) / 2, ty = (k.mapY(lms[4].y) + k.mapY(lms[8].y)) / 2;
+      setCursor(h, tx, ty);
       var size = Math.hypot(px(0) - px(9), py(0) - py(9)) || 1; h.ratio = Math.hypot(px(4) - px(8), py(4) - py(8)) / size;
       h.ang = Math.atan2(px(9) - px(0), py(0) - py(9));
       if (h.needOpen) { if (h.ratio > .5) h.needOpen = false; else return; }
@@ -203,6 +219,10 @@
         return { nv: m.nv, pos: pos, nrm: nrm, idx: new T.BufferAttribute(idx, 1), rev: new T.BufferAttribute(rev, 1), ji: dec(m.ji), jw: jw, tint: dec(m.tint), L0: L0, RF: RF, col: new T.BufferAttribute(new Float32Array(m.nv * 3), 3) };
       } catch (e) { return null; }
     })();
+    var REST = HM ? null : OPEN.map(function (p) { return { x: p[0], y: p[1], z: p[2] }; }), RL = HM ? HM.L0 : [];   // rest length of each finger bone, in the order the skin uses: bone b joins point (b % 4 ? b : 0) to point b + 1
+    if (!HM) for (var rb = 0; rb < 20; rb++) { var ra = REST[rb % 4 ? rb : 0], rc = REST[rb + 1]; RL.push(Math.hypot(rc.x - ra.x, rc.y - ra.y, rc.z - ra.z)); }
+    var HAND_MIN = .72, HAND_MAX = 1.08, TW = new T.Vector3();                 // drawn size of a tracked hand, wrist to middle knuckle, in bench units
+    var RS = HM ? Math.hypot(window.HAND_MODEL.rest[9][0] - window.HAND_MODEL.rest[0][0], window.HAND_MODEL.rest[9][1] - window.HAND_MODEL.rest[0][1], window.HAND_MODEL.rest[9][2] - window.HAND_MODEL.rest[0][2]) : 1.0;   // wrist to middle knuckle at rest
     /* skin tones, and the blue lab glove */
     var TONES = [['t1', 0xF1CDB6, 'Skin tone 1'], ['t2', 0xDDA987, 'Skin tone 2'], ['t3', 0xC0875F, 'Skin tone 3'], ['t4', 0x94603F, 'Skin tone 4'], ['t5', 0x63402C, 'Skin tone 5'], ['glove', 0x3E8FCB, 'Blue lab glove']];
     var skinMat = new T.MeshStandardMaterial({ vertexColors: true, roughness: .62, metalness: 0, envMapIntensity: .3 }), LV = new Float32Array(240), toneBox = null;
@@ -269,9 +289,27 @@
       var R = rigOf(h), P = R.P, i; if (!h.cur.has || !st.mode) { R.g.visible = false; return; } R.g.visible = true;
       var size, tracked = !!(h.lms && !h.ptr);
       if (tracked) {                                      // the real hand: every tracked point, with its depth (nearer the camera = further into the lab)
-        var wpp = 2 * k.halfW / k.W;
-        for (i = 0; i < 21; i++) { planePoint(k.mapX(h.lms[i].x), k.mapY(h.lms[i].y), ZH, P[i]); P[i].z += (h.lms[i].z || 0) * k.W * wpp * 1.1; }
-        size = P[0].distanceTo(P[9]);
+        var wpp = 2 * k.halfW / k.W, T0 = R.T || (R.T = []);
+        for (i = 0; i < 21; i++) { T0[i] = T0[i] || new T.Vector3(); planePoint(k.mapX(h.lms[i].x), k.mapY(h.lms[i].y), ZH, T0[i]); T0[i].z += (h.lms[i].z || 0) * k.W * wpp * 1.1; }
+        /* a real hand does not change shape from frame to frame. Its size follows the palm slowly, each finger bone keeps a length
+           learned over a couple of seconds (so it fits this student's hand), and the joints are rebuilt from the wrist outwards
+           along the tracked directions. This stops fingers stretching and shrinking with the tracker's noise. */
+        var palm = (T0[0].distanceTo(T0[5]) / RL[4] + T0[0].distanceTo(T0[9]) / RL[8] + T0[0].distanceTo(T0[13]) / RL[12] + T0[0].distanceTo(T0[17]) / RL[16]) / 4;
+        if (!R.sc || h.seen - (R.seenAt || 0) > 300) { R.sc = palm; R.bl = RL.map(function (L) { return L; }); } R.seenAt = h.seen; R.sc += (palm - R.sc) * .12;
+        P[0].copy(T0[0]);
+        for (var f = 0; f < 5; f++) for (var jj = 0; jj < 4; jj++) {
+          var b = f * 4 + jj, c = b + 1, pa = jj ? c - 1 : 0, meas = T0[c].distanceTo(T0[pa]) / R.sc;
+          if (meas > RL[b] * .55 && meas < RL[b] * 1.6) R.bl[b] += (meas - R.bl[b]) * .02;
+          tv.subVectors(T0[c], T0[pa]); var ln = tv.length(); if (ln < 1e-6) tv.set(0, 1, 0); else tv.multiplyScalar(1 / ln);
+          P[c].copy(P[pa]).addScaledVector(tv, R.bl[b] * R.sc);
+        }
+        size = R.sc * RS;
+        /* a hand close to the camera looks huge in the picture; on the bench it would hide the apparatus. Keep the drawn hand within
+           a sensible size (the mouse hand is 0.9), shrinking or growing it around the pinch point so grabbing still lines up. */
+        var want = Math.max(HAND_MIN, Math.min(HAND_MAX, size));
+        if (want !== size) { var f = want / size; tv.addVectors(P[4], P[8]).multiplyScalar(.5); for (i = 0; i < 21; i++) P[i].sub(tv).multiplyScalar(f).add(tv); size = want; }
+        tv.addVectors(P[4], P[8]).multiplyScalar(.5); planePoint(h.cur.sx, h.cur.sy, tv.z, TW).sub(tv); for (i = 0; i < 21; i++) P[i].add(TW);   // the drawn pinch point sits exactly on the cursor
+        R.raw = R.sc * RS;
       } else {                                            // mouse or touch: a posed hand whose pinch point is the pointer
         h.pose += ((h.pinch ? 1 : 0) - h.pose) * .35; size = .9; var s = size / 1.0, flip = NH > 1 && h.i === 0 ? -1 : 1, a = h.pose;
         var mx = (OPEN[4][0] + OPEN[8][0]) / 2 * (1 - a) + PINCH[4][0] * a * .5 + PINCH[8][0] * a * .5, my = (OPEN[4][1] + OPEN[8][1]) / 2 * (1 - a) + (PINCH[4][1] + PINCH[8][1]) / 2 * a;
@@ -280,8 +318,9 @@
       }
       var rf = size * .112;
       if (HM) {
-        var c = lean(P) / (size * size || 1); R.lean = tracked && R.chi ? R.lean + (c - R.lean) * .2 : c; var chi = R.chi && Math.abs(R.lean) < .05 ? R.chi : (R.lean >= 0 ? 1 : -1);
-        if (chi !== R.chi) { R.chi = chi; R.skin.geometry.setIndex(chi > 0 ? HM.idx : HM.rev); }
+        var c = lean(P) / (size * size || 1); R.lean = tracked && R.chi ? R.lean + (c - R.lean) * .2 : c; var want = R.chi && Math.abs(R.lean) < .05 ? R.chi : (R.lean >= 0 ? 1 : -1);
+        R.vote = want !== R.chi ? (R.vote || 0) + 1 : 0; var chi = !R.chi || !tracked || R.vote > 6 ? want : R.chi;
+        if (chi !== R.chi) { if (R.chi) R.flips = (R.flips || 0) + 1; R.chi = chi; R.vote = 0; R.skin.geometry.setIndex(chi > 0 ? HM.idx : HM.rev); }
         frames(P, chi, size, LV, false, HM.L0); skinTo(R, size);
       } else {
         for (i = 0; i < 21; i++) { R.j[i].position.copy(P[i]); R.j[i].scale.setScalar(i === 0 ? rf * 1.5 : (i % 4 === 1 && i > 1 ? rf * 1.25 : rf * (i < 5 ? 1.12 : 1.02))); }
