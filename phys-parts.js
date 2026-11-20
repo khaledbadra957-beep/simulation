@@ -246,6 +246,35 @@
       var lb = P.label(text, .8, .24, { ink: '#1B2024', size: .82, res: 192 }); lb.position.set(0, -.3, .04); g.add(lb);
       return { g: g };
     };
+    /* capacitor: a can on a printed plinth, with a bar that fills as it charges. charge(u): 0 = empty, 1 = full (u < 0: charged the other way) */
+    P.capacitor = function (E, text) {
+      var g = partBase(E, .42);
+      g.add(mesh(P.rbox(.92, .84, .07, .06, .015), std(0xF4F3EE, .5), 0, -.06, 0));
+      var can = mesh(new T.CylinderGeometry(.27, .27, .6, 28), std(0x1F3B57, .45, .1), 0, .08, .37); can.rotation.x = PI / 2; g.add(can);
+      var top = mesh(new T.CylinderGeometry(.262, .262, .02, 28), P.steel, 0, .08, .675); top.rotation.x = PI / 2; g.add(top);
+      [0, 1].forEach(function (k) { var s = mesh(new T.BoxGeometry(.36, .012, .006), std(0x8C969C, .4, .6), 0, .08, .687); s.rotation.z = k * PI / 2; g.add(s); });
+      var stripe = mesh(new T.CylinderGeometry(.272, .272, .5, 28, 1, true, -.35, .7), std(0xD9DEE2, .5), 0, .08, .37); stripe.rotation.x = PI / 2; g.add(stripe);
+      [-1, 1].forEach(function (s) { var d = mesh(new T.CylinderGeometry(.025, .025, .3, 6), P.steel, s * .3, .08, .12); d.rotation.x = PI / 2; g.add(d); var w = mesh(new T.CylinderGeometry(.025, .025, .14, 6), P.steel, s * .37, .08, .02); w.rotation.z = PI / 2; g.add(w); });
+      g.add(mesh(new T.BoxGeometry(.72, .07, .012), std(0x2A3238, .6), 0, -.27, .075));
+      var bar = mesh(new T.BoxGeometry(.7, .05, .014), std(0x3898A8, .5), -.35, -.27, .08); bar.geometry.translate(.35, 0, 0); bar.scale.x = .001; g.add(bar);
+      var lb = P.label(text, .8, .16, { ink: '#1B2024', size: .82, res: 192 }); lb.position.set(0, -.38, .04); g.add(lb);
+      return { g: g, charge: function (u) { var a = Math.min(1, Math.abs(u)); bar.scale.x = Math.max(.001, a); bar.material.color.setHex(u < 0 ? 0xE05A33 : 0x3898A8); } };
+    };
+    /* rheostat: a wire coil on a ceramic tube with a sliding contact on a rod. set(u): contact from the left end (0) to the right end (1) */
+    P.rheostat = function (E) {
+      var g = partBase(E, .64), L = 1.16, pts = [], n = 24, i;
+      g.add(mesh(P.rbox(1.42, .9, .07, .06, .015), std(0x2D363B, .6), 0, 0, 0));
+      var tube = mesh(new T.CylinderGeometry(.14, .14, L, 20), std(0xEFE8D8, .7), 0, -.08, .28); tube.rotation.z = PI / 2; g.add(tube);
+      for (i = 0; i <= n * 16; i++) { var u = i / (n * 16), th = u * n * PI * 2; pts.push(new T.Vector3(-L / 2 + u * L, -.08 + .155 * Math.cos(th), .28 + .155 * Math.sin(th))); }
+      g.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts), n * 16, .018, 5, false), P.copper));
+      [-1, 1].forEach(function (s) { g.add(mesh(P.rbox(.08, .62, .5, .02, .01), std(0x15181B, .5), s * (L / 2 + .06), .04, .27)); });
+      var rod = mesh(new T.CylinderGeometry(.03, .03, L + .1, 10), P.steel, 0, .3, .5); rod.rotation.z = PI / 2; g.add(rod);
+      var wiper = new T.Group(); wiper.position.set(0, .3, .5); g.add(wiper);
+      wiper.add(mesh(P.rbox(.16, .14, .16, .03, .01), P.brass, 0, 0, 0)); wiper.add(mesh(new T.BoxGeometry(.03, .26, .03), P.copper, 0, -.17, -.07));
+      var kn = mesh(new T.CylinderGeometry(.075, .075, .14, 14), std(0x15181B, .5), 0, .14, 0); wiper.add(kn);
+      var lb = P.label('0–50 Ω', .7, .16, { ink: '#E8EDF0', size: .8, res: 192 }); lb.position.set(0, -.37, .04); g.add(lb);
+      return { g: g, len: L, set: function (u) { wiper.position.x = -L / 2 + L * Math.max(0, Math.min(1, u)); } };
+    };
     /* insulated lead with a slight bow towards the student */
     P.wire = function (E, col) {
       var g = partBase(E, E / 2 - .12), pts = [], n = 8; for (var i = 0; i <= n; i++) { var u = i / n; pts.push(new T.Vector3(-E / 2 + .12 + u * (E - .24), 0, .03 + .16 * 4 * u * (1 - u))); }
