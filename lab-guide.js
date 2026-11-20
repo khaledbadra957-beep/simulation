@@ -183,11 +183,11 @@
     'pulse-at-a-boundary.html': {
       big: 'When a pulse reaches a boundary, part reflects and part is transmitted. A heavier (slower) medium flips the reflected pulse; a lighter one does not.',
       tryThis: [
-        'Choose Heavier → lighter. Is the reflected pulse upright or inverted?',
-        'Now Lighter → heavier. What changed?',
-        'Rigid wall: how much passes through?',
-        'Same spring: why is there no reflection?',
-        'Turn on labels and compare the sizes of reflected and transmitted pulses.'
+        'Spring 2: choose Lighter. Is the reflected pulse upright or inverted?',
+        'Now choose Heavier. What changed?',
+        'Wall: how much passes through?',
+        'Same: why is there no reflection?',
+        'Drag the knob on the pulse down to send an upside-down pulse. Does the rule still hold?'
       ],
       words: [['Incident', 'the pulse that arrives'], ['Reflected', 'the pulse that comes back'], ['Transmitted', 'the pulse that passes into the second medium'], ['Inverted', 'flipped upside down']],
       goals: ['Predict whether the reflected pulse is inverted.', 'Compare speeds and widths of transmitted pulses.', 'Explain energy sharing at a boundary.'],
@@ -235,9 +235,10 @@
         'Prepare a solution from a solid: calculate m = C × V × M, weigh it, follow the steps.',
         'Titration: do a fast rough trial, then two accurate trials that agree within 0.10 mL.',
         'Try methyl orange with CH₃COOH. Why does it change colour too early?',
-        'Redox: titrate Fe²⁺ with KMnO₄. What tells you the end point without an indicator?'
+        'Redox: titrate Fe²⁺ with KMnO₄. What tells you the end point without an indicator?',
+        'Real lab: after a real titration, type your burette readings. Is the true value inside your margin of error? If not, which mistake explains it?'
       ],
-      words: [['Dilution factor f', 'C₀ / C = V / V₀'], ['Volumetric flask', 'holds exactly V at the line'], ['Equivalence point', 'reagents in stoichiometric ratio'], ['End point', 'where the indicator changes colour'], ['Concordant', 'trials within 0.10 mL']],
+      words: [['Dilution factor f', 'C₀ / C = V / V₀'], ['Volumetric flask', 'holds exactly V at the line'], ['Equivalence point', 'reagents in stoichiometric ratio'], ['End point', 'where the indicator changes colour'], ['Concordant', 'trials within 0.10 mL'], ['Margin of error', 'the ± range your glassware allows: random error'], ['Systematic error', 'a mistake that pushes every result the same way']],
       goals: ['Choose suitable glassware for a dilution and justify the choice with f = V / V₀.', 'Describe the protocols for dilution, preparation from a solid, and titration in the right order.', 'Read a burette at the bottom of the meniscus and record concordant results.', 'Use ATSR at the equivalence point to find an unknown concentration (acid–base and redox).', 'Choose an indicator from the pH curve.'],
       flow: [['3 min', 'Predict', 'Show three glassware sets from the Challenge tab; students vote which one dilutes correctly.'], ['5 min', 'Explore', 'Tab 1 in pairs: dilution with the protocol.'], ['5 min', 'Explain', 'Tab 3 on the board: a rough trial, then an accurate one; point at the pH curve and the indicator range.'], ['2 min', 'Apply', 'Students calculate the unknown and press Check.']],
       mis: [['Any flask with a 250 mL mark is fine for a dilution.', 'The lab refuses Erlenmeyer flasks and beakers and explains why.'], ['The end point is always at pH 7.', 'The weak-acid curve shows equivalence near pH 8.7.'], ['Rinsing the pipette with water is cleaner.', 'Step feedback: rinse with the stock so it is not diluted.'], ['More indicator makes the result more accurate.', 'Indicator range vs. equivalence pH is what matters.']],
