@@ -280,6 +280,27 @@
   var file = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
   var G = GUIDES[file];
   if (!G) return;
+  /* answers to the discussion questions, in the same order (for the answer key and "Reveal answers") */
+  var ANSWERS = {
+    'chemical-change-lab.html': ['No. Steam is still water (H₂O), and cooling turns it back. You would need evidence of a NEW substance: a gas with new properties, a colour change, a precipitate, or heat or light given out.', 'The carbon dioxide gas made in the reaction escapes into the air and takes its mass with it. In the closed flask the gas stays in, so the mass does not change.', 'The number of atoms of each element, so the total mass. Only the way the atoms are joined changes.'],
+    'chemical-equilibrium-lab.html': ['The system shifts towards N₂O₄ to use up some of the added NO₂, but only partly. K stays the same, so [NO₂] settles higher than before, but lower than just after you added it.', 'ΔH is not zero, so temperature changes the forward and reverse rates by different amounts and their ratio K changes. Pressure and concentration only move the amounts; at the new equilibrium the ratio is the same K.', 'The equilibrium keeps shifting forwards: more NO₂ turns into N₂O₄ until almost all of it is used up. The reaction goes almost to completion.'],
+    'enthalpy-lab.html': ['Water has a very high specific heat (4.18 J/g·°C): it takes in a lot of heat for a small rise in temperature.', 'Enthalpy depends only on the start and the end, not on the path (Hess’s law). Adding the equations adds their ΔH.', 'Positive (ΔH > 0): the change is endothermic and takes heat from your hand.'],
+    'entropy-lab.html': ['There are only a few ways to put every molecule in one corner, and astronomically more ways to spread them out. The chance is about (½)^N, with N ≈ 10²⁷.', 'The ions spread out through the water, so there are far more ways to arrange them than in the ordered crystal.', 'Freezing gives out heat (ΔH < 0). Below 0 °C the term −TΔS is smaller than |ΔH|, so ΔG = ΔH − TΔS < 0.'],
+    'equilibrium-table-lab.html': ['As products form, the reverse reaction speeds up until it is as fast as the forward one. This happens at x_f < x_max, and then the amounts stop changing.', 'Only 67 % of the greatest possible amount of ester forms: the yield is 67 %.', 'Use an excess of the acid or the alcohol, or remove the water (or the ester) as it forms.'],
+    'esterification-lab.html': ['Removing a product makes Q smaller than K, so the forward reaction carries on until the limiting reagent is used up.', 'The bulky groups around the C–OH get in the way (steric hindrance), so the equilibrium lies almost completely on the side of the reactants: a yield of about 5 %.', 'Hydrolysis (ester + water) is slow and limited: it stops at equilibrium. Saponification (ester + hydroxide, e.g. NaOH) is complete and gives an alcohol and a carboxylate ion (soap).'],
+    'five-types-of-chemical-reactions.html': ['A more reactive metal gives up electrons more easily, so it can push the ions of a less reactive metal out of a compound, but not the other way round (the activity series).', 'Synthesis: iron + oxygen → iron oxide, slowly and without a flame. Combustion is the fast burning of a fuel.'],
+    'galvanic-cell-lab.html': ['Without the bridge, ions cannot move to keep each beaker neutral. Charge builds up, the circuit is open, and the electrons stop flowing.', 'The blue Cu²⁺ ions are reduced to copper metal on the cathode, so there are fewer of them in the solution.', 'The two metals furthest apart on the E° scale, because E°cell = E°cathode − E°anode. For example Zn and Ag: 0.80 − (−0.76) = 1.56 V.'],
+    'keplers-laws.html': ['Equal areas in equal times: near the Sun the line to the Sun is short, so the comet must move faster to sweep the same area.', 'T² ∝ a³, so T ∝ a^1.5: 2^1.5 ≈ 2.8 times longer.'],
+    'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
+    'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
+    'pulse-at-a-boundary.html': ['The pulse lasts the same time, but in a slower medium it travels a shorter distance in that time: width = speed × duration.', 'The same mass per metre on both sides (the same speed): nothing reflects, and the whole pulse passes through unchanged (R = 0, T = 1).'],
+    'reaction-rates-lab.html': ['Powder has a much bigger surface area: more particles meet oxygen, so there are more collisions each second.', 'The reactants are used up, so their concentrations fall and there are fewer collisions each second.'],
+    'resonance-on-a-string.html': ['Pressing shortens the vibrating length L. Since f₁ = v ÷ 2L, the frequency goes up.', 'If their steps match a natural frequency of the bridge, every step adds energy at the right moment: resonance builds a huge swing.'],
+    'titration-lab.html': ['Until the end the acid in the flask is in excess and neutralises the base you add. The pink stays only when no acid is left, just past the equivalence point.', 'So that you do not go past the line: the bottom of the meniscus must sit exactly on the mark for the volume to be right.', 'Water left in the burette dilutes the NaOH, so you need a bigger volume, and the acid concentration you calculate comes out too high.'],
+    'torque-lab.html': ['A longer lever arm r gives a bigger torque, τ = F r, for the same force, so you need less force.', 'At the edge furthest from the hinges, pushing at 90° to the door.'],
+    'wave-speed-lab.html': ['All sounds travel at the same speed in the same air (about 340 m/s). The frequency changes the wavelength, not the speed.', 'Pull it tighter (more tension) or use a lighter rope (less mass per metre): v = √(T ÷ μ).']
+  };
+  var A = ANSWERS[file] || [];
 
   var css = '' +
     '.lg-btn{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));z-index:60;display:flex;align-items:center;gap:8px;' +
@@ -316,7 +337,28 @@
     '.lg-btn,.lg-panel button{width:auto!important;min-width:0!important;margin:0!important;text-transform:none!important;letter-spacing:normal!important;flex:none}' +
     '.lg-btn{left:auto!important;top:auto!important}' +
     '.lg-panel label{width:auto!important;margin:0!important;text-transform:none!important;letter-spacing:normal!important;font-size:inherit!important;color:inherit!important}' +
-    '@media print{.lg-btn{display:none}}';
+    '.lg-qs{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:10px}' +
+    '.lg-qs .a{display:block;margin-top:5px;padding:7px 10px;border-radius:8px;background:color-mix(in srgb,#3898A8 12%,transparent);border-left:3px solid #3898A8;font-size:14.5px}' +
+    '.lg-panel .lg-qs .a[hidden]{display:none!important}' +
+    '.lg-row{display:flex;flex-wrap:wrap;gap:8px}' +
+    '.lg-act{border:1.5px solid color-mix(in srgb,CanvasText 25%,transparent);background:none;color:inherit;border-radius:9px;padding:8px 12px;font:700 14px var(--body,system-ui);cursor:pointer}' +
+    '.lg-act.pri{background:#0A6A88;border-color:#0A6A88;color:#fff}' +
+    '.lg-print{display:none}' +
+    '@media print{.lg-btn{display:none}' +
+    'body>*:not(.lg-print){display:none!important}html,body{background:#fff!important;padding:0!important;margin:0!important;height:auto!important}' +
+    '.lg-print{display:block!important;color:#111;font:11.5pt/1.45 "Atkinson Hyperlegible",system-ui,sans-serif}' +
+    '.lg-print h1{font:800 20pt/1.1 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 2pt}' +
+    '.lg-print .ey{margin:0;color:#444;font-size:10pt}' +
+    '.lg-print .who{display:flex;gap:18pt;margin:10pt 0 12pt;font-size:10.5pt}.lg-print .who span{flex:1;border-bottom:1px solid #999;padding-bottom:2pt}' +
+    '.lg-print h2{font:700 12.5pt/1.2 "Atkinson Hyperlegible",system-ui,sans-serif;margin:14pt 0 6pt;border-bottom:1.5px solid #111;padding-bottom:2pt}' +
+    '.lg-print ol,.lg-print ul{margin:0;padding-left:16pt}.lg-print li{margin:0 0 8pt;break-inside:avoid}' +
+    '.lg-print .ln{display:block;border-bottom:1px solid #bbb;height:19pt}' +
+    '.lg-print .ans{display:block;margin-top:3pt;font-style:italic;color:#0A4F66}' +
+    '.lg-print .tick{display:inline-block;width:10pt;height:10pt;border:1.2px solid #111;margin-right:6pt;vertical-align:-1pt}' +
+    '.lg-print .big{margin:8pt 0 0;padding:6pt 9pt;border-left:3pt solid #0A6A88;background:#EEF5F7}' +
+    '.lg-print .words{display:grid;grid-template-columns:1fr 1fr;gap:3pt 16pt;font-size:10.5pt}' +
+    '.lg-print .foot{display:flex;align-items:center;gap:10pt;margin-top:14pt;font-size:9.5pt;color:#444}.lg-print .foot svg{width:62pt;height:62pt}' +
+    '@page{size:A4;margin:14mm}}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var KEY = 'lg:' + file;
@@ -332,14 +374,39 @@
     return '<p class="lg-big">' + esc(G.big) + '</p>' +
       '<h3>Try this</h3><span class="lg-prog" id="lgProg">' + n + ' of ' + G.tryThis.length + ' done</span>' +
       '<ul class="lg-list">' + G.tryThis.map(function (t, i) { return '<li><label><input type="checkbox" data-i="' + i + '"' + (done[i] ? ' checked' : '') + '><span>' + esc(t) + '</span></label></li>'; }).join('') + '</ul>' +
-      '<h3>Words to know</h3><div class="lg-words">' + G.words.map(function (w) { return '<span><b>' + esc(w[0]) + '</b>: ' + esc(w[1]) + '</span>'; }).join('') + '</div>';
+      '<h3>Words to know</h3><div class="lg-words">' + G.words.map(function (w) { return '<span><b>' + esc(w[0]) + '</b>: ' + esc(w[1]) + '</span>'; }).join('') + '</div>' +
+      '<h3>Questions to try</h3><ol class="lg-qs">' + G.qs.slice(0, 3).map(function (q, i) { return '<li>' + esc(q) + (A[i] ? '<span class="a" hidden>' + esc(A[i]) + '</span>' : '') + '</li>'; }).join('') + '</ol>' +
+      '<div class="lg-row">' + (A.length ? '<button type="button" class="lg-act" data-reveal>Reveal answers</button>' : '') + '<button type="button" class="lg-act pri" data-print="0">Print worksheet</button></div>';
   }
   function teacherHTML() {
     return '<button type="button" class="lg-pres" id="lgPres"></button>' +
       '<h3>Learning goals: students will be able to</h3><ol class="lg-ol">' + G.goals.map(function (g) { return '<li>' + esc(g) + '</li>'; }).join('') + '</ol>' +
       '<h3>15-minute lesson</h3><ul class="lg-flow">' + G.flow.map(function (f) { return '<li><span class="t">' + esc(f[0]) + '</span><b>' + esc(f[1]) + '</b><span>' + esc(f[2]) + '</span></li>'; }).join('') + '</ul>' +
       '<h3>Common misconceptions</h3><ul class="lg-mis">' + G.mis.map(function (m) { return '<li>“' + esc(m[0]) + '”<small>How the lab shows it: ' + esc(m[1]) + '</small></li>'; }).join('') + '</ul>' +
-      '<h3>Discussion questions</h3><ol class="lg-ol">' + G.qs.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join('') + '</ol>';
+      '<h3>Discussion questions</h3><ol class="lg-qs">' + G.qs.map(function (q, i) { return '<li>' + esc(q) + (A[i] ? '<span class="a">' + esc(A[i]) + '</span>' : '') + '</li>'; }).join('') + '</ol>' +
+      '<div class="lg-row"><button type="button" class="lg-act pri" data-print="0">Print worksheet</button>' + (A.length ? '<button type="button" class="lg-act" data-print="1">Print answer key</button>' : '') + '</div>';
+  }
+
+  /* a printable worksheet: the checklist, the questions with space to write, the key words and a QR code to the lab */
+  function printSheet(key) {
+    var title = ((document.querySelector('.topbar h1') || document.querySelector('h1') || {}).textContent || document.title).trim();
+    var ey = ((document.querySelector('.eyebrow') || document.querySelector('.tb-tag') || {}).textContent || '').trim();
+    var url = location.href.split('#')[0].split('?')[0];
+    function build() {
+      var qr = window.QR ? QR.svg(url, { ecc: 'M', border: 1, dark: '#111' }) : '';
+      var lines = function (n) { var s = ''; for (var i = 0; i < n; i++) s += '<span class="ln"></span>'; return s; };
+      var html = '<h1>' + esc(title) + (key ? ' · answer key' : '') + '</h1>' + (ey ? '<p class="ey">' + esc(ey) + '</p>' : '') +
+        (key ? '<p class="big"><b>Big idea:</b> ' + esc(G.big) + '</p>' : '<div class="who"><span>Name</span><span>Class</span><span>Date</span></div>') +
+        '<h2>1 · Try this in the lab</h2><ul style="list-style:none;padding-left:0">' + G.tryThis.map(function (t) { return '<li><span class="tick"></span>' + esc(t) + (key ? '' : lines(1)) + '</li>'; }).join('') + '</ul>' +
+        '<h2>2 · Questions</h2><ol>' + G.qs.map(function (q, i) { return '<li>' + esc(q) + (key ? (A[i] ? '<span class="ans">' + esc(A[i]) + '</span>' : '') : lines(3)) + '</li>'; }).join('') + '</ol>' +
+        '<h2>3 · Words to know</h2><div class="words">' + G.words.map(function (w) { return '<div><b>' + esc(w[0]) + '</b>: ' + esc(w[1]) + '</div>'; }).join('') + '</div>' +
+        '<div class="foot">' + qr + '<span>Open the lab: ' + esc(url) + '<br>Science Simulations · Mr Khaled</span></div>';
+      var el = document.querySelector('.lg-print'); if (!el) { el = document.createElement('div'); el.className = 'lg-print'; document.body.appendChild(el); }
+      el.innerHTML = html;
+      try { window.print(); } catch (e) { }
+    }
+    if (window.QR) build();
+    else { var sc = document.createElement('script'); sc.src = 'qr.js'; sc.onload = build; sc.onerror = build; document.head.appendChild(sc); }
   }
 
   var btn = document.createElement('button');
@@ -356,6 +423,9 @@
       cb.onchange = function () { state.done = state.done || {}; state.done[cb.dataset.i] = cb.checked; save(state);
         var n = G.tryThis.filter(function (_, i) { return state.done[i]; }).length; document.getElementById('lgProg').textContent = n + ' of ' + G.tryThis.length + ' done' + (n === G.tryThis.length ? ' 🎉' : ''); };
     });
+    var rv = panel.querySelector('[data-reveal]');
+    if (rv) rv.onclick = function () { var as = panel.querySelectorAll('.lg-qs .a'), show = as.length && as[0].hidden; as.forEach(function (a) { a.hidden = !show; }); rv.textContent = show ? 'Hide answers' : 'Reveal answers'; };
+    panel.querySelectorAll('[data-print]').forEach(function (b) { b.onclick = function () { printSheet(b.dataset.print === '1'); }; });
     var pb = document.getElementById('lgPres');
     if (pb) { presLabel(); pb.onclick = function () { var on = document.documentElement.classList.toggle('lg-present'); try { localStorage.setItem('lg:present', on ? '1' : '0'); } catch (e) {} presLabel(); window.dispatchEvent(new Event('resize')); }; }
   }
