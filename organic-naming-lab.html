@@ -1,4 +1,5 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
 /* 3D model card */
 .card.o3d{margin-top:16px}
 .o3dhead{flex-wrap:wrap;gap:8px 12px;align-items:center}
@@ -73,7 +74,7 @@ p{margin:0}
 .tab:hover{border-color:var(--ink)}
 .tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 -4px 0 var(--accent)}
 
-.panel{display:flex;flex-direction:column;gap:16px}
+.tabp{display:flex;flex-direction:column;gap:16px}
 .lab{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;align-items:start}
 @media (max-width:900px){.lab{grid-template-columns:minmax(0,1fr)}}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
@@ -210,45 +211,56 @@ table.ref th{font-size:.8125rem;color:var(--muted)}
 @media (max-width:520px){.fsbar b{display:none}.fsbar .row{justify-content:flex-start}}
 body.no-explain .explain{display:none!important}
 .fsbtn{display:inline-flex;align-items:center;gap:6px}
-.panel.fs{position:fixed;inset:0;z-index:60;background:var(--bg);overflow:auto;padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 24px max(12px,env(safe-area-inset-left,0px))}
-.panel.fs:fullscreen{padding:16px}
-.panel.fs::backdrop{background:var(--bg)}
+.tabp.fs{position:fixed;inset:0;z-index:60;background:var(--bg);overflow:auto;padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 24px max(12px,env(safe-area-inset-left,0px))}
+.tabp.fs:fullscreen{padding:16px}
+.tabp.fs::backdrop{background:var(--bg)}
 body.fs-on{overflow:hidden}
-.panel.fs .lab{grid-template-columns:minmax(0,2.3fr) minmax(0,1fr)}
-@media (max-width:900px){.panel.fs .lab{grid-template-columns:minmax(0,1fr)}}
-.panel.fs svg.mol{max-height:min(62vh,900px);max-width:var(--fsmax,none)!important;min-width:0!important}
-.panel.fs .molwrap{padding:10px}
-.panel.fs .bigname{font-size:clamp(1.6rem,3vw,2.6rem)}
+.tabp.fs .lab{grid-template-columns:minmax(0,2.3fr) minmax(0,1fr)}
+@media (max-width:900px){.tabp.fs .lab{grid-template-columns:minmax(0,1fr)}}
+.tabp.fs svg.mol{max-height:min(62vh,900px);max-width:var(--fsmax,none)!important;min-width:0!important}
+.tabp.fs .molwrap{padding:10px}
+.tabp.fs .bigname{font-size:clamp(1.6rem,3vw,2.6rem)}
 .fsbar{display:none}
-.panel.fs .fsbar{display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:0;z-index:2;background:var(--bg);padding-bottom:8px}
+.tabp.fs .fsbar{display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:0;z-index:2;background:var(--bg);padding-bottom:8px}
 .fsbar b{font-family:var(--display);font-size:1.25rem}
 </style>
 <link rel="stylesheet" href="site.css">
+<style>
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui .screen.solo > .solo-in{width:min(1240px,100%);padding:4px 2px 24px}
+.stage-ui #p-build .col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.stage-ui #p-build .o3dhead{flex-wrap:wrap}
+.stage-ui #p-build .o3dhost{height:clamp(240px,calc(100vh - 560px),420px)}
+.stage-ui #p-build .o3dwrap{margin-top:0}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui .card h3{letter-spacing:.06em}
+.stage-ui .btn.small{min-height:36px;font-size:13.5px;padding:0 11px}
+.stage-ui .btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.stage-ui .o3dhead .btn[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.stage-ui .tb-btn.explainBtn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.stage-ui .tb-btn .ico{width:18px;height:18px}
+</style>
 
-<div class="wrap">
-<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
-  <header>
-    <div class="toprow">
-      <p class="eyebrow">Grade 11–12 Chemistry · Hydrocarbons and Organic Compounds</p>
-      <div class="row" role="group" aria-label="Display">
-        <button class="btn small explainBtn" id="explainBtn" aria-pressed="false"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h6a2 2 0 0 1 2 2v10a2 2 0 0 0-2-2H3zM17 4h-6a2 2 0 0 0-2 2v10a2 2 0 0 1 2-2h6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Explanations: off</span></button>
-        <button class="btn small themeBtn" id="themeBtn"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg><span>Dark mode</span></button>
-      </div>
-    </div>
-    <h1>Organic Naming Lab</h1>
-    <p class="lede explain">Build a molecule and watch its IUPAC name appear step by step: find the longest chain, number it, then order the substituents. Name esters, ethers, amides and amines from their parts, hunt for every isomer of a formula, and identify mystery compounds with the classic test-tube tests.</p>
-  </header>
-
-  <div class="tabs" role="tablist" aria-label="Parts of the lab">
-    <button class="tab" role="tab" id="t-build" aria-controls="p-build" aria-selected="true"><small>Build</small><b>Build &amp; name</b></button>
-    <button class="tab" role="tab" id="t-quiz" aria-controls="p-quiz" aria-selected="false" tabindex="-1"><small>Practise</small><b>Name challenge</b></button>
-    <button class="tab" role="tab" id="t-iso" aria-controls="p-iso" aria-selected="false" tabindex="-1"><small>Isomers</small><b>Isomer hunt</b></button>
-    <button class="tab" role="tab" id="t-ester" aria-controls="p-ester" aria-selected="false" tabindex="-1"><small>O and N in the chain</small><b>Esters, ethers, amides</b></button>
-    <button class="tab" role="tab" id="t-lab" aria-controls="p-lab" aria-selected="false" tabindex="-1"><small>Lab tests</small><b>Mystery compounds</b></button>
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Organic Naming</h1>
+ <span class="tb-tag">Chemistry · G11–12</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn explainBtn" id="explainBtn" aria-pressed="false"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h6a2 2 0 0 1 2 2v10a2 2 0 0 0-2-2H3zM17 4h-6a2 2 0 0 0-2 2v10a2 2 0 0 1 2-2h6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Explanations: off</span></button>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button hidden class="btn small themeBtn" id="themeBtn"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg><span>Dark mode</span></button>
+<div class="tabs" hidden role="tablist" aria-label="Parts of the lab">
+    <button class="tab" role="tab" id="t-build" data-tab="build" aria-controls="p-build" aria-selected="true"><small>Build</small><b>Build &amp; name</b></button>
+    <button class="tab" role="tab" id="t-quiz" data-tab="quiz" aria-controls="p-quiz" aria-selected="false" tabindex="-1"><small>Practise</small><b>Name challenge</b></button>
+    <button class="tab" role="tab" id="t-iso" data-tab="iso" aria-controls="p-iso" aria-selected="false" tabindex="-1"><small>Isomers</small><b>Isomer hunt</b></button>
+    <button class="tab" role="tab" id="t-ester" data-tab="ester" aria-controls="p-ester" aria-selected="false" tabindex="-1"><small>O and N in the chain</small><b>Esters, ethers, amides</b></button>
+    <button class="tab" role="tab" id="t-lab" data-tab="lab" aria-controls="p-lab" aria-selected="false" tabindex="-1"><small>Lab tests</small><b>Mystery compounds</b></button>
   </div>
-
+<main class="screens">
   <!-- ============ BUILD & NAME ============ -->
-  <section class="panel" id="p-build" role="tabpanel" aria-labelledby="t-build">
+  <section class="tabp screen solo" id="p-build" data-screens="build" role="tabpanel" aria-labelledby="t-build"><div class="solo-in">
     <div class="lab">
       <div class="card">
         <h3>Molecule builder</h3>
@@ -258,6 +270,7 @@ body.fs-on{overflow:hidden}
         </div>
         <div id="bBuilder"></div>
       </div>
+      <div class="col">
       <div class="card">
         <h3>Name</h3>
         <div class="row"><label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="bGuess"> Hide the name so I can guess first</label></div>
@@ -271,33 +284,35 @@ body.fs-on{overflow:hidden}
         <h3 class="explain">How the name is built</h3>
         <ol class="steps explain" id="bSteps"></ol>
       </div>
-    </div>
     <div class="card o3d">
-      <div class="row o3dhead">
-        <h3 style="margin:0">3D model</h3>
-        <div class="row" role="group" aria-label="Model style"><button class="btn small" id="o3dBS" aria-pressed="true">Ball-and-stick</button><button class="btn small" id="o3dSF" aria-pressed="false">Space-filling</button></div>
-        <label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="o3dH" checked> Show H atoms</label>
-        <button class="btn small" id="o3dRot">Auto-rotate: on</button><button class="btn small" id="o3dReset">Reset view</button>
-        <button class="btn small" id="o3dBenz">Load benzene</button>
-      </div>
-      <div class="o3dwrap"><div id="o3dHost" class="o3dhost" aria-label="3D model of the molecule in the builder. Drag to turn, scroll or pinch to zoom."></div>
-        <div class="o3dkey" aria-hidden="true"><span><i style="background:#3C4248"></i>C</span><span><i style="background:#F2F2F2;border:1px solid #999"></i>H</span><span><i style="background:#D8322A"></i>O</span><span><i style="background:#2F5FD0"></i>N</span><span><i style="background:#2EA44F"></i>Cl</span><span><i style="background:#9A3A1C"></i>Br</span></div></div>
-      <div id="o3dRes" hidden>
         <div class="row o3dhead">
-          <span class="flabel">Resonance</span>
-          <div class="row" role="group" aria-label="Resonance"><button class="btn small" id="o3dResOff" aria-pressed="true">Off: Kekulé</button><button class="btn small" id="o3dResOn" aria-pressed="false">On: hybrid</button></div>
-          <button class="btn small" id="o3dFlip">Flip the double bonds</button>
-          <label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="o3dP" checked> p orbitals</label>
-          <label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="o3dL" checked> Bond lengths</label>
+          <h3 style="margin:0">3D model</h3>
+          <div class="row" role="group" aria-label="Model style"><button class="btn small" id="o3dBS" aria-pressed="true">Ball-and-stick</button><button class="btn small" id="o3dSF" aria-pressed="false">Space-filling</button></div>
+          <label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="o3dH" checked> Show H atoms</label>
+          <button class="btn small" id="o3dRot">Auto-rotate: on</button><button class="btn small" id="o3dReset">Reset view</button>
+          <button class="btn small" id="o3dBenz">Load benzene</button>
         </div>
-        <div class="o3dstrip" id="o3dStrip"></div>
+        <div class="o3dwrap"><div id="o3dHost" class="o3dhost" aria-label="3D model of the molecule in the builder. Drag to turn, scroll or pinch to zoom."></div>
+          <div class="o3dkey" aria-hidden="true"><span><i style="background:#3C4248"></i>C</span><span><i style="background:#F2F2F2;border:1px solid #999"></i>H</span><span><i style="background:#D8322A"></i>O</span><span><i style="background:#2F5FD0"></i>N</span><span><i style="background:#2EA44F"></i>Cl</span><span><i style="background:#9A3A1C"></i>Br</span></div></div>
+        <div id="o3dRes" hidden>
+          <div class="row o3dhead">
+            <span class="flabel">Resonance</span>
+            <div class="row" role="group" aria-label="Resonance"><button class="btn small" id="o3dResOff" aria-pressed="true">Off: Kekulé</button><button class="btn small" id="o3dResOn" aria-pressed="false">On: hybrid</button></div>
+            <button class="btn small" id="o3dFlip">Flip the double bonds</button>
+            <label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="o3dP" checked> p orbitals</label>
+            <label class="row" style="gap:6px;font-size:.9rem"><input type="checkbox" id="o3dL" checked> Bond lengths</label>
+          </div>
+          <div class="o3dstrip" id="o3dStrip"></div>
+        </div>
+        <p class="note o3dinfo" id="o3dInfo" aria-live="polite"></p>
       </div>
-      <p class="note o3dinfo" id="o3dInfo" aria-live="polite"></p>
+      </div>
     </div>
-  </section>
+
+  </div></section>
 
   <!-- ============ NAME CHALLENGE ============ -->
-  <section class="panel" id="p-quiz" role="tabpanel" aria-labelledby="t-quiz" hidden>
+  <section class="tabp screen solo" id="p-quiz" data-screens="quiz" role="tabpanel" aria-labelledby="t-quiz" hidden><div class="solo-in">
     <div class="card">
       <div class="row" style="justify-content:space-between">
         <div class="row" role="group" aria-label="Challenge type">
@@ -338,10 +353,10 @@ body.fs-on{overflow:hidden}
         <ol class="steps explain"><li><b class="t">Tip</b>Read the name from the end: the last part gives the chain length and the family (-ane, -ene, -yne, -ol, -al, -one, -oic acid, -amine). Then add the groups in front at their numbers.</li></ol>
       </div>
     </div>
-  </section>
+  </div></section>
 
   <!-- ============ ISOMER HUNT ============ -->
-  <section class="panel" id="p-iso" role="tabpanel" aria-labelledby="t-iso" hidden>
+  <section class="tabp screen solo" id="p-iso" data-screens="iso" role="tabpanel" aria-labelledby="t-iso" hidden><div class="solo-in">
     <div class="lab">
       <div class="card">
         <div class="row" style="justify-content:space-between">
@@ -367,11 +382,11 @@ body.fs-on{overflow:hidden}
         </ol>
       </div>
     </div>
-  </section>
+  </div></section>
 
 
   <!-- ============ ESTERS, ETHERS, AMIDES, AMINES ============ -->
-  <section class="panel" id="p-ester" role="tabpanel" aria-labelledby="t-ester" hidden>
+  <section class="tabp screen solo" id="p-ester" data-screens="ester" role="tabpanel" aria-labelledby="t-ester" hidden><div class="solo-in">
     <div class="card">
       <div class="row" role="group" aria-label="Family">
         <button class="btn small" id="xf-ester" aria-pressed="true">Ester</button>
@@ -418,10 +433,10 @@ body.fs-on{overflow:hidden}
       <div class="found" id="xFound"></div>
       <div class="row"><button class="btn small" id="xReveal">Show the missing ones</button></div>
     </div>
-  </section>
+  </div></section>
 
   <!-- ============ MYSTERY COMPOUNDS ============ -->
-  <section class="panel" id="p-lab" role="tabpanel" aria-labelledby="t-lab" hidden>
+  <section class="tabp screen solo" id="p-lab" data-screens="lab" role="tabpanel" aria-labelledby="t-lab" hidden><div class="solo-in">
     <div class="card">
       <div class="row" style="justify-content:space-between">
         <h3>Six unknown bottles: choose one, then run a test</h3>
@@ -454,10 +469,12 @@ body.fs-on{overflow:hidden}
         <div class="tablewrap"><table class="ref" id="lRef"></table></div>
       </details>
     </div>
-  </section>
+  </div></section>
 
-  <p class="foot explain">Names follow IUPAC rules as taught in school: the parent chain is the longest chain that contains the main functional group and any C=C or C≡C, numbered so that the main group (then the multiple bond, then the substituents) gets the lowest numbers; substituents are listed in alphabetical order, ignoring di-, tri- and tetra-. Both styles are shown and accepted, for example but-2-ene (current IUPAC) and 2-butene (older style used in Inspire Chemistry). Esters are named alkyl + alkanoate (propan-2-yl ethanoate), ethers as alkoxyalkanes (2-methoxypropane), and groups on nitrogen take the locant N (N-methylethanamide). In rings the ring is the parent (methylcyclohexane, 2-methylphenol); when a chain is longer than the ring, the older chain-as-parent name is also accepted, and benzene common names (toluene, o-, m-, p-xylene) are shown too. Test results follow Mr Khaled's identification table.</p>
-</div>
+</main>
+  <p class="vh">Names follow IUPAC rules as taught in school: the parent chain is the longest chain that contains the main functional group and any C=C or C≡C, numbered so that the main group (then the multiple bond, then the substituents) gets the lowest numbers; substituents are listed in alphabetical order, ignoring di-, tri- and tetra-. Both styles are shown and accepted, for example but-2-ene (current IUPAC) and 2-butene (older style used in Inspire Chemistry). Esters are named alkyl + alkanoate (propan-2-yl ethanoate), ethers as alkoxyalkanes (2-methoxypropane), and groups on nitrogen take the locant N (N-methylethanamide). In rings the ring is the parent (methylcyclohexane, 2-methylphenol); when a chain is longer than the ring, the older chain-as-parent name is also accepted, and benzene common names (toluene, o-, m-, p-xylene) are shown too. Test results follow Mr Khaled's identification table.</p>
+<script>window.LAB = { screens: [ { id: 'build', name: 'Build', tab: 'build' }, { id: 'quiz', name: 'Name it', tab: 'quiz' }, { id: 'iso', name: 'Isomers', tab: 'iso' }, { id: 'ester', name: 'Esters', tab: 'ester' }, { id: 'lab', name: 'Tests', tab: 'lab' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
+
 
 <script>
 /* ===================== ORGANIC NAMING ENGINE ===================== */
@@ -1696,26 +1713,26 @@ function fsButtons(panel, on){
 }
 function exitFS(){
   var p = FS.panel; if (!p) return;
-  FS.panel = null; p.classList.remove('fs'); document.body.classList.remove('fs-on'); fsButtons(p, false);
+  FS.tabp = null; p.classList.remove('fs'); document.body.classList.remove('fs-on'); fsButtons(p, false);
   try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); } catch (e) {}
 }
 function toggleFS(el){
-  var p = el.closest('.panel'); if (!p) return;
-  if (FS.panel === p){ exitFS(); return; }
-  if (FS.panel) exitFS();
-  FS.panel = p; p.classList.add('fs'); document.body.classList.add('fs-on'); fsButtons(p, true);
+  var p = el.closest('.tabp'); if (!p) return;
+  if (FS.tabp === p){ exitFS(); return; }
+  if (FS.tabp) exitFS();
+  FS.tabp = p; p.classList.add('fs'); document.body.classList.add('fs-on'); fsButtons(p, true);
   try { if (p.requestFullscreen) p.requestFullscreen().catch(function(){}); } catch (e) {}
   p.scrollTop = 0;
 }
-document.addEventListener('fullscreenchange', function(){ if (!document.fullscreenElement && FS.panel) exitFS(); });
-document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && FS.panel) exitFS(); });
-document.querySelectorAll('.panel').forEach(function(p){
+document.addEventListener('fullscreenchange', function(){ if (!document.fullscreenElement && FS.tabp) exitFS(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && FS.tabp) exitFS(); });
+document.querySelectorAll('.tabp').forEach(function(p){
   var bar = document.createElement('div'); bar.className = 'fsbar';
   bar.innerHTML = '<b>Organic Naming Lab</b><div class="row">' + $('explainBtn').outerHTML.replace(' id="explainBtn"', '') + $('themeBtn').outerHTML.replace(' id="themeBtn"', '') + '<button class="btn small" data-fsexit>Exit full screen</button></div>';
   p.insertBefore(bar, p.firstChild);
   bar.querySelector('[data-fsexit]').addEventListener('click', exitFS);
 });
-document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click', function(){ if (FS.panel) exitFS(); }); });
+document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click', function(){ if (FS.tabp) exitFS(); }); });
 
 function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
 function setExplain(on){
@@ -1732,10 +1749,10 @@ function isDark(){
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 function paintTheme(){ document.querySelectorAll('.themeBtn').forEach(function(b){ b.querySelector('span').textContent = isDark() ? 'Light mode' : 'Dark mode'; b.setAttribute('aria-label', isDark() ? 'Switch to light mode' : 'Switch to dark mode'); }); }
-(function(){ var t = store('onl-theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); paintTheme(); })();
+(function(){ var t = store('site-theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); paintTheme(); })();
 document.querySelectorAll('.themeBtn').forEach(function(b){ b.addEventListener('click', function(){
   var next = isDark() ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next); store('onl-theme', next); paintTheme();
+  document.documentElement.setAttribute('data-theme', next); store('site-theme', next); paintTheme();
 }); });
 if (window.matchMedia) { try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paintTheme); } catch (e) {} }
 

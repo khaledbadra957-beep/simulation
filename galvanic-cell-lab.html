@@ -1,4 +1,5 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Galvanic Cell Lab</title>
 <meta name="description" content="Build a galvanic cell from any two metals: electrons in the wire, ions in the salt bridge, electrode close-ups, a 3D atomic view and the electrochemical series.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -137,124 +138,177 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas.stage{border:0;border-radius:0}
+.stage-ui .tabwrap{display:contents}
+.stage-ui #cv{aspect-ratio:auto;max-height:none}
+.stage-ui #cv,.stage-ui #vg,.stage-ui #zoom{height:auto}
+.stage-ui .scene > .three{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0}
+.stage-ui .group.prompt{border:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.stage-ui .pred{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stage-ui .sel{width:100%;min-height:38px}
+.stage-ui .field{gap:4px}
+.stage-ui .flabel{font-size:14px}
+.stage-ui .seg{width:100%;align-self:stretch}
+.stage-ui .transport .seg{width:auto}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+.stage-ui .readouts{gap:6px 14px}
+.stage-ui .readouts dt{font-size:12.5px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .sol{font-size:12.5px;padding:8px 10px}
+.stage-ui .eq{font-size:14px;font-weight:600}
+.stage-ui .live{font-size:13px}
+.stage-ui .morein{display:flex;flex-direction:column;gap:8px;padding-top:8px}
+.stage-ui .status{font-size:13.5px;padding:7px 10px}
+.stage-ui .transport .status.grow{margin:0;flex:1 1 300px}
+.stage-ui .steps{font-size:14px}
+.stage-ui .legend3{font-size:12.5px}
+.stage-ui #axis{border:1px solid var(--line);border-radius:10px}
+.stage-ui .solo-in{padding:8px 4px 20px}
+@media (max-width:860px),(max-height:560px){.stage-ui .scene{aspect-ratio:1000/600}.stage-ui .hint3{display:none}}
 </style><script src="lab-viz.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
 
-<div class="wrap">
-<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
- <header>
-  <div>
-   <p class="eyebrow">Grade 12 Chemistry · Electrochemistry · Galvanic cells</p>
-   <h1>Galvanic Cell Lab</h1>
-   <p class="lede">Build a cell from two metals, tap the switch to close the circuit and watch electrons flow through the wire while ions move through the salt bridge. Zoom in to the electrode surfaces, then turn the atoms around in 3D.</p>
-  </div>
-  <div class="tools">
-   <button class="btn" id="fsBtn" type="button">Full screen</button>
-   <button class="btn" id="themeBtn" type="button">Dark mode</button>
-  </div>
- </header>
-
- <div class="tabs" role="tablist">
-  <button class="tab" role="tab" aria-selected="true" data-tab="cell" aria-controls="p-cell">1 · Build the cell</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="three" aria-controls="p-three">2 · 3D: atoms at the electrodes</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="series" aria-controls="p-series">3 · Which metal is the anode?</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">4 · Challenge</button>
- </div>
-
- <!-- ================= TAB 1 ================= -->
- <section class="bench" id="p-cell" role="tabpanel">
-  <div class="benchhead">
-   <div class="pickrow">
-    <label class="flabel" for="mL">Left half-cell</label><select id="mL" class="sel"></select>
-    <label class="flabel" for="mR">Right half-cell</label><select id="mR" class="sel"></select>
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Galvanic Cell</h1>
+ <span class="tb-tag">Chemistry · G12</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button id="fsBtn" type="button" hidden></button><button id="themeBtn" type="button" hidden></button>
+<div class="tabs" role="tablist" hidden>
+ <button class="tab" role="tab" aria-selected="true" data-tab="cell" aria-controls="p-cell">Cell</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="three" aria-controls="p-three">3D</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="series" aria-controls="p-series">Series</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">Challenge</button>
+</div>
+<main class="screens">
+<div id="p-cell" class="tabwrap" role="tabpanel">
+ <section class="screen" data-screens="intro lab">
+  <div class="play">
+   <div class="scene">
+    <canvas class="stage" id="cv" aria-label="Galvanic cell: two beakers with metal electrodes, a salt bridge, wires and a meter"></canvas>
    </div>
-   <div class="checks"><label><input type="checkbox" id="cPred" checked> Predict the anode first</label></div>
-  </div>
-  <div class="card" id="predCard" hidden>
-   <p class="q" style="font-size:1rem">Which electrode will be the anode (the one that loses electrons)?</p>
-   <div class="pred" id="predBtns"></div>
-   <p class="status" id="predMsg" hidden></p>
-  </div>
-  <div class="stagewrap">
-   <canvas class="stage" id="cv" aria-label="Galvanic cell: two beakers with metal electrodes, a salt bridge, wires and a meter"></canvas>
-  </div>
-  <div class="transport">
-   <button class="btn primary" id="swBtn" type="button">Close the switch</button>
-   <button class="btn" id="bridgeBtn" type="button">Remove the salt bridge</button>
-   <button class="btn" id="resetBtn" type="button">New cell</button>
-   <span class="sep"></span>
-   <div class="seg" role="group" aria-label="What is connected">
-    <button type="button" data-dev="volt" aria-pressed="false">Voltmeter</button>
-    <button type="button" data-dev="bulb" aria-pressed="true">Bulb + ammeter</button>
-    <button type="button" data-dev="motor" aria-pressed="false">Motor + ammeter</button>
-   </div>
-   <div class="seg" role="group" aria-label="Clock speed">
-    <button type="button" data-spd="1" aria-pressed="true">1×</button>
-    <button type="button" data-spd="5" aria-pressed="false">5×</button>
-    <button type="button" data-spd="20" aria-pressed="false">20× (run it down)</button>
+   <div class="transport">
+    <button class="btn primary" id="swBtn" type="button">Close the switch</button>
+    <button class="btn" id="bridgeBtn" type="button">Remove the salt bridge</button>
+    <button class="btn" id="resetBtn" type="button">New cell</button>
+    <span class="grow"></span>
+    <div class="seg" role="group" aria-label="Clock speed" data-adv>
+     <button type="button" data-spd="1" aria-pressed="true">1×</button>
+     <button type="button" data-spd="5" aria-pressed="false">5×</button>
+     <button type="button" data-spd="20" aria-pressed="false">20×</button>
+    </div>
    </div>
   </div>
-  <div class="checks">
-   <label><input type="checkbox" id="cE" checked> Electrons</label>
-   <label><input type="checkbox" id="cI" checked> Current I</label>
-   <label><input type="checkbox" id="cIons" checked> Ions</label>
-   <label><input type="checkbox" id="cLab" checked> Labels</label>
+  <aside class="panel">
+   <section class="group prompt" id="predCard" hidden>
+    <h2>Predict: which is the anode?</h2>
+    <div class="pred" id="predBtns"></div>
+    <p class="status" id="predMsg" hidden></p>
+   </section>
+   <section class="group">
+    <h2>Half-cells</h2>
+    <div class="field"><label class="flabel" for="mL">Left</label><select id="mL" class="sel"></select></div>
+    <div class="field"><label class="flabel" for="mR">Right</label><select id="mR" class="sel"></select></div>
+    <div class="chk"><label><input type="checkbox" id="cPred" checked> Predict the anode first</label></div>
+   </section>
+   <section class="group">
+    <h2>Connect</h2>
+    <div class="seg" role="group" aria-label="What is connected">
+     <button type="button" data-dev="volt" aria-pressed="false">Voltmeter</button>
+     <button type="button" data-dev="bulb" aria-pressed="true">Bulb</button>
+     <button type="button" data-dev="motor" aria-pressed="false">Motor</button>
+    </div>
+   </section>
+   <section class="group" data-adv>
+    <h2>Concentrations</h2>
+    <div class="field"><div class="field-head"><label for="sCL" id="lCL">[left ion]</label><output class="val" id="oCL"></output></div><input id="sCL" type="range" min="-3" max="0.3" step="0.1" value="0"></div>
+    <div class="field"><div class="field-head"><label for="sCR" id="lCR">[right ion]</label><output class="val" id="oCR"></output></div><input id="sCR" type="range" min="-3" max="0.3" step="0.1" value="0"></div>
+   </section>
+   <section class="group" data-adv>
+    <h2>Show</h2>
+    <div class="chk two">
+     <label><input type="checkbox" id="cE" checked> Electrons</label>
+     <label><input type="checkbox" id="cI" checked> Current I</label>
+     <label><input type="checkbox" id="cIons" checked> Ions</label>
+     <label><input type="checkbox" id="cLab" checked> Labels</label>
+    </div>
+   </section>
+  </aside>
+ </section>
+ <section class="screen" data-screens="zoom" hidden>
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="zoom" aria-label="Close-up of the anode surface, where atoms become ions, and the cathode surface, where ions become atoms"></canvas></div>
+   <div class="extra"><canvas class="stage" id="vg" aria-label="Voltage and current against time"></canvas></div>
+   <div class="transport">
+    <button class="btn primary" id="swBtn2" type="button">Close the switch</button>
+   </div>
   </div>
-  <div class="grid2">
-   <div class="col">
-    <div class="field"><div class="field-head"><label for="sCL" id="lCL">[left ion]</label><output id="oCL"></output></div><input id="sCL" type="range" min="-3" max="0.3" step="0.1" value="0"></div>
-    <div class="field"><div class="field-head"><label for="sCR" id="lCR">[right ion]</label><output id="oCR"></output></div><input id="sCR" type="range" min="-3" max="0.3" step="0.1" value="0"></div>
-    <div class="card"><dl class="readouts">
-     <div><dt>E°cell = E°cathode − E°anode</dt><dd id="rE0">–</dd></div>
+  <aside class="panel">
+   <p class="status" id="cellMsg" aria-live="polite">Close the switch to start the cell.</p>
+   <section class="group">
+    <h2>Readings</h2>
+    <dl class="readouts">
+     <div><dt>E°cell</dt><dd id="rE0">–</dd></div>
      <div><dt>emf E (Nernst)</dt><dd id="rE">–</dd></div>
-     <div><dt>Voltmeter reading</dt><dd id="rV">–</dd></div>
+     <div><dt>Voltmeter</dt><dd id="rV">–</dd></div>
      <div><dt>Current I</dt><dd id="rI">–</dd></div>
-     <div><dt>Lab clock</dt><dd id="rT">0 h</dd></div>
      <div><dt id="lmA">Anode mass</dt><dd id="rmA">–</dd></div>
      <div><dt id="lmC">Cathode mass</dt><dd id="rmC">–</dd></div>
-    </dl></div>
-   </div>
-   <div class="col">
-    <div class="formula"><span class="flabel">Nernst equation, live</span><span class="live mono" id="nernst">–</span></div>
-    <canvas class="stage" id="vg" aria-label="Voltage and current against time"></canvas>
-    <div class="formula"><span class="flabel">Symbolic representation</span><span class="eq" id="notation">–</span></div>
+     <div><dt>Lab clock</dt><dd id="rT">0 h</dd></div>
+    </dl>
+   </section>
+   <section class="group">
+    <h2>Cell notation</h2>
+    <span class="eq mono" id="notation">–</span>
     <pre class="sol" id="halfEq">–</pre>
-    <p class="status" id="cellMsg" aria-live="polite">Close the switch to start the cell.</p>
+   </section>
+   <section class="group">
+    <details><summary>Nernst equation, live</summary><div class="morein"><span class="live mono" id="nernst">–</span></div></details>
+   </section>
+  </aside>
+ </section>
+</div>
+ <section class="screen" id="p-three" data-screens="three" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene">
+    <div id="three" class="three" aria-label="3D model of the metal surface and the ions in the solution. Drag to turn, pinch or scroll to zoom."></div>
+    <div class="legend3" id="legend3"></div>
+    <p class="note hint3">Drag to turn · scroll or pinch to zoom</p>
+   </div>
+   <div class="transport">
+    <button class="btn primary" id="t3Play" type="button">Pause</button>
+    <button class="btn" id="t3Rot" type="button">Auto-rotate: on</button>
+    <button class="btn" id="t3Reset" type="button">Reset view</button>
    </div>
   </div>
-  <div class="benchhead"><h2>Zoom in to the electrode surfaces</h2><span class="note">Each lens follows the real rate of the cell.</span></div>
-  <canvas class="stage" id="zoom" aria-label="Close-up of the anode surface, where atoms become ions, and the cathode surface, where ions become atoms"></canvas>
- </section>
-
- <!-- ================= TAB 2 ================= -->
- <section class="bench" id="p-three" role="tabpanel" hidden>
-  <div class="benchhead">
-   <div class="seg" role="group" aria-label="Which electrode">
-    <button type="button" data-side="anode" aria-pressed="true">Anode: oxidation</button>
-    <button type="button" data-side="cathode" aria-pressed="false">Cathode: reduction</button>
-   </div>
-   <div class="transport">
-    <button class="btn small" id="t3Play" type="button">Pause</button>
-    <button class="btn small" id="t3Rot" type="button">Auto-rotate: on</button>
-    <button class="btn small" id="t3Reset" type="button">Reset view</button>
-   </div>
-   <div class="transport">
+  <aside class="panel">
+   <section class="group">
+    <h2>Electrode</h2>
+    <div class="seg" role="group" aria-label="Which electrode">
+     <button type="button" data-side="anode" aria-pressed="true">Anode</button>
+     <button type="button" data-side="cathode" aria-pressed="false">Cathode</button>
+    </div>
+    <pre class="sol" id="t3Eq"></pre>
+   </section>
+   <section class="group">
+    <h2>Model</h2>
     <div class="seg" role="group" aria-label="Model style"><button type="button" data-rep="sf" aria-pressed="true">Space-filling</button><button type="button" data-rep="bs" aria-pressed="false">Ball-and-stick</button></div>
-    <label class="checks" style="display:flex"><span style="display:flex;gap:7px;align-items:center;font-weight:700"><input type="checkbox" id="c3Lab" checked style="width:18px;height:18px;margin:0;accent-color:var(--accent)"> Ion labels</span></label>
-   </div>
-  </div>
-  <div class="stagewrap">
-   <div id="three" class="three" aria-label="3D model of the metal surface and the ions in the solution. Drag to turn, pinch or scroll to zoom."></div>
-   <div class="legend3" id="legend3"></div>
-   <p class="note hint3">Drag to turn · scroll or pinch to zoom</p>
-  </div>
-  <pre class="sol" id="t3Eq"></pre>
-  <ol class="steps" id="t3Steps"></ol>
+    <div class="chk"><label><input type="checkbox" id="c3Lab" checked> Ion labels</label></div>
+   </section>
+   <section class="group">
+    <h2>What happens</h2>
+    <ol class="steps" id="t3Steps"></ol>
+   </section>
+  </aside>
  </section>
-
  <!-- ================= TAB 3 ================= -->
- <section class="bench" id="p-series" role="tabpanel" hidden>
-  <div class="benchhead"><h2>Axis of tendency to lose electrons</h2><span class="note">Tap two metals.</span></div>
+ <section class="screen solo" id="p-series" data-screens="series" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Which metal loses electrons more easily?</h2><span class="note">Tap two metals.</span></div>
   <canvas class="stage" id="axis" aria-label="Metals placed along an axis of standard reduction potential"></canvas>
   <div class="grid2">
    <div class="col">
@@ -269,10 +323,10 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
    <li>The other metal's ions gain those electrons: reduction happens at the <b>cathode (+)</b>.</li>
    <li>E°cell = E°cathode − E°anode is always positive for a working galvanic cell.</li>
   </ol>
- </section>
+ </div></section>
 
  <!-- ================= TAB 4 ================= -->
- <section class="bench" id="p-chal" role="tabpanel" hidden>
+ <section class="screen solo" id="p-chal" data-screens="chal" role="tabpanel" hidden><div class="solo-in">
   <div class="grid2">
    <div class="col">
     <div class="benchhead"><h2>Put the protocol in order</h2></div>
@@ -288,11 +342,13 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
     <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
    </div>
   </div>
- </section>
+ </div></section>
 
- <footer>Designed and built by Mr Khaled. Model: standard reduction potentials at 25 °C, the Nernst equation E = E° − (0.0592/n)·log Q, 100 mL of each solution and 10 g electrodes. The lab clock runs many times faster than real time so you can watch the electrodes change.</footer>
-</div>
-
+</main>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'cell', simple: true }, { id: 'lab', name: 'Lab', tab: 'cell' }, { id: 'zoom', name: 'Zoom', tab: 'cell' }, { id: 'three', name: '3D', tab: 'three' }, { id: 'series', name: 'Series', tab: 'series' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ] };
+(function(){ var a = document.getElementById('swBtn'), b = document.getElementById('swBtn2');
+  b.onclick = function(){ a.click(); };
+  var sync = function(){ b.textContent = a.textContent; }; new MutationObserver(sync).observe(a, { childList: true, characterData: true, subtree: true }); sync(); })();</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -307,8 +363,9 @@ const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':ma
 let C={};
 function readColors(){const s=getComputedStyle(root);['stage','surface','ink','muted','line','grid','accent','a','b','prod','rose','brass','ok','bad','glass','wire','elec'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
 const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();if(T3.ready)T3.theme();drawAll()};
-try{const t=localStorage.getItem('gal-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
-$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('gal-theme',n)}catch(e){}themeLabel()};
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+new MutationObserver(()=>themeLabel()).observe(root,{attributes:true,attributeFilter:['data-theme']});
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
 let tab='cell';
 $$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
@@ -642,8 +699,8 @@ function drawCell(){const c=$('#cv');const {x,w,h}=fit(c);const s=Math.min(w/VW,
  // salt bridge
  if(cell.bridge||bDrag<0){x.save();x.translate(0,bDrag);if(bDrag<-60)x.globalAlpha=.85;saltBridge(x,lab,font,ion);x.restore()}
  if(!cell.bridge&&bDrag===0){x.setLineDash([10,8]);x.strokeStyle=C.muted;x.lineWidth=2;x.beginPath();x.moveTo(BR.L-21,BR.bot);x.lineTo(BR.L-21,BR.top+BRR);x.arcTo(BR.L-21,BR.top-21,BR.L+BRR,BR.top-21,BRR+21);x.lineTo(BR.R-BRR,BR.top-21);x.arcTo(BR.R+21,BR.top-21,BR.R+21,BR.top+BRR,BRR+21);x.lineTo(BR.R+21,BR.bot);x.stroke();x.setLineDash([]);
-  x.textAlign='center';x.font=font(15);tag(x,'salt bridge removed',500,BR.top+62,C.bad);x.font=font(13,500);tag(x,'tap here to put it back',500,BR.top+84,C.muted)}
- else if(lab&&bDrag===0&&cell.bridge&&!cell.closed){x.font=font(12,500);x.textAlign='center';tag(x,'drag the bridge up to remove it',500,BR.top+106,C.muted)}
+  x.textAlign='center';x.font=font(15);tag(x,'salt bridge removed',500,BR.top+62,C.bad);x.font=font(13,500);tag(x,SMALL?'tap to put back':'tap here to put it back',500,BR.top+84,C.muted)}
+ else if(lab&&!SMALL&&bDrag===0&&cell.bridge&&!cell.closed){x.font=font(12,500);x.textAlign='center';tag(x,'drag up to remove',500,BR.top+106,C.muted)}
  // ions, far ones smaller and paler
  if($('#cIons').checked)for(const side of ['L','R']){const m=side==='L'?cell.L:cell.R;const arr=P[side];arr.forEach(p=>{if(p.z===undefined)p.z=Math.random()});
   [...arr].sort((a,b)=>a.z-b.z).forEach(p=>{let al=.62+.38*p.z,sc=.8+.3*p.z;if(p.state==='bridge')al*=Math.max(0,Math.min(1,p.life));if(p.state==='out'){const u=Math.min(1,p.life*1.6);al*=u;sc*=.6+.4*u}if(p.state==='in'){const d=Math.abs(p.x-EX[side]);sc*=Math.max(.5,Math.min(1,d/40))}x.globalAlpha=al;ion(p.x,p.y,p.type,m,sc)});x.globalAlpha=1}

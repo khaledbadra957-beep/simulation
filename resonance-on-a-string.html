@@ -1,4 +1,5 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 </head><body>
 <title>Resonance on a String</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -133,142 +134,121 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
   .cols{grid-template-columns:minmax(0,1fr)}
   .readouts{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas{border:0;border-radius:0;background:var(--stage)}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui #pdfNote:not(:empty){position:fixed;top:64px;right:12px;z-index:60;width:auto;height:auto;max-width:320px;clip:auto;white-space:normal;overflow:visible;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.stage-ui #status{position:absolute;top:12px;left:12px;z-index:2}
+.stage-ui #slowNote{position:absolute;top:52px;left:14px;z-index:2;font-size:12.5px}
+.stage-ui .play > .extra.tall{height:clamp(150px,28vh,250px)}
+@media (max-width:860px){.stage-ui #slowNote{display:none}.stage-ui #status{font-size:13px;top:8px;left:8px;padding:.3em .7em}}
+.stage-ui #plot{touch-action:pan-y;cursor:ew-resize}
+.stage-ui .big{font-size:1.1rem;padding:6px 10px}
+.stage-ui .tune-row{display:flex;align-items:center;gap:8px}
+.stage-ui .tune-row input{flex:1 1 auto;min-width:0}
+.stage-ui .nudge{min-height:34px;padding:0 9px;font:600 13px var(--data)}
+.stage-ui .harmw{display:flex;flex-direction:column;gap:6px}
+.stage-ui .harm{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.stage-ui .hbtn{min-width:0;padding:5px 4px;border-radius:8px;align-items:center;border:1px solid var(--line);background:var(--surface)}
+.stage-ui .hbtn[aria-pressed="true"]{background:var(--res);border-color:var(--res);color:var(--res-ink)}
+.stage-ui .hbtn[aria-pressed="true"] span{color:var(--res-ink)}
+.stage-ui .hbtn b{font-size:14px}.stage-ui .hbtn span{font-size:12.5px}
+.stage-ui .readouts{grid-template-columns:1fr 1fr;border-top:0;padding-top:0;gap:8px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .formula .eq{font-size:1.05rem}
+.stage-ui .formula .live{font-size:.85rem}
+.stage-ui .morein{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .legend{font-size:13.5px}
+.stage-ui .field-label{font-weight:700;font-size:14.5px}
+.stage-ui .seg{border:1px solid var(--line);border-radius:10px;width:100%}
+.stage-ui .seg button{border:0;border-radius:7px;background:none;padding:0 8px;border-right:0}
+.stage-ui .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink)}
 </style>
 <link rel="stylesheet" href="site.css">
 
-<div class="wrap">
-<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
-  <header class="head">
-    <div class="head-text">
-      <p class="eyebrow">Grade 11 physics · Standing waves</p>
-      <h1>Resonance on a String</h1>
-      <p class="lede">A vibrator shakes one end of a stretched string. Change how fast it shakes and watch the string. At a few special frequencies the string swings many times wider than the driver that feeds it.</p>
-    </div>
-    <div class="head-actions">
-      <button type="button" id="pdf" class="pdf-btn">
-        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Download PDF
-      </button>
-      <span class="pdf-hint">Two-page handout of the current setup</span>
-      <span id="pdfNote" class="pdf-note" aria-live="polite"></span>
-    </div>
-  </header>
-
-  <section class="bench" aria-label="String simulation">
-    <div class="bench-top">
-      <span id="status" class="pill off">Off resonance</span>
-      <span id="slowNote" class="note">Slow motion: 1 s on screen = 1/15 s real</span>
-    </div>
-
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Resonance on a String</h1>
+ <span class="tb-tag">Physics · G11</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" id="pdf" data-adv><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Handout</span></button>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<span id="pdfNote" class="vh" aria-live="polite"></span>
+<main class="screens">
+ <section class="screen" data-screens="intro lab">
+  <div class="play">
+   <div class="scene">
     <canvas id="stage" role="img" aria-label="Animated string fixed at the right end and shaken by a driver at the left end"></canvas>
-
-    <div class="tune">
-      <div class="tune-head">
-        <label for="freq">Driving frequency</label>
-        <output id="freqOut" class="big" for="freq">20.0 Hz</output>
-      </div>
-      <div class="tune-row">
-        <button type="button" id="fDown" class="nudge" aria-label="Lower frequency by 0.1 hertz">−0.1</button>
-        <input type="range" id="freq" min="1" max="60" step="0.1" value="20">
-        <button type="button" id="fUp" class="nudge" aria-label="Raise frequency by 0.1 hertz">+0.1</button>
-      </div>
-      <div class="harm">
-        <span class="harm-label">Jump to harmonic</span>
-        <span id="harm" class="harm"></span>
-      </div>
-    </div>
-
-    <dl class="readouts">
-      <div><dt>Wavelength, λ = v ÷ f</dt><dd id="rLambda">1.20 m</dd></div>
-      <div><dt>Half-wavelengths that fit in L</dt><dd id="rFit">2.00</dd></div>
-      <div><dt>Swing of the string now</dt><dd id="rAmp">5.0 × driver</dd></div>
-      <div><dt>Nearest natural frequency</dt><dd id="rNear">f₂ = 20.0 Hz</dd></div>
-    </dl>
-
-    <div class="actions">
-      <button type="button" id="play">Pause</button>
-      <button type="button" id="still">Still the string</button>
-      <button type="button" id="sweep" class="primary">Sweep 1 → 60 Hz</button>
-    </div>
-  </section>
-
-  <div class="cols">
-    <section class="block" aria-labelledby="hCurve">
-      <h2 id="hCurve">Resonance curve</h2>
-      <p class="caption">How wide the string ends up swinging at each driving frequency, compared with the driver. Drag on the graph to set the frequency.</p>
-      <canvas id="plot" tabindex="0" role="img" aria-label="Graph of string amplitude against driving frequency with a peak at each harmonic"></canvas>
-      <div class="legend">
-        <span><i class="key curve"></i>predicted steady swing</span>
-        <span><i class="key dot"></i>the string right now, and sweep measurements</span>
-        <span><i class="key mark"></i>driving frequency</span>
-      </div>
-    </section>
-
-    <section class="block" aria-labelledby="hSetup">
-      <h2 id="hSetup">The string</h2>
-      <div class="field">
-        <div class="field-head"><label for="len">Length, L</label><output id="lenOut" for="len">1.20 m</output></div>
-        <input type="range" id="len" min="0.6" max="1.5" step="0.05" value="1.2">
-      </div>
-      <div class="field">
-        <div class="field-head"><label for="speed">Wave speed, v</label><output id="speedOut" for="speed">24 m/s</output></div>
-        <input type="range" id="speed" min="16" max="40" step="1" value="24">
-        <span class="hint">A tighter or lighter string carries waves faster.</span>
-      </div>
-      <div class="field">
-        <span class="field-label" id="dampLbl">Damping</span>
-        <div class="seg" id="dampSeg" role="group" aria-labelledby="dampLbl">
-          <button type="button" data-v="light" aria-pressed="false">Light</button>
-          <button type="button" data-v="medium" aria-pressed="true">Medium</button>
-          <button type="button" data-v="heavy" aria-pressed="false">Heavy</button>
-        </div>
-        <span class="hint">How much energy the string loses on each trip.</span>
-      </div>
-      <div class="field">
-        <span class="field-label" id="slowLbl">Slow motion</span>
-        <div class="seg" id="slowSeg" role="group" aria-labelledby="slowLbl">
-          <button type="button" data-v="15" aria-pressed="true">15× slower</button>
-          <button type="button" data-v="40" aria-pressed="false">40× slower</button>
-        </div>
-      </div>
-      <div class="checks">
-        <label for="cEnv"><input type="checkbox" id="cEnv" checked>Shade the full swing of the string</label>
-        <label for="cLab"><input type="checkbox" id="cLab" checked>Label nodes (N) and antinodes (A)</label>
-        <label for="cTheory"><input type="checkbox" id="cTheory" checked>Show the predicted curve</label>
-      </div>
-    </section>
+    <span id="status" class="pill off">Off resonance</span>
+    <span id="slowNote" class="note" data-adv>Slow motion: 1 s on screen = 1/15 s real</span>
+   </div>
+   <div class="extra tall" data-adv><canvas id="plot" tabindex="0" role="img" aria-label="Graph of string amplitude against driving frequency with a peak at each harmonic. Drag to set the frequency."></canvas></div>
+   <div class="transport">
+    <button type="button" id="play" class="btn primary">Pause</button>
+    <button type="button" id="still" class="btn">Still the string</button>
+    <button type="button" id="sweep" class="btn" data-adv>Sweep 1 → 60 Hz</button>
+    <span class="grow"></span>
+    <div class="legend" data-adv><span><i class="key curve"></i>predicted</span><span><i class="key dot"></i>measured</span><span><i class="key mark"></i>driver</span></div>
+   </div>
   </div>
-
-  <div class="cols">
-    <section class="block" aria-labelledby="hWhy">
-      <h2 id="hWhy">Why it happens</h2>
-      <div class="prose">
-        <p>The driver sends a wave down the string. The wave reflects at the fixed end and travels back. The round trip takes 2L ÷ v seconds.</p>
-        <p>If that time equals a whole number of driver periods, each returning wave arrives exactly in step with the next push. Every push adds energy, and the swing grows until damping removes energy as fast as the driver supplies it. At any other frequency the returning waves arrive out of step and mostly cancel the new ones.</p>
-        <div class="formula">
-          <span class="eq">fₙ = n · v ÷ 2L &nbsp; (n = 1, 2, 3 …)</span>
-          <span class="live" id="liveF1">For this string: f₁ = 24 ÷ (2 × 1.20) = 10.0 Hz</span>
-          <span class="live">At resonance λₙ = 2L ÷ n, so n half-wavelengths fit between the ends.</span>
-        </div>
+  <aside class="panel">
+   <section class="group">
+    <div class="gh"><h2><label for="freq">Driver frequency</label></h2><output id="freqOut" class="val big" for="freq">20.0 Hz</output></div>
+    <div class="tune-row">
+     <button type="button" id="fDown" class="nudge btn" aria-label="Lower frequency by 0.1 hertz" data-adv>−0.1</button>
+     <input type="range" id="freq" min="1" max="60" step="0.1" value="20">
+     <button type="button" id="fUp" class="nudge btn" aria-label="Raise frequency by 0.1 hertz" data-adv>+0.1</button>
+    </div>
+    <div class="harmw"><span class="note">Harmonics</span><span id="harm" class="harm"></span></div>
+   </section>
+   <section class="group" data-adv>
+    <h2>String</h2>
+    <div class="field"><div class="field-head"><label for="len">Length L</label><output class="val" id="lenOut" for="len">1.20 m</output></div><input type="range" id="len" min="0.6" max="1.5" step="0.05" value="1.2"></div>
+    <div class="field"><div class="field-head"><label for="speed">Wave speed v</label><output class="val" id="speedOut" for="speed">24 m/s</output></div><input type="range" id="speed" min="16" max="40" step="1" value="24"></div>
+    <div class="field"><span class="field-label" id="dampLbl">Damping</span>
+     <div class="seg" id="dampSeg" role="group" aria-labelledby="dampLbl"><button type="button" data-v="light" aria-pressed="false">Light</button><button type="button" data-v="medium" aria-pressed="true">Medium</button><button type="button" data-v="heavy" aria-pressed="false">Heavy</button></div></div>
+   </section>
+   <section class="group" data-adv>
+    <h2>Results</h2>
+    <dl class="readouts">
+     <div><dt>λ = v ÷ f</dt><dd id="rLambda">1.20 m</dd></div>
+     <div><dt>Half-waves in L</dt><dd id="rFit">2.00</dd></div>
+     <div><dt>Swing</dt><dd id="rAmp">5.0 × driver</dd></div>
+     <div><dt>Nearest fₙ</dt><dd id="rNear">f₂ = 20.0 Hz</dd></div>
+    </dl>
+    <details class="maths"><summary>Show the maths</summary>
+     <div class="formula"><span class="eq">fₙ = n · v ÷ 2L</span><span class="live" id="liveF1">For this string: f₁ = 24 ÷ (2 × 1.20) = 10.0 Hz</span><span class="live">At resonance λₙ = 2L ÷ n: n half-waves fit between the ends.</span></div>
+    </details>
+   </section>
+   <section class="group" data-adv>
+    <details><summary>More options</summary>
+     <div class="morein">
+      <div class="field"><span class="field-label" id="slowLbl">Slow motion</span>
+       <div class="seg" id="slowSeg" role="group" aria-labelledby="slowLbl"><button type="button" data-v="15" aria-pressed="true">15× slower</button><button type="button" data-v="40" aria-pressed="false">40× slower</button></div></div>
+      <div class="chk">
+       <label for="cEnv"><input type="checkbox" id="cEnv" checked>Full swing</label>
+       <label for="cLab"><input type="checkbox" id="cLab" checked>Nodes and antinodes</label>
+       <label for="cTheory"><input type="checkbox" id="cTheory" checked>Predicted curve</label>
       </div>
-    </section>
-
-    <section class="block" aria-labelledby="hLesson">
-      <h2 id="hLesson">Run it in class</h2>
-      <ol class="steps">
+     </div>
+    </details>
+   </section>
+  </aside>
+ </section>
+</main>
+<p class="vh fine">Model: an ideal string obeying the damped wave equation, solved step by step in your browser. The vertical scale is stretched so the motion is easy to see, and the driver's own movement is drawn larger than it would be on a real bench.</p>
+<div hidden id="pdfSrc"><p class="eyebrow">Grade 11 physics · Standing waves</p><p class="lede">A vibrator shakes one end of a stretched string. Change how fast it shakes and watch the string. At a few special frequencies the string swings many times wider than the driver that feeds it.</p><div class="prose"><p>The driver sends a wave down the string. The wave reflects at the fixed end and travels back. The round trip takes 2L ÷ v seconds.</p><p>If that time equals a whole number of driver periods, each returning wave arrives exactly in step with the next push. Every push adds energy, and the swing grows until damping removes energy as fast as the driver supplies it. At any other frequency the returning waves arrive out of step and mostly cancel the new ones.</p></div><ol class="steps">
         <li>Set the frequency to about 14 Hz. The driver works hard but the string barely moves.</li>
         <li>Press <b>Still the string</b>, then jump to the 1st harmonic. Watch the swing grow push after push.</li>
         <li>Step through harmonics 2 to 5 and have students count the loops each time.</li>
         <li>Ask for a prediction: what happens to f₁ if the string is shortened to 0.60 m? Then test it.</li>
         <li>Switch damping between light and heavy and compare the height and width of the peaks.</li>
         <li>Hide the predicted curve and run a sweep, so the class sees the curve appear from measurements.</li>
-      </ol>
-    </section>
-  </div>
-
-  <p class="fine">Model: an ideal string obeying the damped wave equation, solved step by step in your browser. The vertical scale is stretched so the motion is easy to see, and the driver's own movement is drawn larger than it would be on a real bench.</p>
-</div>
-
+      </ol></div>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', simple: true }, { id: 'lab', name: 'Lab' } ] };</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script src="lab-viz.js"></script>
 <script>
@@ -894,7 +874,7 @@ function browserDownload(blob){
   setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
   setNote('Download started. If no file appears, reload this page and press Download PDF again.', 12000);
 }
-function setPdfLabel(t){ ui.pdf.lastChild.nodeValue = ' ' + t + ' '; }
+function setPdfLabel(t){ var sp = ui.pdf.querySelector('span'); if (sp) sp.textContent = t === 'Download PDF' ? 'Handout' : t; else ui.pdf.lastChild.nodeValue = ' ' + t + ' '; }
 
 ui.pdf.addEventListener('click', function(){
   if (pdfBusy) return;
@@ -959,7 +939,8 @@ prewarm();
 if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) S.playing = false;
 fit(stage); fit(plot);
 if (window.ResizeObserver){
-  new ResizeObserver(function(){ fit(stage); fit(plot); }).observe(document.querySelector('.wrap'));
+  var ro = new ResizeObserver(function(){ fit(stage); fit(plot); }); ro.observe(stage.el); ro.observe(plot.el);
+  window.addEventListener('resize', function(){ readTokens(); fit(stage); fit(plot); });
 } else {
   window.addEventListener('resize', function(){ fit(stage); fit(plot); });
 }
