@@ -126,3 +126,107 @@ html.fs-lock,html.fs-lock body{overflow:hidden}
   .tones button{position:relative;width:26px;height:26px}
   .tones button::after{content:"";position:absolute;inset:-9px}
 }
+
+/* =====================================================================
+   STAGE LAYOUT (DESIGN.md §1, §6). Opt in with <html class="stage-ui">.
+   One screen: top bar · scene + control panel · bottom bar (lab-guide.js).
+   Labs without the class are not touched by anything below.
+   ===================================================================== */
+html.stage-ui{
+  --bg:#F4F5F1; --surface:#FFFFFF; --sunk:#EEF1EC; --stage:#FFFFFF; --ink:#13232B; --muted:#55666E; --line:#D9DED7;
+  --accent:#0A6A88; --on-accent:#FFFFFF; --accent-ink:#FFFFFF; --reset:#E2632B; --focus:#E2632B; --ok:#1E8A55; --bad:#C0392B;
+  --c-teal:#1B8AA6; --c-terra:#D2532B; --c-green:#2E8B57; --c-ochre:#C88A12; --c-violet:#7A52B3; --c-rose:#C2185B;
+  --tb-h:56px; --bar-h:64px; --gap:12px; --panel-w:320px;
+}
+@media (prefers-color-scheme: dark){html.stage-ui:not([data-theme="light"]){
+  --bg:#0E161A; --surface:#152229; --sunk:#0F1A1F; --stage:#0F1B20; --ink:#E6EEF0; --muted:#9AB0B8; --line:#263840;
+  --accent:#56C3DF; --on-accent:#06222B; --accent-ink:#06222B; --reset:#F0844F; --focus:#F59E5B; --ok:#4ACB8A; --bad:#FF8A7A;
+  --c-teal:#4FB8D3; --c-terra:#F07A55; --c-green:#5CC28A; --c-ochre:#E5AE3E; --c-violet:#A585DB; --c-rose:#FF6FA8}}
+html.stage-ui[data-theme="dark"]{
+  --bg:#0E161A; --surface:#152229; --sunk:#0F1A1F; --stage:#0F1B20; --ink:#E6EEF0; --muted:#9AB0B8; --line:#263840;
+  --accent:#56C3DF; --on-accent:#06222B; --accent-ink:#06222B; --reset:#F0844F; --focus:#F59E5B; --ok:#4ACB8A; --bad:#FF8A7A;
+  --c-teal:#4FB8D3; --c-terra:#F07A55; --c-green:#5CC28A; --c-ochre:#E5AE3E; --c-violet:#A585DB; --c-rose:#FF6FA8}
+@media (min-width:1700px){html.stage-ui{--panel-w:340px;--gap:14px}}
+html.stage-ui,html.stage-ui body{height:100%}
+html.stage-ui body{margin:0;background:var(--bg);background-image:none;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;padding:0!important}
+html.stage-ui *,html.stage-ui *::before,html.stage-ui *::after{box-sizing:border-box}
+html.stage-ui [hidden]{display:none!important}
+html.stage-ui :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* top bar */
+.stage-ui .topbar{position:fixed;top:0;left:0;right:0;z-index:57;height:calc(var(--tb-h) + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:12px;
+  padding:env(safe-area-inset-top,0px) max(14px,env(safe-area-inset-right,0px)) 0 max(10px,env(safe-area-inset-left,0px));background:var(--surface);border-bottom:1px solid var(--line)}
+.stage-ui .topbar h1{margin:0;font:800 20px/1.1 var(--display);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.stage-ui .tb-back{flex:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;color:var(--ink);text-decoration:none}
+.stage-ui .tb-back:hover{background:var(--sunk)}
+.stage-ui .tb-back svg{width:22px;height:22px}
+.stage-ui .tb-tag{flex:none;font:600 13px/1 var(--body);color:var(--muted);padding:6px 10px;border-radius:999px;background:var(--sunk);white-space:nowrap}
+.stage-ui .tb-space{flex:1 1 auto}
+.stage-ui .tb-btn{flex:none;display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 14px/1 var(--body);cursor:pointer;white-space:nowrap}
+.stage-ui .tb-btn:hover{border-color:var(--accent);color:var(--accent)}
+.stage-ui .tb-btn svg{width:18px;height:18px;flex:none}
+
+/* the screens area: exactly the space between the two bars */
+.stage-ui .screens{position:fixed;left:0;right:0;top:calc(var(--tb-h) + env(safe-area-inset-top,0px));bottom:calc(var(--bar-h) + env(safe-area-inset-bottom,0px));
+  padding:var(--gap) max(var(--gap),env(safe-area-inset-right,0px)) var(--gap) max(var(--gap),env(safe-area-inset-left,0px))}
+.stage-ui .screen{height:100%;display:grid;grid-template-columns:minmax(0,1fr) var(--panel-w);gap:var(--gap);min-height:0}
+.stage-ui .screen.solo{grid-template-columns:minmax(0,1fr);overflow:auto}
+.stage-ui .screen.solo > .solo-in{width:min(920px,100%);margin:0 auto;display:flex;flex-direction:column;gap:var(--gap)}
+
+/* left: scene + transport */
+.stage-ui .play{display:flex;flex-direction:column;gap:10px;min-width:0;min-height:0}
+.stage-ui .scene{position:relative;flex:1 1 auto;min-height:0;border-radius:12px;overflow:hidden;background:var(--stage);border:1px solid var(--line)}
+.stage-ui .scene > canvas{position:absolute;inset:0;width:100%!important;height:100%!important;aspect-ratio:auto!important;max-width:none;border:0;border-radius:0}
+.stage-ui .scene.dark{background:#0a0b0d;border-color:#262a30}
+.stage-ui .play > .extra{flex:none;position:relative;height:clamp(110px,18vh,170px);border-radius:12px;overflow:hidden;background:var(--stage);border:1px solid var(--line)}
+.stage-ui .play > .extra > canvas{position:absolute;inset:0;width:100%!important;height:100%!important;border:0;border-radius:0}
+.stage-ui .transport{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;min-height:44px}
+.stage-ui .transport .grow{flex:1 1 200px;min-width:0;display:flex;align-items:center;gap:10px}
+
+/* right: the control panel */
+.stage-ui .panel{display:flex;flex-direction:column;gap:10px;min-height:0;overflow:auto;overscroll-behavior:contain;padding-right:2px}
+.stage-ui .group{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.stage-ui .group > h2,.stage-ui .group > .gh > h2{margin:0;font:700 15px/1.2 var(--body);color:var(--ink);letter-spacing:0;text-transform:none}
+.stage-ui .group .gh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stage-ui .group details > summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;min-height:32px;font-weight:700;color:var(--muted)}
+.stage-ui .group details > summary::-webkit-details-marker{display:none}
+.stage-ui .group details > summary::before{content:"+";font:600 15px/1 var(--data);width:14px;text-align:center}
+.stage-ui .group details[open] > summary::before{content:"−"}
+.stage-ui .more{border-top:1px solid var(--line);padding-top:8px}
+
+/* shared controls */
+.stage-ui .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 14.5px/1 var(--body);cursor:pointer;white-space:nowrap}
+.stage-ui .btn:hover:not(:disabled){border-color:var(--accent)}
+.stage-ui .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);min-width:96px}
+.stage-ui .btn:disabled{opacity:.45;cursor:default}
+.stage-ui .seg{display:inline-flex;flex-wrap:wrap;padding:3px;gap:3px;border-radius:10px;background:var(--sunk);border:1px solid var(--line);max-width:100%}
+.stage-ui .seg button{flex:1 1 auto;border:0;background:none;border-radius:7px;min-height:34px;padding:0 10px;font:700 14px/1 var(--body);color:var(--muted);cursor:pointer;white-space:nowrap}
+.stage-ui .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.14),0 0 0 1px var(--line)}
+.stage-ui .chk{display:flex;flex-direction:column;gap:2px}
+.stage-ui .chk label{display:flex;align-items:center;gap:10px;min-height:34px;font-weight:700;font-size:14.5px;cursor:pointer}
+.stage-ui .chk input{width:18px;height:18px;margin:0;accent-color:var(--accent);flex:none}
+.stage-ui .val{font:600 14px/1 var(--data);font-variant-numeric:tabular-nums;padding:5px 8px;border-radius:6px;background:var(--sunk);color:var(--ink);white-space:nowrap}
+.stage-ui input[type=range]{accent-color:var(--accent)}
+.stage-ui .field{display:flex;flex-direction:column;gap:2px}
+.stage-ui .field-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stage-ui .field-head label{font-weight:700;font-size:14.5px}
+.stage-ui .note{margin:0;font-size:13.5px;color:var(--muted)}
+
+/* Intro shows only the essentials */
+html.stage-ui[data-phase="intro"] [data-adv]{display:none!important}
+html.stage-ui:not([data-phase="intro"]) [data-intro-only]{display:none!important}
+
+/* phones and small windows: one column, the page scrolls */
+@media (max-width:860px),(max-height:560px){
+  html.stage-ui,html.stage-ui body{height:auto}
+  .stage-ui .topbar{position:sticky}
+  .stage-ui .topbar .tb-tag{display:none}
+  .stage-ui .tb-btn span{display:none}
+  .stage-ui .tb-btn{width:40px;padding:0;justify-content:center}
+  .stage-ui .screens{position:static;padding:10px 10px calc(var(--bar-h) + 16px + env(safe-area-inset-bottom,0px))}
+  .stage-ui .screen{display:flex;flex-direction:column;height:auto}
+  .stage-ui .scene{flex:none;aspect-ratio:4/3;max-height:62vh;min-height:220px}
+  .stage-ui .panel{overflow:visible}
+}
+@media (max-width:860px) and (orientation:landscape),(max-height:560px){.stage-ui .scene{aspect-ratio:16/8}}
+@media (max-width:420px){.stage-ui .topbar h1{font-size:18px}}

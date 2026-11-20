@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="stage-ui">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -187,42 +187,86 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
   .inst{padding:14px 14px 16px}
 }
 @media (prefers-reduced-motion:reduce){.bar span{transition:none}}
+
+/* ---------- stage layout (DESIGN.md) ----------
+   The scene stays a carbon instrument. Everything around it uses the shared look from site.css. */
+.stage-ui .panel,.stage-ui .solo{--i-bg:var(--surface);--i-well:var(--sunk);--i-line:var(--line);--i-line2:var(--line);--i-ink:var(--ink);--i-muted:var(--muted);--i-key:var(--surface);--tick:transparent}
+.stage-ui .seg.presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.stage-ui .seg .preset{position:static;min-height:38px;padding:0 4px;font:700 14px/1 var(--body);text-align:center;border:0;box-shadow:none;background:none;color:var(--muted)}
+.stage-ui .seg .preset::before{display:none}
+.stage-ui .seg .preset[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.14),0 0 0 1px var(--line);border:0}
+.stage-ui #ratio{accent-color:var(--c-ochre)}
+.stage-ui #scrub{flex:1 1 auto;min-width:80px}
+.stage-ui .ticks{font-size:13px}
+.stage-ui .rows{gap:8px 12px;margin:0}
+.stage-ui .rows dt{font-size:14.5px}
+.stage-ui .rows dd{font-size:14.5px}
+.stage-ui .pill{font-size:14px}
+.stage-ui .pill.o{--pc:var(--c-ochre);color:#1a1205}
+.stage-ui .energy{gap:6px}
+.stage-ui .ehead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stage-ui .ehead h3{font-size:14.5px;margin:0}
+.stage-ui .legend{display:flex;gap:12px;font-size:14px}
+.stage-ui .bar{height:18px;box-shadow:none;border-color:var(--line);background:var(--sunk)}
+.stage-ui .bar::after{background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(255,255,255,.55) calc(10% - 1px) 10%)}
+.stage-ui .formula{box-shadow:none;font-size:14px}
+.stage-ui .maths summary{min-height:32px;font-size:14px}
+.stage-ui .gwell{background:#0a0b0d;border:1px solid #262a30;border-radius:10px;overflow:hidden}
+.stage-ui #gv{max-width:none;width:100%;aspect-ratio:16/7;border-radius:0}
+.stage-ui .draw h2{display:flex;align-items:center;gap:8px;font-size:18px;font-family:var(--display);font-weight:700}
+.stage-ui .drawbtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stage-ui .verdict{font-weight:700}
+.stage-ui .scene{cursor:default}
+@media (max-width:860px),(max-height:560px){.stage-ui #gv{aspect-ratio:4/3}}
 </style>
 <link rel="stylesheet" href="site.css">
 </head>
 <body>
-<main class="wrap">
-  <a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
-  <header>
-    <p class="eyebrow">Lesson 3 · Wave behavior · Waves at boundaries</p>
-    <h1>Pulse at a Boundary</h1>
-    <p class="lede">Send a pulse into a second spring. What reflects, and what goes through?</p>
-  </header>
+<header class="topbar">
+  <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  <h1>Pulse at a Boundary</h1>
+  <span class="tb-tag">Physics · G11</span>
+  <span class="tb-space"></span>
+  <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+  <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
 
-  <div class="lab">
-   <div class="mainc">
-    <section class="inst stage" aria-label="Simulation">
+<main class="screens">
+  <section class="screen" data-screens="intro lab">
+    <div class="play">
       <span class="vh" id="phase" aria-live="polite">Before: the incident pulse travels toward the boundary</span>
-      <div class="well">
+      <div class="scene dark">
         <canvas id="cv" role="img" aria-label="Two springs joined end to end. A pulse travels along spring 1, and at the join it splits into a reflected pulse and a transmitted pulse. Drag the knob on the pulse to move it."></canvas>
       </div>
       <div class="transport">
-        <button class="key go" id="play" type="button">Pause</button>
-        <button class="key" id="restart" type="button" aria-label="Send the pulse again">Again</button>
-        <div class="scrub">
+        <button class="btn primary" id="play" type="button">Pause</button>
+        <button class="btn" id="restart" type="button" aria-label="Send the pulse again">Again</button>
+        <div class="grow" data-adv>
           <input id="scrub" type="range" min="0" max="1000" value="0" step="1" aria-label="Time">
-          <span class="clock"><b id="clock">0.00</b> s</span>
+          <span class="val"><b id="clock">0.00</b> s</span>
         </div>
-        <div class="speed">
-          <select class="key" id="speed" aria-label="Speed">
-            <option value="1">Normal</option>
-            <option value="0.5">Half speed</option>
-            <option value="0.25">Slow motion</option>
-          </select>
-        </div>
+        <div class="seg" id="speedSeg" role="group" aria-label="Speed" data-adv><button type="button" data-rate="1" aria-pressed="true">Normal</button><button type="button" data-rate="0.25" aria-pressed="false">Slow</button></div>
+        <select id="speed" hidden aria-hidden="true"><option value="1">Normal</option><option value="0.5">Half</option><option value="0.25">Slow</option></select>
       </div>
-    </section>
-      <section class="inst panel results" aria-labelledby="h-results">
+    </div>
+
+    <aside class="panel">
+      <section class="group" aria-labelledby="h-setup">
+        <h2 id="h-setup">Spring 2</h2>
+        <div class="seg presets" id="presets" role="group" aria-label="Spring 2">
+          <button class="preset" type="button" data-m="0.25" aria-pressed="true">Lighter</button>
+          <button class="preset" type="button" data-m="1" aria-pressed="false">Same</button>
+          <button class="preset" type="button" data-m="4" aria-pressed="false">Heavier</button>
+          <button class="preset" type="button" data-m="wall" aria-pressed="false">Wall</button>
+        </div>
+        <div class="field" data-adv>
+          <div class="field-head"><label for="ratio">Mass per metre</label><span class="pill o scrubnum" id="muNum" tabindex="0" role="slider" aria-label="Mass per metre of spring 2, compared with spring 1">0.25×</span></div>
+          <input id="ratio" type="range" min="-100" max="100" value="-60" step="1">
+          <div class="ticks" aria-hidden="true"><span>0.1×</span><span>1×</span><span>10×</span></div>
+        </div>
+      </section>
+
+      <section class="group" aria-labelledby="h-results" data-adv>
         <h2 id="h-results">Results</h2>
         <dl class="rows">
           <dt><span class="sq r"></span>Reflected</dt><dd><span class="pill r" id="fR">+0.33</span> <span id="outR">upright</span></dd>
@@ -230,9 +274,8 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
           <dt><span class="sq o"></span>Speed</dt><dd><span class="pill t" id="vNum">2.0×</span></dd>
         </dl>
         <div class="energy">
-          <h3>Energy</h3>
+          <div class="ehead"><h3>Energy</h3><span class="legend"><span><span class="sq r"></span> <b class="num" id="eR">—</b></span><span><span class="sq t"></span> <b class="num" id="eT">—</b></span></span></div>
           <div class="bar" id="bar" role="img" aria-label="Energy split"><span class="r" id="barR"></span><span class="t" id="barT"></span></div>
-          <div class="legend"><span><span class="sq r"></span> <b class="num" id="eR">—</b></span><span><span class="sq t"></span> <b class="num" id="eT">—</b></span></div>
         </div>
         <details class="maths">
           <summary>Show the maths</summary>
@@ -245,57 +288,35 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
           </div>
         </details>
       </section>
-   </div>
 
-    <aside class="side">
-      <section class="inst panel" aria-labelledby="h-setup">
-        <h2 id="h-setup">Spring 2</h2>
-        <div class="presets" id="presets">
-          <button class="key preset" type="button" data-m="0.25" aria-pressed="true">Lighter</button>
-          <button class="key preset" type="button" data-m="4" aria-pressed="false">Heavier</button>
-          <button class="key preset" type="button" data-m="1" aria-pressed="false">Same</button>
-          <button class="key preset" type="button" data-m="wall" aria-pressed="false">Wall</button>
-        </div>
-        <div class="field">
-          <div class="fhead"><label for="ratio">Mass per metre</label><span class="pill o scrubnum" id="muNum" tabindex="0" role="slider" aria-label="Mass per metre of spring 2, compared with spring 1">0.25×</span></div>
-          <input id="ratio" type="range" min="-100" max="100" value="-60" step="1">
-          <div class="ticks" aria-hidden="true"><span>0.1×</span><span>1×</span><span>10×</span></div>
-        </div>
-        <div class="checks">
-          <label><input id="labels" type="checkbox" checked><span>Labels</span></label>
-          <label><input id="strobe" type="checkbox" checked><span>Strobe trail</span></label>
-          <label><input id="parts" type="checkbox"><span>Show both pulses</span></label>
-          <label><input id="predict" type="checkbox"><span>Predict first</span></label>
+      <section class="group" aria-labelledby="h-show" data-adv>
+        <h2 id="h-show">Show</h2>
+        <div class="chk">
+          <label><input id="labels" type="checkbox" checked>Labels</label>
+          <label><input id="strobe" type="checkbox" checked>Strobe trail</label>
+          <label><input id="parts" type="checkbox">Both pulses</label>
+          <label><input id="predict" type="checkbox">Hide result</label>
         </div>
       </section>
-
     </aside>
-  </div>
-
-  <section class="inst draw" aria-labelledby="h-draw">
-    <div class="drawside">
-      <h2 id="h-draw">Predict: sketch <span class="pill r">R</span></h2>
-      <p class="sub">From a lighter to a heavier spring 2. Up = upright, down = inverted.</p>
-    </div>
-    <div class="well"><canvas id="gv" role="img" aria-label="Graph: reflected amplitude R against the mass of spring 2. Draw your prediction with a finger or the mouse."></canvas></div>
-    <div class="drawbtns">
-      <button class="key go" id="reveal" type="button" disabled>Check</button>
-      <button class="key" id="clearDraw" type="button">Clear</button>
-      <span class="verdict" id="verdict" aria-live="polite"></span>
-    </div>
   </section>
 
-  <section class="look" aria-labelledby="h-look">
-    <h2 id="h-look">Questions</h2>
-    <ol>
-      <li>Which pulse is incident, reflected and transmitted?</li>
-      <li>When is the reflected pulse inverted?</li>
-      <li>With the strobe trail on: where are the copies further apart? What does that mean?</li>
-      <li>The transmitted pulse can be taller than the incident one. How can it carry less energy?</li>
-    </ol>
+  <section class="screen solo" data-screens="predict" hidden>
+    <div class="solo-in">
+      <section class="group draw" aria-labelledby="h-draw">
+        <div class="gh"><h2 id="h-draw">Sketch <span class="pill r">R</span> for every spring 2</h2><span class="note">up = upright · down = inverted</span></div>
+        <div class="gwell"><canvas id="gv" role="img" aria-label="Graph: reflected amplitude R against the mass of spring 2. Draw your prediction with a finger or the mouse."></canvas></div>
+        <div class="drawbtns">
+          <button class="btn primary" id="reveal" type="button" disabled>Check</button>
+          <button class="btn" id="clearDraw" type="button">Clear</button>
+          <span class="verdict" id="verdict" aria-live="polite"></span>
+        </div>
+      </section>
+    </div>
   </section>
 </main>
 
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro' }, { id: 'lab', name: 'Lab' }, { id: 'predict', name: 'Predict' } ] };</script>
 <script>
 (function () {
   "use strict";
@@ -611,6 +632,20 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
   $("parts").addEventListener("change", function () { st.parts = this.checked; draw(); });
   $("strobe").addEventListener("change", function () { st.strobe = this.checked; draw(); });
   $("predict").addEventListener("change", function () { st.predict = this.checked; lastHidden = null; updatePhase(); });
+  $("speedSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-rate]"); if (!b) return;
+    st.rate = parseFloat(b.getAttribute("data-rate"));
+    this.querySelectorAll("[data-rate]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+  });
+  window.LAB = window.LAB || {};
+  window.LAB.reset = function () {
+    st.wall = false; st.m = 0.25; st.amp = 1; st.rate = 1; st.future = 0;
+    st.labels = true; st.strobe = true; st.parts = false; st.predict = false; lastHidden = null;
+    $("labels").checked = true; $("strobe").checked = true; $("parts").checked = false; $("predict").checked = false;
+    $("speedSeg").querySelectorAll("[data-rate]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.getAttribute("data-rate") === "1")); });
+    var det = document.querySelector(".maths"); if (det) det.open = false;
+    $("clearDraw").click(); syncSetup(); restart();
+  };
 
   // the scrubbable number: drag sideways (or use the arrow keys) to change spring 2
   (function () {
