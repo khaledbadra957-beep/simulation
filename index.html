@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <style>
 /* Homepage · DESIGN.md §7: one filter row, real pictures, one card per experiment, textbook order per grade */
 :root{
@@ -87,6 +88,33 @@ h1{margin:0;font:800 clamp(40px,5.4vw,72px)/.96 var(--display);letter-spacing:-.
 .foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px;color:var(--muted);font-size:14.5px}
 .foot b{color:var(--ink)}
 
+
+/* header: brand on the left, dark mode on the right */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.theme{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 14.5px/1 var(--sans);cursor:pointer;transition:border-color .15s,color .15s,transform .08s}
+.theme:hover{border-color:var(--accent);color:var(--accent)}
+.theme:active{transform:scale(.96)}
+.theme svg{width:18px;height:18px;transition:transform .45s cubic-bezier(.3,.7,.3,1)}
+.theme.turn svg{transform:rotate(180deg)}
+@media (any-pointer:coarse){.theme{height:44px}}
+
+/* calm motion: things arrive, nothing loops (PhET: busy moving screens make students freeze) */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.hero h1{animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
+.hero .lede{animation:rise .6s .08s cubic-bezier(.2,.7,.2,1) both}
+.newest{animation:rise .6s .16s cubic-bezier(.2,.7,.2,1) both}
+.filters{animation:rise .5s .22s cubic-bezier(.2,.7,.2,1) both}
+#list.anim .group h2{animation:rise .38s cubic-bezier(.2,.7,.2,1) both}
+#list.anim .card{animation:rise .45s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 32ms)}
+.card img{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.card:hover img{transform:scale(1.045)}
+.card .body,.card a.cam{position:relative;background:var(--surface)}
+.card a.cam{background:var(--sunk)}
+.seg button{transition:background-color .18s,color .18s,box-shadow .18s}
+.seg button:active{transform:scale(.97)}
+html.theme-fade,html.theme-fade *{transition:background-color .3s,color .3s,border-color .3s!important}
+@media (prefers-reduced-motion: reduce){.hero h1,.hero .lede,.newest,.filters,#list.anim .group h2,#list.anim .card{animation:none}.card img{transition:none}.card:hover img{transform:none}.theme svg{transition:none}}
+
 @media (max-width:820px){
   .hero{grid-template-columns:minmax(0,1fr);margin:22px 0 16px;gap:18px}
   .lede{font-size:16.5px}
@@ -107,8 +135,9 @@ h1{margin:0;font:800 clamp(40px,5.4vw,72px)/.96 var(--display);letter-spacing:-.
 </head>
 <body>
 <div class="wrap">
-<header>
+<header class="top">
   <a class="brand" href="index.html"><span class="mark" aria-hidden="true">MK</span><span><b>Mr Khaled</b><small>Physics &amp; Chemistry</small></span></a>
+  <button type="button" class="theme" id="themeBtn" aria-label="Dark mode"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
 </header>
 
 <section class="hero">
@@ -411,9 +440,9 @@ var GROUPS = [
   var gname = {}; GROUPS.forEach(function (x) { gname[x[0]] = x[1]; });
   LABS.forEach(function (L) { L._text = ' ' + norm([L.t, L.k, gname[L.tp], L.s === 'phys' ? 'physics' : 'chemistry science', (L.cam || L.co) ? 'camera hands on hand' : '', L.m || ''].join(' ')) + ' '; });
 
-  function card(L, showModule) {
+  function card(L, showModule, i) {
     var meta = '<span class="sub">' + (L.s === 'phys' ? 'Physics' : 'Chemistry') + '</span><span>' + gradeText(L.g) + '</span>' + (showModule && L.m ? '<span>' + esc(L.m) + '</span>' : '');
-    return '<li class="card ' + L.s + '">' +
+    return '<li class="card ' + L.s + '" style="--i:' + Math.min(i || 0, 16) + '">' +
       (L.co ? '<span class="badge">' + HAND + 'Camera lab</span>' : '') +
       '<a class="main" href="' + L.f + '"><img loading="lazy" src="thumbs/' + stem(L.f) + '-card.jpg" alt=""><span class="body"><h3>' + esc(L.t) + '</h3><span class="meta">' + meta + '</span></span></a>' +
       (L.cam ? '<a class="cam" href="' + L.cam + '">' + HAND + 'Also with camera</a>' : '') + '</li>';
@@ -444,19 +473,19 @@ var GROUPS = [
       return (state.grade === 'all' || L.g.split(' ').indexOf(state.grade) >= 0) && (state.sub === 'all' || L.s === state.sub) &&
         (!state.cam || L.cam || L.co) && words.every(function (w) { return L._text.indexOf(' ' + w) >= 0; });
     });
-    var html = '';
+    var html = '', k = 0;
     if (state.grade === 'all') {
       GROUPS.forEach(function (G) {
         var g = hits.filter(function (L) { return L.tp === G[0]; });
-        if (g.length) html += '<section class="group"><h2>' + G[1] + ' <span class="n">' + g.length + '</span></h2><ul class="cards">' + g.map(function (L) { return card(L, false); }).join('') + '</ul></section>';
+        if (g.length) html += '<section class="group"><h2>' + G[1] + ' <span class="n">' + g.length + '</span></h2><ul class="cards">' + g.map(function (L) { return card(L, false, k++); }).join('') + '</ul></section>';
       });
     } else {   // one grade: the textbook order, physics then chemistry
       [['phys', 'Physics'], ['chem', state.grade === '7' ? 'Science' : 'Chemistry']].forEach(function (S) {
         var g = hits.filter(function (L) { return L.s === S[0]; }).sort(function (a, b) { return a.o - b.o; });
-        if (g.length) html += '<section class="group"><h2>Grade ' + state.grade + ' ' + S[1] + ' <span class="n">in book order</span></h2><ul class="cards">' + g.map(function (L) { return card(L, true); }).join('') + '</ul></section>';
+        if (g.length) html += '<section class="group"><h2>Grade ' + state.grade + ' ' + S[1] + ' <span class="n">in book order</span></h2><ul class="cards">' + g.map(function (L) { return card(L, true, k++); }).join('') + '</ul></section>';
       });
     }
-    list.innerHTML = html;
+    list.classList.remove('anim'); list.innerHTML = html; void list.offsetWidth; list.classList.add('anim');
     var n = hits.length;
     count.textContent = state.q ? (n || 'No') + (n === 1 ? ' match' : ' matches') : n + (n === 1 ? ' lab' : ' labs');
     document.getElementById('empty').hidden = n > 0;
@@ -486,6 +515,19 @@ var GROUPS = [
     if (e.key === 'Enter') { var a = document.querySelector('#list .card a.main'); if (a) { e.preventDefault(); a.focus(); } }
   });
   document.addEventListener('keydown', function (e) { if (e.key === '/' && document.activeElement !== qIn && !/input|textarea|select/i.test((document.activeElement || {}).tagName || '')) { e.preventDefault(); qIn.focus(); } });
+
+  // dark mode: one choice for the whole site, remembered on this device
+  var root = document.documentElement, tb = document.getElementById('themeBtn');
+  function isDark() { var t = root.getAttribute('data-theme'); if (t) return t === 'dark'; return !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
+  function tLabel() { tb.querySelector('span').textContent = isDark() ? 'Light' : 'Dark'; tb.setAttribute('aria-label', isDark() ? 'Light mode' : 'Dark mode'); }
+  tb.addEventListener('click', function () {
+    var n = isDark() ? 'light' : 'dark';
+    root.classList.add('theme-fade'); root.setAttribute('data-theme', n); tb.classList.toggle('turn');
+    try { localStorage.setItem('site-theme', n); } catch (e) { }
+    tLabel(); setTimeout(function () { root.classList.remove('theme-fade'); }, 350);
+  });
+  if (window.matchMedia) { var mq = matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', tLabel); }
+  tLabel();
   render(false);
 })();
 </script>

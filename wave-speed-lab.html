@@ -4,6 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <style>
 /* Layout: one lab bench per tab, like the rest of the collection. A wide canvas stage on top (string, tools),
    transport under it, then set-up on the left and measurements on the right. Teal-blue is the working colour,
@@ -347,9 +348,9 @@ const tLabel=i=>`${TENS[i]} N`;
 const root=document.documentElement;
 const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
 const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode'};
-try{const t=localStorage.getItem('wsl-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
 themeLabel();
-$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('wsl-theme',n)}catch(e){}themeLabel()};
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
 let tab='lab';
 $$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
