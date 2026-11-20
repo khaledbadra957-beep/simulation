@@ -1,4 +1,5 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Kinetics Lab</title>
 <meta name="description" content="Follow H2O2 + I- in time: limiting reagent, n(I2) table, half-life from the graph, tangent rates, kinetic factors and a step-by-step exercise.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -122,118 +123,138 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas.stage{border:0;border-radius:0}
+.stage-ui .sc-read{position:absolute;top:12px;right:12px;z-index:2;width:250px;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+@media (max-width:1100px){.stage-ui .sc-read{width:200px}}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{top:auto;bottom:8px;right:8px;width:170px;padding:6px 8px}.stage-ui .sc-read .readouts{gap:2px 8px}.stage-ui .sc-read dt{font-size:11.5px}.stage-ui .sc-read dd{font-size:12.5px}.stage-ui .sc-read div[style]{display:none}}
+.stage-ui .panel input[type=range]{height:22px}
+.stage-ui .panel .field{gap:0}
+.stage-ui .sc-read dd{white-space:nowrap;font-size:.92rem}
+.stage-ui .sc-read{width:290px}
+.stage-ui .sc-read div[style] dd{white-space:normal;font-size:.85rem}
+.stage-ui #runs:empty{display:none}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{display:none}}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui #beaker,.stage-ui #kg{height:auto}
+.stage-ui .play > .extra.tall{height:clamp(170px,32vh,290px)}
+.stage-ui .sc-eq{position:absolute;top:12px;left:14px;z-index:2;font-weight:600;font-size:15px;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+.stage-ui .scene .mkey{position:absolute;left:14px;bottom:10px;z-index:2;font-size:12.5px;background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 10px;border-radius:8px}
+.stage-ui .seg{width:100%;align-self:stretch}
+.stage-ui .transport .seg{width:auto}
+.stage-ui .gh .seg{width:auto}
+.stage-ui .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stage-ui .small{font-size:13px}
+.stage-ui .btn.small{min-height:34px;font-size:13.5px;padding:0 10px}
+.stage-ui .pred{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stage-ui .status{font-size:13.5px;padding:7px 10px}
+.stage-ui .readouts{gap:6px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .sol{font-size:12.5px;padding:8px 10px}
+.stage-ui .morein{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .flabel{font-size:14px}
+.stage-ui .solo-in > .benchhead{margin-top:4px}
+.stage-ui #eg{height:260px;border:1px solid var(--line);border-radius:10px}
+.stage-ui .solo-in{padding:8px 4px 20px}
+.stage-ui .solo-in .card{background:var(--surface)}
+@media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.tall{height:220px}.stage-ui .scene .mkey{display:none}.stage-ui .sc-eq{font-size:12.5px;top:8px;left:8px}}
 </style><script src="lab-viz.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
 
-<div class="wrap">
-<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
- <header>
-  <div>
-   <p class="eyebrow">Grade 12 Chemistry · Kinetics · Following a reaction in time</p>
-   <h1>Kinetics Lab</h1>
-   <p class="lede">Mix hydrogen peroxide with iodide in acid and watch the iodine appear. Find the limiting reagent, build the n(I₂) table, read t½ from the curve, draw tangents and test the kinetic factors.</p>
-  </div>
-  <div class="tools">
-   <button class="btn" id="fsBtn" type="button">Full screen</button>
-   <button class="btn" id="themeBtn" type="button">Dark mode</button>
-  </div>
- </header>
-
- <div class="tabs" role="tablist">
-  <button class="tab" role="tab" aria-selected="true" data-tab="lab" aria-controls="p-lab">1 · Run the reaction</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">2 · Exercise step by step</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">3 · Challenge</button>
- </div>
-
- <!-- ================= TAB 1 ================= -->
- <section class="bench" id="p-lab" role="tabpanel">
-  <div class="benchhead">
-   <h2 class="mono">H₂O₂ + 2I⁻ + 2H₃O⁺ → I₂ + 4H₂O</h2>
-   <span class="note">H₃O⁺ (sulfuric acid) is in excess. I₂ colours the solution yellow, then brown.</span>
-  </div>
-  <div class="grid2">
-   <div class="col">
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Kinetics</h1>
+ <span class="tb-tag">Chemistry · G12</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button id="fsBtn" type="button" hidden></button><button id="themeBtn" type="button" hidden></button>
+<div class="tabs" role="tablist" hidden>
+ <button class="tab" role="tab" aria-selected="true" data-tab="lab" aria-controls="p-lab">Lab</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Exercise</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">Challenge</button>
+</div>
+<main class="screens">
+ <section class="screen" id="p-lab" data-screens="intro lab" role="tabpanel">
+  <div class="play">
+   <div class="scene">
     <canvas class="stage" id="beaker" aria-label="Beaker of the reaction mixture; the colour darkens as iodine forms"></canvas>
-    <p class="mkey"><span><i style="background:#D8322A"></i>H₂O₂ (two O, two H)</span><span><i style="background:#8E5BC8"></i>I⁻</span><span><i style="background:#6B3A1E"></i>I₂ (gives the brown colour)</span><span><i style="background:#1E8A55"></i>a reacting collision</span></p>
-    <div class="transport">
-     <button class="btn primary" id="runBtn" type="button">Mix and start</button>
-     <button class="btn" id="resetBtn" type="button">Empty the beaker</button>
-     <span class="sep"></span>
-     <div class="seg" role="group" aria-label="Speed">
-      <button type="button" data-spd="0.5" aria-pressed="false">½ min/s</button>
-      <button type="button" data-spd="1" aria-pressed="true">1 min/s</button>
-      <button type="button" data-spd="4" aria-pressed="false">4 min/s</button>
-     </div>
-    </div>
+    <span class="sc-eq mono">H₂O₂ + 2I⁻ + 2H₃O⁺ → I₂ + 4H₂O</span>
+    <div class="sc-read" data-adv><dl class="readouts">
+     <div><dt>t</dt><dd id="rt">0.0 min</dd></div>
+     <div><dt>n(I₂)</dt><dd id="rI2">–</dd></div>
+     <div><dt>n(H₂O₂) left</dt><dd id="rH">–</dd></div>
+     <div><dt>n(I⁻) left</dt><dd id="rI">–</dd></div>
+     <div style="grid-column:1/-1"><dt>Finished?</dt><dd id="rEnd">–</dd></div>
+    </dl></div>
+    <p class="mkey" data-adv><span><i style="background:#D8322A"></i>H₂O₂</span><span><i style="background:#8E5BC8"></i>I⁻</span><span><i style="background:#6B3A1E"></i>I₂ (brown)</span><span><i style="background:#1E8A55"></i>reacting collision</span></p>
    </div>
-   <div class="col">
-    <div class="field"><div class="field-head"><label for="sC1">C(H₂O₂)</label><output id="oC1"></output></div><input id="sC1" type="range" min="0.05" max="0.20" step="0.01" value="0.10"></div>
-    <div class="field"><div class="field-head"><label for="sV1">V(H₂O₂)</label><output id="oV1"></output></div><input id="sV1" type="range" min="1" max="5" step="0.5" value="2"></div>
-    <div class="field"><div class="field-head"><label for="sC2">C(I⁻) (potassium iodide)</label><output id="oC2"></output></div><input id="sC2" type="range" min="0.05" max="0.20" step="0.01" value="0.10"></div>
-    <div class="field"><div class="field-head"><label for="sV2">V(I⁻)</label><output id="oV2"></output></div><input id="sV2" type="range" min="2" max="20" step="1" value="10"></div>
-    <p class="note">Plus 18 mL of sulfuric acid (H₃O⁺ in excess).</p>
-    <div class="field"><span class="flabel">Temperature</span>
-     <div class="seg" role="group" aria-label="Temperature">
-      <button type="button" data-temp="20" aria-pressed="true">20 °C</button>
-      <button type="button" data-temp="30" aria-pressed="false">30 °C</button>
-      <button type="button" data-temp="40" aria-pressed="false">40 °C</button>
-     </div>
+   <div class="extra tall"><canvas class="stage" id="kg" aria-label="Graph of amount against time"></canvas></div>
+   <div class="transport">
+    <button class="btn primary" id="runBtn" type="button">Mix and start</button>
+    <button class="btn" id="resetBtn" type="button">Empty</button>
+    <span class="grow"></span>
+    <div class="seg" role="group" aria-label="Speed">
+     <button type="button" data-spd="0.5" aria-pressed="false">½ min/s</button>
+     <button type="button" data-spd="1" aria-pressed="true">1 min/s</button>
+     <button type="button" data-spd="4" aria-pressed="false">4 min/s</button>
     </div>
-    <div class="checks"><label><input type="checkbox" id="cCat"> Add a catalyst (a few drops of Fe²⁺ solution)</label></div>
    </div>
   </div>
-
-  <div class="card" id="limCard">
-   <h3>Before you mix: which reagent is limiting?</h3>
-   <p class="mono" id="nInit"></p>
-   <div class="pred">
-    <button type="button" data-lim="h">H₂O₂</button>
-    <button type="button" data-lim="i">I⁻</button>
-   </div>
-   <p class="status" id="limMsg" aria-live="polite">Compare n/coefficient for each reagent (the reaction ratio, RR). The smaller one is the limiting reagent.</p>
-  </div>
-
-  <div class="grid2">
-   <div class="col">
-    <div class="benchhead"><span class="flabel">Graph</span>
-     <div class="seg" role="group" aria-label="Graph shows">
-      <button type="button" data-view="p" aria-pressed="true">Product: n(I₂)</button>
-      <button type="button" data-view="r" aria-pressed="false">Reagents</button>
-     </div>
+  <aside class="panel">
+   <section class="group">
+    <h2>Reagents</h2>
+    <div class="field"><div class="field-head"><label for="sC1">C(H₂O₂)</label><output class="val" id="oC1"></output></div><input id="sC1" type="range" min="0.05" max="0.20" step="0.01" value="0.10"></div>
+    <div class="field" data-adv><div class="field-head"><label for="sV1">V(H₂O₂)</label><output class="val" id="oV1"></output></div><input id="sV1" type="range" min="1" max="5" step="0.5" value="2"></div>
+    <div class="field" data-adv><div class="field-head"><label for="sC2">C(I⁻)</label><output class="val" id="oC2"></output></div><input id="sC2" type="range" min="0.05" max="0.20" step="0.01" value="0.10"></div>
+    <div class="field" data-adv><div class="field-head"><label for="sV2">V(I⁻)</label><output class="val" id="oV2"></output></div><input id="sV2" type="range" min="2" max="20" step="1" value="10"></div>
+    <p class="note" data-adv>+ 18 mL sulfuric acid (H₃O⁺ in excess)</p>
+   </section>
+   <section class="group">
+    <h2>Conditions</h2>
+    <div class="seg" role="group" aria-label="Temperature">
+     <button type="button" data-temp="20" aria-pressed="true">20 °C</button>
+     <button type="button" data-temp="30" aria-pressed="false">30 °C</button>
+     <button type="button" data-temp="40" aria-pressed="false">40 °C</button>
     </div>
-    <canvas class="stage" id="kg" aria-label="Graph of amount against time"></canvas>
-    <div class="checks">
+    <div class="chk"><label><input type="checkbox" id="cCat"> Catalyst (Fe²⁺)</label></div>
+   </section>
+   <section class="group" data-adv>
+    <div class="gh"><h2>Graph</h2>
+     <div class="seg" role="group" aria-label="Graph shows"><button type="button" data-view="p" aria-pressed="true">n(I₂)</button><button type="button" data-view="r" aria-pressed="false">Reagents</button></div></div>
+    <div class="chk two">
      <label><input type="checkbox" id="cMax" checked> n(I₂) at the end</label>
      <label><input type="checkbox" id="cHalf"> Show t½</label>
-     <label><input type="checkbox" id="cTan"> Draw a tangent</label>
+     <label><input type="checkbox" id="cTan"> Tangent</label>
+     <button class="btn small" id="keepBtn" type="button">Keep curve</button>
     </div>
-    <div class="field" id="tanField" hidden><div class="field-head"><label for="sTau">Tangent at t =</label><output id="oTau"></output></div><input id="sTau" type="range" min="0" max="24" step="0.5" value="4"></div>
+    <div class="field" id="tanField" hidden><div class="field-head"><label for="sTau">Tangent at t</label><output class="val" id="oTau"></output></div><input id="sTau" type="range" min="0" max="24" step="0.5" value="4"></div>
     <pre class="sol" id="tanOut" hidden></pre>
-    <div class="transport"><button class="btn small" id="keepBtn" type="button">Keep this curve to compare</button><span class="runs" id="runs"></span></div>
-   </div>
-   <div class="col">
-    <div class="card"><dl class="readouts">
-     <div><dt>t</dt><dd id="rt">0.0 min</dd></div>
-     <div><dt>n(I₂) formed</dt><dd id="rI2">–</dd></div>
-     <div><dt>n(H₂O₂) left</dt><dd id="rH">–</dd></div>
-     <div><dt>n(I⁻) left = n₀(I⁻) − 2n(I₂)</dt><dd id="rI">–</dd></div>
-     <div style="grid-column:1/-1"><dt>Is it the end of the reaction?</dt><dd id="rEnd">–</dd></div>
-    </dl></div>
-    <div class="field"><span class="flabel">Take a sample every</span>
-     <div class="seg" role="group" aria-label="Sampling interval">
-      <button type="button" data-every="2" aria-pressed="false">2 min</button>
-      <button type="button" data-every="4" aria-pressed="true">4 min</button>
-      <button type="button" data-every="5" aria-pressed="false">5 min</button>
-     </div>
-    </div>
-    <div class="tablewrap"><table><thead><tr><th>t (min)</th><th>n(I₂) (×10⁻⁵ mol)</th></tr></thead><tbody id="tb"><tr class="empty"><td colspan="2">Samples appear here while the reaction runs.</td></tr></tbody></table></div>
-    <p class="note">In the real lab each sample is cooled in ice water to stop the reaction, then the iodine is titrated.</p>
-   </div>
-  </div>
- </section>
+    <span class="runs" id="runs"></span>
+   </section>
 
+   <section class="group" data-adv id="limCard">
+<details><summary>Which is limiting?</summary><div class="morein">
+    <p class="mono small" id="nInit"></p>
+    <div class="pred"><button type="button" data-lim="h">H₂O₂</button><button type="button" data-lim="i">I⁻</button></div>
+    <p class="status" id="limMsg" aria-live="polite">Compare n ÷ coefficient. The smaller one is limiting.</p>
+   </div></details>
+    <details><summary>Samples table</summary>
+     <div class="morein">
+      <div class="field"><span class="flabel">Sample every</span>
+       <div class="seg" role="group" aria-label="Sampling interval"><button type="button" data-every="2" aria-pressed="false">2 min</button><button type="button" data-every="4" aria-pressed="true">4 min</button><button type="button" data-every="5" aria-pressed="false">5 min</button></div></div>
+      <div class="tablewrap"><table><thead><tr><th>t (min)</th><th>n(I₂) ×10⁻⁵ mol</th></tr></thead><tbody id="tb"><tr class="empty"><td colspan="2">Samples appear here while the reaction runs.</td></tr></tbody></table></div>
+      <p class="note">Each real sample is cooled in ice water, then the iodine is titrated.</p>
+     </div>
+    </details>
+   </section>
+  </aside>
+ </section>
  <!-- ================= TAB 2 ================= -->
- <section class="bench" id="p-ex" role="tabpanel" hidden>
+ <section class="screen solo" id="p-ex" data-screens="ex" role="tabpanel" hidden><div class="solo-in">
   <div class="benchhead">
    <h2>Exercise</h2>
    <div class="transport">
@@ -250,20 +271,20 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
    </div>
    <div class="col" id="steps"></div>
   </div>
- </section>
+ </div></section>
 
  <!-- ================= TAB 3 ================= -->
- <section class="bench" id="p-chal" role="tabpanel" hidden>
+ <section class="screen solo" id="p-chal" data-screens="chal" role="tabpanel" hidden><div class="solo-in">
   <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
   <p class="q" id="qText"></p>
   <div class="opts" id="qOpts"></div>
   <p class="status" id="qStatus" aria-live="polite" hidden></p>
   <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
- </section>
+ </div></section>
 
- <footer>Designed and built by Mr Khaled. Model: rate = k[H₂O₂][I⁻] with H₃O⁺ in excess; k doubles for roughly every 10 °C and the catalyst makes it 4 times bigger. Values are rounded like real measurements.</footer>
-</div>
-
+</main>
+<p class="vh">Model: rate = k[H₂O₂][I⁻] with H₃O⁺ in excess; k doubles for roughly every 10 °C and the catalyst makes it 4 times bigger. Values are rounded like real measurements.</p>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'lab', simple: true }, { id: 'lab', name: 'Lab', tab: 'lab' }, { id: 'ex', name: 'Exercise', tab: 'ex' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const fx=(x,d=2)=>Number(x).toFixed(d);
@@ -282,8 +303,9 @@ const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':ma
 let C={};
 function readColors(){const s=getComputedStyle(root);['stage','ink','muted','line','grid','accent','a','b','prod','rose','brass','ok','bad'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
 const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
-try{const t=localStorage.getItem('kin-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
-$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('kin-theme',n)}catch(e){}themeLabel()};
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+new MutationObserver(()=>themeLabel()).observe(root,{attributes:true,attributeFilter:['data-theme']});
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
 let tab='lab';
 $$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));

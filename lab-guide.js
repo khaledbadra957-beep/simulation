@@ -556,8 +556,9 @@
       var h = document.querySelector('.lg-home'); if (h) h.remove();
       root.setAttribute('data-phase', q.simple || id === 'intro' ? 'intro' : id);
       root.setAttribute('data-screen', id);
-      document.querySelectorAll('.screen[data-screens]').forEach(function (s) { s.hidden = s.getAttribute('data-screens').split(/\s+/).indexOf(id) < 0; });
+      // the page's own tab logic runs first, so the screen list below always has the last word
       if (q.tab) { var t = document.querySelector('[data-tab="' + q.tab + '"]'); if (t && t.getAttribute('aria-selected') !== 'true') t.click(); }
+      document.querySelectorAll('.screen[data-screens]').forEach(function (s) { s.hidden = s.getAttribute('data-screens').split(/\s+/).indexOf(id) < 0; });
       nav.querySelectorAll('[data-ph]').forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.ph === id)); });
       try { localStorage.setItem(LASTK, id); } catch (e) { }
       if (push !== false) { try { history.replaceState(null, '', location.pathname + location.search + '#' + id); } catch (e) { } }

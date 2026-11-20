@@ -21,8 +21,19 @@ def cover(png, w, h):
 PREP = {
   'esterification-lab': "document.querySelector('[data-tab=eq]').click()",
   'five-types-of-chemical-reactions': "document.querySelector('[data-tab=pat]').click()",
+  'galvanic-cell-lab': "(()=>{const b=document.getElementById('swBtn');if(/Close/.test(b.textContent))b.click()})()",
   'pulse-at-a-boundary': "(()=>{const s=document.getElementById('scrub');document.getElementById('play').click();s.value=330;s.dispatchEvent(new Event('input'))})()",
 }
+# which screen makes the homepage card of a stage-layout lab (default: 'lab', else the first screen)
+CARD = {'organic-naming-lab': 'build', 'chemical-change-lab': 'signs'}
+
+async def shot_screen(pg):
+    """The visible screen's scene; for a solo (scrolling) screen, the part of it in view."""
+    el = await pg.query_selector('.screen:not([hidden]) .scene')
+    if el: return await el.screenshot()
+    r = await pg.evaluate("(() => { const e = document.querySelector('.screens').getBoundingClientRect(); return {x: e.left, y: e.top, w: e.width, h: e.height}; })()")
+    return await pg.screenshot(clip={'x': r['x'], 'y': r['y'], 'width': r['w'], 'height': r['h']})
+
 BIGGEST = """(() => {
   document.querySelectorAll('.lg-home,.lg-nav,.lg-btn,.intro,.start,.overlay').forEach(e => e.style.display = 'none');
   const vis = e => { const r = e.getBoundingClientRect(); const s = getComputedStyle(e); return r.width > 120 && r.height > 80 && s.visibility !== 'hidden' && s.display !== 'none'; };
@@ -50,15 +61,14 @@ async def main(only):
             if stage:
                 screens = await pg.evaluate("(window.LAB && LAB.screens || []).map(s => s.id)")
                 for sid in screens:
-                    await pg.evaluate(f"location.hash = '{sid}'"); await pg.wait_for_timeout(1400)
+                    await pg.evaluate(f"document.querySelector('.lg-nav [data-ph=\"{sid}\"]').click()"); await pg.wait_for_timeout(1400)
                     if lab in PREP: await pg.evaluate(PREP[lab]); await pg.wait_for_timeout(300)
-                    el = await pg.query_selector(f'.screen:not([hidden]) .scene') or await pg.query_selector('.screen:not([hidden]) .solo-in')
-                    png = await el.screenshot()
+                    png = await shot_screen(pg)
                     cover(png, 320, 200).save(f'{OUT}/{lab}-{sid}.jpg', quality=82, optimize=True)
-                await pg.evaluate("location.hash = 'lab'"); await pg.wait_for_timeout(1400)
+                card = CARD.get(lab) or ('lab' if 'lab' in screens else screens[0])
+                await pg.evaluate(f"document.querySelector('.lg-nav [data-ph=\"{card}\"]').click()"); await pg.wait_for_timeout(1400)
                 if lab in PREP: await pg.evaluate(PREP[lab]); await pg.wait_for_timeout(300)
-                el = await pg.query_selector('.screen:not([hidden]) .scene')
-                png = await el.screenshot()
+                png = await shot_screen(pg)
             else:
                 if lab in PREP: await pg.evaluate(PREP[lab]); await pg.wait_for_timeout(1500)
                 box = await pg.evaluate(BIGGEST)

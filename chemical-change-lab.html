@@ -1,4 +1,5 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 </head><body>
 <title>Chemical Change Lab</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -57,7 +58,6 @@ svg.stage{width:100%;height:auto;background:var(--stage);border:1.5px solid var(
 .pick{border:1.5px solid var(--line);background:var(--stage);border-radius:999px;padding:6px 12px;font-weight:700;font-size:.9rem}
 .pick[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
 .pick .tick{font-family:var(--data);margin-left:4px}
-.panel{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .panel .lbl{font-family:var(--data);font-size:.8125rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
 .obs{margin:0;min-height:3em}
 .checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px}
@@ -98,115 +98,115 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .kbd{font-family:var(--data);font-size:.85em}
 footer{color:var(--muted);font-size:.85rem}
 @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui .scene > svg.stage{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0}
+.stage-ui .sc-q{position:absolute;top:12px;left:14px;z-index:2;font:700 14px/1.2 var(--body);color:var(--muted);background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+.stage-ui .group .picks{gap:5px}
+.stage-ui .pick{font-size:13.5px;padding:6px 10px;background:var(--surface)}
+.stage-ui .seg{width:100%}
+.stage-ui .seg.stack{flex-direction:column}
+.stage-ui .seg.stack button{white-space:normal;min-height:36px}
+.stage-ui .obs{min-height:0;font-size:14.5px}
+.stage-ui .read{gap:6px}
+.stage-ui .cell{padding:6px 10px;background:var(--sunk);border:0}
+.stage-ui .cell .v{font-size:1.1rem}
+.stage-ui .checks{grid-template-columns:1fr 1fr;gap:5px}
+.stage-ui .checks label{padding:5px 8px;font-size:13.5px;font-weight:700}
+.stage-ui .fb{font-size:14px}
+.stage-ui table.t{font-size:13.5px}
+.stage-ui table.t th,.stage-ui table.t td{padding:5px 6px}
+.stage-ui table.t th{font-size:12.5px;text-transform:none;letter-spacing:0}
+.stage-ui .timeline{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.stage-ui .eqn{font-size:1.1rem}
+.stage-ui .play > .extra.eqbar{height:auto;min-height:64px;display:flex;align-items:center;justify-content:center;padding:6px 10px;overflow:visible}
+.stage-ui .play > .extra.eqbar .eqn{font-size:clamp(1.1rem,1.8vw,1.5rem)}
+.stage-ui .banner{padding:8px 12px;font-size:14.5px}
+.stage-ui #scrub3{width:100%}
+.stage-ui .pick[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.stage-ui .play > .extra.obsbar{height:auto;display:flex;align-items:center;gap:14px;padding:10px 12px;overflow:visible}
+.stage-ui .obsbar .obs{flex:1 1 auto;margin:0}
+.stage-ui .obsbar .read{flex:none;display:flex}
+.stage-ui .obsbar .cell{min-width:118px}
+@media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.obsbar{flex-direction:column;align-items:stretch}.stage-ui .scene.wide{aspect-ratio:800/440;min-height:0}}
 </style>
 <link rel="stylesheet" href="site.css">
 
-<div class="wrap">
-<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
-<header>
-  <div>
-    <p class="eyebrow">Grade 7 Science · Module 2 Lesson 2 · Property changes in chemical reactions</p>
-    <h1>Chemical Change Lab</h1>
-    <p class="lede">Mix substances and look for the signs of a chemical change, weigh a reaction in an open and a closed flask, watch atoms break apart and join in new ways, then balance the equations.</p>
-  </div>
-  <div class="row"><button class="btn" id="fsBtn" type="button">Full screen</button></div>
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Chemical Change</h1>
+ <span class="tb-tag">Science · G7</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
 </header>
-
-<nav class="tabs" role="tablist">
-  <button class="tab" role="tab" aria-selected="true" data-tab="signs" id="tab-signs">1 · Spot the signs</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="mass" id="tab-mass">2 · Mass is conserved</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="atoms" id="tab-atoms">3 · Atoms rearrange</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="bal" id="tab-bal">4 · Balance it</button>
+<button id="fsBtn" type="button" hidden></button>
+<nav class="tabs" role="tablist" hidden>
+  <button class="tab" role="tab" aria-selected="true" data-tab="signs" id="tab-signs">Signs</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="mass" id="tab-mass">Mass</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="atoms" id="tab-atoms">Atoms</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="bal" id="tab-bal">Balance</button>
 </nav>
-
-<!-- TAB 1 -->
-<section class="bench" id="p-signs" role="tabpanel" aria-labelledby="tab-signs">
-  <div class="benchhead"><div><h2>Physical or chemical change?</h2><p>Pick an experiment, run it, and record what you saw. A chemical change makes a new substance with new properties.</p></div>
-  <span class="kbd" id="score">0 / 9 done</span></div>
-  <div class="picks" id="expPicks"></div>
-  <div class="grid2">
-    <div class="col">
-      <svg class="stage" id="s1" viewBox="0 0 800 440" role="img" aria-label="Experiment bench"></svg>
-      <div class="row"><button class="btn primary" id="runBtn" type="button">Mix</button><button class="btn" id="againBtn" type="button">Reset</button><span class="note" id="safety"></span></div>
-    </div>
-    <div class="col">
-      <div class="panel"><p class="lbl">What you observe</p><p class="obs" id="obs">Press the button to start the experiment.</p>
-        <div class="read"><div class="cell"><div class="k">Temperature</div><div class="v" id="tempV">22.0 °C</div></div><div class="cell"><div class="k">Time</div><div class="v" id="timeV">0 s</div></div></div>
-      </div>
-      <div class="panel"><p class="lbl">Which signs did you see?</p>
-        <div class="checks" id="signChecks"></div>
-        <p class="lbl">So this is a…</p>
-        <div class="seg"><button class="pick" type="button" data-kind="physical" aria-pressed="false">Physical change</button><button class="pick" type="button" data-kind="chemical" aria-pressed="false">Chemical change</button></div>
-        <button class="btn primary" id="checkBtn" type="button">Check my answer</button>
-        <p class="fb" id="fb" hidden></p>
-      </div>
-    </div>
+<main class="screens">
+<section class="screen" id="p-signs" data-screens="signs" role="tabpanel" aria-labelledby="tab-signs">
+  <div class="play">
+    <div class="scene wide"><svg class="stage" id="s1" viewBox="0 0 800 440" role="img" aria-label="Experiment bench"></svg><span class="sc-q">Physical or chemical?</span></div>
+    <div class="extra obsbar"><p class="obs" id="obs">Press the button to start the experiment.</p><div class="read"><div class="cell"><div class="k">Temperature</div><div class="v" id="tempV">22.0 °C</div></div><div class="cell"><div class="k">Time</div><div class="v" id="timeV">0 s</div></div></div></div>
+    <div class="transport"><button class="btn primary" id="runBtn" type="button">Mix</button><button class="btn" id="againBtn" type="button">Reset</button><span class="note grow" id="safety"></span></div>
   </div>
+  <aside class="panel">
+    <section class="group"><div class="gh"><h2>Experiment</h2><span class="val" id="score">0 / 9 done</span></div><div class="picks" id="expPicks"></div></section>
+    <section class="group"><h2>Your answer</h2><div class="checks" id="signChecks"></div>
+      <div class="seg"><button class="pick" type="button" data-kind="physical" aria-pressed="false">Physical</button><button class="pick" type="button" data-kind="chemical" aria-pressed="false">Chemical</button></div>
+      <button class="btn primary" id="checkBtn" type="button">Check</button>
+      <p class="fb" id="fb" hidden></p></section>
+  </aside>
 </section>
-
-<!-- TAB 2 -->
-<section class="bench" id="p-mass" role="tabpanel" aria-labelledby="tab-mass" hidden>
-  <div class="benchhead"><div><h2>Weigh it before and after</h2><p>Lavoisier weighed reactions in closed containers. Try both ways. Does the mass really change, or does something escape?</p></div></div>
-  <div class="grid2">
-    <div class="col">
-      <svg class="stage" id="s2" viewBox="0 0 800 440" role="img" aria-label="Flask on a digital balance"></svg>
-      <div class="row"><button class="btn primary" id="mixBtn2" type="button">Start the reaction</button><button class="btn" id="resetBtn2" type="button">Reset</button></div>
-    </div>
-    <div class="col">
-      <div class="panel"><p class="lbl">Reaction</p>
-        <div class="seg" id="rxPick"><button class="pick" type="button" data-rx="gas" aria-pressed="true">Vinegar + baking soda</button><button class="pick" type="button" data-rx="solid" aria-pressed="false">Magnesium sulfate + sodium carbonate</button></div>
-        <p class="lbl">Container</p>
-        <div class="seg" id="ctPick"><button class="pick" type="button" data-ct="open" aria-pressed="true">Open flask</button><button class="pick" type="button" data-ct="closed" aria-pressed="false">Closed (balloon / stopper)</button></div>
-      </div>
-      <div class="read"><div class="cell"><div class="k">Mass before</div><div class="v" id="mB">255.0 g</div></div><div class="cell"><div class="k">Mass now</div><div class="v" id="mN">255.0 g</div></div></div>
-      <div class="panel"><p class="lbl">Results table</p>
-        <div class="scroll"><table class="t"><thead><tr><th>Reaction</th><th>Container</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody id="massRows"><tr><td colspan="5" class="note">Run the reaction to add a row.</td></tr></tbody></table></div>
-        <p class="fb" id="fb2" hidden></p>
-      </div>
-    </div>
+<section class="screen" id="p-mass" data-screens="mass" role="tabpanel" aria-labelledby="tab-mass" hidden>
+  <div class="play">
+    <div class="scene wide"><svg class="stage" id="s2" viewBox="0 0 800 440" role="img" aria-label="Flask on a digital balance"></svg><span class="sc-q">Does the mass change?</span></div>
+    <div class="transport"><button class="btn primary" id="mixBtn2" type="button">Start</button><button class="btn" id="resetBtn2" type="button">Reset</button></div>
   </div>
+  <aside class="panel">
+    <section class="group"><h2>Reaction</h2>
+      <div class="seg stack" id="rxPick"><button class="pick" type="button" data-rx="gas" aria-pressed="true">Vinegar + baking soda</button><button class="pick" type="button" data-rx="solid" aria-pressed="false">MgSO₄ + Na₂CO₃</button></div>
+      <h2>Flask</h2>
+      <div class="seg" id="ctPick"><button class="pick" type="button" data-ct="open" aria-pressed="true">Open</button><button class="pick" type="button" data-ct="closed" aria-pressed="false">Closed</button></div></section>
+    <section class="group"><h2>Balance</h2><div class="read"><div class="cell"><div class="k">Before</div><div class="v" id="mB">255.0 g</div></div><div class="cell"><div class="k">Now</div><div class="v" id="mN">255.0 g</div></div></div></section>
+    <section class="group"><h2>Results</h2>
+      <div class="scroll"><table class="t"><thead><tr><th>Reaction</th><th>Flask</th><th>Before</th><th>After</th><th>Change</th></tr></thead><tbody id="massRows"><tr><td colspan="5" class="note">Run the reaction to add a row.</td></tr></tbody></table></div>
+      <p class="fb" id="fb2" hidden></p></section>
+  </aside>
 </section>
-
-<!-- TAB 3 -->
-<section class="bench" id="p-atoms" role="tabpanel" aria-labelledby="tab-atoms" hidden>
-  <div class="benchhead"><div><h2>Bonds break, atoms rearrange, bonds form</h2><p>Atoms are never destroyed and no new atoms appear. They only join in new combinations, so the mass stays the same.</p></div></div>
-  <div class="picks" id="rxAtomPicks"></div>
-  <div class="grid2">
-    <div class="col">
-      <svg class="stage" id="s3" viewBox="0 0 800 440" role="img" aria-label="Atoms rearranging"></svg>
-      <div class="row"><button class="btn primary" id="playBtn3" type="button">Play</button><input type="range" id="scrub3" min="0" max="1000" value="0" aria-label="Animation position" style="flex:1;min-width:140px"></div>
-      <div class="timeline" id="steps3"><button class="pick" type="button" data-t="0" aria-pressed="true">Reactants</button><button class="pick" type="button" data-t="0.4" aria-pressed="false">1 · Bonds break</button><button class="pick" type="button" data-t="0.66" aria-pressed="false">2 · Atoms rearrange</button><button class="pick" type="button" data-t="1" aria-pressed="false">3 · Bonds form</button></div>
-    </div>
-    <div class="col">
-      <div class="panel"><p class="lbl">Word equation</p><p class="obs" id="word3"></p><p class="lbl">Chemical equation</p><div class="eqn" id="eq3"></div></div>
-      <div class="panel"><p class="lbl">Count the atoms</p>
-        <div class="scroll"><table class="t"><thead><tr><th>Atom</th><th>Reactants</th><th>Products</th><th></th></tr></thead><tbody id="count3"></tbody></table></div>
-        <p class="note" id="mass3"></p>
-      </div>
-    </div>
+<section class="screen" id="p-atoms" data-screens="atoms" role="tabpanel" aria-labelledby="tab-atoms" hidden>
+  <div class="play">
+    <div class="scene wide"><svg class="stage" id="s3" viewBox="0 0 800 440" role="img" aria-label="Atoms rearranging"></svg></div>
+    <div class="transport"><button class="btn primary" id="playBtn3" type="button">Play</button><span class="grow"><input type="range" id="scrub3" min="0" max="1000" value="0" aria-label="Animation position"></span></div>
   </div>
+  <aside class="panel">
+    <section class="group"><h2>Reaction</h2><div class="picks" id="rxAtomPicks"></div></section>
+    <section class="group"><h2>Steps</h2><div class="timeline" id="steps3"><button class="pick" type="button" data-t="0" aria-pressed="true">Start</button><button class="pick" type="button" data-t="0.4" aria-pressed="false">1 · Break</button><button class="pick" type="button" data-t="0.66" aria-pressed="false">2 · Rearrange</button><button class="pick" type="button" data-t="1" aria-pressed="false">3 · Form</button></div></section>
+    <section class="group"><h2>Equation</h2><p class="obs" id="word3"></p><div class="eqn" id="eq3"></div></section>
+    <section class="group"><h2>Count the atoms</h2>
+      <div class="scroll"><table class="t"><thead><tr><th>Atom</th><th>Before</th><th>After</th><th></th></tr></thead><tbody id="count3"></tbody></table></div>
+      <p class="note" id="mass3"></p></section>
+  </aside>
 </section>
-
-<!-- TAB 4 -->
-<section class="bench" id="p-bal" role="tabpanel" aria-labelledby="tab-bal" hidden>
-  <div class="benchhead"><div><h2>Balance the equation</h2><p>Change the <b>coefficients</b> (the big numbers in front) until every kind of atom has the same number on both sides. Try tapping a small subscript number to see why we never change it.</p></div>
-  <span class="kbd" id="score4">0 / 7 balanced</span></div>
-  <div class="picks" id="balPicks"></div>
-  <div class="eqn" id="eq4"></div>
-  <div class="grid2">
-    <div class="col"><svg class="stage" id="s4" viewBox="0 0 800 400" role="img" aria-label="Molecules on each side of the equation"></svg></div>
-    <div class="col">
-      <div class="banner" id="ban4"></div>
-      <div class="panel"><p class="lbl">Atom count</p><div class="scroll"><table class="t"><thead><tr><th>Atom</th><th>Reactants</th><th>Products</th><th></th></tr></thead><tbody id="count4"></tbody></table></div></div>
-      <p class="fb" id="fb4" hidden></p>
-      <div class="row"><button class="btn" id="reset4" type="button">Start again</button><button class="btn" id="hint4" type="button">Hint</button></div>
-    </div>
+<section class="screen" id="p-bal" data-screens="bal" role="tabpanel" aria-labelledby="tab-bal" hidden>
+  <div class="play">
+    <div class="extra eqbar"><div class="eqn" id="eq4"></div></div>
+    <div class="scene wide"><svg class="stage" id="s4" viewBox="0 0 800 400" role="img" aria-label="Molecules on each side of the equation"></svg></div>
+    <div class="transport"><button class="btn" id="reset4" type="button">Start again</button><button class="btn" id="hint4" type="button">Hint</button><span class="note grow">Change the big numbers. Tap a small one to see why not.</span></div>
   </div>
+  <aside class="panel">
+    <section class="group"><div class="gh"><h2>Equation</h2><span class="val" id="score4">0 / 7 balanced</span></div><div class="picks" id="balPicks"></div></section>
+    <section class="group"><div class="banner" id="ban4"></div>
+      <div class="scroll"><table class="t"><thead><tr><th>Atom</th><th>Left</th><th>Right</th><th></th></tr></thead><tbody id="count4"></tbody></table></div>
+      <p class="fb" id="fb4" hidden></p></section>
+  </aside>
 </section>
-
-<footer>Interactive lab by Mr Khaled · Inspire Science Grade 7, Module 2 Lesson 2 (pp. 133–155)</footer>
-</div>
-
+</main>
+<script>window.LAB = { screens: [ { id: 'signs', name: 'Signs', tab: 'signs' }, { id: 'mass', name: 'Mass', tab: 'mass' }, { id: 'atoms', name: 'Atoms', tab: 'atoms' }, { id: 'bal', name: 'Balance', tab: 'bal' } ] };</script>
 <script src="lab-svg.js"></script>
 <script>
 (function(){

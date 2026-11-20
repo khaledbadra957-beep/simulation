@@ -276,7 +276,8 @@ function drawDoor(){
   // right-angle mark
   const ux=(HX-qx),uy=(HY-qy),ul=Math.hypot(ux,uy)||1;const k=12;
   el('path',{d:`M${qx+ux/ul*k},${qy+uy/ul*k} L${qx+ux/ul*k+fx*k},${qy+uy/ul*k+fy*k} L${qx+fx*k},${qy+fy*k}`,fill:'none',stroke:css('--arm'),'stroke-width':2},s);
-  const lx=(HX+qx)/2,ly=(HY+qy)/2;el('text',{x:lx+8,y:ly-8,fill:css('--arm'),'font-family':'IBM Plex Mono','font-size':15,'font-weight':600},s).textContent=`L = ${f1(Math.abs(L))} m`;
+  // label on the far side of the arm from the r label, so the two never sit on top of each other (θ = 90°)
+  const lx=(HX+qx)/2,ly=(HY+qy)/2,adx=qx-HX,ady=qy-HY,adl=Math.hypot(adx,ady)||1,nx=ady/adl,ny=-adx/adl;el('text',{x:lx-nx*32,y:ly-ny*32+5,'text-anchor':'middle',fill:css('--arm'),'font-family':'IBM Plex Mono','font-size':15,'font-weight':600},s).textContent=`L = ${f1(Math.abs(L))} m`;
  }
  if(D.F>0){el('line',{x1:sx,y1:sy,x2:px,y2:py,stroke:css('--force'),'stroke-width':6,'stroke-linecap':'round'},s);arrowHead(s,sx,sy,px,py,css('--force'),3);
   el('text',{x:sx+(sx<px?-70:8),y:sy-8,fill:css('--force'),'font-family':'IBM Plex Mono','font-size':16,'font-weight':600},s).textContent=`F = ${D.F} N`}
