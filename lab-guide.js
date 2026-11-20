@@ -461,7 +461,12 @@
       '.lg-home .card .pic{display:block;aspect-ratio:16/10;border-radius:9px;background-color:var(--sunk);background-size:cover;background-position:center}' +
       '.lg-home .card b{font:800 20px/1.1 var(--display);padding:0 4px}' +
       '.lg-home .back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:700;font-size:14px;text-decoration:none;padding:9px 14px;border-radius:999px}.lg-home .back:hover{color:var(--ink);background:var(--sunk)}' +
-      '@media (prefers-reduced-motion: reduce){.lg-home .card{transition:none}}@media print{.lg-nav,.lg-home{display:none}}';
+      '.lg-nav .th{transition:border-color .2s,transform .25s cubic-bezier(.2,.7,.2,1)}.lg-nav button.ph[aria-current="true"] .th{transform:translateY(-2px)}.lg-nav button.ph:active .th{transform:scale(.95)}' +
+      '.lg-nav .btn-reset{transition:filter .15s}.lg-nav .btn-reset:hover{filter:brightness(1.08)}.lg-nav .btn-reset.spin svg{animation:lgSpin .55s cubic-bezier(.3,.7,.3,1)}@keyframes lgSpin{to{transform:rotate(-360deg)}}' +
+      '@keyframes lgRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}' +
+      '.lg-home .tg,.lg-home h1{animation:lgRise .45s cubic-bezier(.2,.7,.2,1) both}.lg-home .card{animation:lgRise .45s cubic-bezier(.2,.7,.2,1) both}.lg-home .card:nth-child(2){animation-delay:.06s}.lg-home .card:nth-child(3){animation-delay:.12s}.lg-home .card:nth-child(4){animation-delay:.18s}.lg-home .card:nth-child(5){animation-delay:.24s}.lg-home .card:nth-child(n+6){animation-delay:.3s}' +
+      '.lg-home .card .pic{transition:transform .5s cubic-bezier(.2,.7,.2,1)}.lg-home .card{overflow:hidden}.lg-home .card:hover .pic{transform:scale(1.04)}' +
+      '@media (prefers-reduced-motion: reduce){.lg-home .card{transition:none}.lg-home *,.lg-nav *{animation:none!important;transition:none!important}}@media print{.lg-nav,.lg-home{display:none}}';
     var st2 = document.createElement('style'); st2.textContent = css; document.head.appendChild(st2);
 
     var nav = document.createElement('nav'); nav.className = 'lg-nav'; nav.setAttribute('aria-label', 'Screens');
@@ -471,7 +476,9 @@
     document.body.appendChild(nav);
     function moveGuide() { var g = document.querySelector('.lg-btn'); if (g && g.parentNode !== nav) { nav.appendChild(g); if (!g.querySelector('.gtxt')) g.innerHTML = g.innerHTML.replace('Guide', '<span class="gtxt">Guide</span>'); } }
     moveGuide(); setTimeout(moveGuide, 0);
-    nav.querySelector('.btn-reset').onclick = function () { if (typeof LAB.reset === 'function') LAB.reset(); else location.reload(); };
+    var rb = nav.querySelector('.btn-reset');
+    rb.onclick = function () { rb.classList.remove('spin'); void rb.offsetWidth; rb.classList.add('spin'); if (typeof LAB.reset === 'function') LAB.reset(); else location.reload(); };
+    rb.addEventListener('animationend', function () { rb.classList.remove('spin'); });
 
     var ids = S.map(function (q) { return q.id; });
     function setScreen(id, push) {
@@ -484,6 +491,7 @@
       nav.querySelectorAll('[data-ph]').forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.ph === id)); });
       try { localStorage.setItem(LASTK, id); } catch (e) { }
       if (push !== false) { try { history.replaceState(null, '', location.pathname + location.search + '#' + id); } catch (e) { } }
+      root.classList.remove('st-anim'); void root.offsetWidth; root.classList.add('st-anim');
       if (typeof LAB.onScreen === 'function') LAB.onScreen(id);
       window.dispatchEvent(new Event('resize'));
     }
@@ -501,12 +509,12 @@
     window.addEventListener('hashchange', function () { var h = (location.hash || '').slice(1); if (ids.indexOf(h) >= 0 && root.getAttribute('data-screen') !== h) setScreen(h, false); });
 
     // top-bar tools: Full screen and Dark mode, the same on every lab
-    var KEYT = 'lg-theme:' + file;
-    try { var sv = localStorage.getItem(KEYT); if (sv === 'dark' || sv === 'light') root.setAttribute('data-theme', sv); } catch (e) { }
+    var KEYT = 'site-theme';   // one choice for the whole site (the homepage has the same button)
+    try { var sv = localStorage.getItem(KEYT) || localStorage.getItem('lg-theme:' + file); if (sv === 'dark' || sv === 'light') root.setAttribute('data-theme', sv); } catch (e) { }
     function isDark() { var t = root.getAttribute('data-theme'); if (t) return t === 'dark'; return !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
     var thb = document.querySelector('[data-tool="theme"]');
     function thLabel() { if (!thb) return; var s = thb.querySelector('span'); if (s) s.textContent = isDark() ? 'Light' : 'Dark'; thb.setAttribute('aria-label', isDark() ? 'Light mode' : 'Dark mode'); }
-    if (thb) { thLabel(); thb.onclick = function () { var n = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', n); try { localStorage.setItem(KEYT, n); } catch (e) { } thLabel(); window.dispatchEvent(new Event('resize')); }; }
+    if (thb) { thLabel(); thb.onclick = function () { var n = isDark() ? 'light' : 'dark'; root.classList.add('theme-fade'); root.setAttribute('data-theme', n); thb.classList.toggle('turn'); try { localStorage.setItem(KEYT, n); localStorage.setItem('lg-theme:' + file, n); } catch (e) { } thLabel(); window.dispatchEvent(new Event('resize')); setTimeout(function () { root.classList.remove('theme-fade'); }, 350); }; }
     var fsb = document.querySelector('[data-tool="fs"]');
     var fsEl = function () { return document.fullscreenElement || document.webkitFullscreenElement; };
     if (fsb) {
@@ -714,12 +722,12 @@
     }
     if (needTheme) {
       var th = make('Dark mode');
-      try { var saved = localStorage.getItem(KEY); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch (e) {}
+      try { var saved = localStorage.getItem('site-theme') || localStorage.getItem(KEY); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch (e) {}
       var label = function () { th.textContent = isDark() ? 'Light mode' : 'Dark mode'; };
       th.addEventListener('click', function () {
         var n = isDark() ? 'light' : 'dark';
         root.setAttribute('data-theme', n);
-        try { localStorage.setItem(KEY, n); } catch (e) {}
+        try { localStorage.setItem(KEY, n); localStorage.setItem('site-theme', n); } catch (e) {}
         label();
         window.dispatchEvent(new Event('resize'));   // labs that draw on a canvas redraw with the new colours
       });

@@ -230,3 +230,26 @@ html.stage-ui:not([data-phase="intro"]) [data-intro-only]{display:none!important
 }
 @media (max-width:860px) and (orientation:landscape),(max-height:560px){.stage-ui .scene{aspect-ratio:16/8}}
 @media (max-width:420px){.stage-ui .topbar h1{font-size:18px}}
+
+/* ---------- calm motion for the stage layout (DESIGN.md §5) ----------
+   Things arrive and respond; nothing loops. A busy, moving start screen makes students freeze (PhET). */
+@keyframes stRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes stFade{from{opacity:0}to{opacity:1}}
+html.stage-ui.st-anim .screen:not([hidden]) .scene{animation:stFade .3s ease both}
+html.stage-ui.st-anim .screen:not([hidden]) .transport{animation:stRise .32s .05s cubic-bezier(.2,.7,.2,1) both}
+html.stage-ui.st-anim .screen:not([hidden]) .panel > .group{animation:stRise .34s cubic-bezier(.2,.7,.2,1) both}
+html.stage-ui.st-anim .screen:not([hidden]) .panel > .group:nth-child(2){animation-delay:.05s}
+html.stage-ui.st-anim .screen:not([hidden]) .panel > .group:nth-child(3){animation-delay:.1s}
+html.stage-ui.st-anim .screen:not([hidden]) .panel > .group:nth-child(4){animation-delay:.15s}
+html.stage-ui.st-anim .screen:not([hidden]) .panel > .group:nth-child(n+5){animation-delay:.2s}
+html.stage-ui.st-anim .screen.solo:not([hidden]) .solo-in > *{animation:stRise .36s cubic-bezier(.2,.7,.2,1) both}
+.stage-ui .group details[open] > :not(summary){animation:stRise .25s cubic-bezier(.2,.7,.2,1) both}
+.stage-ui :is(.btn,.tb-btn,.seg button,.tb-back){transition:background-color .15s,color .15s,border-color .15s,box-shadow .15s,transform .08s}
+.stage-ui :is(.btn,.tb-btn,.seg button):active:not(:disabled){transform:scale(.97)}
+.stage-ui .tb-btn svg{transition:transform .45s cubic-bezier(.3,.7,.3,1)}
+.stage-ui .tb-btn.turn svg{transform:rotate(180deg)}
+.stage-ui .val{transition:background-color .2s}
+html.stage-ui.theme-fade,html.stage-ui.theme-fade *{transition:background-color .3s,color .3s,border-color .3s!important}
+@media (prefers-reduced-motion: reduce){
+  html.stage-ui *,html.stage-ui *::before,html.stage-ui *::after{animation:none!important;transition:none!important}
+}
