@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!doctype html><html lang="en" class="stage-ui"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Wave Speed Lab</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -124,156 +124,214 @@ ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;
 ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui .scene canvas{background:var(--stage)}
+.stage-ui .watch{top:12px;right:12px}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.stage-ui .group .seg{width:100%}
+.stage-ui .group .seg button{flex:1 1 0}
+.stage-ui .field input[type=range]{width:100%;height:28px;margin:0}
+.stage-ui .lane-a,.stage-ui .lane-b{display:flex;flex-direction:column;gap:6px;padding-left:10px;border-left:3px solid var(--accent)}
+.stage-ui .lane-b{border-left-color:var(--amber)}
+.stage-ui .lane-b input[type=range]{accent-color:var(--amber)}
+.stage-ui .readouts{grid-template-columns:1fr 1fr;gap:6px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .measure{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .ans{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stage-ui .ans input{width:6.5em;min-height:40px}
+.stage-ui .btn.small{min-height:34px;font-size:13.5px;padding:0 10px}
+.stage-ui .btn.rose{background:var(--rose);border-color:var(--rose);color:var(--rose-ink)}
+.stage-ui .status{font-size:14px;padding:8px 10px}
+.stage-ui .tablewrap table{font-size:12.5px}
+.stage-ui .tablewrap th,.stage-ui .tablewrap td{padding:5px 6px}
+.stage-ui .tries{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px}
+.stage-ui .formula{border-left:4px solid var(--accent);padding:4px 0 4px 12px}
+.stage-ui .formula .live{font-size:15px;color:var(--ink)}
+.stage-ui .chal{gap:14px;padding:20px 22px}
+.stage-ui .chal h2{font-size:16px}
+.stage-ui .q{font-size:1.25rem}
+.stage-ui .credit{text-align:center}
+.stage-ui .transport .chk label{min-height:40px}
 </style><link rel="stylesheet" href="site.css">
 </head><body>
-<div class="wrap">
-<style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
- <header>
-  <div>
-   <p class="eyebrow">Grade 11 Physics · Module 14 · Wave properties</p>
-   <h1>Wave Speed Lab</h1>
-   <p class="lede">Shake a string, send pulses and play sounds. Measure each wave yourself with the ruler and the stopwatch, then find out what really decides how fast a wave travels.</p>
-  </div>
-  <div class="tools">
-   <button class="btn" id="fsBtn" type="button">Full screen</button>
-   <button class="btn" id="themeBtn" type="button">Dark mode</button>
-  </div>
- </header>
-
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Wave Speed Lab</h1>
+ <span class="tb-tag">Physics · G11</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<div hidden><button id="fsBtn" type="button"></button><button id="themeBtn" type="button"></button>
  <div class="tabs" role="tablist">
-  <button class="tab" role="tab" aria-selected="true" data-tab="lab">1 · String lab</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="race">2 · Pulse race</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="sound">3 · Sound</button>
-  <button class="tab" role="tab" aria-selected="false" data-tab="chal">4 · Challenge</button>
+  <button class="tab" role="tab" aria-selected="true" data-tab="lab">String lab</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="race">Pulse race</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="sound">Sound</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="chal">Challenge</button>
  </div>
-
- <!-- ================= TAB 1: STRING LAB ================= -->
- <section class="bench" id="p-lab">
-  <div class="benchhead">
-   <div class="seg" role="group" aria-label="How the string is moved"><button type="button" data-mode="osc" aria-pressed="true">Oscillate</button><button type="button" data-mode="pulse" aria-pressed="false">Pulse</button><button type="button" data-mode="manual" aria-pressed="false">By hand</button></div>
-   <div class="seg" role="group" aria-label="Right end of the string"><button type="button" data-end="fixed" aria-pressed="false">Fixed end</button><button type="button" data-end="loose" aria-pressed="false">Loose end</button><button type="button" data-end="none" aria-pressed="true">No end</button></div>
-  </div>
-  <div class="stagewrap">
-   <canvas class="stage" id="c1" tabindex="0" aria-label="String of beads with a ruler. Drag the ruler, the reference line, or the left end in By hand mode. Click a bead to watch it."></canvas>
-   <div class="watch" id="sw1" hidden><span class="t" id="sw1t">0.00 s</span><div class="row"><button type="button" id="sw1go">Start</button><button type="button" id="sw1r">Reset</button></div></div>
-  </div>
-  <div class="transport">
-   <button class="btn primary" id="play1" type="button">Pause</button>
-   <button class="btn" id="step1" type="button">Step</button>
-   <button class="btn rose" id="pulse1" type="button" hidden>Send pulse</button>
-   <button class="btn" id="restart1" type="button">Restart string</button>
-   <span class="sep"></span>
-   <div class="seg" role="group" aria-label="Speed of time"><button type="button" data-speed="1" aria-pressed="true">Normal</button><button type="button" data-speed="0.25" aria-pressed="false">Slow ×¼</button></div>
-  </div>
-  <div class="checks" aria-label="Measuring tools">
-   <label><input type="checkbox" id="tRuler" checked> Ruler</label>
-   <label><input type="checkbox" id="tVRuler"> Height ruler</label>
-   <label><input type="checkbox" id="tWatch"> Stopwatch</label>
-   <label><input type="checkbox" id="tRef"> Reference line</label>
-   <label><input type="checkbox" id="tGraph"> Graph of watched bead</label>
-   <label><input type="checkbox" id="tVals"> Show values</label>
-  </div>
-  <canvas class="stage" id="g1" hidden aria-label="Displacement of the watched bead against time"></canvas>
-  <div class="grid2">
-   <div class="col">
-    <div class="field" id="fAmp"><div class="field-head"><label for="amp1">Amplitude</label><output id="oamp1"></output></div><div class="srow"><button class="nudge" type="button" data-n="amp1,-1">−</button><input id="amp1" type="range" min="5" max="40" step="1" value="20"><button class="nudge" type="button" data-n="amp1,1">+</button></div></div>
-    <div class="field" id="fFreq"><div class="field-head"><label for="f1">Frequency</label><output id="of1"></output></div><div class="srow"><button class="nudge" type="button" data-n="f1,-1">−</button><input id="f1" type="range" min="0.25" max="3" step="0.25" value="1"><button class="nudge" type="button" data-n="f1,1">+</button></div></div>
-    <div class="field" id="fPw" hidden><div class="field-head"><label for="pw1">Pulse width</label><output id="opw1"></output></div><div class="srow"><button class="nudge" type="button" data-n="pw1,-1">−</button><input id="pw1" type="range" min="0.25" max="1" step="0.05" value="0.5"><button class="nudge" type="button" data-n="pw1,1">+</button></div></div>
-    <div class="field"><div class="field-head"><label for="ten1">Tension</label><output id="oten1"></output></div><div class="srow"><button class="nudge" type="button" data-n="ten1,-1">−</button><input id="ten1" type="range" min="0" max="4" step="1" value="2"><button class="nudge" type="button" data-n="ten1,1">+</button></div><span class="note">Tighter string → ? Find out.</span></div>
-    <div class="field"><div class="field-head"><label for="damp1">Damping</label><output id="odamp1"></output></div><input id="damp1" type="range" min="0" max="100" step="5" value="0"></div>
-   </div>
-   <div class="col">
-    <div class="card">
-     <h3>Measure it, then check</h3>
-     <p class="note" id="mHint">Pause the wave. Drag the ruler so 0 sits under one crest, read the next crest. That distance is the wavelength λ.</p>
-     <div class="ans"><label for="mIn" class="note" id="mLab">My λ =</label><input id="mIn" inputmode="decimal" autocomplete="off" placeholder="e.g. 4.0"><span class="note" id="mUnit">m</span><button class="btn primary small" id="mCheck" type="button">Check &amp; record</button></div>
-     <p class="status" id="mRes" hidden></p>
-    </div>
-    <div class="card" id="valsCard" hidden>
-     <dl class="readouts">
-      <div><dt>Wave speed v</dt><dd id="rv"></dd></div>
-      <div><dt id="rlamK">Wavelength λ</dt><dd id="rlam"></dd></div>
-      <div><dt id="rperK">Period T = 1 / f</dt><dd id="rper"></dd></div>
-      <div><dt>v = f × λ</dt><dd id="rfl"></dd></div>
-     </dl>
-    </div>
-    <div class="tablewrap"><table><thead><tr><th>#</th><th>Mode</th><th>f or width</th><th>Tension</th><th>Measured</th><th>Speed</th></tr></thead><tbody id="mBody"><tr class="empty"><td colspan="6">Your checked measurements appear here.</td></tr></tbody></table></div>
-   </div>
-  </div>
- </section>
-
- <!-- ================= TAB 2: PULSE RACE ================= -->
- <section class="bench" id="p-race" hidden>
-  <div class="benchhead"><h2>Pulse race: which pulse reaches the end first?</h2><span class="note">Both strings are 8.0 m long. The stopwatches stop by themselves.</span></div>
-  <canvas class="stage" id="c2" aria-label="Two strings with pulses racing to the end"></canvas>
-  <div class="grid2">
-   <div class="col">
-    <div class="seg" role="group" aria-label="What to send"><button type="button" data-rmode="pulse" aria-pressed="true">Single pulse</button><button type="button" data-rmode="osc" aria-pressed="false">Continuous wave</button></div>
-    <div class="lane-a col">
-     <div class="field"><div class="field-head"><label for="rAa">String A · amplitude</label><output id="orAa"></output></div><input id="rAa" type="range" min="10" max="40" step="5" value="20"></div>
-     <div class="field"><div class="field-head"><label for="rAw" id="rAwL">String A · pulse width</label><output id="orAw"></output></div><input id="rAw" type="range" min="0.25" max="1" step="0.25" value="0.5"></div>
-    </div>
-    <div class="lane-b col">
-     <div class="field"><div class="field-head"><label for="rBa">String B · amplitude</label><output id="orBa"></output></div><input id="rBa" type="range" min="10" max="40" step="5" value="20"></div>
-     <div class="field"><div class="field-head"><label for="rBw" id="rBwL">String B · pulse width</label><output id="orBw"></output></div><input id="rBw" type="range" min="0.25" max="1" step="0.25" value="0.5"></div>
-    </div>
-    <div class="checks"><label><input type="checkbox" id="rSame" checked> Same string, same tension</label></div>
-    <div class="field"><div class="field-head"><label for="rTa" id="rTaL">Tension (both strings)</label><output id="orTa"></output></div><input id="rTa" type="range" min="0" max="4" step="1" value="2"></div>
-    <div class="field lane-b" id="rTbF" hidden><div class="field-head"><label for="rTb">String B · tension</label><output id="orTb"></output></div><input id="rTb" type="range" min="0" max="4" step="1" value="2"></div>
-    <div class="transport"><span class="note">Try:</span><button class="btn small" type="button" data-x="big">A twice as big</button><button class="btn small" type="button" data-x="quick">A quicker flick</button><button class="btn small" type="button" data-x="tight">A tighter</button><button class="btn small" type="button" data-x="fast">A shakes 2× faster</button></div>
-   </div>
-   <div class="col">
-    <div><p class="flabel" style="margin:0 0 6px">1 · Predict first</p><div class="pred" id="pred"><button type="button" data-p="A">A arrives first</button><button type="button" data-p="B">B arrives first</button><button type="button" data-p="S">Same time</button></div></div>
-    <div class="transport"><button class="btn primary" id="rGo" type="button">2 · Send both</button><button class="btn" id="rReset" type="button">Reset</button><div class="seg" role="group" aria-label="Speed of time"><button type="button" data-rspeed="1" aria-pressed="true">Normal</button><button type="button" data-rspeed="0.35" aria-pressed="false">Slow</button></div></div>
-    <p class="status" id="rMsg">Choose a prediction, then send both.</p>
-   </div>
-  </div>
-  <div class="benchhead"><h3>3 · Results</h3><button class="btn small" id="rClr" type="button">Clear table</button></div>
-  <div class="tablewrap"><table><thead><tr><th>Run</th><th>String</th><th>Amplitude</th><th id="rColW">Width / f</th><th>Tension</th><th>Time to the end</th><th>v = 8.0 m ÷ t</th></tr></thead><tbody id="rBody"><tr class="empty"><td colspan="7">Send the pulses to fill the table.</td></tr></tbody></table></div>
- </section>
-
- <!-- ================= TAB 3: SOUND ================= -->
- <section class="bench" id="p-sound" hidden>
-  <div class="benchhead"><h2>Sound: same idea, in air</h2><span class="note mono" id="slowNote"></span></div>
-  <canvas class="stage" id="c3" aria-label="Air particles in front of a speaker, with a pressure graph"></canvas>
-  <div class="transport">
-   <button class="btn primary" id="tone" type="button">▶ Play tone</button>
-   <div class="seg" role="group" aria-label="Show"><button type="button" data-sv="particles" aria-pressed="false">Particles</button><button type="button" data-sv="both" aria-pressed="true">Particles + graph</button></div>
-   <label class="checks"><label><input type="checkbox" id="sLam" checked> Mark λ</label></label>
-  </div>
-  <div class="grid2">
-   <div class="col">
-    <div class="field"><div class="field-head"><label for="sf">Frequency (pitch)</label><output id="osf"></output></div><div class="srow"><button class="nudge" type="button" data-n="sf,-1">−</button><input id="sf" type="range" min="170" max="1020" step="10" value="340"><button class="nudge" type="button" data-n="sf,1">+</button></div></div>
-    <div class="field"><span class="flabel">Medium</span><div class="seg" role="group" aria-label="Medium"><button type="button" data-med="340" aria-pressed="true">Air · 340 m/s</button><button type="button" data-med="1480" aria-pressed="false">Water · 1480 m/s</button></div></div>
-    <p class="note">Turn the volume down before you press Play tone. The tone stops when you leave this tab.</p>
-   </div>
-   <div class="col">
-    <div class="formula"><span class="eq">v = f λ</span><span class="live" id="sLive"></span></div>
-    <ol class="steps">
-     <li>Play 200 Hz, then 400 Hz. Which sounds higher?</li>
-     <li>Does the higher note travel faster, or are its waves shorter?</li>
-     <li>Switch to water. What changes: f, λ or v?</li>
-    </ol>
-   </div>
-  </div>
- </section>
-
- <!-- ================= TAB 4: CHALLENGE ================= -->
- <section class="bench" id="p-chal" hidden>
-  <div class="benchhead"><h2>Challenge</h2><span class="note" id="score">Score 0 / 0</span></div>
-  <p class="note" id="ctype"></p>
-  <p class="q" id="cq"></p>
-  <div class="ans" id="numBox"><label for="cin" class="note">Your answer</label><input id="cin" inputmode="decimal" autocomplete="off"><span id="cunit" class="note"></span>
-   <button class="btn primary" id="cCheck" type="button">Check</button><button class="btn" id="cShow" type="button">Show working</button></div>
-  <div class="opts" id="optBox" hidden></div>
-  <p class="status" id="cres" hidden></p>
-  <pre class="sol" id="csol" hidden></pre>
-  <div class="transport"><button class="btn" id="cNext" type="button">Next question</button></div>
- </section>
-
- <footer>Designed and built by Mr Khaled for his physics and chemistry students · Values follow Inspire Physics Module 14 (v = λ f, T = 1 / f). String model: 8.0 m long, μ = 2.5 kg/m, v = √(T / μ). Measuring tools inspired by PhET's Wave on a String and Waves Intro (University of Colorado Boulder).</footer>
 </div>
 
+<main class="screens">
+ <!-- ===== String lab (Intro + Lab) ===== -->
+ <section class="screen" id="p-lab" data-screens="intro lab">
+  <div class="play">
+   <div class="scene">
+    <canvas id="c1" tabindex="0" aria-label="String of beads with a ruler. Drag the ruler, the reference line, or the left end in By hand mode. Click a bead to watch it."></canvas>
+    <div class="watch" id="sw1" hidden><span class="t" id="sw1t">0.00 s</span><div class="row"><button type="button" id="sw1go">Start</button><button type="button" id="sw1r">Reset</button></div></div>
+   </div>
+   <div class="extra" id="g1wrap" hidden data-adv><canvas id="g1" aria-label="Displacement of the watched bead against time"></canvas></div>
+   <div class="transport">
+    <button class="btn primary" id="play1" type="button">Pause</button>
+    <button class="btn" id="step1" type="button" data-adv>Step</button>
+    <button class="btn rose" id="pulse1" type="button" hidden>Send pulse</button>
+    <button class="btn" id="restart1" type="button">Restart</button>
+    <span class="grow"></span>
+    <div class="seg" role="group" aria-label="Speed of time" data-adv><button type="button" data-speed="1" aria-pressed="true">Normal</button><button type="button" data-speed="0.25" aria-pressed="false">Slow</button></div>
+   </div>
+  </div>
+  <aside class="panel">
+   <section class="group">
+    <h2>Wave</h2>
+    <div class="seg" role="group" aria-label="How the string is moved"><button type="button" data-mode="osc" aria-pressed="true">Oscillate</button><button type="button" data-mode="pulse" aria-pressed="false">Pulse</button><button type="button" data-mode="manual" aria-pressed="false" data-adv>By hand</button></div>
+    <div class="seg" role="group" aria-label="Right end of the string" data-adv><button type="button" data-end="fixed" aria-pressed="false">Fixed end</button><button type="button" data-end="loose" aria-pressed="false">Loose end</button><button type="button" data-end="none" aria-pressed="true">No end</button></div>
+   </section>
+   <section class="group">
+    <h2>String</h2>
+    <div class="field" id="fAmp"><div class="field-head"><label for="amp1">Amplitude</label><output class="val" id="oamp1"></output></div><input id="amp1" type="range" min="5" max="40" step="1" value="20"></div>
+    <div class="field" id="fFreq"><div class="field-head"><label for="f1">Frequency</label><output class="val" id="of1"></output></div><input id="f1" type="range" min="0.25" max="3" step="0.25" value="1"></div>
+    <div class="field" id="fPw" hidden><div class="field-head"><label for="pw1">Pulse width</label><output class="val" id="opw1"></output></div><input id="pw1" type="range" min="0.25" max="1" step="0.05" value="0.5"></div>
+    <div class="field"><div class="field-head"><label for="ten1">Tension</label><output class="val" id="oten1"></output></div><input id="ten1" type="range" min="0" max="4" step="1" value="2"></div>
+    <div class="field" data-adv><div class="field-head"><label for="damp1">Damping</label><output class="val" id="odamp1"></output></div><input id="damp1" type="range" min="0" max="100" step="5" value="0"></div>
+   </section>
+   <section class="group" data-adv>
+    <h2>Tools</h2>
+    <div class="chk two">
+     <label><input type="checkbox" id="tRuler" checked>Ruler</label>
+     <label><input type="checkbox" id="tWatch">Stopwatch</label>
+     <label><input type="checkbox" id="tGraph">Graph</label>
+     <label><input type="checkbox" id="tVals">Values</label>
+    </div>
+    <details class="more"><summary>More tools</summary>
+     <div class="chk two">
+      <label><input type="checkbox" id="tVRuler">Height ruler</label>
+      <label><input type="checkbox" id="tRef">Reference line</label>
+     </div>
+    </details>
+   </section>
+   <section class="group" id="valsCard" hidden data-adv>
+    <h2>Values</h2>
+    <dl class="readouts">
+     <div><dt>Speed v</dt><dd id="rv"></dd></div>
+     <div><dt id="rlamK">Wavelength λ</dt><dd id="rlam"></dd></div>
+     <div><dt id="rperK">Period T</dt><dd id="rper"></dd></div>
+     <div><dt>f × λ</dt><dd id="rfl"></dd></div>
+    </dl>
+   </section>
+   <section class="group" data-adv>
+    <details><summary>Measure and record</summary>
+     <div class="measure">
+      <p class="note" id="mHint">Pause the wave. Drag the ruler so 0 sits under one crest, read the next crest. That distance is the wavelength λ.</p>
+      <div class="ans"><label for="mIn" class="note" id="mLab">My λ =</label><input id="mIn" inputmode="decimal" autocomplete="off" placeholder="4.0"><span class="note" id="mUnit">m</span><button class="btn primary small" id="mCheck" type="button">Check</button></div>
+      <p class="status" id="mRes" hidden></p>
+      <div class="tablewrap"><table><thead><tr><th>#</th><th>Mode</th><th>f / width</th><th>Tension</th><th>Measured</th><th>Speed</th></tr></thead><tbody id="mBody"><tr class="empty"><td colspan="6">Checked measurements appear here.</td></tr></tbody></table></div>
+     </div>
+    </details>
+   </section>
+  </aside>
+ </section>
+
+ <!-- ===== Pulse race ===== -->
+ <section class="screen" id="p-race" data-screens="race" hidden>
+  <div class="play">
+   <div class="scene"><canvas id="c2" aria-label="Two strings with pulses racing to the end"></canvas></div>
+   <div class="transport">
+    <button class="btn primary" id="rGo" type="button">Send both</button>
+    <button class="btn" id="rReset" type="button">Reset</button>
+    <span class="grow"></span>
+    <div class="seg" role="group" aria-label="Speed of time"><button type="button" data-rspeed="1" aria-pressed="true">Normal</button><button type="button" data-rspeed="0.35" aria-pressed="false">Slow</button></div>
+   </div>
+  </div>
+  <aside class="panel">
+   <section class="group">
+    <h2>Which arrives first?</h2>
+    <div class="seg pred" id="pred"><button type="button" data-p="A">A</button><button type="button" data-p="B">B</button><button type="button" data-p="S">Same time</button></div>
+    <p class="status" id="rMsg">Predict, then send both.</p>
+   </section>
+   <section class="group">
+    <h2>Strings</h2>
+    <div class="seg" role="group" aria-label="What to send"><button type="button" data-rmode="pulse" aria-pressed="true">Pulse</button><button type="button" data-rmode="osc" aria-pressed="false">Wave</button></div>
+    <div class="lane-a col">
+     <div class="field"><div class="field-head"><label for="rAa">A · amplitude</label><output class="val" id="orAa"></output></div><input id="rAa" type="range" min="10" max="40" step="5" value="20"></div>
+     <div class="field"><div class="field-head"><label for="rAw" id="rAwL">A · pulse width</label><output class="val" id="orAw"></output></div><input id="rAw" type="range" min="0.25" max="1" step="0.25" value="0.5"></div>
+    </div>
+    <div class="lane-b col">
+     <div class="field"><div class="field-head"><label for="rBa">B · amplitude</label><output class="val" id="orBa"></output></div><input id="rBa" type="range" min="10" max="40" step="5" value="20"></div>
+     <div class="field"><div class="field-head"><label for="rBw" id="rBwL">B · pulse width</label><output class="val" id="orBw"></output></div><input id="rBw" type="range" min="0.25" max="1" step="0.25" value="0.5"></div>
+    </div>
+    <div class="chk"><label><input type="checkbox" id="rSame" checked>Same tension</label></div>
+    <div class="field"><div class="field-head"><label for="rTa" id="rTaL">Tension (both)</label><output class="val" id="orTa"></output></div><input id="rTa" type="range" min="0" max="4" step="1" value="2"></div>
+    <div class="field lane-b" id="rTbF" hidden><div class="field-head"><label for="rTb">B · tension</label><output class="val" id="orTb"></output></div><input id="rTb" type="range" min="0" max="4" step="1" value="2"></div>
+   </section>
+   <section class="group">
+    <details><summary>Try these</summary>
+     <div class="tries"><button class="btn small" type="button" data-x="big">A twice as big</button><button class="btn small" type="button" data-x="quick">A quicker flick</button><button class="btn small" type="button" data-x="tight">A tighter</button><button class="btn small" type="button" data-x="fast">A shakes 2× faster</button></div>
+    </details>
+   </section>
+   <section class="group">
+    <details><summary>Results table</summary>
+     <div class="measure">
+      <div class="tablewrap"><table><thead><tr><th>Run</th><th>String</th><th>Amp.</th><th id="rColW">Width / f</th><th>Tension</th><th>Time</th><th>v = 8.0 m ÷ t</th></tr></thead><tbody id="rBody"><tr class="empty"><td colspan="7">Send the pulses to fill the table.</td></tr></tbody></table></div>
+      <button class="btn small" id="rClr" type="button">Clear table</button>
+     </div>
+    </details>
+   </section>
+  </aside>
+ </section>
+
+ <!-- ===== Sound ===== -->
+ <section class="screen" id="p-sound" data-screens="sound" hidden>
+  <div class="play">
+   <div class="scene"><canvas id="c3" aria-label="Air particles in front of a speaker, with a pressure graph"></canvas></div>
+   <div class="transport">
+    <button class="btn primary" id="tone" type="button">▶ Play tone</button>
+    <span class="grow"></span>
+    <div class="seg" role="group" aria-label="Show"><button type="button" data-sv="particles" aria-pressed="false">Particles</button><button type="button" data-sv="both" aria-pressed="true">+ Graph</button></div>
+    <div class="chk"><label><input type="checkbox" id="sLam" checked>Mark λ</label></div>
+   </div>
+  </div>
+  <aside class="panel">
+   <section class="group">
+    <h2>Sound</h2>
+    <div class="field"><div class="field-head"><label for="sf">Frequency</label><output class="val" id="osf"></output></div><input id="sf" type="range" min="170" max="1020" step="10" value="340"></div>
+    <div class="seg" role="group" aria-label="Medium"><button type="button" data-med="340" aria-pressed="true">Air</button><button type="button" data-med="1480" aria-pressed="false">Water</button></div>
+    <p class="note">Volume down before you play.</p>
+   </section>
+   <section class="group">
+    <h2>v = f λ</h2>
+    <div class="formula"><span class="live" id="sLive"></span><span class="note mono" id="slowNote"></span></div>
+   </section>
+  </aside>
+ </section>
+
+ <!-- ===== Challenge ===== -->
+ <section class="screen solo" id="p-chal" data-screens="chal" hidden>
+  <div class="solo-in">
+   <section class="group chal">
+    <div class="gh"><h2 id="ctype">Challenge</h2><span class="val" id="score">Score 0 / 0</span></div>
+    <p class="q" id="cq"></p>
+    <div class="ans" id="numBox"><label for="cin" class="note">Answer</label><input id="cin" inputmode="decimal" autocomplete="off"><span id="cunit" class="note"></span>
+     <button class="btn primary" id="cCheck" type="button">Check</button><button class="btn" id="cShow" type="button">Working</button></div>
+    <div class="opts" id="optBox" hidden></div>
+    <p class="status" id="cres" hidden></p>
+    <pre class="sol" id="csol" hidden></pre>
+    <div class="transport"><button class="btn" id="cNext" type="button">Next question</button></div>
+   </section>
+   <p class="note credit">Values follow Inspire Physics Module 14 (v = λ f, T = 1 / f). String: 8.0 m, μ = 2.5 kg/m, v = √(T / μ). Tools inspired by PhET's Wave on a String (University of Colorado Boulder).</p>
+  </div>
+ </section>
+</main>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'lab', simple: true }, { id: 'lab', name: 'String lab', tab: 'lab' }, { id: 'race', name: 'Pulse race', tab: 'race' }, { id: 'sound', name: 'Sound', tab: 'sound' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ] };</script>
 <script src="lab-viz.js"></script>
 <script>
 (()=>{
@@ -362,7 +420,7 @@ $('#step1').onclick=()=>{L1.run=false;$('#play1').textContent='Play';adv1(1/30)}
 $('#restart1').onclick=()=>{S.reset();L1.hist=[]};
 $('#pulse1').onclick=()=>{S.pulse();if(L1.sw.auto&&$('#tWatch').checked&&!L1.sw.on){L1.sw.t=0;L1.sw.on=true;$('#sw1go').textContent='Stop'}};
 $('#tWatch').onchange=()=>{$('#sw1').hidden=!$('#tWatch').checked};
-$('#tGraph').onchange=()=>{$('#g1').hidden=!$('#tGraph').checked;sizeAll()};
+$('#tGraph').onchange=()=>{$('#g1wrap').hidden=!$('#tGraph').checked;sizeAll()};
 $('#tVals').onchange=()=>{$('#valsCard').hidden=!$('#tVals').checked};
 $('#tRef').onchange=()=>{if($('#tRef').checked&&L1.ref===null)L1.ref=-0.2};
 $('#sw1go').onclick=()=>{L1.sw.on=!L1.sw.on;$('#sw1go').textContent=L1.sw.on?'Stop':'Start'};
@@ -452,7 +510,7 @@ function drawLab(){
  if(!L1.run){x.fillStyle=mut;x.font=`700 12px ${css('--data')}`;x.textAlign='left';x.fillText('PAUSED',12,20)}
  if(L1.speed<1){x.fillStyle=mut;x.font=`700 12px ${css('--data')}`;x.textAlign='left';x.fillText('SLOW MOTION ×¼',12,L1.run?20:36)}
  $('#sw1t').textContent=fx(L1.sw.t)+' s';
- if(!$('#g1').hidden)drawGraph();
+ if(!$('#g1wrap').hidden)drawGraph();
 }
 function drawGraph(){const {x,w,h}=fit(g1);const ink=css('--ink'),mut=css('--muted'),grid=css('--grid'),rose=css('--rose');x.clearRect(0,0,w,h);
  const l=54,r=12,t=12,b=26,W=w-l-r,H=h-t-b,mid=t+H/2,span=6,ys=H/2/0.45;
@@ -469,13 +527,13 @@ const RA=new Str(),RB=new Str();RA.end=RB.end='none';RA.mode=RB.mode='pulse';
 const R={mode:'pulse',state:'idle',pred:null,run:0,speed:1,res:null};
 const c2=$('#c2');
 function readRace(){
- const same=$('#rSame').checked;$('#rTbF').hidden=same;$('#rTaL').textContent=same?'Tension (both strings)':'String A · tension';
+ const same=$('#rSame').checked;$('#rTbF').hidden=same;$('#rTaL').textContent=same?'Tension (both)':'A · tension';
  RA.amp=+$('#rAa').value/100;RB.amp=+$('#rBa').value/100;RA.ti=+$('#rTa').value;RB.ti=same?RA.ti:+$('#rTb').value;
  const pm=R.mode==='pulse';
  if(pm){RA.pw=+$('#rAw').value;RB.pw=+$('#rBw').value}else{RA.f=+$('#rAw').value;RB.f=+$('#rBw').value}
  $('#orAa').textContent=$('#rAa').value+' cm';$('#orBa').textContent=$('#rBa').value+' cm';
  $('#orAw').textContent=pm?fx(RA.pw)+' s':fx(RA.f)+' Hz';$('#orBw').textContent=pm?fx(RB.pw)+' s':fx(RB.f)+' Hz';
- $('#rAwL').textContent=pm?'String A · pulse width':'String A · frequency';$('#rBwL').textContent=pm?'String B · pulse width':'String B · frequency';
+ $('#rAwL').textContent=pm?'A · pulse width':'A · frequency';$('#rBwL').textContent=pm?'B · pulse width':'B · frequency';
  $('#orTa').textContent=tLabel(RA.ti);$('#orTb').textContent=tLabel(+$('#rTb').value);$('#rColW').textContent=pm?'Pulse width':'Frequency';
 }
 function setRaceMode(m){R.mode=m;$$('[data-rmode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.rmode===m));

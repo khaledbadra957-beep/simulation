@@ -9,545 +9,423 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
+/* Homepage · DESIGN.md §7: one filter row, real pictures, one card per experiment, textbook order per grade */
 :root{
-  --bg:#F5F6F2; --grid:#E4E8E1; --surface:#FFFFFF; --ink:#13232B; --muted:#52646C; --text:#3A4B53; --line:#D3DAD4; --dash:#C6D2D1;
-  --phys:#0A6A88; --phys-soft:#E1EEF2; --chem:#8A2F86; --chem-soft:#F4E4F2; --accent:#C2410C;
-  --hero:#13232B; --hero-ink:#F5F6F2; --hero-muted:#C9D4D8; --hero-accent:#F59E5B;
+  --bg:#F4F5F1; --surface:#FFFFFF; --sunk:#EEF1EC; --ink:#13232B; --muted:#55666E; --line:#D9DED7;
+  --accent:#0A6A88; --on-accent:#FFFFFF; --phys:#0A6A88; --chem:#7A3F8F; --hot:#E2632B; --focus:#E2632B;
   --sans:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif; --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0E171B; --grid:#16232A; --surface:#142127; --ink:#E6EEF0; --muted:#9AB0B8; --text:#C2D0D4; --line:#26383F; --dash:#2E434B;
-    --phys:#5CC0DE; --phys-soft:#12313B; --chem:#DA8FD6; --chem-soft:#36203A; --accent:#F59E5B;
-    --hero:#1D3038; --hero-ink:#F5F6F2; --hero-muted:#B8C8CE; --hero-accent:#F59E5B;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0E171B; --grid:#16232A; --surface:#142127; --ink:#E6EEF0; --muted:#9AB0B8; --text:#C2D0D4; --line:#26383F; --dash:#2E434B;
-  --phys:#5CC0DE; --phys-soft:#12313B; --chem:#DA8FD6; --chem-soft:#36203A; --accent:#F59E5B;
-  --hero:#1D3038; --hero-ink:#F5F6F2; --hero-muted:#B8C8CE; --hero-accent:#F59E5B;
-  color-scheme:dark;
-}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E161A; --surface:#152229; --sunk:#0F1A1F; --ink:#E6EEF0; --muted:#9AB0B8; --line:#263840;
+  --accent:#56C3DF; --on-accent:#06222B; --phys:#56C3DF; --chem:#D79BE0; --hot:#F0844F; --focus:#F59E5B; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E161A; --surface:#152229; --sunk:#0F1A1F; --ink:#E6EEF0; --muted:#9AB0B8; --line:#263840;
+  --accent:#56C3DF; --on-accent:#06222B; --phys:#56C3DF; --chem:#D79BE0; --hot:#F0844F; --focus:#F59E5B; color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;font-family:var(--sans);color:var(--ink);background-color:var(--bg);
-  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px}
+body{margin:0;font:16px/1.5 var(--sans);color:var(--ink);background:var(--bg)}
 a{color:inherit}
-:focus-visible{outline:3px solid var(--phys);outline-offset:3px}
-.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 72px;display:flex;flex-direction:column;gap:36px}
-@media (min-width:1500px){.wrap{max-width:1340px}}
-@media (min-width:640px){.wrap{padding:32px 24px 72px}}
-
-/* header */
-.top-bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px}
-.brand{display:flex;align-items:center;gap:12px}
-.mono-mark{width:44px;height:44px;border-radius:12px;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;
-  font:600 17px var(--mono);border-bottom:4px solid var(--accent)}
-.brand b{display:block;font-size:18px}
-.brand small{display:block;font:500 13px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.badge{font:400 13px var(--mono);color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
-
-/* hero */
-.hero{display:flex;flex-wrap:wrap;gap:32px;align-items:stretch}
-.intro{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:16px;justify-content:center}
-.eyebrow{font:500 13px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:0}
-h1{margin:0;font-family:var(--display);font-size:clamp(40px,5vw,68px);line-height:.98;letter-spacing:-.025em;font-weight:800}
-h2,h3,.brand b{font-family:var(--display);font-weight:800}
-.lede{margin:0;font-size:18px;line-height:1.55;color:var(--text);max-width:560px}
-.filters{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.search{position:relative;max-width:560px}
-.search svg{position:absolute;left:14px;top:50%;width:20px;height:20px;transform:translateY(-50%);fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round;pointer-events:none}
-.search input{width:100%;min-height:50px;padding:0 48px 0 44px;font:400 17px var(--sans);color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:14px;-webkit-appearance:none;appearance:none}
-.search input::placeholder{color:var(--muted);opacity:1}
-.search input:focus{outline:none;border-color:var(--phys)}
-.search input:focus-visible{outline:3px solid var(--phys);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding:22px 20px 64px}
+@media (min-width:1600px){.wrap{max-width:1440px}}
+
+/* top: brand */
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.mark{width:40px;height:40px;border-radius:10px;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;font:600 15px var(--mono);border-bottom:3px solid var(--hot)}
+.brand b{display:block;font:800 17px/1.1 var(--display)}
+.brand small{display:block;color:var(--muted);font-size:14px}
+
+/* hero: title on the left, the newest lab on the right */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,420px);gap:28px;align-items:end;margin:34px 0 26px}
+h1{margin:0;font:800 clamp(40px,5.4vw,72px)/.96 var(--display);letter-spacing:-.03em}
+.lede{margin:14px 0 0;font-size:18px;color:var(--muted);max-width:34ch}
+.newest{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:center;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 16px 10px 10px;transition:border-color .15s,transform .15s}
+.newest:hover{border-color:var(--accent);transform:translateY(-2px)}
+.newest img{width:150px;aspect-ratio:16/10;object-fit:cover;border-radius:9px;display:block;background:var(--sunk)}
+.newest .kick{font:700 12.5px/1 var(--sans);color:var(--hot);letter-spacing:.02em}
+.newest b{display:block;font:800 19px/1.15 var(--display);margin:5px 0 4px}
+.newest span.g{font-size:14px;color:var(--muted)}
+
+/* the one filter row */
+.filters{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:12px 0;margin-bottom:6px;background:var(--bg);border-bottom:1px solid var(--line)}
+.search{position:relative;flex:1 1 240px;max-width:380px}
+.search svg{position:absolute;left:12px;top:50%;width:18px;height:18px;transform:translateY(-50%);fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round;pointer-events:none}
+.search input{width:100%;height:44px;padding:0 40px 0 38px;font:400 16px var(--sans);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;-webkit-appearance:none;appearance:none}
+.search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
 .search input::-webkit-search-cancel-button{display:none}
-.search .clear{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:10px;background:transparent;color:var(--muted);font:700 16px var(--sans);cursor:pointer}
-.search .clear:hover{color:var(--ink)}
-.group{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;border:0}
-.pill{font:600 15px var(--sans);min-height:44px;padding:0 18px;border-radius:999px;cursor:pointer;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink)}
-.pill[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-.sub{font:500 14px var(--mono);border-radius:10px;padding:0 16px;--c:var(--ink);--soft:var(--surface);border-color:var(--c);background:var(--soft);color:var(--c)}
-.sub[data-sub="phys"]{--c:var(--phys);--soft:var(--phys-soft)}
-.sub[data-sub="chem"]{--c:var(--chem);--soft:var(--chem-soft)}
-.sub[aria-pressed="true"]{background:var(--c);color:var(--bg)}
-.camf{display:inline-flex;align-items:center;gap:7px;border-color:var(--accent);color:var(--accent);background:var(--surface)}
-.camf svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.camf[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
-.glabel{display:none}
-@media (min-width:900px){h1 br{display:none}}
-.feature{flex:1 1 340px;min-width:0;text-decoration:none;background:var(--hero);color:var(--hero-ink);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px;justify-content:center;transition:transform .15s ease,box-shadow .15s ease}
-.feature .row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
-.new{font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;background:#C2410C;color:#fff;padding:5px 10px;border-radius:6px}
-.feature .meta{font:400 13px var(--mono);color:var(--hero-muted)}
-.feature{--c:var(--hero-accent)}
-.fart{display:block;border-radius:12px;background:rgba(245,246,242,.06);padding:10px 14px}
-.fart svg{display:block;width:100%;height:auto;max-height:120px;fill:none}
-.fart .s{stroke:var(--hero-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none}
-.fart .g{stroke:var(--hero-muted);stroke-width:2.5;stroke-dasharray:5 6;stroke-linecap:round;fill:none}
-.fart .f{fill:var(--hero-accent)}
-.fart .fl{fill:var(--hero-accent);opacity:.4}
-.feature h2{margin:0;font-size:28px;line-height:1.1}
-.feature p{margin:0;font-size:16px;line-height:1.5;color:var(--hero-muted);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
-.feature .go{font-weight:600;color:var(--hero-accent)}
+.search .clear{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:0;background:none;color:var(--muted);font:700 15px var(--sans);cursor:pointer;border-radius:8px}
+.seg{display:inline-flex;padding:3px;gap:3px;border-radius:10px;background:var(--sunk);border:1px solid var(--line)}
+.seg button{border:0;background:none;border-radius:7px;min-height:36px;padding:0 13px;font:700 14.5px/1 var(--sans);color:var(--muted);cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.14),0 0 0 1px var(--line)}
+.seg .dot::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:7px;vertical-align:1px}
+.count{margin-left:auto;color:var(--muted);font-size:14px}
 
-/* list */
-.list-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:12px}
-.list-head h2{margin:0;font-size:26px}
-.count{font:400 14px var(--mono);color:var(--muted)}
-/* topics sit side by side when they fit (a topic with 2 labs next to another with 2), so rows have no empty gaps */
-.topics{display:flex;flex-wrap:wrap;gap:32px 18px;margin-top:24px}
-.topic{--n:2;flex:var(--n) 1 calc(var(--n) * 260px + (var(--n) - 1) * 18px);min-width:0}
-.topic[hidden]{display:none}
-.topic.phys{--c:var(--phys)} .topic.chem{--c:var(--chem)}
-.topic-h{margin:0 0 14px;font-size:20px;line-height:1.2;color:var(--ink);display:flex;align-items:baseline;gap:10px;border-left:5px solid var(--c);padding-left:12px}
-.topic-h .tn{font:400 14px var(--mono);color:var(--muted)}
-.grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:18px}
-.item[hidden]{display:none}
-.card{height:100%;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;transition:transform .15s ease,box-shadow .15s ease}
-.card.phys{--c:var(--phys);--soft:var(--phys-soft)}
-.card.chem{--c:var(--chem);--soft:var(--chem-soft)}
-.card:hover,.feature:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(19,35,43,.12)}
-@media (prefers-reduced-motion: reduce){.card,.feature{transition:none}.card:hover,.feature:hover{transform:none}}
-.card .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.num{font:400 12px var(--mono);color:var(--muted);letter-spacing:.06em}
-.chip{font:600 12px var(--mono);padding:4px 9px;border-radius:6px;background:var(--soft);color:var(--c)}
-.icon{width:100%;height:48px;fill:none}
-.icon .s{stroke:var(--c);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none}
-.icon .g{stroke:var(--muted);stroke-width:2.5;stroke-dasharray:5 6;stroke-linecap:round;fill:none}
-.icon .f{fill:var(--c)}
-.icon .fl{fill:var(--c);opacity:.4}
-.card .meta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 10px}
-.card .tag{font:400 13px var(--mono);color:var(--c)}
-.cam{display:inline-flex;align-items:center;gap:5px;font:600 13px var(--mono);color:var(--accent);border:1.5px solid currentColor;border-radius:999px;padding:2px 9px 2px 7px}
-.cam svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.card h4{margin:0;font-family:var(--display);font-weight:800;font-size:20px;line-height:1.2}
-.card p{margin:0;font-size:15px;line-height:1.5;color:var(--text);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
-.empty{margin:24px 0 0;padding:20px 24px;background:var(--surface);border:1px dashed var(--muted);border-radius:12px;color:var(--text);display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px}
-.empty[hidden]{display:none}
-.empty .pill{min-height:44px}
+/* groups and cards */
+.group{margin-top:26px}
+.group h2{margin:0 0 12px;font:800 22px/1.2 var(--display);display:flex;align-items:baseline;gap:10px}
+.group h2 .n{font:600 14px var(--sans);color:var(--muted)}
+.cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+.card{position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .15s,transform .15s,box-shadow .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 12px 26px rgba(19,35,43,.12)}
+.card > a.main{text-decoration:none;display:flex;flex-direction:column;flex:1}
+.card > a.main::after{content:"";position:absolute;inset:0;z-index:1}
+.card img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--sunk);border-bottom:1px solid var(--line)}
+.card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px}
+.card h3{margin:0;font:800 18px/1.2 var(--display);letter-spacing:-.005em}
+.card .meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;font-size:14px;color:var(--muted)}
+.card .meta .sub::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:1px}
+.card.phys{--c:var(--phys)} .card.chem{--c:var(--chem)}
+.card .badge{position:absolute;top:10px;left:10px;z-index:0;display:inline-flex;align-items:center;gap:5px;font:700 12.5px/1 var(--sans);padding:6px 9px 6px 7px;border-radius:999px;background:rgba(19,35,43,.82);color:#fff}
+.card svg.hand{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.card a.cam{position:relative;z-index:2;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;margin:-2px 14px 14px;padding:6px 10px;border-radius:8px;font:700 13.5px/1 var(--sans);color:var(--accent);background:var(--sunk);text-decoration:none}
+.card a.cam:hover{background:var(--accent);color:var(--on-accent)}
+.empty{margin:30px 0;color:var(--muted);font-size:17px}
+.empty button{margin-left:8px;font:700 15px var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 12px;cursor:pointer}
 
-/* phones: the labs start sooner */
-@media (max-width:600px){
-  .wrap{gap:28px;padding-top:18px}
-  .badge{display:none}
-  .intro{gap:12px}
-  .eyebrow{font-size:12px}
-  h1{font-size:40px}
-  .lede{font-size:16px;line-height:1.5}
-  .pill{padding:0 14px;font-size:15px}
-  .sub{font-size:14px;padding:0 10px}
-  .lg{display:none}
-  .group{gap:6px;align-items:center}
-  .glabel{display:block;font:500 13px var(--mono);color:var(--muted);margin-right:2px}
-  .camf{padding:0 10px;gap:5px}
-  .feature{padding:16px 18px;gap:6px;border-radius:16px}
-  .fart{display:none}
-  .feature h2{font-size:21px}
-  .feature p{font-size:15px;-webkit-line-clamp:2}
-  .topics{gap:26px;margin-top:20px}
-  .card p{-webkit-line-clamp:2}
+/* footer */
+.foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px;color:var(--muted);font-size:14.5px}
+.foot b{color:var(--ink)}
+
+@media (max-width:820px){
+  .hero{grid-template-columns:minmax(0,1fr);margin:22px 0 16px;gap:18px}
+  .lede{font-size:16.5px}
+  .filters{gap:8px}
+  .search{flex-basis:100%;max-width:none}
+  .filters{position:static}
+  .count{display:none}
+  .cards{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+  .card h3{font-size:16px}
+  .card .body{padding:10px 11px 12px}
+  .card a.cam{margin:-2px 11px 12px}
+  .newest{grid-template-columns:110px minmax(0,1fr)}
+  .newest img{width:110px}
 }
-
-.teach{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:14px;padding:18px 20px}
-.teach h2{margin:0;font-size:20px}
-.teach p{margin:4px 0 0;color:var(--text);font-size:15px;line-height:1.5;max-width:70ch}
-.teach .pill-q{display:inline-flex;align-items:center;gap:6px;font:700 14px var(--sans);background:#0A6A88;color:#fff;border-radius:999px;padding:6px 12px}
-footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:14px;color:var(--muted);border-top:1px solid var(--dash);padding-top:20px}
-footer .mono{font-family:var(--mono)}
+@media (max-width:420px){.seg button{padding:0 9px;font-size:14px}}
+@media (prefers-reduced-motion: reduce){.card,.newest{transition:none}.card:hover,.newest:hover{transform:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
-
-<header class="top-bar">
-  <div class="brand">
-    <span class="mono-mark" aria-hidden="true">MK</span>
-    <span><b>Mr Khaled</b><small>Physics &amp; Chemistry</small></span>
-  </div>
-  <span class="badge">Grades 7–12 · Science, Physics &amp; Chemistry</span>
+<header>
+  <a class="brand" href="index.html"><span class="mark" aria-hidden="true">MK</span><span><b>Mr Khaled</b><small>Physics &amp; Chemistry</small></span></a>
 </header>
 
-<main class="hero">
-  <div class="intro">
-    <p class="eyebrow">Interactive labs by Mr Khaled</p>
-    <h1>Science<br> Simulations</h1>
-    <p class="lede">Try the experiment before you read about it. Change one thing, predict what happens, then check. Pick your grade to start.</p>
-    <div class="filters">
-      <div class="search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
-        <label class="vh" for="q">Search the labs</label>
-        <input id="q" type="search" placeholder="Search: waves, titration, half-life…" autocomplete="off" spellcheck="false">
-        <button type="button" class="clear" id="qClear" hidden aria-label="Clear the search">✕</button>
-      </div>
-      <div class="group" role="group" aria-label="Grade">
-        <span class="glabel" aria-hidden="true">Grade</span>
-        <button type="button" class="pill" data-grade="all" aria-pressed="true" aria-label="All grades">All<span class="lg"> grades</span></button>
-        <button type="button" class="pill" data-grade="7" aria-pressed="false" aria-label="Grade 7"><span class="lg">Grade </span>7</button>
-        <button type="button" class="pill" data-grade="10" aria-pressed="false" aria-label="Grade 10"><span class="lg">Grade </span>10</button>
-        <button type="button" class="pill" data-grade="11" aria-pressed="false" aria-label="Grade 11"><span class="lg">Grade </span>11</button>
-        <button type="button" class="pill" data-grade="12" aria-pressed="false" aria-label="Grade 12"><span class="lg">Grade </span>12</button>
-      </div>
-      <div class="group" role="group" aria-label="Subject and kind of lab">
-        <button type="button" class="pill sub" data-sub="all" aria-pressed="true" aria-label="All subjects">All<span class="lg"> subjects</span></button>
-        <button type="button" class="pill sub" data-sub="phys" aria-pressed="false">Physics</button>
-        <button type="button" class="pill sub" data-sub="chem" aria-pressed="false">Chemistry</button>
-        <button type="button" class="pill camf" id="camOnly" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>Camera<span class="lg"> labs</span></button>
-      </div>
-    </div>
-  </div>
-
-  <a class="feature" id="feature" href="hands-on-radioactivity.html">
-    <span class="row"><span class="new">Newest</span><span class="meta" id="fMeta">Physics · Grade 12 · Camera</span></span>
-    <span class="fart" id="fArt" aria-hidden="true"></span>
-    <h2 id="fTitle">Hands-On Lab: Radioactivity</h2>
-    <p id="fText">Count the clicks of a Geiger-Müller tube with your real hand on the sources, held in tongs. Measure the background, find what paper, aluminium and lead stop, test the inverse-square law, then measure a half-life.</p>
-    <span class="go">Open the lab <span aria-hidden="true">→</span></span>
-  </a>
-</main>
-
-<section aria-labelledby="listTitle">
-  <div class="list-head">
-    <h2 id="listTitle">All grades</h2>
-    <span class="count" id="count" aria-live="polite">26 simulations</span>
-  </div>
-  <div class="topics" id="grid">
-  <section class="topic phys" data-topic="waves" aria-labelledby="t-waves" style="--n:4">
-    <h3 class="topic-h" id="t-waves">Waves <span class="tn"></span></h3>
-    <ul class="grid">
-<li class="item" data-topic="waves" data-grades="11" data-sub="phys">
-<a class="card phys" href="resonance-on-a-string.html">
-<span class="top"><span class="num">SIM 03</span><span class="chip">Physics · G11</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="g" d="M10 40 Q47.5 -5 85 40 T160 40 T235 40 T290 40"/> <path class="s" d="M10 40 Q47.5 85 85 40 T160 40 T235 40 T290 40"/> </svg>
-<span class="meta"><span class="tag">Standing waves</span></span>
-<h4>Resonance on a String</h4>
-<p>Shake one end of a string and find the frequencies where it swings many times wider than the driver.</p>
-</a>
-</li>
-<li class="item" data-topic="waves" data-grades="11" data-sub="phys">
-<a class="card phys" href="pulse-at-a-boundary.html">
-<span class="top"><span class="num">SIM 04</span><span class="chip">Physics · G11</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M10 55 H60 Q80 55 85 25 Q90 55 110 55 H150"/> <path class="g" d="M150 30 V70"/> <path class="s" d="M150 55 H200 Q220 55 228 35 Q236 55 256 55 H290"/> </svg>
-<span class="meta"><span class="tag">Waves at boundaries</span></span>
-<h4>Pulse at a Boundary</h4>
-<p>Send a pulse from one spring into another and see which part reflects, which part passes through, and where the energy goes.</p>
-</a>
-</li>
-<li class="item" data-topic="waves" data-grades="11" data-sub="phys">
-<a class="card phys" href="wave-speed-lab.html">
-<span class="top"><span class="num">SIM 10</span><span class="chip">Physics · G11</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M10 30 Q30 8 50 30 T90 30 T130 30 T170 30 T210 30 T250 30"/> <circle class="f" cx="90" cy="30" r="5"/> <path class="g" d="M10 62 H250 M10 56 V68 M50 58 V66 M90 56 V68 M130 58 V66 M170 56 V68 M210 58 V66 M250 56 V68"/> <path class="s" d="M268 12 V48"/> <path class="g" d="M278 12 V48"/> </svg>
-<span class="meta"><span class="tag">Wave speed</span></span>
-<h4>Wave Speed Lab</h4>
-<p>Shake a string, send pulses and play sounds, measure each wave with a ruler and stopwatch, and race two pulses to see what really sets a wave's speed.</p>
-</a>
-</li>
-<li class="item" data-topic="waves" data-cam="1" data-grades="11" data-sub="phys">
-<a class="card phys" href="hands-on-waves.html">
-<span class="top"><span class="num">SIM 20</span><span class="chip">Physics · G11</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M24 70 V44 q0 -7 7 -7 t7 7 V34 q0 -7 7 -7 t7 7 V70"/> <path class="s" d="M276 70 V44 q0 -7 -7 -7 t-7 7 V34 q0 -7 -7 -7 t-7 7 V70"/> <path class="s" d="M60 40 C90 6 120 6 150 40 S210 74 240 40"/> <circle class="f" cx="150" cy="40" r="5"/> <path class="g" d="M60 40 H240"/> </svg>
-<span class="meta"><span class="tag">Waves</span><span class="cam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>Camera</span></span>
-<h4>Hands-On Lab: Waves on a Spring</h4>
-<p>Hold a long spring between your two real hands. Put on goggles and a lab coat, send pulses, watch them reflect and cross, build standing waves, and check v = √(T ÷ μ). Works with mouse or two fingers too.</p>
-</a>
-</li>
-    </ul>
-  </section>
-  <section class="topic phys" data-topic="elec" aria-labelledby="t-elec" style="--n:3">
-    <h3 class="topic-h" id="t-elec">Electricity and magnetism <span class="tn"></span></h3>
-    <ul class="grid">
-<li class="item" data-topic="elec" data-cam="1" data-grades="12" data-sub="phys">
-<a class="card phys" href="hands-on-induction.html">
-<span class="top"><span class="num">SIM 22</span><span class="chip">Physics · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M24 70 V40 q0 -8 8 -8 t8 8 V28 q0 -8 8 -8 t8 8 V34 q0 -8 8 -8 t8 8 V70"/> <rect class="s" x="92" y="30" width="52" height="18" rx="2"/> <path class="g" d="M118 30 V48"/> <circle class="f" cx="131" cy="39" r="4"/> <path class="g" d="M150 39 H166 M160 33 L168 39 L160 45"/> <path class="s" d="M178 22 q-8 17 0 34 M190 22 q-8 17 0 34 M202 22 q-8 17 0 34 M214 22 q-8 17 0 34 M226 22 q-8 17 0 34"/> <path class="s" d="M174 22 H232 M174 56 H232"/> <circle class="s" cx="270" cy="40" r="18"/> <path class="g" d="M270 40 L280 27"/> <circle class="f" cx="270" cy="40" r="3"/> </svg>
-<span class="meta"><span class="tag">Electromagnetism</span><span class="cam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>Camera</span></span>
-<h4>Hands-On Lab: Electromagnetic Induction</h4>
-<p>Push a bar magnet into a coil with your real hand and watch the galvanometer kick. Hold it still, pull it out, turn it round, go faster, add turns: Faraday's law and Lenz's law with live flux and EMF graphs. Works with mouse or touch too.</p>
-</a>
-</li>
-<li class="item" data-topic="elec" data-cam="1" data-grades="12" data-sub="phys">
-<a class="card phys" href="hands-on-circuits.html">
-<span class="top"><span class="num">SIM 24</span><span class="chip">Physics · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M24 70 V40 q0 -8 8 -8 t8 8 V28 q0 -8 8 -8 t8 8 V34 q0 -8 8 -8 t8 8 V70"/> <path class="g" d="M84 40 H100 M94 34 L102 40 L94 46"/> <path class="s" d="M120 24 H150 M176 24 H276 V60 H120 V46 M120 34 V24"/> <path class="s" d="M112 34 H128 M116 40 H124 M112 46 H128"/> <path class="s" d="M150 24 L172 14"/> <circle class="s" cx="212" cy="24" r="10"/> <path class="g" d="M205 17 L219 31 M219 17 L205 31"/> <path class="s" d="M236 24 V60"/> <circle class="s" cx="236" cy="42" r="9"/> <circle class="f" cx="198" cy="60" r="4"/> <circle class="f" cx="160" cy="60" r="4"/> </svg>
-<span class="meta"><span class="tag">Electric circuits</span><span class="cam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>Camera</span></span>
-<h4>Hands-On Lab: Circuit Builder</h4>
-<p>Build series and parallel circuits with your real hand: drop bulbs, resistors and wires into the gaps of a board, pinch the switch, and measure with an ammeter and a two-probe voltmeter. Then solve the resistor challenge and see what a short circuit does. Works with mouse or touch too.</p>
-</a>
-</li>
-<li class="item" data-topic="elec" data-cam="1" data-grades="12" data-sub="phys">
-<a class="card phys" href="hands-on-fields.html">
-<span class="top"><span class="num">SIM 25</span><span class="chip">Physics · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M24 70 V40 q0 -8 8 -8 t8 8 V28 q0 -8 8 -8 t8 8 V34 q0 -8 8 -8 t8 8 V70"/> <circle class="s" cx="120" cy="40" r="12"/> <path class="g" d="M114 40 H126 M120 34 V46"/> <circle class="s" cx="230" cy="40" r="12"/> <path class="g" d="M224 40 H236"/> <path class="s" d="M132 40 H218 M130 32 Q175 4 220 32 M130 48 Q175 76 220 48"/> <path class="g" d="M108 28 L94 16 M108 52 L94 64 M242 28 L256 16 M242 52 L256 64"/> <circle class="f" cx="175" cy="40" r="4"/> </svg>
-<span class="meta"><span class="tag">Electrostatics</span><span class="cam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>Camera</span></span>
-<h4>Hands-On Lab: Electric Fields</h4>
-<p>Hold a test charge near charged spheres with your real hand and read the force: 10 cm, then 20 cm, a bigger test charge, a + and − pair, and the point where the force vanishes. Then map equipotentials on conducting paper with a voltmeter probe and find E = ΔV ÷ d. Works with mouse or touch too.</p>
-</a>
-</li>
-    </ul>
-  </section>
-  <section class="topic phys" data-topic="forces" aria-labelledby="t-forces" style="--n:2">
-    <h3 class="topic-h" id="t-forces">Motion and forces <span class="tn"></span></h3>
-    <ul class="grid">
-<li class="item" data-topic="forces" data-grades="10" data-sub="phys">
-<a class="card phys" href="keplers-laws.html">
-<span class="top"><span class="num">SIM 01</span><span class="chip">Physics · G10</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <ellipse class="s" cx="150" cy="40" rx="110" ry="32"/> <circle class="f" cx="195" cy="40" r="10"/> <circle class="fl" cx="40" cy="40" r="7"/> </svg>
-<span class="meta"><span class="tag">Planetary motion</span></span>
-<h4>Kepler&#x27;s Laws</h4>
-<p>Drag a planet to make your own orbit and test all three of Kepler&#x27;s laws, from Mars moving backward to Jupiter&#x27;s moons.</p>
-</a>
-</li>
-<li class="item" data-topic="forces" data-grades="10" data-sub="phys">
-<a class="card phys" href="torque-lab.html">
-<span class="top"><span class="num">SIM 08</span><span class="chip">Physics · G10</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <circle class="s" cx="60" cy="48" r="16"/> <rect class="s" x="60" y="42" width="170" height="12" rx="6"/> <path class="s" d="M214 8 v26" /> <path class="f" d="M206 26 l8 12 l8 -12z"/> <path class="s" d="M40 20 a30 30 0 0 1 40 -4" fill="none"/> </svg>
-<span class="meta"><span class="tag">Rotational dynamics</span></span>
-<h4>Torque Lab</h4>
-<p>Push a door with any force, distance and angle, see the lever arm and τ = F r sin θ live, balance a seesaw and solve torque challenges.</p>
-</a>
-</li>
-    </ul>
-  </section>
-  <section class="topic phys" data-topic="modern" aria-labelledby="t-modern" style="--n:2">
-    <h3 class="topic-h" id="t-modern">Light, atoms and nuclei <span class="tn"></span></h3>
-    <ul class="grid">
-<li class="item" data-topic="modern" data-cam="1" data-grades="12" data-sub="phys">
-<a class="card phys" href="hands-on-photoelectric.html">
-<span class="top"><span class="num">SIM 23</span><span class="chip">Physics · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M24 70 V40 q0 -8 8 -8 t8 8 V28 q0 -8 8 -8 t8 8 V34 q0 -8 8 -8 t8 8 V70"/> <rect class="s" x="86" y="22" width="22" height="26" rx="2"/> <path class="g" d="M112 35 H126 M120 29 L128 35 L120 41"/> <path class="s" d="M136 10 q5 -6 10 0 t10 0 t10 0 t10 0" transform="rotate(32 136 10)"/> <path class="s" d="M132 26 q5 -6 10 0 t10 0 t10 0 t10 0" transform="rotate(32 132 26)"/> <rect class="s" x="176" y="30" width="100" height="40" rx="20"/> <path class="s" d="M194 38 V62 M258 38 V62"/> <circle class="f" cx="212" cy="46" r="4"/> <circle class="f" cx="228" cy="56" r="4"/> <circle class="f" cx="242" cy="44" r="4"/> </svg>
-<span class="meta"><span class="tag">Quantum theory</span><span class="cam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>Camera</span></span>
-<h4>Hands-On Lab: The Photoelectric Effect</h4>
-<p>Slide colour filters into a lamp with your real hand and shine the light on a metal plate in a vacuum tube. See which colours free electrons, turn the knobs to find the stopping voltage, and plot your own line to get Planck's constant and the work function. Works with mouse or touch too.</p>
-</a>
-</li>
-<li class="item" data-topic="modern" data-cam="1" data-grades="12" data-sub="phys">
-<a class="card phys" href="hands-on-radioactivity.html">
-<span class="top"><span class="num">SIM 26</span><span class="chip">Physics · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M24 70 V40 q0 -8 8 -8 t8 8 V28 q0 -8 8 -8 t8 8 V34 q0 -8 8 -8 t8 8 V70"/> <rect class="s" x="196" y="30" width="84" height="20" rx="10"/> <path class="g" d="M196 34 V46"/> <circle class="f" cx="118" cy="40" r="7"/> <path class="g" d="M130 40 H146 M154 40 l6 -6 l6 12 l6 -12 l6 12 l6 -6"/> <path class="s" d="M100 70 Q130 12 160 30 T230 66"/> </svg>
-<span class="meta"><span class="tag">Nuclear physics</span><span class="cam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>Camera</span></span>
-<h4>Hands-On Lab: Radioactivity</h4>
-<p>Count the clicks of a Geiger-Müller tube with your real hand on the sources, held in tongs. Measure the background, find what paper, aluminium and lead stop, test the inverse-square law, then shake a protactinium generator and measure its half-life. Mystery source and generator for exercises. Works with mouse or touch too.</p>
-</a>
-</li>
-    </ul>
-  </section>
-  <section class="topic chem" data-topic="rates" aria-labelledby="t-rates" style="--n:4">
-    <h3 class="topic-h" id="t-rates">Rates and equilibrium <span class="tn"></span></h3>
-    <ul class="grid">
-<li class="item" data-topic="rates" data-grades="11 12" data-sub="chem">
-<a class="card chem" href="reaction-rates-lab.html">
-<span class="top"><span class="num">SIM 11</span><span class="chip">Chemistry · G11 · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <circle class="f" cx="40" cy="30" r="8"/><circle class="fl" cx="72" cy="52" r="8"/> <path class="g" d="M48 34 L64 48"/> <path class="s" d="M110 70 Q150 70 165 20 Q180 70 230 70"/> <path class="g" d="M165 20 V70"/> <circle class="f" cx="262" cy="40" r="8"/><circle class="fl" cx="276" cy="40" r="8"/> </svg>
-<span class="meta"><span class="tag">Reaction rates</span></span>
-<h4>Reaction Rates Lab</h4>
-<p>Watch particles collide and react, then change temperature, concentration, surface area and add a catalyst. Measure the rate and find a rate law.</p>
-</a>
-</li>
-<li class="item" data-topic="rates" data-grades="11 12" data-sub="chem">
-<a class="card chem" href="chemical-equilibrium-lab.html">
-<span class="top"><span class="num">SIM 12</span><span class="chip">Chemistry · G11 · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M20 70 Q60 10 120 30 H280"/> <path class="s" d="M20 10 Q60 60 120 50 H280"/> <path class="g" d="M120 4 V76"/> <path class="s" d="M180 18 H230 M222 12 L232 18 L222 24"/> <path class="s" d="M232 62 H182 M190 56 L180 62 L190 68"/> </svg>
-<span class="meta"><span class="tag">Chemical equilibrium</span></span>
-<h4>Chemical Equilibrium Lab</h4>
-<p>See the forward and reverse reactions balance, predict Le Châtelier shifts when you add, squeeze or heat, then compare Q with K and solve ICE tables.</p>
-</a>
-</li>
-<li class="item" data-topic="rates" data-grades="12" data-sub="chem">
-<a class="card chem" href="kinetics-lab.html">
-<span class="top"><span class="num">SIM 13</span><span class="chip">Chemistry · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="g" d="M20 74 H280 M20 74 V6"/> <path class="s" d="M20 74 C50 30 90 20 150 16 S240 12 280 11"/> <path class="g" d="M20 42 H62 V74"/> <circle class="f" cx="62" cy="42" r="5"/> <path class="s" d="M40 60 L100 22"/> <circle class="fl" cx="120" cy="18" r="5"/><circle class="fl" cx="180" cy="14" r="5"/><circle class="fl" cx="240" cy="12" r="5"/> </svg>
-<span class="meta"><span class="tag">Kinetics</span></span>
-<h4>Kinetics Lab</h4>
-<p>Follow H₂O₂ + I⁻ in time: find the limiting reagent, fill the n(I₂) table, read t½ from the curve, draw tangents and practise the full exercise.</p>
-</a>
-</li>
-<li class="item" data-topic="rates" data-grades="11" data-sub="chem">
-<a class="card chem" href="equilibrium-table-lab.html">
-<span class="top"><span class="num">SIM 17</span><span class="chip">Chemistry · G11</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <rect class="s" x="20" y="8" width="260" height="64" rx="6"/> <path class="s" d="M20 29 H280 M20 50 H280 M90 8 V72 M150 8 V72 M215 8 V72"/> <path class="g" d="M100 40 H140"/> <circle class="f" cx="183" cy="61" r="6"/><circle class="fl" cx="248" cy="61" r="6"/> </svg>
-<span class="meta"><span class="tag">Chemical equilibrium</span></span>
-<h4>Equilibrium Table Lab</h4>
-<p>The table of progress, Lebanese style: initial, during and final states, x<sub>max</sub> and the limiting reactant, x<sub>f</sub>, τ and K. Step by step, a calculator for teachers, and random tables for students to calculate.</p>
-</a>
-</li>
-    </ul>
-  </section>
-  <section class="topic chem" data-topic="change" aria-labelledby="t-change" style="--n:3">
-    <h3 class="topic-h" id="t-change">Chemical change <span class="tn"></span></h3>
-    <ul class="grid">
-<li class="item" data-topic="change" data-grades="10" data-sub="chem">
-<a class="card chem" href="five-types-of-chemical-reactions.html">
-<span class="top"><span class="num">SIM 02</span><span class="chip">Chemistry · G10</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <circle class="f" cx="40" cy="40" r="14"/><circle class="fl" cx="78" cy="40" r="11"/><circle class="fl" cx="104" cy="40" r="11"/> <path class="s" d="M135 40 H175 M165 30 L177 40 L165 50"/> <path class="g" d="M220 40 H252"/><circle class="f" cx="220" cy="40" r="14"/><circle class="fl" cx="254" cy="40" r="11"/> </svg>
-<span class="meta"><span class="tag">Chemical reactions</span></span>
-<h4>5 Types of Chemical Reactions</h4>
-<p>Build the reactants atom by atom, predict the type and the products before it reacts, see the five patterns animated, and test yourself with activity-series and “no reaction” challenges.</p>
-</a>
-</li>
-<li class="item" data-topic="change" data-grades="7" data-sub="chem">
-<a class="card chem" href="chemical-change-lab.html">
-<span class="top"><span class="num">SIM 09</span><span class="chip">Science · G7</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M40 10 v52 q0 8 8 8 h44 q8 0 8 -8 v-52"/> <circle class="s" cx="62" cy="52" r="4"/> <circle class="s" cx="78" cy="40" r="3"/> <circle class="s" cx="70" cy="28" r="3"/> <circle class="s" cx="150" cy="40" r="10"/> <circle class="s" cx="170" cy="40" r="10"/> <path class="s" d="M192 40 h26 M210 32 l8 8 l-8 8"/> <circle class="f" cx="248" cy="34" r="11"/> <circle class="s" cx="234" cy="52" r="7"/> <circle class="s" cx="262" cy="52" r="7"/> </svg>
-<span class="meta"><span class="tag">Chemical changes</span></span>
-<h4>Chemical Change Lab</h4>
-<p>Run nine experiments and spot the signs of a chemical change, weigh a reaction in an open and closed flask, watch atoms rearrange and balance equations.</p>
-</a>
-</li>
-<li class="item" data-topic="change" data-cam="1" data-grades="7" data-sub="chem">
-<a class="card chem" href="hands-on-chemical-change.html">
-<span class="top"><span class="num">SIM 21</span><span class="chip">Chemistry · G7</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M40 70 V40 q0 -8 8 -8 t8 8 V28 q0 -8 8 -8 t8 8 V34 q0 -8 8 -8 t8 8 V70"/> <path class="s" d="M118 12 l22 10 -8 18 -22 -10 z"/> <path class="g" d="M136 34 Q150 44 156 58"/> <path class="s" d="M176 30 V66 q0 6 6 6 H226 q6 0 6 -6 V30"/> <path class="g" d="M176 50 H232"/> <circle class="f" cx="192" cy="60" r="3"/> <circle class="f" cx="206" cy="56" r="4"/> <circle class="f" cx="219" cy="62" r="2.5"/> <circle class="f" cx="200" cy="42" r="2.5"/> <circle class="f" cx="214" cy="36" r="3"/> </svg>
-<span class="meta"><span class="tag">Chemical changes</span><span class="cam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>Camera</span></span>
-<h4>Hands-On Lab: Chemical or Physical Change?</h4>
-<p>Put on goggles, coat and gloves, then pour and mix five pairs of substances with your real hand: tilt your hand to pour. Spot the gas, the new solid, the colour or the temperature change, and decide what kind of change it was. Works with mouse or touch too.</p>
-</a>
-</li>
-    </ul>
-  </section>
-  <section class="topic chem" data-topic="energy" aria-labelledby="t-energy" style="--n:2">
-    <h3 class="topic-h" id="t-energy">Energy and entropy <span class="tn"></span></h3>
-    <ul class="grid">
-<li class="item" data-topic="energy" data-grades="11" data-sub="chem">
-<a class="card chem" href="entropy-lab.html">
-<span class="top"><span class="num">SIM 05</span><span class="chip">Chemistry · G11</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <circle class="fl" cx="30" cy="30" r="7"/><circle class="fl" cx="50" cy="30" r="7"/><circle class="fl" cx="70" cy="30" r="7"/> <circle class="fl" cx="30" cy="50" r="7"/><circle class="fl" cx="50" cy="50" r="7"/><circle class="fl" cx="70" cy="50" r="7"/> <path class="s" d="M120 40 H170 M160 30 L172 40 L160 50"/> <circle class="f" cx="210" cy="18" r="7"/><circle class="f" cx="262" cy="30" r="7"/><circle class="f" cx="232" cy="60" r="7"/> <circle class="f" cx="284" cy="62" r="7"/><circle class="f" cx="250" cy="10" r="7"/><circle class="f" cx="200" cy="52" r="7"/> </svg>
-<span class="meta"><span class="tag">Entropy and spontaneity</span></span>
-<h4>Entropy Lab</h4>
-<p>Remove a wall and count the ways (S = k ln Ω) as a gas spreads, predict ΔS for real changes, then use ΔG = ΔH − TΔS in a spontaneity challenge.</p>
-</a>
-</li>
-<li class="item" data-topic="energy" data-grades="11" data-sub="chem">
-<a class="card chem" href="enthalpy-lab.html">
-<span class="top"><span class="num">SIM 06</span><span class="chip">Chemistry · G11</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M40 18 H120"/><path class="s" d="M180 64 H260"/> <path class="s" d="M150 18 V58 M140 48 L150 60 L160 48"/> <circle class="f" cx="62" cy="10" r="5"/><circle class="f" cx="80" cy="10" r="5"/><circle class="f" cx="98" cy="10" r="5"/> <circle class="fl" cx="202" cy="56" r="5"/><circle class="fl" cx="220" cy="56" r="5"/><circle class="fl" cx="238" cy="56" r="5"/> </svg>
-<span class="meta"><span class="tag">Energy and chemical change</span></span>
-<h4>Enthalpy Lab</h4>
-<p>Heat, calorimetry, thermochemical equations, Hess&#x27;s law and enthalpies of formation, worked step by step.</p>
-</a>
-</li>
-    </ul>
-  </section>
-  <section class="topic chem" data-topic="solutions" aria-labelledby="t-solutions" style="--n:2">
-    <h3 class="topic-h" id="t-solutions">Solutions and titration <span class="tn"></span></h3>
-    <ul class="grid">
-<li class="item" data-topic="solutions" data-grades="10 11 12" data-sub="chem">
-<a class="card chem" href="titration-lab.html">
-<span class="top"><span class="num">SIM 16</span><span class="chip">Chemistry · G10–12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <rect class="s" x="60" y="2" width="12" height="46" rx="2"/> <path class="s" d="M66 48 V58"/> <circle class="f" cx="66" cy="64" r="3"/> <path class="s" d="M48 78 L58 66 V60 H74 V66 L84 78 Z"/> <path class="s" d="M120 70 C170 70 175 66 185 40 C195 14 200 12 280 10"/> <path class="g" d="M120 34 H280"/> <path class="s" d="M220 6 v20"/> </svg>
-<span class="meta"><span class="tag">Solutions</span></span>
-<h4>Titration &amp; Dilution Lab</h4>
-<p>Choose the right glassware and dilute, prepare a solution from a solid, then titrate unknowns drop by drop with indicators, a pH curve and KMnO₄.</p>
-</a>
-</li>
-<li class="item" data-topic="solutions" data-cam="1" data-grades="10 11 12" data-sub="chem">
-<a class="card chem" href="hands-on-titration.html">
-<span class="top"><span class="num">SIM 19</span><span class="chip">Chemistry · G10–12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M40 70 V40 q0 -8 8 -8 t8 8 V28 q0 -8 8 -8 t8 8 V34 q0 -8 8 -8 t8 8 V70"/> <circle class="f" cx="56" cy="20" r="6"/> <path class="g" d="M110 40 H150 M140 30 L152 40 L140 50"/> <rect class="s" x="196" y="2" width="10" height="44" rx="2"/> <path class="s" d="M201 46 V56"/> <circle class="f" cx="201" cy="61" r="3"/> <path class="s" d="M182 78 L193 66 V60 H209 V66 L220 78 Z"/> <path class="s" d="M250 20 V46 q-16 8 -16 22 q0 10 16 10 t16 -10 q0 -14 -16 -22"/> <path class="g" d="M244 30 H256"/> </svg>
-<span class="meta"><span class="tag">Solutions</span><span class="cam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>Camera</span></span>
-<h4>Hands-On Lab: Dilution and Titration</h4>
-<p>Do the dilution and the titration with your real hand: pinch to pick up the pipette, the wash bottle and the stopper, and pinch the burette tap to let drops fall until the first pale pink. Works with mouse or touch too.</p>
-</a>
-</li>
-    </ul>
-  </section>
-  <section class="topic chem" data-topic="redox" aria-labelledby="t-redox" style="--n:2">
-    <h3 class="topic-h" id="t-redox">Electrochemistry <span class="tn"></span></h3>
-    <ul class="grid">
-<li class="item" data-topic="redox" data-grades="12" data-sub="chem">
-<a class="card chem" href="galvanic-cell-lab.html">
-<span class="top"><span class="num">SIM 15</span><span class="chip">Chemistry · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M60 34 V8 H240 V34"/> <rect class="s" x="130" y="0" width="40" height="16" rx="3"/> <path class="s" d="M20 40 V76 H110 V40 M190 40 V76 H280 V40"/> <path class="s" d="M60 30 V70"/> <path class="s" d="M240 30 V70"/> <path class="g" d="M95 64 V32 H205 V64"/> <circle class="f" cx="90" cy="8" r="4"/><circle class="f" cx="210" cy="8" r="4"/><circle class="fl" cx="260" cy="60" r="6"/> </svg>
-<span class="meta"><span class="tag">Electrochemistry</span></span>
-<h4>Galvanic Cell Lab</h4>
-<p>Build a cell from any two metals: watch electrons in the wire and ions in the salt bridge, zoom in to the electrodes and turn the atoms around in 3D.</p>
-</a>
-</li>
-<li class="item" data-topic="redox" data-cam="1" data-grades="10 11 12" data-sub="chem">
-<a class="card chem" href="hands-on-lab.html">
-<span class="top"><span class="num">SIM 18</span><span class="chip">Chemistry · G10–12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M40 70 V40 q0 -8 8 -8 t8 8 V28 q0 -8 8 -8 t8 8 V34 q0 -8 8 -8 t8 8 V70"/> <circle class="f" cx="56" cy="20" r="6"/> <path class="g" d="M110 40 H150 M140 30 L152 40 L140 50"/> <path class="s" d="M176 30 V70 H216 V30 M228 30 V70 H268 V30"/> <path class="s" d="M196 44 V20 q26 -22 52 0 V44"/> <circle class="fl" cx="222" cy="8" r="6"/> </svg>
-<span class="meta"><span class="tag">Electrochemistry</span><span class="cam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>Camera</span></span>
-<h4>Hands-On Lab: Galvanic Cell</h4>
-<p>Build a galvanic cell with your real hand: the camera follows it, pinch to pick up the metals, the salt bridge, the bulb and the word cards. Works with mouse or touch too.</p>
-</a>
-</li>
-    </ul>
-  </section>
-  <section class="topic chem" data-topic="organic" aria-labelledby="t-organic" style="--n:2">
-    <h3 class="topic-h" id="t-organic">Organic chemistry <span class="tn"></span></h3>
-    <ul class="grid">
-<li class="item" data-topic="organic" data-grades="11 12" data-sub="chem">
-<a class="card chem" href="organic-naming-lab.html">
-<span class="top"><span class="num">SIM 07</span><span class="chip">Chemistry · G11 · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M30 50 L75 30 L120 50 L165 30 L210 50"/> <path class="s" d="M120 50 V72"/><path class="s" d="M210 50 L255 30"/> <circle class="f" cx="30" cy="50" r="6"/><circle class="f" cx="75" cy="30" r="6"/><circle class="f" cx="120" cy="50" r="6"/> <circle class="f" cx="165" cy="30" r="6"/><circle class="f" cx="210" cy="50" r="6"/><circle class="fl" cx="120" cy="72" r="6"/><circle class="fl" cx="258" cy="28" r="8"/> </svg>
-<span class="meta"><span class="tag">Organic compounds</span></span>
-<h4>Organic Naming Lab</h4>
-<p>Build a molecule and get its IUPAC name step by step, rings and benzene included, then name esters and amides, hunt isomers and identify mystery compounds.</p>
-</a>
-</li>
-<li class="item" data-topic="organic" data-grades="12" data-sub="chem">
-<a class="card chem" href="esterification-lab.html">
-<span class="top"><span class="num">SIM 14</span><span class="chip">Chemistry · G12</span></span>
-<svg class="icon" viewBox="0 0 300 80" aria-hidden="true"> <path class="s" d="M20 40 H60 M60 40 L80 22 M60 40 L80 58"/> <rect class="s" x="74" y="50" width="26" height="18" rx="4"/> <path class="s" d="M120 40 H150 M142 34 L152 40 L142 46"/> <path class="s" d="M150 46 H120 M128 52 L118 46 L128 40" opacity=".5"/> <path class="s" d="M170 40 H210 M210 40 L230 22 M210 40 H250 L270 40"/> <circle class="f" cx="230" cy="22" r="5"/><circle class="fl" cx="250" cy="40" r="6"/> </svg>
-<span class="meta"><span class="tag">Esters</span></span>
-<h4>Esterification Lab</h4>
-<p>Build and name esters from any acid and alcohol, run the reaction to equilibrium, fill the table in moles and see why the yield is 67 %, 60 % or 5 %.</p>
-</a>
-</li>
-    </ul>
-  </section>
-  </div>
-  <p class="empty" id="empty" hidden><span id="emptyMsg">No labs match these choices.</span><button type="button" class="pill" id="showAll">Show all labs</button></p>
-</section>
-
-<section class="teach" aria-labelledby="teachTitle">
-  <span class="pill-q" aria-hidden="true">Intro · Lab · Challenge</span>
+<section class="hero">
   <div>
-    <h2 id="teachTitle">For teachers and students</h2>
-    <p>Every lab has a <b>Guide</b> button in the bottom corner. Students get the big idea, a “Try this” checklist and the key words. Teachers get learning goals, a 15-minute lesson plan, common misconceptions and discussion questions, plus <b>Present mode</b> for bigger text on the classroom screen. Like PhET, every lab opens on a <b>home screen</b> with three screens: <b>Intro</b> (the main idea with only a few controls and a “Start here” hint), <b>Lab</b> (every tab, tool and teacher note) and <b>Challenge</b> (questions with feedback). Switch screens any time from the bar at the bottom.</p>
+    <h1>Science<br>Simulations</h1>
+    <p class="lede">Try the experiment before you read about it. Grades 7–12.</p>
   </div>
+  <a class="newest" id="newest" href="#"><img alt="" id="nImg"><span><span class="kick">Newest</span><b id="nTitle"></b><span class="g" id="nMeta"></span></span></a>
 </section>
 
-<footer>
-  <span>Designed and built by Mr Khaled for his physics and chemistry students.</span>
-  <span class="mono">Works on phones, tablets and the classroom screen.</span>
+<nav class="filters" aria-label="Find a lab">
+  <div class="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+    <label class="vh" for="q">Search the labs</label>
+    <input id="q" type="search" placeholder="Search: waves, titration, half-life…" autocomplete="off" spellcheck="false">
+    <button type="button" class="clear" id="qClear" hidden aria-label="Clear the search">✕</button>
+  </div>
+  <div class="seg" role="group" aria-label="Grade" id="gradeSeg">
+    <button type="button" data-grade="all" aria-pressed="true">All grades</button>
+    <button type="button" data-grade="7" aria-pressed="false" aria-label="Grade 7">7</button>
+    <button type="button" data-grade="10" aria-pressed="false" aria-label="Grade 10">10</button>
+    <button type="button" data-grade="11" aria-pressed="false" aria-label="Grade 11">11</button>
+    <button type="button" data-grade="12" aria-pressed="false" aria-label="Grade 12">12</button>
+  </div>
+  <div class="seg" role="group" aria-label="Subject" id="subSeg">
+    <button type="button" data-sub="all" aria-pressed="true">Both</button>
+    <button type="button" data-sub="phys" aria-pressed="false" class="dot" style="--c:var(--phys)">Physics</button>
+    <button type="button" data-sub="chem" aria-pressed="false" class="dot" style="--c:var(--chem)">Chemistry</button>
+  </div>
+  <span class="count" id="count" aria-live="polite"></span>
+</nav>
+
+<main id="list"></main>
+<p class="empty" id="empty" hidden><span id="emptyMsg">No labs match.</span><button type="button" id="showAll">Show all labs</button></p>
+
+<footer class="foot">
+  <span>Every lab: <b>Intro · Lab · Challenge</b> screens, and a <b>Guide</b> for students and teachers.</span>
+  <span>Designed and built by Mr Khaled for his students.</span>
 </footer>
-
 </div>
+
 <script>
-(function(){
-  var state = { grade: 'all', sub: 'all', cam: false, q: '' };
-  var items = Array.prototype.slice.call(document.querySelectorAll('#grid .item'));
-  var topics = Array.prototype.slice.call(document.querySelectorAll('#grid .topic'));
-  var title = document.getElementById('listTitle'), count = document.getElementById('count'), empty = document.getElementById('empty'), emptyMsg = document.getElementById('emptyMsg');
-  var qIn = document.getElementById('q'), qClear = document.getElementById('qClear'), camBtn = document.getElementById('camOnly');
+/* ===== The labs. To add one: add a line here and run tools/thumbs.py for its picture. =====
+   f file · t title · s phys|chem · g grades · tp topic group · sim number (newest = highest) · o textbook order (sorting only)
+   m module label (only when the lab states it) · cam = its camera version · co = camera lab only · k words for search */
+var LABS = [
+{
+"f": "resonance-on-a-string.html",
+"t": "Resonance on a String",
+"s": "phys",
+"g": "11",
+"tp": "waves",
+"sim": 3,
+"o": 14.4,
+"k": ""
+},
+{
+"f": "pulse-at-a-boundary.html",
+"t": "Pulse at a Boundary",
+"s": "phys",
+"g": "11",
+"tp": "waves",
+"sim": 4,
+"o": 14.3,
+"k": "Send a pulse from one spring into another and see which part reflects, which part passes through, and where the energy goes.",
+"m": "Module 14"
+},
+{
+"f": "wave-speed-lab.html",
+"t": "Wave Speed Lab",
+"s": "phys",
+"g": "11",
+"tp": "waves",
+"sim": 20,
+"o": 14.2,
+"k": "Shake a string, send pulses and play sounds, measure each wave with a ruler and stopwatch, and race two pulses to see what really sets a wave's speed. Hold a long spring between your two real hands. Put on goggles and a lab coat, send pulses, watch them reflect and cross, build standing waves, and check v = √(T ÷ μ). Works with mouse or two fingers too.",
+"m": "Module 14",
+"cam": "hands-on-waves.html"
+},
+{
+"f": "keplers-laws.html",
+"t": "Kepler's Laws",
+"s": "phys",
+"g": "10",
+"tp": "fields",
+"sim": 1,
+"o": 7.1,
+"k": "Drag a planet to make your own orbit and test all three of Kepler's laws, from Mars moving backward to Jupiter's moons.",
+"m": "Module 7"
+},
+{
+"f": "torque-lab.html",
+"t": "Torque Lab",
+"s": "phys",
+"g": "10",
+"tp": "fields",
+"sim": 8,
+"o": 8.2,
+"k": "Push a door with any force, distance and angle, see the lever arm and τ = F r sin θ live, balance a seesaw and solve torque challenges.",
+"m": "Module 8"
+},
+{
+"f": "hands-on-fields.html",
+"t": "Electric Fields",
+"s": "phys",
+"g": "12",
+"tp": "fields",
+"sim": 25,
+"o": 18,
+"k": "Hold a test charge near charged spheres with your real hand and read the force: 10 cm, then 20 cm, a bigger test charge, a + and − pair, and the point where the force vanishes. Then map equipotentials on conducting paper with a voltmeter probe and find E = ΔV ÷ d. Works with mouse or touch too.",
+"m": "Module 18",
+"co": 1
+},
+{
+"f": "hands-on-circuits.html",
+"t": "Circuit Builder",
+"s": "phys",
+"g": "12",
+"tp": "fields",
+"sim": 24,
+"o": 19,
+"k": "Build series and parallel circuits with your real hand: drop bulbs, resistors and wires into the gaps of a board, pinch the switch, and measure with an ammeter and a two-probe voltmeter. Then solve the resistor challenge and see what a short circuit does. Works with mouse or touch too.",
+"m": "Module 19",
+"co": 1
+},
+{
+"f": "hands-on-induction.html",
+"t": "Electromagnetic Induction",
+"s": "phys",
+"g": "12",
+"tp": "fields",
+"sim": 22,
+"o": 21,
+"k": "Push a bar magnet into a coil with your real hand and watch the galvanometer kick. Hold it still, pull it out, turn it round, go faster, add turns: Faraday's law and Lenz's law with live flux and EMF graphs. Works with mouse or touch too.",
+"m": "Module 21",
+"co": 1
+},
+{
+"f": "hands-on-photoelectric.html",
+"t": "The Photoelectric Effect",
+"s": "phys",
+"g": "12",
+"tp": "atoms",
+"sim": 23,
+"o": 22,
+"k": "Slide colour filters into a lamp with your real hand and shine the light on a metal plate in a vacuum tube. See which colours free electrons, turn the knobs to find the stopping voltage, and plot your own line to get Planck's constant and the work function. Works with mouse or touch too.",
+"m": "Module 22",
+"co": 1
+},
+{
+"f": "hands-on-radioactivity.html",
+"t": "Radioactivity",
+"s": "phys",
+"g": "12",
+"tp": "atoms",
+"sim": 26,
+"o": 24,
+"k": "Count the clicks of a Geiger-Müller tube with your real hand on the sources, held in tongs. Measure the background, find what paper, aluminium and lead stop, test the inverse-square law, then shake a protactinium generator and measure its half-life. Mystery source and generator for exercises. Works with mouse or touch too.",
+"m": "Module 24",
+"co": 1
+},
+{
+"f": "chemical-change-lab.html",
+"t": "Chemical Change Lab",
+"s": "chem",
+"g": "7",
+"tp": "reactions",
+"sim": 21,
+"o": 2.2,
+"k": "Run nine experiments and spot the signs of a chemical change, weigh a reaction in an open and closed flask, watch atoms rearrange and balance equations. Put on goggles, coat and gloves, then pour and mix five pairs of substances with your real hand: tilt your hand to pour. Spot the gas, the new solid, the colour or the temperature change, and decide what kind of change it was. Works with mouse or touch too.",
+"m": "Module 2",
+"cam": "hands-on-chemical-change.html"
+},
+{
+"f": "five-types-of-chemical-reactions.html",
+"t": "5 Types of Chemical Reactions",
+"s": "chem",
+"g": "10",
+"tp": "reactions",
+"sim": 2,
+"o": 9,
+"k": "Build the reactants atom by atom, predict the type and the products before it reacts, see the five patterns animated, and test yourself with activity-series and “no reaction” challenges."
+},
+{
+"f": "titration-lab.html",
+"t": "Titration & Dilution",
+"s": "chem",
+"g": "10 11 12",
+"tp": "reactions",
+"sim": 19,
+"o": 18,
+"k": "Choose the right glassware and dilute, prepare a solution from a solid, then titrate unknowns drop by drop with indicators, a pH curve and KMnO₄. Do the dilution and the titration with your real hand: pinch to pick up the pipette, the wash bottle and the stopper, and pinch the burette tap to let drops fall until the first pale pink. Works with mouse or touch too.",
+"cam": "hands-on-titration.html"
+},
+{
+"f": "galvanic-cell-lab.html",
+"t": "Galvanic Cell",
+"s": "chem",
+"g": "12",
+"tp": "reactions",
+"sim": 18,
+"o": 20,
+"k": "Build a cell from any two metals: watch electrons in the wire and ions in the salt bridge, zoom in to the electrodes and turn the atoms around in 3D. Build a galvanic cell with your real hand: the camera follows it, pinch to pick up the metals, the salt bridge, the bulb and the word cards. Works with mouse or touch too.",
+"cam": "hands-on-lab.html"
+},
+{
+"f": "enthalpy-lab.html",
+"t": "Enthalpy Lab",
+"s": "chem",
+"g": "11",
+"tp": "energy",
+"sim": 6,
+"o": 14,
+"k": "Heat, calorimetry, thermochemical equations, Hess's law and enthalpies of formation, worked step by step.",
+"m": "Module 14"
+},
+{
+"f": "entropy-lab.html",
+"t": "Entropy Lab",
+"s": "chem",
+"g": "11",
+"tp": "energy",
+"sim": 5,
+"o": 14.5,
+"k": "Remove a wall and count the ways (S = k ln Ω) as a gas spreads, predict ΔS for real changes, then use ΔG = ΔH − TΔS in a spontaneity challenge."
+},
+{
+"f": "reaction-rates-lab.html",
+"t": "Reaction Rates",
+"s": "chem",
+"g": "11 12",
+"tp": "energy",
+"sim": 11,
+"o": 15,
+"k": "Watch particles collide and react, then change temperature, concentration, surface area and add a catalyst. Measure the rate and find a rate law."
+},
+{
+"f": "kinetics-lab.html",
+"t": "Kinetics Lab",
+"s": "chem",
+"g": "12",
+"tp": "energy",
+"sim": 13,
+"o": 15.5,
+"k": "Follow H₂O₂ + I⁻ in time: find the limiting reagent, fill the n(I₂) table, read t½ from the curve, draw tangents and practise the full exercise."
+},
+{
+"f": "chemical-equilibrium-lab.html",
+"t": "Chemical Equilibrium",
+"s": "chem",
+"g": "11 12",
+"tp": "energy",
+"sim": 12,
+"o": 16,
+"k": "See the forward and reverse reactions balance, predict Le Châtelier shifts when you add, squeeze or heat, then compare Q with K and solve ICE tables."
+},
+{
+"f": "equilibrium-table-lab.html",
+"t": "Equilibrium Table",
+"s": "chem",
+"g": "11",
+"tp": "energy",
+"sim": 17,
+"o": 16.5,
+"k": "The table of progress, Lebanese style: initial, during and final states, xmax and the limiting reactant, xf, τ and K. Step by step, a calculator for teachers, and random tables for students to calculate."
+},
+{
+"f": "organic-naming-lab.html",
+"t": "Organic Naming",
+"s": "chem",
+"g": "11 12",
+"tp": "organic",
+"sim": 7,
+"o": 21,
+"k": "Build a molecule and get its IUPAC name step by step, rings and benzene included, then name esters and amides, hunt isomers and identify mystery compounds."
+},
+{
+"f": "esterification-lab.html",
+"t": "Esterification",
+"s": "chem",
+"g": "12",
+"tp": "organic",
+"sim": 14,
+"o": 22,
+"k": "Build and name esters from any acid and alcohol, run the reaction to equilibrium, fill the table in moles and see why the yield is 67 %, 60 % or 5 %."
+}
+];
+var GROUPS = [
+  ['waves', 'Waves and sound'], ['fields', 'Forces, fields and circuits'], ['atoms', 'Light and the nucleus'],
+  ['reactions', 'Reactions and solutions'], ['energy', 'Energy, rates and equilibrium'], ['organic', 'Organic chemistry']
+];
+(function () {
+  var HAND = '<svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5V4a1.5 1.5 0 0 1 3 0v7m0-5.5a1.5 1.5 0 0 1 3 0V12m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L3.3 15.4a1.6 1.6 0 0 1 2.5-2l2.2 2.6"/></svg>';
+  var state = { grade: 'all', sub: 'all', q: '', cam: false };
+  var list = document.getElementById('list'), count = document.getElementById('count'), qIn = document.getElementById('q'), qClear = document.getElementById('qClear');
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function norm(t) { return (t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9½₀-₉]+/g, ' ').trim(); }
+  function stem(f) { return f.replace(/\.html$/, ''); }
+  function gradeText(g) { var a = g.split(' '); return a.length > 1 ? 'G' + a[0] + '–' + a[a.length - 1] : 'G' + a[0]; }
+  var gname = {}; GROUPS.forEach(function (x) { gname[x[0]] = x[1]; });
+  LABS.forEach(function (L) { L._text = ' ' + norm([L.t, L.k, gname[L.tp], L.s === 'phys' ? 'physics' : 'chemistry science', (L.cam || L.co) ? 'camera hands on hand' : '', L.m || ''].join(' ')) + ' '; });
 
-  /* words to search: title, topic, tag, description, subject and grade */
-  function norm(t){ return (t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9½₀-₉]+/g, ' ').trim(); }
-  items.forEach(function(it){
-    var sec = it.closest('.topic'), h = sec ? sec.querySelector('.topic-h') : null;
-    it._text = ' ' + norm([h ? h.firstChild.textContent : '', it.textContent, it.getAttribute('data-cam') ? 'camera hands on hand' : '',
-      it.getAttribute('data-sub') === 'phys' ? 'physics' : 'chemistry science'].join(' ')) + ' ';
-  });
+  function card(L, showModule) {
+    var meta = '<span class="sub">' + (L.s === 'phys' ? 'Physics' : 'Chemistry') + '</span><span>' + gradeText(L.g) + '</span>' + (showModule && L.m ? '<span>' + esc(L.m) + '</span>' : '');
+    return '<li class="card ' + L.s + '">' +
+      (L.co ? '<span class="badge">' + HAND + 'Camera lab</span>' : '') +
+      '<a class="main" href="' + L.f + '"><img loading="lazy" src="thumbs/' + stem(L.f) + '-card.jpg" alt=""><span class="body"><h3>' + esc(L.t) + '</h3><span class="meta">' + meta + '</span></span></a>' +
+      (L.cam ? '<a class="cam" href="' + L.cam + '">' + HAND + 'Also with camera</a>' : '') + '</li>';
+  }
 
-  /* the Newest card: always the lab with the highest SIM number */
-  (function(){
-    var best = null, bn = -1;
-    items.forEach(function(it){ var m = /SIM (\d+)/.exec(it.querySelector('.num').textContent); if (m && +m[1] > bn){ bn = +m[1]; best = it; } });
-    if (!best) return;
-    var card = best.querySelector('.card'), f = document.getElementById('feature');
-    f.href = card.getAttribute('href');
-    document.getElementById('fTitle').innerHTML = card.querySelector('h4').innerHTML;
-    var p = card.querySelector('p').textContent, m1 = /^.*?[.!?](\s|$)/.exec(p);
-    document.getElementById('fText').textContent = m1 ? m1[0].trim() : p;
-    var chip = card.querySelector('.chip').textContent.replace(/\bG(\d)/g, 'Grade $1');
-    document.getElementById('fMeta').textContent = chip + (best.getAttribute('data-cam') ? ' · Camera' : '');
-    var art = document.getElementById('fArt'), svg = card.querySelector('svg.icon');
-    if (svg){ var c = svg.cloneNode(true); c.removeAttribute('class'); art.innerHTML = ''; art.appendChild(c); }
-  })();
+  // the Newest card: the lab with the highest sim number
+  var nw = LABS.slice().sort(function (a, b) { return b.sim - a.sim; })[0];
+  var nf = nw.cam && nw.sim > 0 ? nw.f : nw.f;
+  document.getElementById('newest').href = nf;
+  document.getElementById('nImg').src = 'thumbs/' + stem(nf) + '-card.jpg';
+  document.getElementById('nTitle').textContent = nw.t;
+  document.getElementById('nMeta').textContent = (nw.s === 'phys' ? 'Physics' : 'Chemistry') + ' · ' + gradeText(nw.g).replace('G', 'Grade ') + (nw.co ? ' · Camera lab' : '');
 
   try {
     var u = new URLSearchParams(location.search);
@@ -555,36 +433,35 @@ footer .mono{font-family:var(--mono)}
     if (/^(phys|chem)$/.test(u.get('subject') || '')) state.sub = u.get('subject');
     if (u.get('camera') === '1') state.cam = true;
     if (u.get('q')) { state.q = u.get('q').slice(0, 60); qIn.value = state.q; }
-  } catch (e) {}
+  } catch (e) { }
 
-  function apply(push){
-    document.querySelectorAll('[data-grade]').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-grade') === state.grade); });
-    document.querySelectorAll('.sub[data-sub]').forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-sub') === state.sub); });
-    camBtn.setAttribute('aria-pressed', state.cam);
+  function render(push) {
+    document.querySelectorAll('[data-grade]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.grade === state.grade)); });
+    document.querySelectorAll('[data-sub]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.sub === state.sub)); });
     qClear.hidden = !state.q;
     var words = norm(state.q).split(' ').filter(Boolean);
-    var n = 0;
-    items.forEach(function(it){
-      var ok = (state.grade === 'all' || it.getAttribute('data-grades').split(' ').indexOf(state.grade) >= 0)
-        && (state.sub === 'all' || it.getAttribute('data-sub') === state.sub)
-        && (!state.cam || it.getAttribute('data-cam'))
-        && words.every(function(w){ return it._text.indexOf(' ' + w) >= 0; });
-      it.hidden = !ok; if (ok) n++;
+    var hits = LABS.filter(function (L) {
+      return (state.grade === 'all' || L.g.split(' ').indexOf(state.grade) >= 0) && (state.sub === 'all' || L.s === state.sub) &&
+        (!state.cam || L.cam || L.co) && words.every(function (w) { return L._text.indexOf(' ' + w) >= 0; });
     });
-    topics.forEach(function(t){
-      var k = t.querySelectorAll('.item:not([hidden])').length;
-      t.hidden = k === 0;
-      t.querySelector('.tn').textContent = k;
-      t.style.setProperty('--n', Math.max(1, Math.min(k, 4)));
-    });
-    var parts = [state.grade === 'all' ? 'All grades' : 'Grade ' + state.grade];
-    if (state.sub !== 'all') parts.push(state.sub === 'phys' ? 'Physics' : 'Chemistry');
-    if (state.cam) parts.push('Camera labs');
-    title.textContent = parts.join(' · ');
-    count.textContent = (state.q ? (n ? n : 'No') + (n === 1 ? ' match' : ' matches') + ' for “' + state.q + '”' : n + (n === 1 ? ' simulation' : ' simulations'));
-    empty.hidden = n > 0;
-    if (!n) emptyMsg.textContent = state.q ? 'No labs match “' + state.q + '”' + (parts.length > 1 || state.grade !== 'all' ? ' with these choices.' : '. Try another word.') : 'No labs for these choices yet.';
-    if (push){
+    var html = '';
+    if (state.grade === 'all') {
+      GROUPS.forEach(function (G) {
+        var g = hits.filter(function (L) { return L.tp === G[0]; });
+        if (g.length) html += '<section class="group"><h2>' + G[1] + ' <span class="n">' + g.length + '</span></h2><ul class="cards">' + g.map(function (L) { return card(L, false); }).join('') + '</ul></section>';
+      });
+    } else {   // one grade: the textbook order, physics then chemistry
+      [['phys', 'Physics'], ['chem', state.grade === '7' ? 'Science' : 'Chemistry']].forEach(function (S) {
+        var g = hits.filter(function (L) { return L.s === S[0]; }).sort(function (a, b) { return a.o - b.o; });
+        if (g.length) html += '<section class="group"><h2>Grade ' + state.grade + ' ' + S[1] + ' <span class="n">in book order</span></h2><ul class="cards">' + g.map(function (L) { return card(L, true); }).join('') + '</ul></section>';
+      });
+    }
+    list.innerHTML = html;
+    var n = hits.length;
+    count.textContent = state.q ? (n || 'No') + (n === 1 ? ' match' : ' matches') : n + (n === 1 ? ' lab' : ' labs');
+    document.getElementById('empty').hidden = n > 0;
+    if (!n) document.getElementById('emptyMsg').textContent = state.q ? 'No labs match “' + state.q + '”.' : 'No labs for these choices yet.';
+    if (push) {
       try {
         var p = [];
         if (state.grade !== 'all') p.push('grade=' + state.grade);
@@ -592,28 +469,24 @@ footer .mono{font-family:var(--mono)}
         if (state.cam) p.push('camera=1');
         if (state.q) p.push('q=' + encodeURIComponent(state.q));
         history.replaceState(null, '', location.pathname + (p.length ? '?' + p.join('&') : ''));
-      } catch (e) {}
+      } catch (e) { }
     }
   }
-  document.addEventListener('click', function(e){
-    var g = e.target.closest('[data-grade]'), s = e.target.closest('.sub[data-sub]');
-    if (g){ state.grade = g.getAttribute('data-grade'); apply(true); }
-    else if (s){ state.sub = s.getAttribute('data-sub'); apply(true); }
-    else if (e.target.closest('#camOnly')){ state.cam = !state.cam; apply(true); }
-    else if (e.target.closest('#qClear')){ state.q = ''; qIn.value = ''; apply(true); qIn.focus(); }
-    else if (e.target.closest('#showAll')){ state = { grade: 'all', sub: 'all', cam: false, q: '' }; qIn.value = ''; apply(true); }
+  document.addEventListener('click', function (e) {
+    var g = e.target.closest('[data-grade]'), s = e.target.closest('[data-sub]');
+    if (g) { state.grade = g.dataset.grade; render(true); }
+    else if (s) { state.sub = s.dataset.sub; render(true); }
+    else if (e.target.closest('#qClear')) { state.q = ''; qIn.value = ''; render(true); qIn.focus(); }
+    else if (e.target.closest('#showAll')) { state = { grade: 'all', sub: 'all', q: '', cam: false }; qIn.value = ''; render(true); }
   });
   var tmr;
-  qIn.addEventListener('input', function(){ clearTimeout(tmr); tmr = setTimeout(function(){ state.q = qIn.value.trim().slice(0, 60); apply(true); }, 120); });
-  qIn.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && qIn.value){ e.preventDefault(); state.q = ''; qIn.value = ''; apply(true); }
-    if (e.key === 'Enter'){ var first = document.querySelector('#grid .item:not([hidden]) .card'); if (first){ e.preventDefault(); first.focus(); } }
+  qIn.addEventListener('input', function () { clearTimeout(tmr); tmr = setTimeout(function () { state.q = qIn.value.trim().slice(0, 60); render(true); }, 120); });
+  qIn.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && qIn.value) { e.preventDefault(); state.q = ''; qIn.value = ''; render(true); }
+    if (e.key === 'Enter') { var a = document.querySelector('#list .card a.main'); if (a) { e.preventDefault(); a.focus(); } }
   });
-  /* press / to jump to the search */
-  document.addEventListener('keydown', function(e){
-    if (e.key === '/' && document.activeElement !== qIn && !/input|textarea|select/i.test((document.activeElement || {}).tagName || '')){ e.preventDefault(); qIn.focus(); }
-  });
-  apply(false);
+  document.addEventListener('keydown', function (e) { if (e.key === '/' && document.activeElement !== qIn && !/input|textarea|select/i.test((document.activeElement || {}).tagName || '')) { e.preventDefault(); qIn.focus(); } });
+  render(false);
 })();
 </script>
 </body>

@@ -425,6 +425,103 @@
      Intro: the first tab only, the essential controls (the "simple" hide list), a "Start here" hint.
      Lab: every tab and every control.  Challenge: the lab's quiz / game tab on its own. */
   var root = document.documentElement, mode = 'simple';
+  if (root.classList.contains('stage-ui') && window.LAB && window.LAB.screens) { stageNav(); return; }
+
+  /* ---------- STAGE LAYOUT (DESIGN.md): one level of screens with real thumbnails, Reset bottom right ---------- */
+  function stageNav() {
+    var LAB = window.LAB, S = LAB.screens, stem = file.replace(/\.html$/, ''), LASTK = 'lg:last:' + file;
+    var title = (document.querySelector('.topbar h1') || document.querySelector('h1') || {}).textContent || document.title;
+    var tag = ((document.querySelector('.tb-tag') || {}).textContent || '').trim();
+    var e3 = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var ICO = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 58 36"><rect width="58" height="36" fill="#9AB0B8" opacity=".25"/><path d="M8 26 q7 -16 14 0 t14 0 t14 0" fill="none" stroke="#0A6A88" stroke-width="2.5"/></svg>');
+    function thumb(id) { return 'url("thumbs/' + stem + '-' + id + '.jpg"),url("' + ICO + '")'; }
+    var css =
+      '.lg-nav{position:fixed;left:0;right:0;bottom:0;z-index:58;height:calc(var(--bar-h,64px) + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:8px;' +
+      'padding:0 max(12px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(8px,env(safe-area-inset-left,0px));background:var(--surface);border-top:1px solid var(--line);color:var(--ink);font:700 13px/1 var(--body)}' +
+      '.lg-nav .scr{display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:0 1 auto}.lg-nav .scr::-webkit-scrollbar{display:none}' +
+      '.lg-nav button.ph{display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;color:var(--muted);padding:5px 7px;border-radius:8px;cursor:pointer;font:700 12.5px/1 var(--body);flex:none;min-width:0!important}' +
+      '.lg-nav button.ph:hover{color:var(--ink)}' +
+      '.lg-nav .th{width:60px;height:36px;border-radius:6px;border:2px solid var(--line);background-color:var(--sunk);background-position:center;background-size:cover;background-repeat:no-repeat;display:block}' +
+      '.lg-nav button.ph[aria-current="true"]{color:var(--accent)}.lg-nav button.ph[aria-current="true"] .th{border-color:var(--accent)}' +
+      '.lg-nav .home .th{background:none;border:0;display:flex;align-items:center;justify-content:center}.lg-nav .home svg{width:26px;height:26px}' +
+      '.lg-nav .sp{flex:1 1 auto}' +
+      '.lg-nav .btn-reset{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:var(--reset);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.2);padding:0}' +
+      '.lg-nav .btn-reset svg{width:24px;height:24px}.lg-nav .btn-reset:active{transform:translateY(1px)}' +
+      '.lg-nav .lg-btn{position:static!important;box-shadow:none!important;height:42px;padding:0 14px!important;border-radius:999px;background:var(--accent)!important;color:var(--on-accent)!important}' +
+      '.lg-nav .lg-btn .q{background:var(--on-accent)!important;color:var(--accent)!important}' +
+      '.lg-nav .lg-btn{flex:none!important}' +
+      '@media (max-width:560px){.lg-nav .scr{-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent);padding-right:18px}}' +
+      '@media (max-width:560px){.lg-nav .lg-btn .gtxt{display:none}.lg-nav .lg-btn{width:42px!important;padding:0!important;justify-content:center}.lg-nav .th{width:44px;height:28px}.lg-nav button.ph{padding:4px 3px;font-size:13px}.lg-nav{gap:4px}.lg-nav .btn-reset{width:42px;height:42px}}' +
+      '.lg-home{position:fixed;inset:0;z-index:80;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(16px,3.5vh,32px);padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));overflow:auto;font-family:var(--body)}' +
+      '.lg-home .tg{margin:0;font:600 14px/1 var(--body);color:var(--muted);padding:7px 12px;border-radius:999px;background:var(--sunk)}' +
+      '.lg-home h1{margin:0;font:800 clamp(30px,5vw,52px)/1.05 var(--display);text-align:center;letter-spacing:-.02em;text-wrap:balance}' +
+      '.lg-home .cards{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;max-width:1100px}' +
+      '.lg-home .card{width:min(240px,42vw);background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:8px 8px 12px;color:inherit;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:8px;font:inherit;margin:0;transition:transform .12s,border-color .12s,box-shadow .12s}' +
+      '.lg-home .card:hover,.lg-home .card:focus-visible{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 10px 24px rgba(19,35,43,.14);outline:none}' +
+      '.lg-home .card .pic{display:block;aspect-ratio:16/10;border-radius:9px;background-color:var(--sunk);background-size:cover;background-position:center}' +
+      '.lg-home .card b{font:800 20px/1.1 var(--display);padding:0 4px}' +
+      '.lg-home .back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:700;font-size:14px;text-decoration:none;padding:9px 14px;border-radius:999px}.lg-home .back:hover{color:var(--ink);background:var(--sunk)}' +
+      '@media (prefers-reduced-motion: reduce){.lg-home .card{transition:none}}@media print{.lg-nav,.lg-home{display:none}}';
+    var st2 = document.createElement('style'); st2.textContent = css; document.head.appendChild(st2);
+
+    var nav = document.createElement('nav'); nav.className = 'lg-nav'; nav.setAttribute('aria-label', 'Screens');
+    nav.innerHTML = '<div class="scr"><button type="button" class="ph home" data-ph="home" aria-label="Home screen"><span class="th"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 L12 3 L21 11 V21 H14 V14 H10 V21 H3 Z" fill="currentColor"/></svg></span>Home</button>' +
+      S.map(function (q) { return '<button type="button" class="ph" data-ph="' + q.id + '"><span class="th" style=\'background-image:' + thumb(q.id) + '\'></span>' + e3(q.name) + '</button>'; }).join('') +
+      '</div><span class="sp"></span><button type="button" class="btn-reset" aria-label="Reset" title="Reset"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M4 3.5v5h5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+    document.body.appendChild(nav);
+    function moveGuide() { var g = document.querySelector('.lg-btn'); if (g && g.parentNode !== nav) { nav.appendChild(g); if (!g.querySelector('.gtxt')) g.innerHTML = g.innerHTML.replace('Guide', '<span class="gtxt">Guide</span>'); } }
+    moveGuide(); setTimeout(moveGuide, 0);
+    nav.querySelector('.btn-reset').onclick = function () { if (typeof LAB.reset === 'function') LAB.reset(); else location.reload(); };
+
+    var ids = S.map(function (q) { return q.id; });
+    function setScreen(id, push) {
+      var q = S[ids.indexOf(id)]; if (!q) return;
+      var h = document.querySelector('.lg-home'); if (h) h.remove();
+      root.setAttribute('data-phase', q.simple || id === 'intro' ? 'intro' : id);
+      root.setAttribute('data-screen', id);
+      document.querySelectorAll('.screen[data-screens]').forEach(function (s) { s.hidden = s.getAttribute('data-screens').split(/\s+/).indexOf(id) < 0; });
+      if (q.tab) { var t = document.querySelector('[data-tab="' + q.tab + '"]'); if (t && t.getAttribute('aria-selected') !== 'true') t.click(); }
+      nav.querySelectorAll('[data-ph]').forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.ph === id)); });
+      try { localStorage.setItem(LASTK, id); } catch (e) { }
+      if (push !== false) { try { history.replaceState(null, '', location.pathname + location.search + '#' + id); } catch (e) { } }
+      if (typeof LAB.onScreen === 'function') LAB.onScreen(id);
+      window.dispatchEvent(new Event('resize'));
+    }
+    function showHome() {
+      var h = document.createElement('div'); h.className = 'lg-home'; h.setAttribute('role', 'dialog'); h.setAttribute('aria-label', title + ': choose a screen');
+      h.innerHTML = (tag ? '<p class="tg">' + e3(tag) + '</p>' : '') + '<h1>' + e3(title) + '</h1><div class="cards">' +
+        S.map(function (q) { return '<button type="button" class="card" data-ph="' + q.id + '"><span class="pic" style=\'background-image:' + thumb(q.id) + '\'></span><b>' + e3(q.name) + '</b></button>'; }).join('') +
+        '</div><a class="back" href="index.html">← All simulations</a>';
+      document.body.appendChild(h);
+      h.querySelectorAll('[data-ph]').forEach(function (b) { b.onclick = function () { setScreen(b.dataset.ph); }; });
+      var first = h.querySelector('.card'); if (first) first.focus();
+      nav.querySelectorAll('[data-ph]').forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.ph === 'home')); });
+    }
+    nav.addEventListener('click', function (e) { var b = e.target.closest('[data-ph]'); if (!b) return; if (b.dataset.ph === 'home') showHome(); else setScreen(b.dataset.ph); });
+    window.addEventListener('hashchange', function () { var h = (location.hash || '').slice(1); if (ids.indexOf(h) >= 0 && root.getAttribute('data-screen') !== h) setScreen(h, false); });
+
+    // top-bar tools: Full screen and Dark mode, the same on every lab
+    var KEYT = 'lg-theme:' + file;
+    try { var sv = localStorage.getItem(KEYT); if (sv === 'dark' || sv === 'light') root.setAttribute('data-theme', sv); } catch (e) { }
+    function isDark() { var t = root.getAttribute('data-theme'); if (t) return t === 'dark'; return !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
+    var thb = document.querySelector('[data-tool="theme"]');
+    function thLabel() { if (!thb) return; var s = thb.querySelector('span'); if (s) s.textContent = isDark() ? 'Light' : 'Dark'; thb.setAttribute('aria-label', isDark() ? 'Light mode' : 'Dark mode'); }
+    if (thb) { thLabel(); thb.onclick = function () { var n = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', n); try { localStorage.setItem(KEYT, n); } catch (e) { } thLabel(); window.dispatchEvent(new Event('resize')); }; }
+    var fsb = document.querySelector('[data-tool="fs"]');
+    var fsEl = function () { return document.fullscreenElement || document.webkitFullscreenElement; };
+    if (fsb) {
+      if (!(document.fullscreenEnabled || document.webkitFullscreenEnabled)) fsb.hidden = true;
+      var fsLabel = function () { var s = fsb.querySelector('span'); if (s) s.textContent = fsEl() ? 'Exit' : 'Full screen'; setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 120); };
+      fsb.onclick = function () { try { if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else { var p = (root.requestFullscreen || root.webkitRequestFullscreen).call(root); if (p && p.catch) p.catch(function () { }); } } catch (e) { } };
+      document.addEventListener('fullscreenchange', fsLabel); document.addEventListener('webkitfullscreenchange', fsLabel);
+    }
+
+    var start = (location.hash || '').slice(1), saved = null;
+    try { saved = localStorage.getItem(LASTK); } catch (e) { }
+    if (ids.indexOf(start) < 0 && ids.indexOf(saved) >= 0) start = saved;
+    if (ids.indexOf(start) >= 0) setScreen(start, false); else { setScreen(ids[0], false); showHome(); }
+  }
+
   var PH = {  // intro tab, challenge tab (null = none), names
     'chemical-change-lab.html': { intro: '[data-tab="signs"]', game: '[data-tab="bal"]', gameName: 'Balance it' },
     'chemical-equilibrium-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
