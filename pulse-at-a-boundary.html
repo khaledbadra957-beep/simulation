@@ -219,6 +219,15 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
 .stage-ui .verdict{font-weight:700}
 .stage-ui .scene{cursor:default}
 @media (max-width:860px),(max-height:560px){.stage-ui #gv{aspect-ratio:4/3}}
+.stage-ui .exhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.stage-ui .exhead h2{margin:0;font:800 1.4rem/1.2 var(--display)}
+.stage-ui .exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px 18px}
+.stage-ui .exgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.stage-ui .exgrid label.ck{flex-direction:row;align-items:center;gap:8px;align-self:end;min-height:38px}
+.stage-ui .exgrid span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .exgrid input[type=number]{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .exgrid input[aria-invalid="true"]{border-color:var(--bad,#C0392B)}.stage-ui .exgrid input:disabled{opacity:.5}
+.stage-ui .exq p{margin:0}.stage-ui .exq ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+.stage-ui #exSolve svg{flex:none}
+.tour-tip .t-picks{display:flex;gap:8px;margin-top:8px}.tour-tip .t-picks button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 </style>
 <link rel="stylesheet" href="site.css">
 </head>
@@ -302,6 +311,22 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
     </aside>
   </section>
 
+  <section class="screen solo" data-screens="ex" hidden>
+    <div class="solo-in">
+      <div class="exhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button><button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+      <section class="group exf">
+        <div class="exgrid">
+          <label>Amplitude of the incoming pulse A <span><input id="exA" type="number" inputmode="decimal" min="0.1" step="any" value="6"> cm</span></label>
+          <label>Speed on spring 1, v₁ <span><input id="exV" type="number" inputmode="decimal" min="0.01" step="any" value="2"> m/s</span></label>
+          <label>Spring 2: mass per metre μ₂ ÷ μ₁ <span><input id="exM" type="number" inputmode="decimal" min="0.1" max="10" step="any" value="4"> ×</span></label>
+          <label class="ck"><input type="checkbox" id="exW"> Spring 2 is a rigid wall (fixed end)</label>
+        </div>
+        <p class="note" id="exMsg">The lab can do μ₂ ÷ μ₁ from 0.1 to 10. Same tension in both springs.</p>
+      </section>
+      <section class="group exq"><h2>Your exercise</h2><p id="exText"></p><ol id="exQs"></ol></section>
+    </div>
+  </section>
+
   <section class="screen solo" data-screens="predict" hidden>
     <div class="solo-in">
       <section class="group draw" aria-labelledby="h-draw">
@@ -317,7 +342,7 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
   </section>
 </main>
 
-<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro' }, { id: 'lab', name: 'Lab' }, { id: 'predict', name: 'Predict' } ] };</script>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro' }, { id: 'lab', name: 'Lab' }, { id: 'predict', name: 'Predict' }, { id: 'ex', name: 'Exercise' } ] };</script>
 <script>
 (function () {
   "use strict";
@@ -804,8 +829,59 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { font = getComputedStyle(document.body).fontFamily; draw(); graph(); });
   syncSetup(); resize(); gResize(); refresh();
   requestAnimationFrame(frame);
+
+  /* ---------- Exercise: your numbers, solved in the lab (tour.js) ---------- */
+  var EX = { A: 6, v: 2, m: 4, wall: false }, exPred = null;
+  function exRead() {
+    var num = function (id, lo, hi) { var el = $(id), x = parseFloat(String(el.value).replace(",", ".")), ok = isFinite(x) && x >= lo && (hi == null || x <= hi); el.setAttribute("aria-invalid", ok ? "false" : "true"); return ok ? x : null; };
+    EX.wall = $("exW").checked; $("exM").disabled = EX.wall;
+    var A = num("exA", .01), v = num("exV", .001), m = EX.wall ? 1 : num("exM", .1, 10), ok = A != null && v != null && m != null;
+    $("exMsg").textContent = ok ? "Ready. Press “Solve it in the lab”." : (m == null ? "μ₂ ÷ μ₁ must be between 0.1 and 10." : "Type a positive amplitude and speed.");
+    if (!ok) return null; EX.A = A; EX.v = v; EX.m = m;
+    $("exText").textContent = "A pulse " + A + " cm high travels at " + v + " m/s along spring 1 towards " + (EX.wall ? "a rigid wall where the spring is fixed." : "a join with spring 2, whose mass per metre is " + m + " times that of spring 1 (same tension).");
+    $("exQs").innerHTML = (EX.wall ? ["Describe the reflected pulse: its height, and upright or inverted?", "How much energy is reflected?"] :
+      ["Find the speed of the pulse on spring 2.", "Find the height of the reflected pulse. Is it upright or inverted?", "Find the height of the transmitted pulse.", "What share of the energy is reflected and transmitted?"]).map(function (q) { return "<li>" + q + "</li>"; }).join("");
+    return EX;
+  }
+  ["exA", "exV", "exM", "exW"].forEach(function (id) { $(id).addEventListener("input", exRead); $(id).addEventListener("change", exRead); });
+  $("exEg").onclick = function () { $("exA").value = 6; $("exV").value = 3; $("exM").value = 9; $("exW").checked = false; exRead(); };
+  exRead();
+  document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest(".tour-tip [data-pick]"); if (!b) return; exPred = b.getAttribute("data-pick"); b.parentNode.querySelectorAll("[data-pick]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); });
+  function exSolve() {
+    var E = exRead(); if (!E || !window.Tour) return;
+    var A = E.A, v1 = E.v, m = E.m, wall = E.wall, r = Math.sqrt(m), R = wall ? -1 : (1 - r) / (1 + r), Tt = wall ? 0 : 2 / (1 + r), v2 = wall ? 0 : v1 / r;
+    var f2 = function (x) { return (Math.round(x * 100) / 100).toString().replace("-", "−"); }, pc = function (x) { return Math.round(x * 100) + "%"; };
+    var calc = function (t) { return '<div class="t-calc">' + t + "</div>"; }, inv = R < -1e-9 ? "inverted" : R > 1e-9 ? "upright" : "none";
+    var goLab = function () { var b = document.querySelector('.lg-nav [data-ph="lab"]'); if (b && document.documentElement.getAttribute("data-screen") !== "lab") b.click(); };
+    var setRange = function (el, x) { el.value = x; el.dispatchEvent(new Event("input", { bubbles: true })); };
+    exPred = null; var qn = 0, Q = function () { return (++qn) + " · "; };
+    var steps = [
+      { title: "Solve it in the lab", html: "<p>" + $("exText").textContent + "</p><p>We set up the same join, predict, calculate, then watch the pulse to check.</p>",
+        onShow: function () { goLab(); st.playing = false; st.t = T_START; st.predict = false; $("predict").checked = false; st.labels = true; $("labels").checked = true; refresh(); } },
+      wall ? { el: function () { return $("presets"); }, title: "Set the wall", html: "<p>Choose <b>Wall</b>: the end of spring 1 is fixed and cannot move.</p>",
+          wait: function () { return st.wall; }, doIt: function () { document.querySelector('.preset[data-m="wall"]').click(); }, done: "Spring 1 now ends at a rigid wall.", auto: 900 }
+        : { el: function () { return $("ratio").closest(".field"); }, title: "Set spring 2", html: "<p>Drag <b>Mass per metre</b> to <b>" + m + "×</b> (or drag the orange number).</p>",
+          wait: function () { return !st.wall && Math.abs(Math.log10(st.m) - Math.log10(m)) < 0.0055; }, doIt: function () { setRange($("ratio"), Math.round(Math.log10(m) * 100)); },
+          done: "Spring 2 is " + m + "× as heavy per metre" + (m > 1 ? ": a heavier spring." : m < 1 ? ": a lighter spring." : ": the same spring."), auto: 900 },
+      { title: "Predict first", html: "<p>When the pulse reaches the " + (wall ? "wall" : "join") + ", will the reflected pulse be upright or upside down?</p><div class=\"t-picks\"><button type=\"button\" data-pick=\"upright\">Upright</button><button type=\"button\" data-pick=\"inverted\">Inverted</button>" + (wall ? "" : "<button type=\"button\" data-pick=\"none\">No reflection</button>") + "</div>",
+        wait: function () { return !!exPred; }, done: function () { return "You predicted: " + exPred + ". Let’s work it out."; } }
+    ];
+    if (!wall) steps.push({ el: function () { return $("vNum").closest("dd"); }, title: Q() + "Speed on spring 2", html: calc("r = √(μ₂ ÷ μ₁) = √" + m + " = " + f2(r) + "\nv₂ = v₁ ÷ r = " + v1 + " ÷ " + f2(r) + "\nv₂ = " + f2(v2) + " m/s") + "<p>" + (m > 1 ? "A heavier spring carries the pulse more slowly." : m < 1 ? "A lighter spring carries the pulse faster." : "Same spring, same speed.") + " The lab shows v₂ = " + f2(1 / r) + " × v₁.</p>" });
+    steps.push({ el: function () { return $("fR").closest("dd"); }, title: Q() + "The reflected pulse", onShow: function () { var d = document.querySelector(".maths"); if (d) d.open = true; },
+      html: wall ? calc("At a fixed end R = −1\nheight = " + A + " cm, inverted") + "<p>The wall pulls the spring the other way, so the pulse comes back upside down and just as tall.</p>"
+        : calc("R = (1 − r) ÷ (1 + r) = (1 − " + f2(r) + ") ÷ (1 + " + f2(r) + ")\nR = " + (R >= 0 ? "+" : "") + f2(R) + "\nheight = |R| × A = " + f2(Math.abs(R)) + " × " + A + " = " + f2(Math.abs(R) * A) + " cm") + "<p>" + (inv === "inverted" ? "R is negative: the reflected pulse is <b>inverted</b>." : inv === "upright" ? "R is positive: the reflected pulse is <b>upright</b>." : "R = 0: there is <b>no reflected pulse</b>.") + "</p>" });
+    if (!wall) steps.push({ el: function () { return $("fT").closest("dd"); }, title: Q() + "The transmitted pulse", html: calc("T = 2 ÷ (1 + r) = 2 ÷ (1 + " + f2(r) + ")\nT = " + f2(Tt) + "\nheight = T × A = " + f2(Tt) + " × " + A + " = " + f2(Tt * A) + " cm") + "<p>The transmitted pulse is always upright" + (Tt > 1 ? ", and here it is taller than the incoming one (but slower, so it still carries less energy)." : ".") + "</p>" });
+    steps.push({ el: function () { return cv.closest(".scene"); }, title: "Watch and check", interactive: true, html: "<p>Watch the pulse reach the " + (wall ? "wall" : "join") + ". " + (wall ? "It comes back upside down, " + A + " cm tall." : "The reflected pulse comes back " + (inv === "none" ? "— there is none" : inv + ", " + f2(Math.abs(R) * A) + " cm tall") + ", and " + f2(Tt * A) + " cm goes on into spring 2.") + "</p>",
+      onShow: function () { st.t = T_START; st.playing = true; last = 0; refresh(); },
+      wait: function () { return st.t >= T_END - 0.05; }, done: function () { return exPred ? (exPred === (wall ? "inverted" : inv) ? "Your prediction was right." : "You predicted " + exPred + "; the pulse came back " + (wall ? "inverted" : inv) + ".") : "Seen."; } });
+    steps.push({ el: function () { return document.querySelector(".energy"); }, title: Q() + "Where the energy goes", html: wall ? calc("reflected 100%  ·  transmitted 0%") + "<p>Nothing passes into the wall.</p>" : calc("reflected   = R² = " + (R < 0 ? "(" + f2(R) + ")" : f2(R)) + "² = " + pc(R * R) + "\ntransmitted = r · T² = " + f2(r) + " × " + f2(Tt) + "² = " + pc(r * Tt * Tt) + "\ntotal = 100%") + "<p>The bar shows the same split.</p>" });
+    steps.push({ title: "Your answers", html: calc(wall ? "reflected: " + A + " cm, inverted\nenergy: 100% reflected" : "v₂ = " + f2(v2) + " m/s\nreflected: " + f2(Math.abs(R) * A) + " cm, " + inv + "\ntransmitted: " + f2(Tt * A) + " cm, upright\nenergy: " + pc(R * R) + " reflected, " + pc(r * Tt * Tt) + " transmitted") + "<p>Compare them with your own working.</p>" });
+    setTimeout(function () { Tour.start(steps, { label: "Exercise", skipText: "Stop", doneText: "Finish", lazy: true }); }, 80);
+  }
+  $("exSolve").onclick = exSolve;
 })();
 </script>
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body>
 </html>
