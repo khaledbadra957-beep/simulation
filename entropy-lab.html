@@ -96,6 +96,12 @@ canvas { display: block; width: 100%; aspect-ratio: 4 / 3; background: var(--ves
 .btn:hover { border-color: var(--accent); }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
 
+.exhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.exbtns,.exkind{display:flex;gap:8px;flex-wrap:wrap}.exkind{margin:12px 0}
+[data-exk][aria-pressed="true"]{background:var(--accent);color:var(--accent-ink,#fff);border-color:transparent}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px 18px}.exgrid[hidden],.exgrid label[hidden]{display:none}
+.exgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.exgrid label.wide{grid-column:1/-1}.exgrid span{display:flex;align-items:center;gap:6px;font:600 14px var(--mono,monospace);color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--mono,monospace);width:7.5em;padding:7px 9px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg,var(--surface));color:var(--fg,inherit)}.exgrid select,.exgrid label.wide input{width:100%;max-width:100%}
+.exgrid input[aria-invalid="true"]{border-color:#C0392B}.exqs{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
 .card h2 { margin-bottom: 4px; }
 .card .hint { margin: 0 0 12px; color: var(--muted); }
@@ -223,6 +229,7 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
     <button type="button" class="tab" role="tab" data-tab="spr" aria-selected="true">1 · Spreading out</button>
     <button type="button" class="tab" role="tab" data-tab="chg" aria-selected="false">2 · Changes &amp; ΔG</button>
     <button type="button" class="tab" role="tab" data-tab="chal" aria-selected="false">3 · Spontaneous?</button>
+    <button type="button" class="tab" role="tab" data-tab="ex" aria-selected="false">Your exercise</button>
   </div>
 
   <section id="p-spr" aria-label="Spreading out">
@@ -351,6 +358,26 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
     </section>
   </div>
   </div>
+
+  <section id="p-ex" hidden aria-label="Your exercise">
+    <div class="card">
+      <div class="exhead"><h2 style="margin:0">Your exercise, solved in the lab</h2><span class="exbtns"><button type="button" class="btn" id="exEg">Example</button><button type="button" class="btn primary" id="exSolve">▶ Solve it in the lab</button></span></div>
+      <div class="exkind" role="group" aria-label="Kind of exercise"><button type="button" class="btn" data-exk="g" aria-pressed="true">ΔG = ΔH − TΔS</button><button type="button" class="btn" data-exk="w" aria-pressed="false">Ways Ω and S = k ln Ω</button></div>
+      <div class="exgrid" data-exf="g">
+        <label class="wide">Reaction <select id="exR"></select></label>
+        <label class="wide" id="exEqL" hidden>Equation (only for the label) <input id="exEq" type="text" value="2SO₂(g) + O₂(g) → 2SO₃(g)" autocomplete="off"></label>
+        <label>ΔH <span><input id="exH" inputmode="decimal" value="178"> kJ</span></label>
+        <label>ΔS <span><input id="exS" inputmode="decimal" value="161"> J/K</span></label>
+        <label>Temperature T <span><input id="exT" inputmode="decimal" value="298"> K</span></label>
+      </div>
+      <div class="exgrid" data-exf="w" hidden>
+        <label>Number of particles N <span><input id="exN" inputmode="numeric" value="10"></span></label>
+        <label>Particles on the left <span><input id="exNL" inputmode="numeric" value="5"></span></label>
+      </div>
+      <p class="fine" id="exMsg"></p>
+    </div>
+    <div class="card" style="margin-top:14px"><p class="eyebrow">Your exercise</p><p id="exText" style="margin:6px 0"></p><ol id="exQs" class="exqs"></ol></div>
+  </section>
 
   <section id="p-chal" hidden aria-label="Spontaneous? challenge">
     <div class="chal-grid">
@@ -789,6 +816,7 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
   });
   if (reduce) $("#playBtn").textContent = "Play";
   select(0);
+  window.__ENTG = { SC: SC, st: st, select: select, predict: predict, dsign: dsign };
 })();
 </script>
 
@@ -805,7 +833,7 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
     b.addEventListener("click", function () {
       current = b.dataset.tab;
       document.querySelectorAll(".tab").forEach(function (x) { x.setAttribute("aria-selected", x === b ? "true" : "false"); });
-      ["spr", "chg", "chal"].forEach(function (t) { $("#p-" + t).hidden = t !== current; });
+      ["spr", "chg", "chal", "ex"].forEach(function (t) { $("#p-" + t).hidden = t !== current; });
       $("#score").hidden = current !== "chg";
       if (current === "spr") fitSpr();
       window.dispatchEvent(new Event("resize"));
@@ -1106,8 +1134,79 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
   $("#score").hidden = true;
   reset(); ways(4); show(); fitSpr();
   requestAnimationFrame(loop);
+
+  /* ---- YOUR EXERCISE: solved step by step in the lab (tour.js) ---- */
+  var E = window.__ENTG, exK = "g";
+  var GOOD = E.SC.map(function (sc, i) { return sc.dH === null ? -1 : i; }).filter(function (i) { return i >= 0; });
+  $("#exR").innerHTML = GOOD.map(function (i) { var sc = E.SC[i]; return '<option value="' + i + '">' + sc.name + " · " + sc.eq + "</option>"; }).join("") + '<option value="other">Another reaction (type ΔH and ΔS)</option>';
+  $("#exR").value = String(E.SC.findIndex(function (sc) { return sc.id === "caco3"; }));
+  document.querySelectorAll("[data-exk]").forEach(function (b) { b.addEventListener("click", function () { exK = b.dataset.exk;
+    document.querySelectorAll("[data-exk]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    document.querySelectorAll("[data-exf]").forEach(function (g) { g.hidden = g.dataset.exf !== exK; }); exRead(); }); });
+  $("#exR").addEventListener("change", function () { var v = this.value; $("#exEqL").hidden = v !== "other"; if (v !== "other") { var sc = E.SC[+v]; $("#exH").value = sc.dH; $("#exS").value = sc.dS; } exRead(); });
+  function exN(id, lo, hi) { var e = $("#" + id), x = parseFloat(String(e.value).replace(",", ".").replace("−", "-")), ok = isFinite(x) && x >= lo && x <= hi; e.setAttribute("aria-invalid", ok ? "false" : "true"); return ok ? x : null; }
+  var sgn = function (v, d) { return (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(d === undefined ? 1 : d); }, num = function (v) { return String(+v.toPrecision(4)).replace("-", "−"); };
+  function exRead() {
+    var m = $("#exMsg");
+    function bad(t) { m.textContent = t; $("#exText").textContent = ""; $("#exQs").innerHTML = ""; return null; }
+    function qs(a) { $("#exQs").innerHTML = a.map(function (q) { return "<li>" + q + "</li>"; }).join(""); }
+    if (exK === "g") {
+      var v = $("#exR").value, H = exN("exH", -5000, 5000), Sv = exN("exS", -2000, 2000), T = exN("exT", 200, 1500);
+      if (H === null || Sv === null) return bad("Type ΔH in kJ and ΔS in J/K (for example 178 and 161).");
+      if (!H || !Sv) return bad("ΔH and ΔS must not be zero.");
+      if (T === null || T !== Math.round(T)) return bad("The lab's temperature slider goes from 200 to 1500 K in whole kelvins. 25 °C = 298 K.");
+      var eq = v === "other" ? ($("#exEq").value.trim() || "your reaction").replace(/([A-Za-z)])(\d+)/g, function (m0, a, d) { return a + d.replace(/\d/g, function (x) { return "₀₁₂₃₄₅₆₇₈₉"[x]; }); }).replace(/-+>|=>/g, "→") : E.SC[+v].eq;
+      m.textContent = "Ready. Press “Solve it in the lab”.";
+      $("#exText").innerHTML = "For the reaction <b>" + eq.replace(/</g, "&lt;") + "</b>, ΔH = " + num(H) + " kJ and ΔS = " + num(Sv) + " J/K.";
+      qs(["Predict the sign of ΔS from the equation.", "Calculate ΔG at " + T + " K.", "Is the reaction spontaneous at " + T + " K?"].concat((H > 0) === (Sv > 0) ? ["Above or below what temperature is it spontaneous?"] : ["Does the answer depend on temperature?"]));
+      return { k: "g", v: v, eq: eq, H: H, S: Sv, T: T };
+    }
+    var N = exN("exN", 2, 40), NL = exN("exNL", 0, 40);
+    if (N === null || N !== Math.round(N)) return bad("The lab's box holds 2 to 40 particles.");
+    if (NL === null || NL !== Math.round(NL) || NL > N) return bad("Particles on the left must be a whole number from 0 to N.");
+    m.textContent = "Ready. Press “Solve it in the lab”.";
+    $("#exText").innerHTML = N + " gas particles can move between the two halves of a box.";
+    qs(["How many ways Ω are there to have " + NL + " on the left and " + (N - NL) + " on the right?", "Find S / k = ln Ω for that split.", "Which split has the most ways?", "What is the chance that all " + N + " are on the left?"]);
+    return { k: "w", N: N, NL: NL };
+  }
+  ["exH", "exS", "exT", "exEq", "exN", "exNL"].forEach(function (id) { $("#" + id).addEventListener("input", exRead); });
+  $("#exEg").addEventListener("click", function () { if (exK === "g") { $("#exR").value = "other"; $("#exEqL").hidden = false; $("#exEq").value = "2SO₂(g) + O₂(g) → 2SO₃(g)"; $("#exH").value = -198; $("#exS").value = -188; $("#exT").value = 1200; } else { $("#exN").value = 6; $("#exNL").value = 2; } exRead(); });
+  exRead();
+  function exSolve() {
+    var X = exRead(); if (!X || !window.Tour) return;
+    function calc(t) { return '<div class="t-calc">' + t + "</div>"; }
+    function go(t) { var b = document.querySelector('.lg-nav [data-ph="lab"]'); if (b && document.documentElement.getAttribute("data-phase") !== "lab") b.click(); var tb = document.querySelector('.tab[data-tab="' + t + '"]'); if (tb) tb.click(); }
+    var steps = [];
+    if (X.k === "g") {
+      var H = X.H, Sv = X.S, T = X.T, dSk = Sv / 1000, G = H - T * dSk, cross = (H > 0) === (Sv > 0) ? H / dSk : null, Ssurr = -H * 1000 / T, real = Sv > 0 ? 1 : -1;
+      var base = X.v === "other" ? E.SC.find(function (sc) { return sc.id === (Sv > 0 ? "caco3" : "nh3"); }) : E.SC[+X.v];
+      var mine = { id: "mine", name: "Your exercise", eq: X.eq, dH: H, dS: Sv, src: X.v === "other" ? "The particles are only a picture: they show a reaction with the same sign of ΔS." : "Values from your exercise.", before: base.before, after: base.after, why: X.v === "other" ? (Sv > 0 ? "ΔS > 0: the products can be arranged in more ways (often more gas particles, or a solid that dissolves or melts)." : "ΔS < 0: the products can be arranged in fewer ways (often fewer gas particles, or a gas that dissolves or a liquid that freezes).") : base.why };
+      var setUp = function () { go("chg"); var k = E.SC.findIndex(function (sc) { return sc.id === "mine"; }); if (k >= 0) E.SC[k] = mine; else E.SC.push(mine); E.select(E.SC.indexOf(mine)); };
+      steps.push({ title: "Solve it in the lab", html: "<p>" + $("#exText").innerHTML + "</p><p>We predict ΔS, set the temperature, then use ΔG = ΔH − TΔS.</p>", onShow: setUp });
+      steps.push({ el: "#pick", title: "Predict the sign of ΔS", interactive: true, html: "<p>Look at the equation: does the number of gas particles go up or down? Does a solid melt, dissolve or form? Tap your prediction.</p>", wait: function () { return E.st.pred !== null; }, doIt: function () { E.predict(real); }, done: "ΔS " + (Sv > 0 ? "> 0: more arrangements." : "< 0: fewer arrangements.") });
+      steps.push({ el: function () { return $("#tRange").closest(".slider"); }, title: "Temperature: " + T + " K", html: "<p>Set the temperature to <b>" + T + " K</b>" + (T === 298 ? " (25 °C)" : "") + ".</p>", wait: function () { return E.st.T === T; }, doIt: function () { var r = $("#tRange"); r.value = T; r.dispatchEvent(new Event("input", { bubbles: true })); }, done: "T = " + T + " K." });
+      steps.push({ el: "#gline", title: "ΔG = ΔH − TΔS", html: calc("ΔS = " + num(Sv) + " J/K = " + num(dSk) + " kJ/K   (÷ 1000)\nΔG = ΔH − TΔS\nΔG = (" + num(H) + ") − (" + T + ")(" + num(dSk) + ")\nΔG = " + num(H) + " − (" + num(T * dSk) + ")\nΔG = " + sgn(G) + " kJ") + "<p>ΔS must be in kJ/K, like ΔH.</p>" });
+      steps.push({ el: "#gverdict", title: "Spontaneous?", html: "<p>" + (Math.abs(G) < 0.05 ? "ΔG ≈ 0: the reaction is at equilibrium at this temperature." : G < 0 ? "ΔG < 0, so the reaction is <b>spontaneous</b> at " + T + " K." : "ΔG > 0, so the reaction is <b>not spontaneous</b> at " + T + " K.") + "</p>" });
+      if (cross !== null) steps.push({ el: "#chart", title: "Crossover temperature", html: calc("ΔG = 0 when T = ΔH / ΔS\nT = " + num(H) + " / " + num(dSk) + "\nT = " + Math.round(cross) + " K") + "<p>" + (H > 0 ? "ΔH > 0 and ΔS > 0: spontaneous <b>above</b> " + Math.round(cross) + " K (high T)." : "ΔH < 0 and ΔS < 0: spontaneous <b>below</b> " + Math.round(cross) + " K (low T).") + (cross < 200 || cross > 1500 ? " That is outside the chart." : " The diamond on the chart marks it.") + "</p>" });
+      else steps.push({ el: "#signs", title: "Does T matter?", html: "<p>" + (H < 0 ? "ΔH < 0 and ΔS > 0: ΔG is negative at every temperature, so it is <b>always spontaneous</b>." : "ΔH > 0 and ΔS < 0: ΔG is positive at every temperature, so it is <b>never spontaneous</b>.") + "</p>" });
+      steps.push({ el: "#dsbars", title: "The universe decides", html: calc("ΔS_surr = −ΔH / T = −(" + num(H * 1000) + " J) / " + T + " K = " + sgn(Ssurr, 0) + " J/K\nΔS_univ = ΔS_sys + ΔS_surr = " + sgn(Sv, 0) + " + (" + sgn(Ssurr, 0) + ") = " + sgn(Sv + Ssurr, 0) + " J/K") + "<p>ΔS<sub>universe</sub> " + (Sv + Ssurr > 0 ? "> 0: spontaneous" : "< 0: not spontaneous") + ", the same answer as ΔG.</p>" });
+      steps.push({ title: "Your answers", html: calc("ΔS " + (Sv > 0 ? "> 0" : "< 0") + "\nΔG = " + sgn(G) + " kJ at " + T + " K → " + (Math.abs(G) < 0.05 ? "at equilibrium" : G < 0 ? "spontaneous" : "not spontaneous") + (cross !== null ? "\nCrossover T = " + Math.round(cross) + " K (spontaneous " + (H > 0 ? "above" : "below") + " it)" : "\n" + (H < 0 ? "Always spontaneous" : "Never spontaneous"))) + "<p>Compare them with your own working.</p>" });
+    } else {
+      var N = X.N, NL = X.NL, w = Math.round(Math.exp(lnW(N, NL))), half = Math.floor(N / 2), wmax = W(N, half), P = Math.pow(2, N);
+      var fact = function (n) { return n + "!"; };
+      steps.push({ title: "Solve it in the lab", html: "<p>" + $("#exText").innerHTML + "</p><p>We put the same number of particles in the box, let them spread, then count the ways.</p>", onShow: function () { go("spr"); } });
+      steps.push({ el: function () { return $("#nRange").closest("label"); }, title: "Particles: " + N, html: "<p>Set the number of particles to <b>" + N + "</b>. They all start on the left.</p>", wait: function () { return S.N === N; }, doIt: function () { var r = $("#nRange"); r.value = N; r.dispatchEvent(new Event("input", { bubbles: true })); }, done: N + " particles, all on the left." });
+      steps.push({ el: "#wallBtn", title: "Remove the wall", html: "<p>Press <b>Remove the wall</b> and watch them spread out.</p>", wait: function () { return !S.wall; }, doIt: function () { if (S.wall) $("#wallBtn").click(); }, done: "The gas spreads into both halves." });
+      steps.push({ el: function () { return $("#rW").closest(".card"); }, title: "Ways for " + NL + " · " + (N - NL), html: calc("Ω = N! / (N_left! × N_right!)\nΩ = " + fact(N) + " / (" + fact(NL) + " × " + fact(N - NL) + ")\nΩ = " + big(w) + "\nS / k = ln Ω = ln " + big(w) + " = " + lnW(N, NL).toFixed(2)) + (w === 1 ? "<p>Only one way: every particle must be on one side.</p>" : "") });
+      steps.push({ el: function () { return $("#rMax").closest(".card"); }, title: "The most likely split", html: calc("Most ways: " + half + " · " + (N - half) + " → Ω = " + big(wmax) + "\nAll on the left: Ω = 1\nTotal arrangements = 2^" + N + " = " + big(P) + "\nChance all on the left = 1 / " + big(P)) + "<p>The even split has the most ways, so that is what we see. Going back to all on the left is possible, but it gets less likely every time you add a particle: it halves the chance.</p>" });
+      steps.push({ title: "Your answers", html: calc("Ω(" + NL + " · " + (N - NL) + ") = " + big(w) + "\nS / k = ln Ω = " + lnW(N, NL).toFixed(2) + "\nMost likely split: " + half + " · " + (N - half) + " (Ω = " + big(wmax) + ")\nChance all on the left = 1 in " + big(P)) + "<p>Compare them with your own working.</p>" });
+    }
+    setTimeout(function () { Tour.start(steps, { label: "Exercise", skipText: "Stop", doneText: "Finish", lazy: true }); }, 80);
+  }
+  $("#exSolve").addEventListener("click", exSolve);
 })();
 </script>
 
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>

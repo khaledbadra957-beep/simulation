@@ -108,6 +108,8 @@
         if (s.avoid) { var av = Array.prototype.map.call(document.querySelectorAll(s.avoid), function (q) { return q.getBoundingClientRect(); }), best = 1e18;
           for (var cx = 12; cx <= W - tw - 12; cx += 40) { var ov = 0; av.forEach(function (q) { ov += Math.max(0, Math.min(cx + tw, q.right) - Math.max(cx, q.left)) * Math.max(0, Math.min(by + th, q.bottom) - Math.max(by, q.top)); });
             ov += Math.abs(cx + tw / 2 - (r.left + r.width / 2)) * 0.01; if (ov < best) { best = ov; x = cx; } } } }
+      else if (r && s.prefer === 'right' && W >= 560 && r.right + gap + tw < W - 8) { pl = 'right'; x = r.right + gap; y = r.top + r.height / 2 - th / 2; }
+      else if (r && s.prefer === 'left' && W >= 560 && r.left - gap - tw > 8) { pl = 'left'; x = r.left - gap - tw; y = r.top + r.height / 2 - th / 2; }
       else if (!r) { pl = 'sheet'; x = (W - tw) / 2; y = (H - th) / 2; }
       else if (W < 560) { pl = 'sheet'; x = (W - tw) / 2; y = r.bottom + gap + th < H - 8 ? r.bottom + gap : r.top - gap - th > 8 ? r.top - gap - th : H - th - 12; }
       else if (r.bottom + gap + th < H - 8) { pl = 'below'; y = r.bottom + gap; x = r.left + r.width / 2 - tw / 2; }

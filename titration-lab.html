@@ -68,6 +68,10 @@ canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid v
 #tcv{height:clamp(440px,48vw,560px)}
 #tg{height:240px}
 .stagewrap{position:relative;min-width:0}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px 18px;margin:12px 0 6px}.exgrid[hidden]{display:none}
+.exgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.exgrid label.wide{grid-column:1/-1}.exgrid span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.exgrid input{font:600 15px var(--data);width:7.5em;padding:7px 9px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink)}.exgrid input[aria-invalid="true"]{border-color:#C0392B}
+.exqs{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
 .pickrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
 .pickrow{min-width:0;max-width:100%}.pickrow select{min-width:0;flex:1 1 200px}
 .benchhead>*{min-width:0;max-width:100%}
@@ -188,6 +192,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   <button class="tab" role="tab" aria-selected="false" data-tab="tit">3 · Titration</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="real">4 · Real lab</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="chal">5 · Challenge</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="ex" id="tab-ex">Your exercise</button>
  </div>
 
  <!-- ================= TAB 1: DILUTION ================= -->
@@ -368,6 +373,31 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   </div>
  </section>
 
+ <!-- ================= YOUR EXERCISE ================= -->
+ <section class="bench" id="p-ex" role="tabpanel" hidden>
+  <div class="benchhead"><h2>Your exercise, solved in the lab</h2><div class="transport"><button class="btn small" type="button" id="exEg">Example</button><button class="btn small primary" type="button" id="exSolve">▶ Solve it in the lab</button></div></div>
+  <div class="seg" role="group" aria-label="Kind of exercise"><button type="button" data-exk="tit" aria-pressed="true">Titration: find C</button><button type="button" data-exk="dil" aria-pressed="false">Dilution</button><button type="button" data-exk="prep" aria-pressed="false">Prepare from a solid</button></div>
+  <div class="exgrid" data-exf="tit">
+   <label class="wide">Reaction <select id="exRx" class="sel"></select></label>
+   <label>Volume in the flask Vₐ <span><input id="exVa" inputmode="decimal" value="20"> mL</span></label>
+   <label>Burette concentration C_b <span><input id="exCb" inputmode="decimal" value="0.1"> mol/L</span></label>
+   <label>Volume at equivalence V_E <span><input id="exVE" inputmode="decimal" value="12.5"> mL</span></label>
+  </div>
+  <div class="exgrid" data-exf="dil" hidden>
+   <label class="wide">Stock solution <select id="exSt" class="sel"></select></label>
+   <label>Stock concentration C₀ <span><input id="exC0" inputmode="decimal" value="0.1"> mol/L</span></label>
+   <label>Concentration you want C <span><input id="exC" inputmode="decimal" value="0.01"> mol/L</span></label>
+   <label>Volume to make V <span><input id="exV" inputmode="decimal" value="100"> mL</span></label>
+  </div>
+  <div class="exgrid" data-exf="prep" hidden>
+   <label class="wide">Solid <select id="exSo" class="sel"></select></label>
+   <label>Concentration C <span><input id="exPC" inputmode="decimal" value="0.2"> mol/L</span></label>
+   <label>Volume V <span><select id="exPV" class="sel"><option>100</option><option selected>250</option><option>500</option></select> mL</span></label>
+  </div>
+  <p class="note" id="exMsg"></p>
+  <div class="card"><h3>Your exercise</h3><p id="exText" style="margin:0"></p><ol id="exQs" class="exqs"></ol></div>
+ </section>
+
  <footer>Designed and built by Mr Khaled. Model: pH from the charge balance (H₂SO₄ treated as a strong diprotic acid, Ka(CH₃COOH) = 1.8 × 10⁻⁵), 1 drop = 0.05 mL, burette read to ±0.05 mL. Unknown concentrations are random each time.</footer>
 </div>
 
@@ -390,7 +420,7 @@ $('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('d
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
 let tab='dil';
 $$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
- ['dil','prep','tit','real','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
+ ['dil','prep','tit','real','chal','ex'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
 $('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');$$('.bench').forEach(x=>x.classList.remove('fs'));
  if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
  $('#fsBtn').textContent=on?'Exit full screen':'Full screen';drawAll()};
@@ -801,6 +831,89 @@ rlFill();rlCalc();
 function drawAll(){if(!C.ink)readColors();if(tab==='dil'&&dil.st)drawDil();if(tab==='prep'&&prep.s)drawPrep();if(tab==='tit')drawTit();if(tab==='real')drawReal()}
 addEventListener('resize',drawAll);
 readColors();dilTask();prepTask();newUnknown();setQuestion();nextQ();themeLabel();requestAnimationFrame(loop);
+
+/* ================= YOUR EXERCISE: solved step by step in the lab (tour.js) ================= */
+RX.forEach(r=>$('#exRx').insertAdjacentHTML('beforeend',`<option value="${r.id}">${r.name}</option>`));
+STOCKS.forEach((st,i)=>$('#exSt').insertAdjacentHTML('beforeend',`<option value="${i}">${st.n}</option>`));
+SOLUTES.forEach((so,i)=>$('#exSo').insertAdjacentHTML('beforeend',`<option value="${i}">${so.n} (M = ${so.M} g/mol)</option>`));
+$('#exRx').value='hcl';
+let exK='tit';
+$$('[data-exk]').forEach(b=>b.onclick=()=>{exK=b.dataset.exk;segPick(b);$$('[data-exf]').forEach(g=>g.hidden=g.dataset.exf!==exK);exRead()});
+$('#exRx').onchange=()=>{const r=RX.find(x=>x.id===$('#exRx').value);$('#exVa').value=r.Va;$('#exCb').value=r.Cb;exRead()};
+function exN(id,lo,hi){const e=$('#'+id),x=num(e.value),ok=isFinite(x)&&x>=lo&&x<=hi;e.setAttribute('aria-invalid',ok?'false':'true');return ok?x:null}
+const sig3=x=>Number(x.toPrecision(3)).toString();
+const sci=x=>{const e=Math.floor(Math.log10(Math.abs(x))),m=x/Math.pow(10,e);return e>=-1&&e<=2?sig3(x):sig3(m)+' × 10'+String(e).replace(/-/,'⁻').replace(/\d/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d])};
+function exRead(){const m=$('#exMsg'),bad=t=>{m.textContent=t;$('#exText').textContent='';$('#exQs').innerHTML='';return null},ready=()=>m.textContent='Ready. Press “Solve it in the lab”.',qs=a=>$('#exQs').innerHTML=a.map(q=>'<li>'+q+'</li>').join('');
+ if(exK==='tit'){const r=RX.find(x=>x.id===$('#exRx').value),Va=exN('exVa',5,50),Cb=exN('exCb',0.005,1),VE=exN('exVE',1,45);
+  if(Va==null||Cb==null||VE==null)return bad('The lab can do Vₐ from 5 to 50 mL, C_b from 0.005 to 1 mol/L and V_E from 1 to 45 mL (a 50 mL burette).');
+  if(Math.abs(VE/0.05-Math.round(VE/0.05))>1e-6)return bad('A burette is read to ±0.05 mL, so V_E must be a multiple of 0.05 mL (e.g. 12.35 or 12.40).');
+  const Ca=r.type==='rx'?5*Cb*VE/Va:Cb*VE/(r.z*Va);ready();
+  $('#exText').innerHTML=`Vₐ = ${Va} mL of ${r.acid} solution of unknown concentration is titrated with ${r.base} (C = ${Cb} mol/L)${r.type==='rx'?' in acidic medium':''}. The equivalence point is reached after adding V_E = ${VE} mL.`;
+  qs(['Write the equation of the reaction.',r.type==='rx'?'How is the end point detected?':'Choose a suitable indicator.','Find the concentration of the '+r.acid+' solution.']);return {k:'tit',r,Va,Cb,VE,Ca}}
+ if(exK==='dil'){const st=STOCKS[+$('#exSt').value],C0=exN('exC0',1e-4,5),C=exN('exC',1e-5,5),V=exN('exV',50,1000);
+  if(C0==null||C==null||V==null)return bad('Type the stock concentration, the concentration you want and the final volume.');
+  if(C>=C0)return bad('A dilution makes the solution less concentrated: C must be smaller than C₀.');
+  const F=FLASKS.find(f=>f.type==='vf'&&f.V===V);if(!F)return bad('There is no volumetric flask of '+V+' mL. The lab has 50, 100, 250, 500 and 1000 mL.');
+  const f=C0/C,V0=V/f;let p=PIPS.find(q=>q.type==='vol'&&Math.abs(q.cap-V0)<1e-6);
+  if(!p&&V0<=10&&Math.abs(V0*10-Math.round(V0*10))<1e-6)p=PIPS.find(q=>q.type==='grad'&&q.cap>=V0-1e-9);
+  if(!p)return bad(`V₀ = V / f = ${V} / ${sig3(f)} = ${sig3(V0)} mL. No pipette in the lab gives exactly that (volumetric 5, 10, 20, 25 mL, or graduated up to 10 mL to 0.1 mL).`);
+  ready();$('#exText').innerHTML=`You have a stock solution of ${st.n} with C₀ = ${C0} mol/L. Prepare V = ${V} mL of a solution with C = ${C} mol/L.`;
+  qs(['Find the dilution factor f.','Find the volume V₀ of stock to take.','Choose the glassware and give the steps of the protocol.']);return {k:'dil',st,C0,C,V,f,V0,p,F}}
+ const so=SOLUTES[+$('#exSo').value],C=exN('exPC',0.001,2),V=+$('#exPV').value;
+ if(C==null)return bad('Type a concentration from 0.001 to 2 mol/L.');
+ const need=C*V/1000*so.M;if(need>60)return bad(`That needs ${fx(need,1)} g, more than the balance in the lab can hold (60 g).`);if(need<0.05)return bad(`That is only ${fx(need,3)} g: too little to weigh accurately on a 0.01 g balance.`);
+ ready();$('#exText').innerHTML=`Prepare V = ${V} mL of ${so.n} solution with C = ${C} mol/L. (M = ${so.M} g/mol)`;
+ qs(['Find the mass of solid to weigh.','Give the steps of the protocol and the glassware.']);return {k:'prep',so,C,V,need}}
+['exVa','exCb','exVE','exC0','exC','exV','exPC'].forEach(id=>$('#'+id).addEventListener('input',exRead));['exSt','exSo','exPV'].forEach(id=>$('#'+id).addEventListener('change',exRead));
+$('#exEg').onclick=()=>{if(exK==='tit'){$('#exRx').value='h2so4';$('#exVa').value=10;$('#exCb').value=0.1;$('#exVE').value=11.6}else if(exK==='dil'){$('#exSt').value=1;$('#exC0').value=1;$('#exC').value=0.04;$('#exV').value=250}else{$('#exSo').value=1;$('#exPC').value=0.1;$('#exPV').value=250}exRead()};
+exRead();
+function exSolve(){const X=exRead();if(!X||!window.Tour)return;
+ const calc=t=>'<div class="t-calc">'+t+'</div>',go=t=>{const b=document.querySelector('.lg-nav [data-ph="lab"]');if(b&&root.getAttribute('data-phase')!=='lab')b.click();const tb=$(`.tab[data-tab="${t}"]`);if(tb)tb.click()};
+ const steps=[];
+ if(X.k==='tit'){const {r,Va,Cb,VE,Ca}=X,isRx=r.type==='rx',n0={v:0};
+  const nB=Cb*VE/1000,nA=isRx?5*nB:nB/r.z;
+  const setUp=()=>{go('tit');$('#rxSel').value=r.id;newUnknown();tt.rx=Object.assign({},r,{Va,Cb});tt.Ca=+Ca.toPrecision(10);
+   $('#titInfo').innerHTML=`Flask: <b>Vₐ = ${Va} mL</b> of ${r.acid} (your exercise)${isRx?', acidified with H₂SO₄':''}. Burette: <b>${r.base}</b>, C = ${Cb} mol/L.${isRx?' KMnO₄ is its own indicator: the end point is the first permanent pale pink.':''}`;refillT();n0.v=tt.trials.length};
+  const fill=to=>{setFlow(0);while(tt.Vb<to-1e-9)addV(0.05);tt.Vb=Math.round(tt.Vb/0.05)*0.05;drawTit()};
+  steps.push({title:'Solve it in the lab',html:'<p>'+$('#exText').innerHTML+'</p><p>We set up the same titration, run it to the end point, read the burette and use the stoichiometric ratio.</p>',onShow:setUp});
+  steps.push({el:'#titInfo',title:'The reaction',html:calc(r.rule.split('.  ')[0])+`<p>The burette is filled with ${r.base}; the flask holds Vₐ = ${Va} mL of ${r.acid}.</p>`});
+  if(isRx)steps.push({el:()=>$('#tcv'),title:'End point',html:'<p>No indicator is needed: MnO₄⁻ is purple and Mn²⁺ is almost colourless. The <b>first permanent pale pink</b> shows that all the Fe²⁺ has reacted.</p>'});
+  else steps.push({el:()=>$('#indSel'),title:'Choose the indicator',html:r.Ka?'<p>A weak acid with a strong base: the equivalence point is above pH 7 (about 8.7). Choose <b>phenolphthalein</b> (8.2–10).</p>':'<p>A strong acid with a strong base: the equivalence point is at pH 7, on a steep jump from about 4 to 10. <b>Phenolphthalein</b> or <b>bromothymol blue</b> both change inside the jump.</p>',
+   wait:()=>r.Ka?$('#indSel').value==='php':['php','btb'].includes($('#indSel').value),doIt:()=>{$('#indSel').value='php';drawTit()},done:()=>'Indicator: '+$('#indSel').selectedOptions[0].textContent+'.'});
+  const near1=Math.max(0,Math.round((VE-1)/0.05)*0.05);
+  steps.push({el:()=>$('[data-flow]').closest('.transport'),title:'Run fast, then stop',interactive:true,html:`<p>Open the stopcock <b>Fast</b>, and close it about 1 mL before the end point, near <b>${fx(near1,2)} mL</b> added.</p><p class="note">Went past it? Press New trial and start again.</p>`,
+   wait:()=>tt.flow===0&&tt.Vb>=VE-1.6&&tt.Vb<VE-0.01,doIt:()=>fill(near1),done:()=>`${fx(tt.Vb,2)} mL added so far.`});
+  steps.push({el:'#oneDrop',title:'Drop by drop',interactive:true,html:`<p>Now add <b>one drop at a time</b> (0.05 mL), swirling, until the colour ${isRx?'stays pale pink':'changes and stays'}.</p>`,
+   wait:()=>tt.flow===0&&tt.Vb>=VE-0.01,doIt:()=>fill(VE),done:()=>`End point: ${fx(tt.Vb,2)} mL added.`+(tt.Vb>VE+0.3?' A bit past it: in a real lab you would repeat.':'')});
+  steps.push({el:'#recBtn',title:'Read and record',html:'<p>Read the burette at the bottom of the meniscus, then press <b>Record this trial</b>. V_E = final − initial reading.</p>',wait:()=>tt.trials.length>n0.v,doIt:()=>$('#recBtn').click(),done:()=>{const t=tt.trials[tt.trials.length-1];return t?`${fx(t.f,2)} − ${fx(t.i,2)} = ${fx(t.v,2)} mL.`:''}});
+  steps.push({el:'#ruleTxt',title:'At equivalence',html:calc(isRx?`n(MnO₄⁻) = C_b × V_E = ${Cb} × ${fx(VE/1000,5)} = ${sci(nB)} mol\nn(Fe²⁺)/5 = n(MnO₄⁻)/1  →  n(Fe²⁺) = 5 × ${sci(nB)} = ${sci(nA)} mol\nC(Fe²⁺) = n / Vₐ = ${sci(nA)} / ${fx(Va/1000,4)}\nC(Fe²⁺) = ${sig3(Ca)} mol/L`
+   :`n(${r.base}) = C_b × V_E = ${Cb} × ${fx(VE/1000,5)} = ${sci(nB)} mol\n`+(r.z===2?`n(H₂SO₄)/1 = n(NaOH)/2  →  n(H₂SO₄) = ${sci(nB)} / 2 = ${sci(nA)} mol\n`:`n(${r.acid}) = n(NaOH) = ${sci(nA)} mol\n`)+`C(${r.acid}) = n / Vₐ = ${sci(nA)} / ${fx(Va/1000,4)}\nC(${r.acid}) = ${sig3(Ca)} mol/L`)+'<p>Volumes in litres: mL ÷ 1000.</p>'});
+  steps.push({el:()=>$('#cIn').closest('.card'),title:'Type your answer',interactive:true,html:'<p>Type the concentration and press <b>Check</b>.</p>',wait:()=>/ok/.test($('#cMsg').className)&&!$('#cMsg').hidden,doIt:()=>{$('#cIn').value=sig3(Ca);$('#cChk').click()},done:()=>$('#cMsg').textContent});
+  steps.push({title:'Your answers',html:calc(`${r.rule.split('.  ')[0]}\n${isRx?'End point: first permanent pale pink (KMnO₄ is its own indicator)':'Indicator: '+(r.Ka?'phenolphthalein':'phenolphthalein or bromothymol blue')}\nC(${r.acid}) = ${sig3(Ca)} mol/L`)+'<p>Compare them with your own working.</p>'})}
+ else if(X.k==='dil'){const {st,C0,C,V,f,p,F}=X,v0=X.V0;
+  const setUp=()=>{go('dil');Object.assign(dil,{st,C0,f,ok:false,step:0,level:0,inPip:0,mixed:false,stopper:false,labelled:false});
+   $('#dilGoal').textContent=`Your exercise: make ${V} mL of ${C} mol/L from the ${st.n} stock (C₀ = ${C0} mol/L)`;$('#stepCard').hidden=true;$('#lens').hidden=true;$('#glassMsg').className='status';$('#glassMsg').textContent='Pick a pipette and a flask that give the dilution factor you need.';$('#pipSel').value='cyl';$('#flaskSel').value=FLASKS.find(q=>q.type!=='vf').id;syncGlass()};
+  steps.push({title:'Solve it in the lab',html:'<p>'+$('#exText').innerHTML+'</p><p>We find the dilution factor and V₀, choose the glassware, then follow the protocol.</p>',onShow:setUp});
+  steps.push({el:'#dilGoal',title:'Dilution factor and V₀',html:calc(`f = C₀ / C = ${C0} / ${C} = ${sig3(f)}\nThe moles stay the same: C₀ V₀ = C V\nV₀ = V / f = ${V} / ${sig3(f)} = ${sig3(v0)} mL`)});
+  steps.push({el:()=>$('#flaskSel').closest('.ans'),title:'Make up to V in…',html:`<p>The final volume must be exact: choose the <b>${F.name}</b>.</p>`,wait:()=>$('#flaskSel').value===F.id,doIt:()=>{$('#flaskSel').value=F.id;syncGlass()},done:F.name+'.'});
+  steps.push({el:()=>$('#pipSel').closest('.ans'),title:'Measure V₀ with…',html:`<p>${p.type==='vol'?`A <b>${p.name}</b> delivers exactly ${sig3(v0)} mL.`:`No volumetric pipette holds ${sig3(v0)} mL, so use a <b>${p.name}</b>.`} A graduated cylinder is not precise enough.</p>`,wait:()=>$('#pipSel').value===p.id,doIt:()=>{$('#pipSel').value=p.id;syncGlass()},done:p.name+'.'});
+  if(p.type!=='vol')steps.push({el:'#v0Field',title:'Volume to take: '+sig3(v0)+' mL',html:`<p>Set V₀ = <b>${sig3(v0)} mL</b>.</p>`,wait:()=>Math.abs(V0()-v0)<1e-6,doIt:()=>{$('#sV0').value=X.V0;syncGlass()},done:`V₀ = ${sig3(X.V0)} mL.`});
+  steps.push({el:'#chkGlass',title:'Check the glassware',html:'<p>Press <b>Check my glassware</b>: f = V / V₀ must equal '+sig3(f)+'.</p>',wait:()=>dil.ok,doIt:()=>$('#chkGlass').click(),done:()=>$('#glassMsg').textContent});
+  steps.push({el:'#stepCard',title:'The protocol',interactive:true,html:'<p>Tap the steps in order. The lab tells you why each one matters:</p>'+calc(DIL_STEPS.map((q,i)=>(i+1)+'. '+q[1]).join('\n'))});
+  steps.push({title:'Your answers',html:calc(`f = C₀ / C = ${sig3(f)}\nV₀ = V / f = ${sig3(v0)} mL\nGlassware: ${p.name} (with a pipette filler), ${F.name}`)+'<p>Compare them with your own working.</p>'})}
+ else{const {so,C,V,need}=X,mR=Math.round(need*100)/100;
+  const setUp=()=>{go('prep');Object.assign(prep,{s:so,V,C,m:0,need,step:0,onPan:true,dissolved:0,inFlask:0,level:0});
+   $('#prepGoal').textContent=`Your exercise: prepare ${V} mL of ${so.n} solution with C = ${C} mol/L  (M = ${so.M} g/mol)`;$('#mIn').value='';$('#mMsg').className='status';$('#mMsg').textContent='Work out the mass, then weigh it on the balance (within ±0.02 g).';
+   const all=shuffle(PREP_STEPS.map(q=>({k:q[0],t:q[1]})).concat([{k:'x1',t:'Pour the solid straight into the flask and add water to the line'}]));
+   $('#prepSteps').innerHTML=all.map(q=>`<button class="btn" type="button" data-k="${q.k}">${q.t}</button>`).join('');$$('#prepSteps button').forEach(b=>b.onclick=()=>prepDo(b.dataset.k,b));$('#prepMsg').className='status';$('#prepMsg').textContent='Weigh the solid first, then do the steps in order.';drawPrep()};
+  steps.push({title:'Solve it in the lab',html:'<p>'+$('#exText').innerHTML+'</p><p>We calculate the mass, weigh it, then follow the protocol.</p>',onShow:setUp});
+  steps.push({el:()=>$('#mIn').closest('.card'),title:'Mass of solid',interactive:true,html:calc(`n = C × V = ${C} × ${V/1000} = ${sig3(C*V/1000)} mol\nm = n × M = ${sig3(C*V/1000)} × ${so.M}\nm = ${fx(need,2)} g`)+'<p>Type it and press <b>Check</b>.</p>',wait:()=>/ok/.test($('#mMsg').className),doIt:()=>{$('#mIn').value=fx(need,2);$('#mChk').click()},done:()=>$('#mMsg').textContent});
+  steps.push({prefer:'right',el:()=>$('[data-scoop]').closest('.transport'),title:'Weigh it',interactive:true,html:`<p>Use the spatula buttons until the balance reads <b>${fx(need,2)} g</b> (±0.02 g): big scoops first, then a few grains.</p>`,wait:()=>Math.abs(prep.m-need)<=0.02,doIt:()=>{prep.m=mR;drawPrep()},done:()=>`The balance reads ${fx(prep.m,2)} g.`});
+  steps.push({el:'#prepSteps',title:'The protocol',interactive:true,html:'<p>Tap the steps in order (one of them is a trap):</p>'+calc(PREP_STEPS.map((q,i)=>(i+1)+'. '+q[1]).join('\n'))});
+  steps.push({title:'Your answers',html:calc(`m = C × V × M = ${C} × ${V/1000} × ${so.M} = ${fx(need,2)} g\nGlassware: analytical balance, beaker, stirring rod, funnel, ${V} mL volumetric flask`)+'<p>Compare them with your own working.</p>'})}
+ setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+$('#exSolve').onclick=exSolve;
 </script>
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>

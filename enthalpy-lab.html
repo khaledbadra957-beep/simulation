@@ -133,6 +133,10 @@ table.data td.nm{font-family:var(--body);color:var(--muted)}
 .feq .eqchip{display:table;font-family:var(--body);font-size:.8125rem;margin-top:2px}
 .tablewrap.tall{max-height:420px;overflow-y:auto}
 .tablewrap.tall th{position:sticky;top:0;background:var(--surface)}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px 18px}.exgrid[hidden]{display:none}
+.exgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.exgrid label.wide{grid-column:1/-1}.exgrid label[hidden]{display:none}.exgrid span{display:flex;align-items:center;gap:6px;font:600 14px var(--mono);color:var(--muted)}
+.exgrid input{font:600 15px var(--mono);width:7.5em;padding:7px 9px;border:1.5px solid var(--line);border-radius:9px;background:var(--sunk,var(--surface));color:var(--ink)}.exgrid label.wide input{width:100%}.exgrid input[aria-invalid="true"]{border-color:#C0392B}
+[data-exk][aria-pressed="true"]{background:var(--accent);color:#fff;border-color:transparent}.exqs{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
 .check{display:flex;gap:6px;align-items:center}
 .check input{max-width:9em}
 .mark{font-weight:700}
@@ -168,6 +172,7 @@ table.data td.nm{font-family:var(--body);color:var(--muted)}
     <button class="tab" role="tab" id="t-thermo" aria-controls="p-thermo" aria-selected="false" tabindex="-1"><small>Lesson 3</small><b>Thermochemical equations</b></button>
     <button class="tab" role="tab" id="t-hess" aria-controls="p-hess" aria-selected="false" tabindex="-1"><small>Lesson 4</small><b>Hess's law</b></button>
     <button class="tab" role="tab" id="t-form" aria-controls="p-form" aria-selected="false" tabindex="-1"><small>Lesson 4</small><b>Enthalpy of formation</b></button>
+    <button class="tab" role="tab" id="t-ex" aria-controls="p-ex" aria-selected="false" tabindex="-1"><small>Practice</small><b>Your exercise</b></button>
   </div>
 
   <!-- ================= 1. HEAT ================= -->
@@ -322,6 +327,43 @@ table.data td.nm{font-family:var(--body);color:var(--muted)}
     </div>
   </section>
 
+  <!-- ================= YOUR EXERCISE ================= -->
+  <section class="panel" id="p-ex" role="tabpanel" aria-labelledby="t-ex" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h3 style="margin:0">Your exercise, solved in the lab</h3><div class="row"><button class="btn" type="button" id="exEg">Example</button><button class="btn primary" type="button" id="exSolve">▶ Solve it in the lab</button></div></div>
+      <div class="row" role="group" aria-label="Kind of exercise">
+        <button class="btn small" type="button" data-exk="heat" aria-pressed="true">q = c m ΔT</button>
+        <button class="btn small" type="button" data-exk="cal" aria-pressed="false">Calorimetry</button>
+        <button class="btn small" type="button" data-exk="thermo" aria-pressed="false">q = n ΔH</button>
+        <button class="btn small" type="button" data-exk="form" aria-pressed="false">ΔH from ΔH°f</button>
+      </div>
+      <div class="exgrid" data-exf="heat">
+        <label>Substance <select id="exS"></select></label>
+        <label>Mass m <span><input id="exM" inputmode="decimal" value="150"> g</span></label>
+        <label>Starting temperature <span><input id="exT1" inputmode="decimal" value="22"> °C</span></label>
+        <label>Final temperature <span><input id="exT2" inputmode="decimal" value="57"> °C</span></label>
+      </div>
+      <div class="exgrid" data-exf="cal" hidden>
+        <label>Find <select id="exFind"><option value="c">the specific heat of the metal (and identify it)</option><option value="Tf">the final temperature</option></select></label>
+        <label id="exMetL" hidden>Metal <select id="exMet"></select></label>
+        <label>Metal mass <span><input id="exMm" inputmode="decimal" value="50"> g</span></label>
+        <label>Metal starts at <span><input id="exTm" inputmode="decimal" value="115"> °C</span></label>
+        <label>Water mass <span><input id="exMw" inputmode="decimal" value="100"> g</span></label>
+        <label>Water starts at <span><input id="exTw" inputmode="decimal" value="25"> °C</span></label>
+        <label id="exTfL">Final temperature <span><input id="exTf" inputmode="decimal" value="29"> °C</span></label>
+      </div>
+      <div class="exgrid" data-exf="thermo" hidden>
+        <label>Process <select id="exP"></select></label>
+        <label>Mass <span><input id="exPm" inputmode="decimal" value="54"> g</span></label>
+      </div>
+      <div class="exgrid" data-exf="form" hidden>
+        <label class="wide">Equation <input id="exEq" type="text" value="C2H5OH(l) + 3O2(g) -> 2CO2(g) + 3H2O(l)" spellcheck="false" autocomplete="off" autocapitalize="off"></label>
+      </div>
+      <p class="caption" id="exMsg"></p>
+    </div>
+    <div class="card"><h3>Your exercise</h3><p id="exText" style="margin:0"></p><ol id="exQs" class="exqs"></ol></div>
+  </section>
+
   <p class="foot">Values follow the tables in Inspire Chemistry (Module 14) rounded as the book does; the “type any equation” tool uses the fuller ΔH°<sub>f</sub> table (Wikipedia/CRC). Worked examples follow the book's Analyze → Solve → Evaluate format. Answers are given to three significant figures.</p>
 </div>
 
@@ -396,7 +438,7 @@ $('tblC').innerHTML = '<tr><th>Substance</th><th>c (J/(g·°C))</th><th>Heat to 
 ['hA', 'hB'].forEach(function(id, k){
   $(id).innerHTML = SUBS.map(function(s, i){ return '<option value="' + i + '"' + (i === (k ? 5 : 0) ? ' selected' : '') + '>' + s.n + '</option>'; }).join('');
 });
-var T0 = 20, POWER = 200, heat = { on: false, q: 0 };
+var T0 = 20, POWER = 200, HEATX = 1, heat = { on: false, q: 0 };
 function sampleState(k){
   var s = SUBS[+$(k ? 'hB' : 'hA').value], m = +$(k ? 'mB' : 'mA').value, cm = s.c * m;
   var qmax = cm * (100 - T0), q = Math.min(heat.q, qmax);
@@ -1214,7 +1256,7 @@ worked('wkForm', [
 /* =====================================================================
    tabs + loop
    ===================================================================== */
-var TABS = ['heat', 'cal', 'thermo', 'hess', 'form'], tab = 'heat';
+var TABS = ['heat', 'cal', 'thermo', 'hess', 'form', 'ex'], tab = 'heat';
 function selectTab(name, focus){
   tab = name;
   TABS.forEach(function(t){ var b = $('t-' + t), on = t === name; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; $('p-' + t).hidden = !on; if (on && focus) b.focus(); });
@@ -1228,17 +1270,141 @@ var last = 0;
 function frame(now){
   var dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
   if (heat.on){
-    heat.q += POWER * dt;
+    heat.q += POWER * dt * HEATX;
     if (sampleState(0).full && sampleState(1).full){ heat.on = false; $('heatGo').textContent = 'Start heating'; }
   }
   if (tab === 'heat') drawHeat();
   if (cal.run){ cal.t += dt; if (cal.t >= TEND){ cal.t = TEND; cal.run = false; cal.done = true; } if (tab === 'cal' || cal.done) drawCal(); }
   requestAnimationFrame(frame);
 }
+
+/* =====================================================================
+   YOUR EXERCISE: solved step by step in the lab (tour.js)
+   ===================================================================== */
+$('exS').innerHTML = SUBS.map(function(x, i){ return '<option value="' + i + '">' + x.n + ' (c = ' + x.c + ')</option>'; }).join('');
+$('exMet').innerHTML = METALS.slice(0, 5).map(function(x, i){ return '<option value="' + i + '">' + x.n + ' (c = ' + x.c + ')</option>'; }).join('');
+$('exP').innerHTML = PROCS.map(function(x, i){ return '<option value="' + i + '"' + (i === 2 ? ' selected' : '') + '>' + x.n + ' (ΔH = ' + sign(x.dH, Math.abs(x.dH) < 10 ? 2 : (x.kind === 'phase' ? 1 : 0)) + ' kJ/mol)</option>'; }).join('');
+var exK = 'heat';
+Array.prototype.forEach.call(document.querySelectorAll('[data-exk]'), function(b){ b.addEventListener('click', function(){ exK = b.getAttribute('data-exk');
+  Array.prototype.forEach.call(document.querySelectorAll('[data-exk]'), function(x){ x.setAttribute('aria-pressed', String(x === b)); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-exf]'), function(g){ g.hidden = g.getAttribute('data-exf') !== exK; }); exRead(); }); });
+function exN(id, lo, hi){ var e = $(id), x = parseFloat(String(e.value).replace(',', '.')), ok = isFinite(x) && x >= lo && x <= hi; e.setAttribute('aria-invalid', ok ? 'false' : 'true'); return ok ? x : null; }
+function onStep(x, st){ return Math.abs(x / st - Math.round(x / st)) < 1e-6; }
+function exRead(){
+  var m = $('exMsg');
+  function bad(t){ m.textContent = t; $('exText').textContent = ''; $('exQs').innerHTML = ''; return null; }
+  function qs(a){ $('exQs').innerHTML = a.map(function(q){ return '<li>' + q + '</li>'; }).join(''); }
+  function ready(){ m.textContent = 'Ready. Press “Solve it in the lab”.'; }
+  if (exK === 'heat'){
+    var S = SUBS[+$('exS').value], ms = exN('exM', 10, 500), T1 = exN('exT1', -50, 300), T2 = exN('exT2', -50, 300);
+    if (ms === null || T1 === null || T2 === null) return bad('Type a mass from 10 to 500 g and two temperatures.');
+    if (!onStep(ms, 5)) return bad('The mass slider moves in 5 g steps: use a mass like 150 or 155 g.');
+    var dT = T2 - T1; if (!dT) return bad('The two temperatures are the same: no heat flows.');
+    if (Math.abs(dT) > 80) return bad('The lab heats from 20 °C to 100 °C, so it can show a temperature change of up to 80 °C.');
+    ready(); $('exText').innerHTML = (/^(8|11|18)/.test(String(ms)) ? 'An ' : 'A ') + ms + ' g sample of ' + S.n.toLowerCase().replace(/ \(.*\)/, '') + ' (c = ' + S.c + ' J/(g·°C)) ' + (dT > 0 ? 'is heated' : 'cools') + ' from ' + T1 + ' °C to ' + T2 + ' °C.';
+    qs(['Find ΔT.', 'How much heat does it ' + (dT > 0 ? 'absorb' : 'release') + '?']); return { k: 'heat', S: S, si: +$('exS').value, ms: ms, T1: T1, T2: T2, dT: dT };
+  }
+  if (exK === 'cal'){
+    var find = $('exFind').value; $('exMetL').hidden = find !== 'Tf'; $('exTfL').hidden = find !== 'c';
+    var mm = exN('exMm', 10, 200), Tm = exN('exTm', 50, 200), mw = exN('exMw', 50, 250), Tw = exN('exTw', 15, 35), Tf = find === 'c' ? exN('exTf', -50, 300) : null;
+    if (mm === null || Tm === null || mw === null || Tw === null || (find === 'c' && Tf === null)) return bad('The lab can do a metal of 10–200 g at 50–200 °C and 50–250 g of water at 15–35 °C.');
+    if (!onStep(mm, 1) || !onStep(Tm, 1) || !onStep(mw, 1) || !onStep(Tw, 0.5)) return bad('Use whole grams and degrees (water temperature to 0.5 °C), so the sliders can show your numbers.');
+    var cw = 4.184, c, M;
+    if (find === 'c'){ if (!(Tf > Tw && Tf < Tm)) return bad('The final temperature must be between the water’s and the metal’s starting temperatures.'); c = mw * cw * (Tf - Tw) / (mm * (Tm - Tf)); if (c < 0.05 || c > 5) return bad('Those numbers give c = ' + sf(c) + ' J/(g·°C), which is not a real metal. Check them.'); }
+    else { M = METALS[+$('exMet').value]; c = M.c; Tf = (mm * c * Tm + mw * cw * Tw) / (mm * c + mw * cw); }
+    ready();
+    $('exText').innerHTML = (/^(8|11|18)/.test(String(mm)) ? 'An ' : 'A ') + mm + ' g piece of ' + (find === 'c' ? 'metal' : M.n.toLowerCase()) + ' at ' + Tm + ' °C is dropped into ' + mw + ' g of water at ' + Tw + ' °C in a calorimeter' + (find === 'c' ? '. The final temperature is ' + Tf + ' °C.' : '. (c = ' + c + ' J/(g·°C), c<sub>water</sub> = 4.184 J/(g·°C))');
+    qs(find === 'c' ? ['Find the heat gained by the water.', 'Find the specific heat of the metal.', 'Identify the metal.'] : ['Find the final temperature.', 'How much heat does the water gain?']);
+    return { k: 'cal', find: find, mm: mm, Tm: Tm, mw: mw, Tw: Tw, Tf: Tf, c: c, M: M, mi: find === 'c' ? 5 : +$('exMet').value };
+  }
+  if (exK === 'thermo'){
+    var P = PROCS[+$('exP').value], pm = exN('exPm', 1, 500);
+    if (pm === null) return bad('The lab can do a mass from 1 to 500 g.'); if (!onStep(pm, 0.5)) return bad('The mass slider moves in 0.5 g steps.');
+    ready(); $('exText').innerHTML = P.n + ': ' + esc(P.eq) + ' &nbsp; ΔH = ' + sign(P.dH, Math.abs(P.dH) < 10 ? 2 : (P.kind === 'phase' ? 1 : 0)) + ' kJ/mol. How much heat is ' + (P.dH < 0 ? 'released' : 'absorbed') + ' by ' + pm + ' g of ' + P.f + '?';
+    qs(['Find the number of moles.', 'Find q.', 'Is it exothermic or endothermic?']); return { k: 'thermo', P: P, pi: +$('exP').value, pm: pm };
+  }
+  var E; try { E = parseEq($('exEq').value); } catch (err){ return bad(typeof err === 'string' ? err : 'I couldn’t read that equation.'); }
+  var unbal = balanceReport(E).length > 0;
+  if (unbal){ var fix = autoBalance(E); if (!fix) return bad('This equation is not balanced and I cannot balance it automatically. Check the formulas.'); E.re.concat(E.pr).forEach(function(sp, i){ sp.k = fix[i]; }); }
+  var miss = [], terms = function(list){ return list.map(function(sp){ var L = lookup(sp), st = sp.st || L.st; if (L.v === null) miss.push(pretty(sp.f, sp.z, st)); return { k: sp.k, label: pretty(sp.f, sp.z, st), v: L.v }; }); };
+  var re = terms(E.re), pr = terms(E.pr);
+  if (miss.length) return bad(miss.join(', ') + (miss.length > 1 ? ' are' : ' is') + ' not in the ΔH°f table, so the lab cannot solve it.');
+  var sp_ = pr.reduce(function(a, t){ return a + t.k * t.v; }, 0), sr_ = re.reduce(function(a, t){ return a + t.k * t.v; }, 0);
+  ready(); $('exText').innerHTML = 'Use standard enthalpies of formation to find ΔH°<sub>rxn</sub> for: <b>' + esc(eqText(E)).replace(/([A-Za-z)])(\d+)/g, function(m0, a, d){ return a + d.replace(/\d/g, function(x){ return '₀₁₂₃₄₅₆₇₈₉'[x]; }); }).replace('->', '→') + '</b>' + (unbal ? ' (balanced by the lab: your equation was not balanced)' : '');
+  qs(['Look up ΔH°f for each substance.', 'Find ΣΔH°f(products) and ΣΔH°f(reactants).', 'Find ΔH°rxn. Is it exothermic?']);
+  return { k: 'form', text: $('exEq').value, unbal: unbal, re: re, pr: pr, sp: r2(sp_), sr: r2(sr_), h: r2(sp_ - sr_) };
+}
+['exM', 'exT1', 'exT2', 'exMm', 'exTm', 'exMw', 'exTw', 'exTf', 'exPm', 'exEq'].forEach(function(id){ $(id).addEventListener('input', exRead); });
+['exS', 'exFind', 'exMet', 'exP'].forEach(function(id){ $(id).addEventListener('change', exRead); });
+$('exEg').addEventListener('click', function(){
+  if (exK === 'heat'){ $('exS').value = 0; $('exM').value = 250; $('exT1').value = 20; $('exT2').value = 80; }
+  else if (exK === 'cal'){ $('exFind').value = 'c'; $('exMm').value = 50; $('exTm').value = 115; $('exMw').value = 100; $('exTw').value = 25; $('exTf').value = 29; }
+  else if (exK === 'thermo'){ $('exP').value = 9; $('exPm').value = 36; }
+  else $('exEq').value = 'CH4(g) + 2O2(g) -> CO2(g) + 2H2O(l)';
+  exRead(); });
+exRead();
+function exSolve(){
+  var X = exRead(); if (!X || !window.Tour) return;
+  function calc(t){ return '<div class="t-calc">' + t + '</div>'; }
+  function go(name){ var b = document.querySelector('.lg-nav [data-ph="lab"]'); if (b && document.documentElement.getAttribute('data-phase') !== 'lab') b.click(); selectTab(name); }
+  function setV(id, v, ev){ var e = $(id); e.value = v; e.dispatchEvent(new Event(ev || 'input', { bubbles: true })); }
+  function fld(id){ return function(){ return $(id).closest('.field'); }; }
+  var steps = [], d1 = function(x){ return (Math.round(x * 10) / 10).toFixed(1); };
+  if (X.k === 'heat'){
+    var S = X.S, q = S.c * X.ms * Math.abs(X.dT), tgt = T0 + Math.abs(X.dT);
+    steps.push({ title: 'Solve it in the lab', html: '<p>' + $('exText').innerHTML + '</p><p>We heat the same sample until its temperature has changed by the same ΔT, then calculate q.</p>',
+      onShow: function(){ go('heat'); heat.on = false; heat.q = 0; $('heatGo').textContent = 'Start heating'; drawHeat(); } });
+    steps.push({ el: fld('hA'), title: 'Sample A: ' + S.n, html: '<p>Choose <b>' + S.n + '</b> for sample A.</p>', wait: function(){ return +$('hA').value === X.si; }, doIt: function(){ setV('hA', X.si); }, done: S.n + '.' });
+    steps.push({ el: fld('mA'), title: 'Mass A: ' + X.ms + ' g', html: '<p>Set the mass of sample A to <b>' + X.ms + ' g</b>.</p>', wait: function(){ return +$('mA').value === X.ms; }, doIt: function(){ setV('mA', X.ms); }, done: 'm = ' + X.ms + ' g.' });
+    steps.push({ prefer: 'right', el: '#heatGo', title: 'Heat it by ' + Math.abs(X.dT) + ' °C', interactive: true,
+      html: '<p>The lab starts at 20 °C, so we stop at <b>' + tgt + ' °C</b>: the same ΔT = ' + Math.abs(X.dT) + ' °C as in your exercise. Press <b>Start heating</b>; it stops by itself. (Shown 10 times faster.)</p>', onShow: function(){ HEATX = 10; }, onLeave: function(){ HEATX = 1; },
+      wait: function(){ if (sampleState(0).T >= tgt - 1e-9 || heat.q >= q){ heat.on = false; heat.q = q; $('heatGo').textContent = 'Start heating'; drawHeat(); return true; } return false; },
+      doIt: function(){ heat.on = false; heat.q = q; $('heatGo').textContent = 'Start heating'; drawHeat(); }, done: function(){ return 'Sample A is at ' + d1(sampleState(0).T) + ' °C after ' + d1(q / POWER) + ' s at 200 J/s.'; } });
+    steps.push({ el: function(){ return $('heatLive'); }, title: 'Heat absorbed', html: calc('ΔT = T_final − T_start = ' + X.T2 + ' − ' + X.T1 + ' = ' + (X.dT > 0 ? '' : '−') + Math.abs(X.dT) + ' °C\nq = c × m × ΔT\nq = ' + S.c + ' × ' + X.ms + ' × ' + Math.abs(X.dT) + '\nq = ' + sf(q) + ' J = ' + sf(q / 1000) + ' kJ') + '<p>' + (X.dT > 0 ? 'The sample absorbs this heat.' : 'Your sample cools, so it <b>releases</b> this heat: q = −' + sf(q) + ' J.') + ' The burner gives 200 J/s, so it takes ' + d1(q / POWER) + ' s.</p>' });
+    steps.push({ title: 'Your answers', html: calc('ΔT = ' + (X.dT > 0 ? '+' : '−') + Math.abs(X.dT) + ' °C\nq = c m ΔT = ' + (X.dT > 0 ? '' : '−') + sf(q) + ' J  (' + (X.dT > 0 ? 'absorbed' : 'released') + ')') + '<p>Compare them with your own working.</p>' });
+  } else if (X.k === 'cal'){
+    var qw = 4.184 * X.mw * (X.Tf - X.Tw), dTm = X.Tm - X.Tf;
+    var pool = SUBS.filter(function(x){ return !x.liquid && x.n !== 'Ice (solid)'; }), best = pool.reduce(function(b, x){ return Math.abs(x.c - X.c) < Math.abs(b.c - X.c) ? x : b; });
+    var setU = function(){ if (X.find === 'c') cal.unknownC = X.c; };
+    steps.push({ title: 'Solve it in the lab', html: '<p>' + $('exText').innerHTML + '</p><p>We set up the same calorimeter, drop the metal in and use q<sub>lost</sub> = q<sub>gained</sub>.</p>', onShow: function(){ go('cal'); calReset(); } });
+    steps.push({ el: fld('cMetal'), title: X.find === 'c' ? 'An unknown metal' : 'Metal: ' + X.M.n, html: '<p>Choose <b>' + METALS[X.mi].n + '</b>.</p>', wait: function(){ if (+$('cMetal').value === X.mi){ setU(); return true; } return false; }, doIt: function(){ setV('cMetal', X.mi); setU(); calReset(); }, done: METALS[X.mi].n + '.' });
+    [['cmM', X.mm, 'Metal mass', ' g'], ['cTM', X.Tm, 'Metal starts at', ' °C'], ['cmW', X.mw, 'Water mass', ' g'], ['cTW', X.Tw, 'Water starts at', ' °C']].forEach(function(a){
+      steps.push({ el: fld(a[0]), title: a[2] + ': ' + a[1] + a[3], html: '<p>Set it to <b>' + a[1] + a[3] + '</b>.</p>', wait: function(){ if (Math.abs(+$(a[0]).value - a[1]) < 1e-9){ setU(); return true; } return false; }, doIt: function(){ setV(a[0], a[1]); setU(); }, done: a[2] + ' = ' + a[1] + a[3] + '.' }); });
+    steps.push({ prefer: 'right', el: '#calGo', title: 'Drop the metal in', interactive: true, html: '<p>Press <b>Drop the metal in</b> and watch both temperatures meet.</p>', wait: function(){ return cal.done; }, doIt: function(){ setU(); if (!cal.run && !cal.done) $('calGo').click(); cal.t = TEND - 0.05; }, done: function(){ return 'Final temperature: ' + d1(calIn().Tf) + ' °C.'; } });
+    if (X.find === 'c'){
+      steps.push({ el: function(){ return $('calLive'); }, title: 'Heat gained by the water', html: calc('q_water = c × m × ΔT\n= 4.184 × ' + X.mw + ' × (' + X.Tf + ' − ' + X.Tw + ')\n= ' + sf(qw) + ' J') });
+      steps.push({ el: function(){ return $('calLive'); }, title: 'Specific heat of the metal', html: calc('q_metal = q_water = ' + sf(qw) + ' J\nΔT_metal = ' + X.Tm + ' − ' + X.Tf + ' = ' + d1(dTm) + ' °C\nc = q / (m × ΔT) = ' + sf(qw) + ' / (' + X.mm + ' × ' + d1(dTm) + ')\nc = ' + sf(X.c) + ' J/(g·°C)') + '<p>Closest in the table: <b>' + best.n + '</b> (' + best.c + ').</p>' });
+    } else {
+      steps.push({ el: function(){ return $('calLive'); }, title: 'Final temperature', html: calc('heat lost by the metal = heat gained by the water\nm_m c_m (T_m − T_f) = m_w c_w (T_f − T_w)\nT_f = (m_m c_m T_m + m_w c_w T_w) / (m_m c_m + m_w c_w)\nT_f = (' + X.mm + '×' + X.c + '×' + X.Tm + ' + ' + X.mw + '×4.184×' + X.Tw + ') / (' + X.mm + '×' + X.c + ' + ' + X.mw + '×4.184)\nT_f = ' + d1(X.Tf) + ' °C') + '<p>Water gains q = 4.184 × ' + X.mw + ' × ' + d1(X.Tf - X.Tw) + ' = ' + sf(4.184 * X.mw * (X.Tf - X.Tw)) + ' J.</p>' });
+    }
+    steps.push({ title: 'Your answers', html: calc(X.find === 'c' ? 'q_water = ' + sf(qw) + ' J\nc_metal = ' + sf(X.c) + ' J/(g·°C)\nThe metal is probably ' + best.n.toLowerCase() + '.' : 'T_f = ' + d1(X.Tf) + ' °C\nq_water = ' + sf(4.184 * X.mw * (X.Tf - X.Tw)) + ' J') + '<p>Compare them with your own working.</p>' });
+  } else if (X.k === 'thermo'){
+    var P = X.P, n = X.pm / P.M, q2 = n * P.dH, dh = sign(P.dH, Math.abs(P.dH) < 10 ? 2 : (P.kind === 'phase' ? 1 : 0));
+    steps.push({ title: 'Solve it in the lab', html: '<p>' + $('exText').innerHTML + '</p><p>Grams → moles → heat.</p>', onShow: function(){ go('thermo'); } });
+    steps.push({ el: fld('tProc'), title: 'The process', html: '<p>Choose <b>' + P.n + '</b>.</p>', wait: function(){ return +$('tProc').value === X.pi; }, doIt: function(){ setV('tProc', X.pi); }, done: P.n + '.' });
+    steps.push({ el: fld('tMass'), title: 'Mass: ' + X.pm + ' g', html: '<p>Set the mass to <b>' + X.pm + ' g</b>.</p>', wait: function(){ return Math.abs(+$('tMass').value - X.pm) < 1e-9; }, doIt: function(){ setV('tMass', X.pm); }, done: 'm = ' + X.pm + ' g.' });
+    steps.push({ el: function(){ return $('thermoLive'); }, title: 'Moles, then heat', html: calc('n = m / M = ' + X.pm + ' / ' + P.M + ' = ' + sf(n) + ' mol\nq = n × ΔH = ' + sf(n) + ' × (' + dh + ')\nq = ' + sf(q2) + ' kJ') + '<p>' + (P.dH < 0 ? 'Negative: heat is <b>released</b> (exothermic).' : 'Positive: heat is <b>absorbed</b> (endothermic).') + '</p>' });
+    steps.push({ el: function(){ return $('svgThermo'); }, title: 'Enthalpy diagram', html: '<p>' + (P.dH < 0 ? 'The products are lower than the reactants: the system loses enthalpy and the surroundings warm up.' : 'The products are higher than the reactants: the system gains enthalpy from the surroundings.') + '</p>' });
+    steps.push({ title: 'Your answers', html: calc('n = ' + sf(n) + ' mol\nq = ' + sf(q2) + ' kJ (' + (P.dH < 0 ? 'released, exothermic' : 'absorbed, endothermic') + ')') + '<p>Compare them with your own working.</p>' });
+  } else {
+    var line = function(list){ return list.map(function(t){ return '(' + kTxt(t.k) + ')(' + sgn(t.v) + ')'; }).join(' + '); };
+    steps.push({ title: 'Solve it in the lab', html: '<p>' + $('exText').innerHTML + '</p><p>Products minus reactants, each ΔH°<sub>f</sub> times its coefficient.</p>', onShow: function(){ go('form'); } });
+    steps.push({ el: fld('fEq'), title: 'Type the equation', interactive: true, html: '<p>Type your equation and press <b>Calculate</b>.</p>', wait: function(){ return $('fRxn').value === 'custom' && /good|wait/.test($('fEqMsg').className) && !$('fEqMsg').hidden && CUSTOM && Math.abs(sums(CUSTOM).h - X.h) < 0.01; },
+      doIt: function(){ $('fEq').value = X.text; runEq(); var b = $('fEqBal'); if (b) b.click(); }, done: function(){ return 'Balanced and calculated.'; } });
+    steps.push({ el: '#fUsed', title: 'ΔH°f values', html: calc(X.pr.concat(X.re).map(function(t){ return t.label + ': ' + sgn(t.v) + ' kJ/mol'; }).join('\n')) + '<p>Elements in their standard state (O₂(g), C(s, graphite), …) have ΔH°<sub>f</sub> = 0.</p>' });
+    steps.push({ el: '#fUsed', title: 'Products minus reactants', html: calc('ΣΔH°f(products) = ' + line(X.pr) + ' = ' + sgn(X.sp) + ' kJ\nΣΔH°f(reactants) = ' + line(X.re) + ' = ' + sgn(X.sr) + ' kJ\nΔH°rxn = ' + sgn(X.sp) + ' − (' + sgn(X.sr) + ')\nΔH°rxn = ' + sgn(X.h) + ' kJ') + '<p>' + (X.h < 0 ? 'Negative: exothermic.' : 'Positive: endothermic.') + '</p>' });
+    steps.push({ el: function(){ return $('fCheck').closest('.row'); }, title: 'Type your answers', interactive: true, html: '<p>Type the three numbers above and press <b>Check my answers</b>.</p>', wait: function(){ return /ok/.test($('fHm').className) && /ok/.test($('fPm').className) && /ok/.test($('fRm').className); },
+      doIt: function(){ $('fP').value = X.sp; $('fR').value = X.sr; $('fH').value = X.h; $('fCheck').click(); }, done: 'All three are correct.' });
+    steps.push({ title: 'Your answers', html: calc('ΣΔH°f(products) = ' + sgn(X.sp) + ' kJ\nΣΔH°f(reactants) = ' + sgn(X.sr) + ' kJ\nΔH°rxn = ' + sgn(X.h) + ' kJ (' + (X.h < 0 ? 'exothermic' : 'endothermic') + ')') + '<p>Compare them with your own working.</p>' });
+  }
+  setTimeout(function(){ Tour.start(steps, { label: 'Exercise', skipText: 'Stop', doneText: 'Finish', lazy: true }); }, 80);
+}
+$('exSolve').addEventListener('click', exSolve);
 var h = (location.hash || '').slice(1); if (TABS.indexOf(h) >= 0) selectTab(h);
 drawHeat(); calOut(); drawCal(); drawThermo(); drawHess(); drawForm();
 requestAnimationFrame(function(t){ last = t; requestAnimationFrame(frame); });
 })();
 </script>
 
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>

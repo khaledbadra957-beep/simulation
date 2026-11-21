@@ -70,6 +70,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .status{font-weight:700;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage)}
 .status.ok{border-color:var(--ok);color:var(--ok)}
 .q{font-size:1.1rem;font-weight:700}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px 18px;margin:12px 0 4px}
+.exgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.exgrid span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--data);width:7.5em;padding:7px 9px;border:1.5px solid var(--line);border-radius:9px;background:var(--stage);color:var(--ink)}.exgrid select{width:auto;max-width:100%}
+.exgrid input[aria-invalid="true"]{border-color:#C0392B}[data-exk][aria-pressed="true"]{background:var(--accent,#0F6E73);color:#fff;border-color:transparent}
+.exq{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--stage);margin-top:10px}.exq h3{margin:0 0 6px;font-size:1rem}.exq p{margin:0 0 6px}.exq ol{margin:0;padding-left:1.4em}
 .ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .ans input{font:inherit;font-family:var(--data);width:9em;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);color:var(--ink)}
 .sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto}
@@ -97,6 +102,7 @@ footer{color:var(--muted);font-size:.85rem}
   <button class="tab" role="tab" aria-selected="false" data-tab="see" id="tab-see">2 · Balance the seesaw</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="lever" id="tab-lever">3 · Lever lab: predict</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="chal" id="tab-chal">4 · Challenge</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="ex" id="tab-ex">Your exercise</button>
  </div>
 
  <!-- ===== TAB 1: DOOR ===== -->
@@ -195,6 +201,26 @@ footer{color:var(--muted);font-size:.85rem}
   <div class="sol" id="csol" hidden></div>
  </section>
 
+ <!-- ===== TAB 5: YOUR EXERCISE ===== -->
+ <section class="bench" id="p-ex" hidden>
+  <div class="benchhead"><h2>Your exercise, solved in the lab</h2><div class="presets"><button class="btn" type="button" id="exEg">Example</button><button class="btn primary" type="button" id="exSolve">▶ Solve it in the lab</button></div></div>
+  <div class="presets" role="group" aria-label="Kind of exercise"><button class="btn" type="button" data-exk="door" aria-pressed="true">Door or wrench: find τ</button><button class="btn" type="button" data-exk="see" aria-pressed="false">Seesaw: balance it</button></div>
+  <div class="exgrid" id="exDoor">
+   <label>Force F <span><input id="exF" inputmode="decimal" value="40"> N</span></label>
+   <label>Distance from the axis r <span><input id="exR" inputmode="decimal" value="0.6"> m</span></label>
+   <label>Angle θ between the force and the door <span><input id="exT" inputmode="decimal" value="60"> °</span></label>
+  </div>
+  <div class="exgrid" id="exSee" hidden>
+   <label>Find <span><select id="exFind"><option value="d2">where the right child sits (r₂)</option><option value="m2">the right child's mass (m₂)</option></select></span></label>
+   <label>Left child mass m₁ <span><input id="exM1" inputmode="decimal" value="56"> kg</span></label>
+   <label>Left distance r₁ <span><input id="exD1" inputmode="decimal" value="1.2"> m</span></label>
+   <label id="exM2L">Right child mass m₂ <span><input id="exM2" inputmode="decimal" value="42"> kg</span></label>
+   <label id="exD2L" hidden>Right distance r₂ <span><input id="exD2" inputmode="decimal" value="1.4"> m</span></label>
+  </div>
+  <p class="note" id="exMsg"></p>
+  <div class="exq"><h3>Your exercise</h3><p id="exText"></p><ol id="exQs"></ol></div>
+ </section>
+
  <footer>Designed and built by Mr Khaled for his physics and chemistry students · Values follow Inspire Physics Module 8 Lesson 2 (τ = F r sin θ, L = r sin θ, net torque = 0 when balanced).</footer>
 </div>
 
@@ -229,7 +255,7 @@ $('#themeBtn').onclick=()=>{const n=curDark()?'light':'dark';root.setAttribute('
 // tabs
 let tab='door';
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
- ['door','see','lever','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if(tab==='see')drawSee();if(tab==='door')drawDoor();if(tab==='lever')drawLev()});
+ ['door','see','lever','chal','ex'].forEach(t=>$('#p-'+t).hidden=t!==tab);if(tab==='see')drawSee();if(tab==='door')drawDoor();if(tab==='lever')drawLev()});
 // full screen on the active bench
 $('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');document.querySelectorAll('.bench').forEach(x=>x.classList.remove('fs'));
  if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
@@ -429,8 +455,62 @@ $('#cShow').onclick=()=>{$('#csol').hidden=false};$('#cNext').onclick=newQ;
 $('#cin').addEventListener('keydown',e=>{if(e.key==='Enter')$('#cCheck').click()});
 newQ();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{setThemeLabel();drawDoor();drawSee()});
+
+/* ===== YOUR EXERCISE: solved step by step in the lab (tour.js) ===== */
+let exK='door';
+document.querySelectorAll('[data-exk]').forEach(b=>b.onclick=()=>{exK=b.dataset.exk;document.querySelectorAll('[data-exk]').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#exDoor').hidden=exK!=='door';$('#exSee').hidden=exK!=='see';exRead()});
+function exNum(id,lo,hi){const e=$('#'+id),x=parseFloat(String(e.value).replace(',','.')),ok=isFinite(x)&&x>=lo&&x<=hi;e.setAttribute('aria-invalid',ok?'false':'true');return ok?x:null}
+const g9=9.8,r2d=x=>Math.round(x*100)/100,sgn=x=>String(x);
+function exRead(){const m=$('#exMsg'),clr=t=>{m.textContent=t;$('#exText').textContent='';$('#exQs').innerHTML='';return null};
+ if(exK==='door'){const F=exNum('exF',1,100),r=exNum('exR',0.05,0.9),t=exNum('exT',0,180);
+  if(F==null||r==null||t==null)return clr('The lab can do F from 1 to 100 N, r from 0.05 to 0.90 m and θ from 0° to 180°.');
+  if(F!==Math.round(F)||t!==Math.round(t)||Math.abs(r*100-Math.round(r*100))>1e-6)return clr('Use whole newtons, whole degrees and r to 2 decimal places, so the sliders can show your numbers.');
+  m.textContent='Ready. Press “Solve it in the lab”.';
+  $('#exText').textContent=`A force of ${F} N is applied ${r} m from the hinge of a door (the axis of rotation), at an angle of ${t}° to the door.`;
+  $('#exQs').innerHTML=['Find the lever arm L.','Find the torque τ on the door.'].map(q=>'<li>'+q+'</li>').join('');return {k:'door',F,r,t}}
+ const find=$('#exFind').value;$('#exM2L').hidden=find==='m2';$('#exD2L').hidden=find!=='m2';
+ const m1=exNum('exM1',20,80),d1=exNum('exD1',0.05,1.8),m2=find==='d2'?exNum('exM2',20,80):null,d2=find==='m2'?exNum('exD2',0.05,1.8):null;
+ if(m1==null||d1==null||(find==='d2'?m2==null:d2==null))return clr('The lab can do masses from 20 to 80 kg and distances from 0.05 to 1.80 m.');
+ if(m1!==Math.round(m1)||(m2!=null&&m2!==Math.round(m2))||Math.abs(d1*100-Math.round(d1*100))>1e-6||(d2!=null&&Math.abs(d2*100-Math.round(d2*100))>1e-6))return clr('Use whole kilograms and distances to 2 decimal places, so the sliders can show your numbers.');
+ const ans=find==='d2'?m1*d1/m2:m1*d1/d2;
+ if(find==='d2'&&ans>1.8)return clr(`The right child would have to sit ${r2d(ans)} m away, but the beam is only 1.80 m long on each side. Choose a heavier right child or a smaller r₁.`);
+ if(find==='m2'&&(ans<20||ans>80))return clr(`The right child would need ${r2d(ans)} kg, but the lab can do 20 to 80 kg.`);
+ m.textContent='Ready. Press “Solve it in the lab”.';
+ $('#exText').textContent=find==='d2'?`A ${m1} kg child sits ${d1} m from the pivot of a seesaw. A ${m2} kg child sits on the other side. (g = 9.8 N/kg)`:`A ${m1} kg child sits ${d1} m from the pivot of a seesaw. A second child sits ${d2} m from the pivot on the other side, and the seesaw balances. (g = 9.8 N/kg)`;
+ $('#exQs').innerHTML=(find==='d2'?['Find the torque from the left child.','Where must the right child sit to balance the seesaw?']:['Find the torque from the left child.','Find the mass of the right child.']).map(q=>'<li>'+q+'</li>').join('');
+ return {k:'see',find,m1,d1,m2,d2,ans}}
+['exF','exR','exT','exM1','exD1','exM2','exD2','exFind'].forEach(id=>{$('#'+id).addEventListener('input',exRead);$('#'+id).addEventListener('change',exRead)});
+$('#exEg').onclick=()=>{if(exK==='door'){$('#exF').value=50;$('#exR').value=0.25;$('#exT').value=90}else{$('#exFind').value='d2';$('#exM1').value=30;$('#exD1').value=1.5;$('#exM2').value=45}exRead()};
+exRead();
+function exSolve(){const X=exRead();if(!X||!window.Tour)return;
+ const calc=t=>'<div class="t-calc">'+t+'</div>',go=t=>()=>{const b=document.querySelector('.lg-nav [data-ph="lab"]');if(b&&document.documentElement.getAttribute('data-phase')!=='lab')b.click();$('#tab-'+t).click()};
+ const setR=(id,v)=>{const e=$('#'+id);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}))},box=id=>()=>$('#'+id).closest('.slider');
+ const steps=[];
+ if(X.k==='door'){const {F,r,t}=X,L=r*Math.sin(t*Math.PI/180),tau=F*L,s=Math.sin(t*Math.PI/180);
+  steps.push({title:'Solve it in the lab',html:'<p>'+$('#exText').textContent+'</p><p>We set the same force, distance and angle on the door, then calculate and check.</p>',onShow:go('door')},
+   {el:box('sF'),title:'Force F = '+F+' N',html:`<p>Drag the slider to <b>${F} N</b>.</p>`,wait:()=>D.F===F,doIt:()=>setR('sF',F),done:`F = ${F} N.`},
+   {el:box('sR'),title:'Distance r = '+r+' m',html:`<p>Drag to <b>${f1(r)} m</b> from the hinge.</p>`,wait:()=>Math.abs(D.r-r)<1e-6,doIt:()=>setR('sR',r),done:`r = ${f1(r)} m.`},
+   {el:box('sT'),title:'Angle θ = '+t+'°',html:`<p>Drag to <b>${t}°</b>. θ is measured between the force and the door.</p>`,wait:()=>D.th===t,doIt:()=>setR('sT',t),done:`θ = ${t}°.`},
+   {el:()=>$('#rL').closest('.cell'),title:'Lever arm L',html:calc(`L = r sin θ\nL = ${f1(r)} × sin ${t}°\nL = ${f1(r)} × ${f1(s,3)}\nL = ${f1(Math.abs(L),2)} m`)+(t===90?'<p>At 90° the lever arm is the whole distance r.</p>':t===0||t===180?'<p>The force points along the door, through the hinge: no lever arm.</p>':'<p>Only the part of the force at right angles to the door turns it.</p>'),wait:()=>true,done:()=>'Lab: L = '+$('#rL').textContent+'.'},
+   {el:()=>$('#rTau').closest('.cell'),title:'Torque τ',html:calc(`τ = F r sin θ = F × L\nτ = ${F} × ${f1(Math.abs(L),2)}\nτ = ${f1(Math.abs(tau),1)} N·m`),wait:()=>true,done:()=>'Lab: τ = '+$('#rTau').textContent+'.'},
+   {el:'#pushBtn',title:'Watch it turn',interactive:true,html:`<p>Press <b>Push the door</b>. ${tau<0.05?'With no torque, the door does not turn.':'The bigger the torque, the faster the door starts to turn: α = τ / I.'}</p>`},
+   {title:'Your answers',html:calc(`Lever arm  L = r sin θ = ${f1(Math.abs(L),2)} m\nTorque     τ = F r sin θ = ${f1(Math.abs(tau),1)} N·m`)+'<p>Compare them with your own working.</p>'})}
+ else{const {find,m1,d1,m2,d2,ans}=X,t1=m1*g9*d1,setD2=find==='d2'?Math.round(ans*100)/100:d2,setM2=find==='m2'?Math.round(ans):m2;
+  steps.push({title:'Solve it in the lab',html:'<p>'+$('#exText').textContent+'</p><p>We set up the same seesaw, find the torque from the left child, then balance it.</p>',onShow:()=>{go('see')();if(find==='d2'){setR('d2',0.3)}else setR('m2',20)}},
+   {el:box('m1'),title:'Left child: '+m1+' kg',html:`<p>Set the left child's mass to <b>${m1} kg</b>.</p>`,wait:()=>S.m1===m1,doIt:()=>setR('m1',m1),done:`m₁ = ${m1} kg.`},
+   {el:box('d1'),title:'Left distance: '+d1+' m',html:`<p>Set r₁ = <b>${f1(d1)} m</b> (or drag the child along the beam).</p>`,wait:()=>Math.abs(S.d1-d1)<1e-6,doIt:()=>setR('d1',d1),done:`r₁ = ${f1(d1)} m.`});
+  if(find==='d2')steps.push({el:box('m2'),title:'Right child: '+m2+' kg',html:`<p>Set the right child's mass to <b>${m2} kg</b>.</p>`,wait:()=>S.m2===m2,doIt:()=>setR('m2',m2),done:`m₂ = ${m2} kg.`});
+  else steps.push({el:box('d2'),title:'Right distance: '+d2+' m',html:`<p>Set r₂ = <b>${f1(d2)} m</b>.</p>`,wait:()=>Math.abs(S.d2-d2)<1e-6,doIt:()=>setR('d2',d2),done:`r₂ = ${f1(d2)} m.`});
+  steps.push({el:()=>$('#tL').closest('.cell'),title:'Torque from the left child',html:calc(`F₁ = m₁ g = ${m1} × 9.8 = ${f1(m1*g9,1)} N\nτ₁ = F₁ r₁ = ${f1(m1*g9,1)} × ${f1(d1)} = ${f1(t1,1)} N·m`)+'<p>It turns the seesaw counter-clockwise (left side down).</p>',wait:()=>true,done:()=>'Lab: '+$('#tL').textContent+'.'});
+  if(find==='d2')steps.push({prefer:'right',el:box('d2'),title:'Where must the right child sit?',html:calc(`Balanced: τ₂ = τ₁\nm₂ g r₂ = m₁ g r₁  (g cancels)\nr₂ = m₁ r₁ / m₂ = ${m1} × ${f1(d1)} / ${m2}\nr₂ = ${f1(ans,2)} m`)+`<p>Move the right child to <b>${f1(setD2)} m</b>. ${m2>m1?'The heavier child sits closer to the pivot.':m2<m1?'The lighter child must sit farther from the pivot.':'Same mass, same distance.'}</p>`,wait:()=>Math.abs(S.d2-setD2)<0.0051,doIt:()=>setR('d2',setD2),done:`r₂ = ${f1(setD2)} m.`});
+  else steps.push({prefer:'right',el:box('m2'),title:"The right child's mass",html:calc(`Balanced: τ₂ = τ₁\nm₂ g r₂ = m₁ g r₁  (g cancels)\nm₂ = m₁ r₁ / r₂ = ${m1} × ${f1(d1)} / ${f1(d2)}\nm₂ = ${f1(ans,1)} kg`)+`<p>Set the right child to <b>${setM2} kg</b>.</p>`,wait:()=>S.m2===setM2,doIt:()=>setR('m2',setM2),done:`m₂ = ${setM2} kg.`});
+  steps.push({el:'#seeStatus',title:'Check: is it balanced?',html:'<p>The two torques should be equal, so the net torque is 0 and the seesaw stays level.</p>',done:()=>$('#seeStatus').textContent+' Net torque: '+$('#tN').textContent+'.',wait:()=>/Balanced/.test($('#seeStatus').textContent)});
+  steps.push({title:'Your answers',html:calc(`τ₁ = m₁ g r₁ = ${f1(t1,1)} N·m\n`+(find==='d2'?`r₂ = m₁ r₁ / m₂ = ${f1(ans,2)} m`:`m₂ = m₁ r₁ / r₂ = ${f1(ans,1)} kg`))+'<p>Compare them with your own working.</p>'})}
+ setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+$('#exSolve').onclick=exSolve;
 })();
 </script>
 
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>

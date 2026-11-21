@@ -634,18 +634,18 @@
   var PH = {  // intro tab, challenge tab (null = none), names
     'chemical-change-lab.html': { intro: '[data-tab="signs"]', game: '[data-tab="bal"]', gameName: 'Balance it' },
     'chemical-equilibrium-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
-    'enthalpy-lab.html': { intro: '#t-heat', game: null },
+    'enthalpy-lab.html': { intro: '#t-heat', game: null, ex: '#t-ex' },
     'esterification-lab.html': { intro: '[data-tab="build"]', game: '[data-tab="chal"]' },
     'galvanic-cell-lab.html': { intro: '[data-tab="cell"]', game: '[data-tab="chal"]' },
     'keplers-laws.html': { intro: '#t-retro', game: null },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
     'reaction-rates-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
-    'titration-lab.html': { intro: '[data-tab="dil"]', game: '[data-tab="chal"]' },
-    'torque-lab.html': { intro: '[data-tab="door"]', game: '[data-tab="chal"]' },
+    'titration-lab.html': { intro: '[data-tab="dil"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
+    'torque-lab.html': { intro: '[data-tab="door"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'wave-speed-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'five-types-of-chemical-reactions.html': { intro: '[data-tab="build"]', game: '[data-tab="game"]' },
-    'entropy-lab.html': { intro: '[data-tab="spr"]', game: '[data-tab="chal"]', gameName: 'Spontaneous?' },
+    'entropy-lab.html': { intro: '[data-tab="spr"]', game: '[data-tab="chal"]', gameName: 'Spontaneous?', ex: '[data-tab="ex"]' },
     'equilibrium-table-lab.html': { intro: '[data-tab="step"]', game: '[data-tab="chal"]', gameName: 'You calculate' }
   };
   var ph = PH[file] || {};
@@ -660,7 +660,9 @@
     { id: 'lab', name: 'Lab', desc: hasTabs ? 'Every tab, tool and option. Explore freely.' : 'Every tool and option, with explanations and teacher notes.' }
   ];
   if (ph.game) PHASES.push({ id: 'game', name: ph.gameName || 'Challenge', desc: 'Test yourself: questions with feedback and a score.' });
+  if (ph.ex) PHASES.push({ id: 'ex', name: 'Exercise', desc: 'Type in your own exercise. The lab sets it up and solves it with you, step by step.' });
   var ICON = {
+    ex: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect width="120" height="80" rx="10" fill="#E2F2E6"/><rect x="34" y="12" width="44" height="56" rx="5" fill="#fff" stroke="#2E7D4F" stroke-width="2.5"/><path d="M42 26 h28 M42 36 h28 M42 46 h16" stroke="#2E7D4F" stroke-width="3" stroke-linecap="round"/><path d="M66 58 l20 -22 l6 6 l-20 22 l-8 2z" fill="#F2B640" stroke="#7A5A10" stroke-width="2" stroke-linejoin="round"/></svg>',
     intro: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect width="120" height="80" rx="10" fill="#E3F1F5"/><circle cx="60" cy="40" r="18" fill="#0A6A88"/><path d="M54 30 L70 40 L54 50 Z" fill="#fff"/></svg>',
     lab: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect width="120" height="80" rx="10" fill="#FCEFD9"/><path d="M48 14 h16 M52 14 v20 L36 64 q-2 4 3 4 h34 q5 0 3-4 L60 34 V14" fill="#fff" stroke="#8A5A12" stroke-width="3" stroke-linejoin="round"/><path d="M41 56 h30 l4 8 q1 4 -3 4 H40 q-4 0 -3-4z" fill="#F59E5B"/><circle cx="88" cy="26" r="9" fill="none" stroke="#8A5A12" stroke-width="3"/><path d="M88 13 v-4 M88 43 v-4 M75 26 h-4 M105 26 h-4" stroke="#8A5A12" stroke-width="3"/><path d="M84 52 h16 M84 60 h10" stroke="#8A5A12" stroke-width="3" stroke-linecap="round"/></svg>',
     game: '<svg viewBox="0 0 120 80" aria-hidden="true"><rect width="120" height="80" rx="10" fill="#EDE5FA"/><path d="M46 16 h28 v14 q0 16 -14 16 q-14 0 -14 -16z" fill="#F2B640" stroke="#7A5A10" stroke-width="2.5"/><path d="M46 20 h-8 q0 12 10 12 M74 20 h8 q0 12 -10 12" fill="none" stroke="#7A5A10" stroke-width="2.5"/><path d="M60 46 v10 M50 64 h20 v-8 h-20z" fill="#F2B640" stroke="#7A5A10" stroke-width="2.5"/><path d="M92 18 l3 6 6 1 -4.5 4 1 6 -5.5-3 -5.5 3 1-6 -4.5-4 6-1z" fill="#8E5BC8"/></svg>'
@@ -674,6 +676,7 @@
     '.lg-nav .lg-btn{position:static!important;box-shadow:none;margin-left:6px!important;padding:9px 13px}' +
     '.lg-nav .home svg{width:26px;height:26px;opacity:1;border:0}' +
     '@media (max-width:560px){.lg-nav .ttl{display:none}.lg-nav{justify-content:center}.lg-nav button.ph svg{width:38px;height:25px}.lg-nav .lg-btn .gtxt{display:none}}' +
+    '@media (max-width:440px){.lg-nav{gap:2px;padding-left:6px;padding-right:6px}.lg-nav button.ph{padding:4px 3px;font-size:11.5px}.lg-nav button.ph svg{width:32px;height:21px}.lg-nav .lg-btn{margin-left:2px!important;padding:8px 10px}}' +
     'body{padding-bottom:78px!important}' +
     '.lg-home{position:fixed;inset:0;z-index:80;background-color:var(--bg,#F5F6F2);background-image:linear-gradient(var(--paper-line,rgba(19,35,43,.045)) 1px,transparent 1px),linear-gradient(90deg,var(--paper-line,rgba(19,35,43,.045)) 1px,transparent 1px);background-size:28px 28px;color:var(--ink,#13232B);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(14px,3vh,28px);padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));overflow:auto;font-family:var(--body,system-ui,sans-serif)}' +
     '.lg-home .ey{margin:0;font:500 13px/1.3 var(--data,ui-monospace,monospace);color:var(--muted,#52646C);text-align:center;max-width:60ch}' +
@@ -688,7 +691,8 @@
     '.lg-home .back{display:inline-flex;align-items:center;gap:6px;color:inherit;font-weight:700;font-size:14px;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;opacity:.85}.lg-home .back:hover,.lg-home .back:focus-visible{opacity:1}' +
     '@media (prefers-reduced-motion: reduce){.lg-home .card{transition:none}}' +
     '@media print{.lg-nav,.lg-home{display:none}}' +
-    (hasTabs ? 'html[data-phase="intro"] ' + (tabBar.className ? '.' + tabBar.className.trim().split(/\s+/)[0] : '[role=tablist]') + ',html[data-phase="game"] ' + (tabBar.className ? '.' + tabBar.className.trim().split(/\s+/)[0] : '[role=tablist]') + '{display:none!important}' : '') +
+    (hasTabs ? 'html[data-phase="intro"] ' + (tabBar.className ? '.' + tabBar.className.trim().split(/\s+/)[0] : '[role=tablist]') + ',html[data-phase="game"] ' + (tabBar.className ? '.' + tabBar.className.trim().split(/\s+/)[0] : '[role=tablist]') + ',html[data-phase="ex"] ' + (tabBar.className ? '.' + tabBar.className.trim().split(/\s+/)[0] : '[role=tablist]') + '{display:none!important}' : '') +
+    (ph.ex ? 'html[data-phase="lab"] ' + ph.ex + ',html[data-phase="intro"] ' + ph.ex + '{display:none!important}' : '') +
     (ph.game ? 'html[data-phase="lab"] ' + ph.game + '{display:none!important}' : '');
   st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
@@ -707,7 +711,8 @@
     mode = id === 'intro' ? 'simple' : 'full';
     root.classList.toggle('lg-simple', mode === 'simple');
     if (id === 'intro' && hasTabs) clickTab(ph.intro);
-    if (id === 'lab' && hasTabs) { var cur = tabBar.querySelector('[aria-selected="true"]'); if (!cur || (ph.game && cur.matches(ph.game))) clickTab(ph.intro); }
+    if (id === 'lab' && hasTabs) { var cur = tabBar.querySelector('[aria-selected="true"]'); if (!cur || (ph.game && cur.matches(ph.game)) || (ph.ex && cur.matches(ph.ex))) clickTab(ph.intro); }
+    if (id === 'ex') clickTab(ph.ex);
     if (id === 'game') clickTab(ph.game);
     nav.querySelectorAll('[data-ph]').forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.ph === id)); });
     if (push !== false) { try { history.replaceState(null, '', location.pathname + location.search + '#' + id); } catch (e) {} }
