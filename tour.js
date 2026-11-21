@@ -9,9 +9,11 @@
   if (window.Tour) return;
   var doc = document, root = doc.documentElement;
   var CSS =
-    '.tour-block{position:fixed;inset:0;z-index:1000;background:transparent}' +
-    '.tour-hole{position:fixed;z-index:1001;border-radius:12px;pointer-events:none;box-shadow:0 0 0 3px var(--accent,#0A6A88),0 0 0 200vmax rgba(8,16,20,.58);transition:left .32s cubic-bezier(.2,.7,.2,1),top .32s cubic-bezier(.2,.7,.2,1),width .32s cubic-bezier(.2,.7,.2,1),height .32s cubic-bezier(.2,.7,.2,1)}' +
+    '.tour-block{position:fixed;z-index:1000;background:rgba(8,16,20,.58)}.tour-cover{background:transparent!important}' +
+    '.tour-hole{position:fixed;z-index:1001;border-radius:12px;pointer-events:none;box-shadow:0 0 0 3px var(--accent,#0A6A88)}' +
     '.tour-tip{position:fixed;z-index:1002;width:min(340px,calc(100vw - 24px));background:var(--surface,#fff);color:var(--ink,#13232B);border:1px solid var(--line,#D9DCE1);border-radius:14px;padding:14px 16px 12px;box-shadow:0 14px 40px rgba(0,0,0,.28);font:15px/1.45 var(--body,"Atkinson Hyperlegible",system-ui,sans-serif);transition:left .32s cubic-bezier(.2,.7,.2,1),top .32s cubic-bezier(.2,.7,.2,1)}' +
+    '.tour-tip.live .t-body p:last-child{font-weight:700}.tour-tip .t-done{margin:8px 0 0;color:var(--ok,#1E8A55);font-weight:700}.tour-tip .t-calc{font:600 12.5px/1.55 var(--data,"IBM Plex Mono",monospace);background:var(--sunk,#EDEFF2);border-radius:8px;padding:8px 10px;margin:8px 0 0;white-space:pre-wrap}' +
+    '.tour-tip button:disabled{opacity:.45;cursor:default}.tour-tip button.t-do{border-color:var(--accent,#0A6A88);color:var(--accent,#0A6A88)}.tour-tip .t-dots i.was{background:var(--accent,#0A6A88);opacity:.45}.tour-tip.mid,.tour-tip.live{width:min(400px,calc(100vw - 24px))}' +
     '.tour-tip .t-n{font:600 12px/1 var(--data,"IBM Plex Mono",monospace);color:var(--muted,#55666E);letter-spacing:.06em}' +
     '.tour-tip h3{margin:6px 0 4px;font:800 18px/1.2 var(--display,"Bricolage Grotesque",system-ui,sans-serif);letter-spacing:-.01em}' +
     '.tour-tip p{margin:0;color:var(--ink,#13232B)}' +
@@ -43,52 +45,84 @@
   function mark(key) { try { localStorage.setItem('tour:' + key, '1'); } catch (e) { } }
   var cur = null;
 
+  /* step fields: el (optional: no el = a card in the middle), title, text (or html), onShow(), onLeave(),
+     wait() → true when the student has done the step (the lit part can then be clicked), doIt() for "Do it for me",
+     done: text shown once the step is done. */
   function start(steps, opts) {
     opts = opts || {}; css(); end(true); dismissOffer();
-    var list = steps.filter(function (s) { return find(s.el); });
+    var list = opts.lazy ? steps.slice() : steps.filter(function (s) { return !s.el || s.lazy || find(s.el); });   // lazy: the parts are looked up when their step comes (they may be on another screen now)
     if (!list.length) return;
-    var block = doc.createElement('div'); block.className = 'tour-block';
+    var shades = [0, 1, 2, 3].map(function () { var d = doc.createElement('div'); d.className = 'tour-block'; doc.body.appendChild(d); return d; });
+    var cover = doc.createElement('div'); cover.className = 'tour-block tour-cover'; doc.body.appendChild(cover);
     var hole = doc.createElement('div'); hole.className = 'tour-hole';
-    var tip = doc.createElement('div'); tip.className = 'tour-tip'; tip.setAttribute('role', 'dialog'); tip.setAttribute('aria-modal', 'true'); tip.setAttribute('aria-live', 'polite');
-    doc.body.appendChild(block); doc.body.appendChild(hole); doc.body.appendChild(tip);
-    var i = 0, raf = 0, back = doc.activeElement;
-    cur = { end: function (quiet) { finish(quiet); } };
+    var tip = doc.createElement('div'); tip.className = 'tour-tip'; tip.setAttribute('role', 'dialog'); tip.setAttribute('aria-live', 'polite');
+    doc.body.appendChild(hole); doc.body.appendChild(tip);
+    var i = 0, raf = 0, poll = 0, adv = 0, back = doc.activeElement, isDone = false;
+    cur = { end: function (quiet) { finish(quiet); }, next: function () { go(1); } };
+    function stepEl(s) { return s.el ? find(s.el) : null; }
     function draw() {
-      var s = list[i], e = find(s.el);
-      if (!e) { if (i < list.length - 1) { i++; draw(); } else finish(); return; }
-      tip.setAttribute('aria-label', 'Tour, step ' + (i + 1) + ' of ' + list.length + ': ' + (s.title || ''));
-      tip.innerHTML = '<span class="t-arrow"></span><span class="t-n">' + (i + 1) + ' / ' + list.length + '</span>' + (s.title ? '<h3>' + esc(s.title) + '</h3>' : '') + '<p>' + esc(s.text) + '</p>' +
-        '<div class="t-dots" aria-hidden="true">' + list.map(function (_, k) { return '<i' + (k === i ? ' class="on"' : '') + '></i>'; }).join('') + '</div>' +
-        '<div class="t-row"><button type="button" class="t-skip">' + (i === list.length - 1 ? '' : 'Skip tour') + '</button><span class="sp"></span>' +
-        (i ? '<button type="button" class="t-back">Back</button>' : '') + '<button type="button" class="t-next">' + (i === list.length - 1 ? 'Done' : 'Next') + '</button></div>';
+      clearInterval(poll); clearTimeout(adv); isDone = false;
+      var s = list[i]; if (typeof s.onShow === 'function') { try { s.onShow(); } catch (e) { } }
+      var e = stepEl(s);
+      if (s.el && !e && !s.lazy && !opts.lazy) { if (i < list.length - 1) { i++; draw(); } else finish(); return; }
+      var last = i === list.length - 1, live = typeof s.wait === 'function';
+      tip.setAttribute('aria-label', (opts.label || 'Tour') + ', step ' + (i + 1) + ' of ' + list.length + ': ' + (s.title || ''));
+      tip.innerHTML = '<span class="t-arrow"></span><span class="t-n">' + esc(opts.label ? opts.label + ' · ' : '') + (i + 1) + ' / ' + list.length + '</span>' + (s.title ? '<h3>' + esc(s.title) + '</h3>' : '') +
+        '<div class="t-body">' + (s.html || '<p>' + esc(s.text) + '</p>') + '</div>' + (live ? '<p class="t-done" hidden></p>' : '') +
+        '<div class="t-dots" aria-hidden="true">' + list.map(function (_, k) { return '<i' + (k === i ? ' class="on"' : k < i ? ' class="was"' : '') + '></i>'; }).join('') + '</div>' +
+        '<div class="t-row"><button type="button" class="t-skip">' + (last ? '' : (opts.skipText || 'Skip tour')) + '</button><span class="sp"></span>' +
+        (i ? '<button type="button" class="t-back">Back</button>' : '') + (live && s.doIt ? '<button type="button" class="t-do">' + esc(s.doLabel || 'Do it for me') + '</button>' : '') +
+        '<button type="button" class="t-next">' + (last ? (opts.doneText || 'Done') : 'Next') + '</button></div>';
       var sk = tip.querySelector('.t-skip'); if (!sk.textContent) sk.style.visibility = 'hidden'; sk.onclick = function () { finish(); };
       var bk = tip.querySelector('.t-back'); if (bk) bk.onclick = function () { go(-1); };
-      tip.querySelector('.t-next').onclick = function () { go(1); };
-      var r0 = e.getBoundingClientRect(); if (r0.top < 0 || r0.bottom > innerHeight) e.scrollIntoView({ block: 'center', behavior: 'auto' });
-      place(); tip.querySelector('.t-next').focus({ preventScroll: true });
+      var nx = tip.querySelector('.t-next'); nx.onclick = function () { go(1); };
+      var dob = tip.querySelector('.t-do'); if (dob) dob.onclick = function () { try { s.doIt(); } catch (er) { } check(); };
+      tip.classList.toggle('live', live); tip.classList.toggle('mid', !s.el);
+      if (live) { nx.disabled = true; poll = setInterval(check, 200); check(); }
+      if (e) { var r0 = e.getBoundingClientRect(); if (r0.top < 0 || r0.bottom > innerHeight) e.scrollIntoView({ block: 'center', behavior: 'auto' }); }
+      place(); setTimeout(place, 60);
+      var f = tip.querySelector(live && dob ? '.t-do' : '.t-next'); if (f && !f.disabled) f.focus({ preventScroll: true });
+    }
+    function check() {
+      var s = list[i]; if (!s || typeof s.wait !== 'function' || isDone) return; var ok = false; try { ok = !!s.wait(); } catch (e) { }
+      if (!ok) return; isDone = true; clearInterval(poll);
+      var nx = tip.querySelector('.t-next'), dn = tip.querySelector('.t-done'), dob = tip.querySelector('.t-do');
+      if (dob) dob.remove(); nx.disabled = false; nx.focus({ preventScroll: true });
+      var msg = typeof s.done === 'function' ? s.done() : s.done; if (dn) { dn.hidden = false; dn.textContent = '✓ ' + (msg || 'Done.'); }
+      tip.classList.add('ok'); place();
+      if (s.auto) adv = setTimeout(function () { if (list[i] === s) go(1); }, s.auto === true ? 1400 : s.auto);
     }
     function place() {
-      var e = find(list[i].el); if (!e) return; var r = e.getBoundingClientRect(), pad = 6, W = innerWidth, H = innerHeight;
-      hole.style.left = (r.left - pad) + 'px'; hole.style.top = (r.top - pad) + 'px'; hole.style.width = (r.width + 2 * pad) + 'px'; hole.style.height = (r.height + 2 * pad) + 'px';
-      var tw = tip.offsetWidth, th = tip.offsetHeight, gap = 16, x, y, pl;
-      if (W < 560) { pl = 'sheet'; x = (W - tw) / 2; y = r.bottom + gap + th < H - 8 ? r.bottom + gap : r.top - gap - th > 8 ? r.top - gap - th : H - th - 12; }
+      var s = list[i]; if (!s) return; var e = stepEl(s), W = innerWidth, H = innerHeight, tw = tip.offsetWidth, th = tip.offsetHeight, gap = 16, x, y, pl;
+      var r = e ? e.getBoundingClientRect() : null, pad = 6;
+      if (r) { var L = r.left - pad, T = r.top - pad, R = r.right + pad, B = r.bottom + pad;
+        hole.style.display = ''; hole.style.left = L + 'px'; hole.style.top = T + 'px'; hole.style.width = (R - L) + 'px'; hole.style.height = (B - T) + 'px';
+        // four shades around the lit part block clicks elsewhere; the lit part itself is clickable when the step waits for the student
+        var set = function (d, l, t, w, h) { d.style.inset = 'auto'; d.style.left = l + 'px'; d.style.top = t + 'px'; d.style.width = Math.max(0, w) + 'px'; d.style.height = Math.max(0, h) + 'px'; };
+        set(shades[0], 0, 0, W, T); set(shades[1], 0, B, W, H - B); set(shades[2], 0, T, L, B - T); set(shades[3], R, T, W - R, B - T);
+        cover.style.display = typeof s.wait === 'function' ? 'none' : ''; set(cover, L, T, R - L, B - T);
+      } else { hole.style.display = 'none'; shades.forEach(function (d, k) { d.style.inset = 'auto'; d.style.left = '0'; d.style.top = '0'; d.style.width = k ? '0' : '100vw'; d.style.height = k ? '0' : '100vh'; }); cover.style.display = 'none'; }
+      if (!r) { pl = 'sheet'; x = (W - tw) / 2; y = (H - th) / 2; }
+      else if (W < 560) { pl = 'sheet'; x = (W - tw) / 2; y = r.bottom + gap + th < H - 8 ? r.bottom + gap : r.top - gap - th > 8 ? r.top - gap - th : H - th - 12; }
       else if (r.bottom + gap + th < H - 8) { pl = 'below'; y = r.bottom + gap; x = r.left + r.width / 2 - tw / 2; }
       else if (r.top - gap - th > 8) { pl = 'above'; y = r.top - gap - th; x = r.left + r.width / 2 - tw / 2; }
-      else if (r.right + gap + tw < W - 8) { pl = 'right'; x = r.right + gap; y = r.top + r.height / 2 - th / 2; }
       else if (r.left - gap - tw > 8) { pl = 'left'; x = r.left - gap - tw; y = r.top + r.height / 2 - th / 2; }
+      else if (r.right + gap + tw < W - 8) { pl = 'right'; x = r.right + gap; y = r.top + r.height / 2 - th / 2; }
       else { pl = 'sheet'; x = (W - tw) / 2; y = H - th - 16; }
       x = Math.max(12, Math.min(W - tw - 12, x)); y = Math.max(12, Math.min(H - th - 12, y));
       tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.dataset.place = pl;
       var a = tip.querySelector('.t-arrow');
-      if (pl === 'below' || pl === 'above') { a.style.left = Math.max(14, Math.min(tw - 28, r.left + r.width / 2 - x - 7)) + 'px'; a.style.top = ''; }
-      else if (pl === 'left' || pl === 'right') { a.style.top = Math.max(14, Math.min(th - 28, r.top + r.height / 2 - y - 7)) + 'px'; a.style.left = ''; }
+      if (r && (pl === 'below' || pl === 'above')) { a.style.left = Math.max(14, Math.min(tw - 28, r.left + r.width / 2 - x - 7)) + 'px'; a.style.top = ''; }
+      else if (r && (pl === 'left' || pl === 'right')) { a.style.top = Math.max(14, Math.min(th - 28, r.top + r.height / 2 - y - 7)) + 'px'; a.style.left = ''; }
     }
-    function go(d) { var n = i + d; if (n < 0) return; if (n >= list.length) { finish(); return; } i = n; draw(); }
-    function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); finish(); } else if (e.key === 'ArrowRight') { e.preventDefault(); go(1); } else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
-      else if (e.key === 'Tab') { var f = tip.querySelectorAll('button'), vis = Array.prototype.filter.call(f, function (b) { return b.style.visibility !== 'hidden'; }); if (!vis.length) return; var a = vis[0], z = vis[vis.length - 1]; if (e.shiftKey && doc.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && doc.activeElement === z) { e.preventDefault(); a.focus(); } } }
+    function go(d) { var s = list[i]; if (d > 0 && typeof s.wait === 'function' && !isDone) return; if (typeof s.onLeave === 'function') { try { s.onLeave(); } catch (e) { } }
+      var n = i + d; if (n < 0) return; if (n >= list.length) { finish(); return; } i = n; draw(); }
+    function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); finish(); } else if (e.key === 'ArrowRight' && !/INPUT|SELECT|TEXTAREA/.test((e.target || {}).tagName || '')) { e.preventDefault(); go(1); } else if (e.key === 'ArrowLeft' && !/INPUT|SELECT|TEXTAREA/.test((e.target || {}).tagName || '')) { e.preventDefault(); go(-1); } }
     function onMove() { cancelAnimationFrame(raf); raf = requestAnimationFrame(place); }
+    var ro = window.ResizeObserver ? new ResizeObserver(onMove) : null; if (ro) ro.observe(doc.body);
     function finish(quiet) {
-      if (!block.parentNode) return; block.remove(); hole.remove(); tip.remove(); cur = null;
+      if (!hole.parentNode) return; clearInterval(poll); clearTimeout(adv); var s = list[i]; if (s && typeof s.onLeave === 'function') { try { s.onLeave(); } catch (e) { } }
+      shades.forEach(function (d) { d.remove(); }); cover.remove(); hole.remove(); tip.remove(); cur = null; if (ro) ro.disconnect();
       doc.removeEventListener('keydown', onKey, true); removeEventListener('resize', onMove); removeEventListener('scroll', onMove, true);
       if (opts.key) mark(opts.key); if (back && back.focus) try { back.focus({ preventScroll: true }); } catch (e) { }
       if (!quiet && typeof opts.onEnd === 'function') opts.onEnd();
