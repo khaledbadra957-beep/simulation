@@ -641,7 +641,7 @@
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
     'reaction-rates-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
-    'titration-lab.html': { intro: '[data-tab="dil"]', game: '[data-tab="chal"]' },
+    'titration-lab.html': { intro: '[data-tab="dil"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'torque-lab.html': { intro: '[data-tab="door"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'wave-speed-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'five-types-of-chemical-reactions.html': { intro: '[data-tab="build"]', game: '[data-tab="game"]' },
