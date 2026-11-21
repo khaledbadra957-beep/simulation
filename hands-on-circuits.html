@@ -22,6 +22,13 @@
 .capread div{display:flex;flex-direction:column}.capread dt{font-size:.8rem;color:var(--muted)}.capread dd{margin:0;font:600 .98rem var(--data);font-variant-numeric:tabular-nums}
 .law{margin:6px 0 0;font:600 .9rem var(--data);color:var(--muted)}
 .law .cu{color:#3898A8}.law .ce{color:#D99B26}
+.newpart{display:flex;flex-direction:column;gap:6px}#bulbV{align-self:flex-start;max-width:100%}
+.rin{display:flex;align-items:center;gap:6px}.rin input{width:7.5em;font:600 1rem var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.rin .u{font:600 .95rem var(--data);color:var(--muted)}.rin input[aria-invalid="true"]{border-color:var(--bad)}.rin .btn{padding:5px 10px}
+.bands{display:inline-flex;gap:3px;align-items:center;margin-left:4px}.bands i{display:block;width:8px;height:20px;border-radius:2px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.blist{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:.9rem}
+.blist li{display:flex;justify-content:space-between;gap:8px}.blist b{font-family:var(--data)}
+.blist .ok{color:var(--ok)}.blist .warn{color:#B36B00}.blist .bad{color:var(--bad)}.blist .off{color:var(--muted)}
 </style>
 <link rel="stylesheet" href="site.css">
 </head><body>
@@ -31,7 +38,7 @@
   <div>
    <p class="eyebrow">Grade 12 Physics · Module 19 Electric current and circuits · Simple circuits · Camera lab</p>
    <h1>Hands-On Lab: Circuit Builder</h1>
-   <p class="lede">Build circuits on the board with your own hand: bulbs, resistors, a rheostat, capacitors and wires. Close the switch, measure with the ammeter and the multimeter, read the equivalent resistance, and watch a capacitor charge and discharge. Pinch your thumb and first finger to pick a part up.</p>
+   <p class="lede">Build circuits on the board with your own hand: bulbs of any rating, resistors of any value, a rheostat, capacitors and wires. Close the switch, measure with the ammeter and the multimeter, read the equivalent resistance, and watch a capacitor charge and discharge. Close your hand to pick a part up.</p>
   </div>
   <div class="row"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
  </header>
@@ -42,8 +49,8 @@
    <canvas id="gl" aria-label="3-D circuit board with a battery, a switch and eight terminals, with bulbs, resistors, wires, an ammeter and a voltmeter to place"></canvas>
    <canvas id="hud" class="hud"></canvas>
    <div class="intro" id="intro">
-    <h2>Pinch a part, drop it in a gap</h2>
-    <p>The camera follows both of your hands. Your video stays on this device and is never uploaded. Pinch the switch to open or close it. On a touch screen you can use two fingers.</p>
+    <h2>Grab a part, drop it in a gap</h2>
+    <p>The camera follows both of your hands. Your video stays on this device and is never uploaded. Grab the switch to open or close it. On a touch screen you can use two fingers.</p>
     <div class="row" style="justify-content:center">
      <button class="btn primary" id="startCam" type="button">Start with my camera</button>
      <button class="btn" id="startMouse" type="button">Use mouse or touch</button>
@@ -60,12 +67,23 @@
     </dl>
     <p class="rq"><span>R equivalent</span><b id="rEq">–</b></p>
     <p class="small" style="margin-top:6px" id="rEqWhy">What the battery sees, with the switch closed.</p>
-    <p class="small" style="margin-top:8px">Bulb 10 Ω · resistors 10, 20, 30 Ω · rheostat 0–50 Ω · capacitors 50 mF and 100 mF.</p>
+    <ul class="blist" id="bList"></ul>
+    <p class="small" style="margin-top:8px" id="partsNote">Resistors 10, 20, 30 Ω and your own · rheostat 0–50 Ω · capacitors 50 mF and 100 mF.</p>
    </div>
    <div class="card" id="capCard"><h3>Capacitor</h3>
     <canvas id="capG" aria-label="Voltage across the capacitor against time"></canvas>
     <dl class="capread"><div><dt>u<sub>C</sub></dt><dd id="cU">–</dd></div><div><dt>q = C·u<sub>C</sub></dt><dd id="cQ">–</dd></div><div><dt>τ from the graph</dt><dd id="cT">–</dd></div></dl>
     <p class="law" id="cLaw">Put a capacitor on the board.</p>
+   </div>
+   <div class="card ctl" id="newCard">
+    <div class="newpart"><h3>New bulbs</h3>
+     <div class="seg" id="bulbV"><button type="button" data-v="1.5" aria-pressed="false">1.5 V</button><button type="button" data-v="3" aria-pressed="false">3 V</button><button type="button" data-v="6" aria-pressed="true">6 V</button><button type="button" data-v="9" aria-pressed="false">9 V</button><button type="button" data-v="12" aria-pressed="false">12 V</button></div>
+     <p class="small" id="bulbNote">Take as many bulbs as you like from the tray. A 6 V bulb is 10 Ω and glows normally on 6 V.</p>
+    </div>
+    <div class="newpart"><h3>New resistor</h3>
+     <div class="rin"><input type="number" id="rVal" min="0.1" max="100000" step="any" value="47" inputmode="decimal" aria-label="Resistance of the next resistor, in ohms"><span class="u">Ω</span><span class="bands" id="rBands" aria-hidden="true"></span></div>
+     <p class="small">Type any value, then take the resistor from the bottom of the tray. Its colour bands match the value.</p>
+    </div>
    </div>
    <div class="card ctl">
     <div><h3>Battery</h3><div class="seg" id="emf"><button type="button" data-v="3" aria-pressed="false">3 V</button><button type="button" data-v="6" aria-pressed="true">6 V</button><button type="button" data-v="9" aria-pressed="false">9 V</button></div></div>
@@ -76,7 +94,7 @@
     <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
     <div class="row"><button class="btn" id="reset" type="button">Clear the board</button></div>
    </div>
-   <p class="small">Tips: a part dropped on a gap that is in use swaps places with the part there. To add a wire quickly, pinch a terminal and drag to the next terminal. Pinch the black knob of the rheostat and slide it to change its resistance. The ammeter goes in the loop; the multimeter probes touch two terminals.</p>
+   <p class="small">Tips: a part dropped on a gap that is in use swaps places with the part there. To add a wire quickly, grab a terminal and drag to the next terminal. Grab the black knob of the rheostat and slide it to change its resistance. The ammeter goes in the loop; the multimeter probes touch two terminals.</p>
   </aside>
  </div>
 </div>
@@ -100,13 +118,13 @@ const PEG=COLS.map(x=>V(x,TOP)).concat(COLS.map(x=>V(x,MID)),COLS.map(x=>V(x,LOW
 const mkE=(id,a,b,fixed)=>({id,a,b,fixed:!!fixed,mid:PEG[a].clone().add(PEG[b]).multiplyScalar(.5),ang:PEG[a].y===PEG[b].y?0:Math.PI/2,part:null,I:0,U:0,ph:0});
 const BAT=mkE('battery',0,4,true),SW=mkE('switch',0,1,true),FREE=[mkE('t1',1,2),mkE('t2',2,3),mkE('b0',4,5),mkE('b1',5,6),mkE('b2',6,7),mkE('v1',1,5),mkE('v2',2,6),mkE('v3',3,7),
  mkE('d0',8,9),mkE('d1',9,10),mkE('d2',10,11),mkE('u0',4,8),mkE('u1',5,9),mkE('u2',6,10),mkE('u3',7,11)],ALL=[BAT,SW].concat(FREE);
-const RW=.0002,RB=.002,RBULB=10,PRATED=3.6;                                           // ohms: a wire or the ammeter, inside the battery, one bulb; watts at 6 V
+const RW=.0002,RB=.002,IRATED=.6,NB=8,NR=6;                                           // ohms: a wire or the ammeter, inside the battery; every bulb takes 0.6 A at its rated voltage; how many bulbs and own resistors the trays hold
 const S={tab:0,emf:6,closed:false,done:{},hold:0,V:new Float64Array(NP),Ib:0,short:false,shortT:0,meas:{},told:{},time:0,ammEdge:null,ch:0,chDone:false,
- rheo:25,mm:'V',hist:[],ht:0,hcap:null,hU0:0,hUf:0,tauG:null,tauR:null,req:Infinity,rth:Infinity,cycles:[]};
+ rheo:25,mm:'V',bulbV:6,rNew:47,hist:[],ht:0,hcap:null,hU0:0,hUf:0,tauG:null,tauR:null,req:Infinity,rth:Infinity,cycles:[]};
 
 const K=HandKit.create({hands:2,stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
  layout(k){const lx=-k.halfW+1.82,rx=k.halfW-1.05,ca=-k.halfW+1.05,cb=-k.halfW+2.6;trayL.position.x=lx;trayR.position.x=rx;
-  [...bulbs,...caps].forEach((b,i)=>b.userData.home.set(ca,5.75-i*1.02,0));[...ress,rheo].forEach((b,i)=>b.userData.home.set(cb,5.75-i*1.02,0));wires.forEach((w,i)=>w.userData.home.set(rx,5.95-i*.15,0));amm.userData.home.set(rx,3.38,0);
+  bulbs.forEach(b=>b.userData.home.set(ca,5.75,0));caps.forEach((b,i)=>b.userData.home.set(ca,4.73-i*1.02,0));[...ress,rheo].forEach((b,i)=>b.userData.home.set(cb,5.75-i*1.02,0));cress.forEach(r=>r.userData.home.set(cb,1.67,0));wires.forEach((w,i)=>w.userData.home.set(rx,5.95-i*.15,0));amm.userData.home.set(rx,3.38,0);
   volt.g.position.set(rx-.45,0,.25);probes[0].userData.home.set(rx-1.0,2.4,.4);probes[1].userData.home.set(rx-.4,2.4,.4);S.cab=null},
  onGrab,onDrop,onRelease,onFrame:frame,onHUD:hudDraw,
  onPinchEmpty(p,h){const i=nearPeg(p,.5);if(i>=0)h.wireFrom=i},
@@ -125,7 +143,15 @@ const cab=[P.cable(0xC62828,.035),P.cable(0x16191C,.035)];
 /* ---------- parts to pick up ---------- */
 const parts=[];
 function mk(id,type,obj,R,name){const it=K.addItem(id,obj.g,{kind:'part',type,R,name,r:.72,scale:.62,part:obj,firm:true,edge:null});it.scale.setScalar(.62);it.traverse(m=>{if(m.isMesh&&m.material.transparent)m.castShadow=false});parts.push(it);return it}
-const bulbs=[0,1,2].map(i=>mk('bulb'+i,'bulb',P.bulb(E),RBULB,'bulb'));
+const vTxt=v=>(v%1?v.toFixed(1):String(v))+' V';
+const bulbs=Array.from({length:NB},(_,i)=>{const it=mk('bulb'+i,'bulb',P.bulb(E,'6 V'),6/IRATED,'bulb');it.userData.Vr=6;it.userData.blown=false;it.userData.over=0;return it});
+function rateBulb(b,v){const u=b.userData;u.Vr=v;u.R=v/IRATED;u.blown=false;u.over=0;u.part.blown(false);u.part.setLabel(vTxt(v))}
+/* colour code for any value: two digits and a multiplier (gold ×0.1, silver ×0.01) */
+const BANDC=[0x111111,0x6B3F1D,0xC62828,0xE67E22,0xF1C40F,0x2E8B57,0x2F6FD0,0x7D3C98,0x8C8C8C,0xF4F4F4],GOLD=0xC9A227,SILV=0xB8BEC4;
+function bandsOf(r){let e=Math.floor(Math.log10(r))-1,d=Math.round(r/Math.pow(10,e));if(d>=100){d=10;e++}const m=e===-1?GOLD:e===-2?SILV:BANDC[Math.max(0,Math.min(9,e))];return [BANDC[Math.floor(d/10)],BANDC[d%10],m]}
+const fmtOhm=r=>{const k=r>=1000,v=k?r/1000:r,t=Number(v.toPrecision(3));return String(t)+(k?' kΩ':' Ω')};
+const cress=Array.from({length:NR},(_,i)=>{const it=mk('cres'+i,'res',P.resistor(E,'47 Ω',bandsOf(47)),47,'47 Ω');it.userData.custom=true;return it});
+function setOwnR(it,r){const u=it.userData;u.R=r;u.name=fmtOhm(r);u.part.set(fmtOhm(r),bandsOf(r))}
 const ress=[[10,[0x6B3F1D,0x111111,0x111111]],[20,[0xC62828,0x111111,0x111111]],[30,[0xE67E22,0x111111,0x111111]]].map(([r,b])=>mk('res'+r,'res',P.resistor(E,r+' Ω',b),r,r+' Ω'));
 const caps=[[100,'100 mF'],[50,'50 mF']].map(([c,t])=>{const it=mk('cap'+c,'cap',P.capacitor(E,t),Infinity,t);it.userData.C=c/1000;it.userData.vc=0;return it});
 const rheoP=P.rheostat(E),rheo=mk('rheo','rheo',rheoP,25,'rheostat');rheoP.set(25/50);
@@ -142,7 +168,7 @@ function place(it,e){const u=it.userData,old=e.part,f=u.from;u.from=null;
 function unplace(it,goHome){const u=it.userData;if(u.edge){u.edge.part=null;u.edge=null}u.placed=false;if(goHome){u.scale=.62;K.home(it)}changed()}
 function changed(){S.meas={};S.hold=0}
 function setSwitch(on){S.closed=on;knife.set(on);changed();newCurve()}
-function starter(){caps.forEach(c=>c.userData.vc=0);S.hist=[];S.cycles=[];S.tauG=null;parts.forEach(it=>{if(it.userData.edge)unplace(it,true);else{it.userData.scale=.62;K.home(it)}});probes.forEach(p=>{p.userData.peg=-1;p.userData.placed=false;K.home(p)});['b0','b1','b2'].forEach((id,i)=>place(wires[i],FREE.find(e=>e.id===id)));setSwitch(false);S.short=false;S.ammEdge=null}
+function starter(){caps.forEach(c=>c.userData.vc=0);bulbs.forEach(b=>rateBulb(b,S.bulbV));cress.forEach(c=>setOwnR(c,S.rNew));S.hist=[];S.cycles=[];S.tauG=null;parts.forEach(it=>{if(it.userData.edge)unplace(it,true);else{it.userData.scale=.62;K.home(it)}});probes.forEach(p=>{p.userData.peg=-1;p.userData.placed=false;K.home(p)});['b0','b1','b2'].forEach((id,i)=>place(wires[i],FREE.find(e=>e.id===id)));setSwitch(false);S.short=false;S.ammEdge=null}
 
 function onGrab(it,h){const u=it.userData;
  if(u.kind==='switch'){S.tripped=false;setSwitch(!S.closed);return}
@@ -163,7 +189,7 @@ function onRelease(h){if(h.wireFrom==null)return;const a=h.wireFrom;h.wireFrom=n
 /* ---------- the circuit: node voltages by Kirchhoff's current law ----------
    A capacitor is a conductance C/dt with a current source that remembers its voltage (backward Euler),
    so it charges and discharges with the real time constant τ = R·C. Terminal 4, the battery's − end, is 0 V. */
-const Rof=it=>{const u=it.userData;return u.type==='rheo'?S.rheo:u.R};
+const Rof=it=>{const u=it.userData;return u.type==='rheo'?S.rheo:u.type==='bulb'&&u.blown?1e12:u.R};
 function gauss(G,J,n,gnd){const idx=[];for(let i=0;i<n;i++)if(i!==gnd)idx.push(i);const m=idx.length,A=idx.map(i=>{const r=new Float64Array(m+1);idx.forEach((j,c)=>r[c]=G[i][j]);r[m]=J[i];return r});
  for(let c=0;c<m;c++){let p=c;for(let r=c+1;r<m;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;const t=A[c];A[c]=A[p];A[p]=t;const d=A[c][c];for(let r=c+1;r<m;r++){const f=A[r][c]/d;if(f)for(let q=c;q<=m;q++)A[r][q]-=f*A[c][q]}}
  const x=new Float64Array(m);for(let r=m-1;r>=0;r--){let s=A[r][m];for(let q=r+1;q<m;q++)s-=A[r][q]*x[q];x[r]=s/A[r][r]}
@@ -193,12 +219,12 @@ const inSeries=L=>L.every(e=>same(Math.abs(e.I),S.Ib)),fullV=L=>L.every(e=>same(
 const ammI=()=>amm.userData.edge?Math.abs(amm.userData.edge.I):0,A2=v=>fx(v,2)+' A',V2=v=>fx(v,2)+' V';
 const noBulb=()=>!bulbs.some(b=>b.userData.edge&&Math.abs(b.userData.edge.I)>.003);
 const TASKS=[
- {tab:'1 · Series',intro:'Series circuit: put two bulbs into one loop, so the current has to go through one and then the other. Then pinch the switch to close it.',steps:[
+ {tab:'1 · Series',intro:'Series circuit: put two bulbs into one loop, so the current has to go through one and then the other. Then grab the switch to close it.',steps:[
   ['build','Put two bulbs in one loop and close the switch',()=>{const L=lit();return S.closed&&L.length===2&&inSeries(L)&&'Both bulbs glow, but dimly: they share the battery\'s '+S.emf+' V. There is only one path for the current, so this is a series circuit. Now put the ammeter into the loop: drop it on one of the wires to swap them.'}],
   ['amm','Put the ammeter into the loop',()=>{const L=lit();if(L.length>=2&&inSeries(L)&&ammI()>.01){S.ammEdge=amm.userData.edge.id;S.amm1=ammI();return 'The ammeter reads '+A2(ammI())+'. An ammeter goes in the loop, so that the current passes through it. Now move it to a different gap in the same loop.'}}],
   ['amm2','Move the ammeter to another place in the loop',()=>{const L=lit();return L.length>=2&&inSeries(L)&&ammI()>.01&&amm.userData.edge.id!==S.ammEdge&&'The same reading: '+A2(ammI())+'. In a series circuit the current is the same everywhere. The bulbs do not use current up; they turn electrical energy into light and heat. Now use the voltmeter: touch its two probes on the two ends of a bulb.'}],
   ['volt','Measure the voltage across each bulb, then across the battery',()=>{const L=lit();if(L.length<2||!L.every(e=>S.meas[e.id]!=null)||S.meas.bat==null)return false;return L.map(e=>V2(S.meas[e.id])).join(' + ')+' = '+V2(L.reduce((a,e)=>a+Math.round(S.meas[e.id]*100)/100,0))+', and the battery gives '+V2(S.meas.bat)+'. In series the voltages across the parts add up to the battery voltage. Now add a third bulb to the loop.'}],
-  ['third','Add a third bulb to the same loop',()=>{const L=lit();return S.closed&&L.length===3&&inSeries(L)&&'Three bulbs in series are dimmer still. The current fell to '+A2(S.Ib)+' because the resistance of the loop went up: R = R₁ + R₂ + R₃ = 30 Ω. Now take one bulb out and leave its gap empty.'}],
+  ['third','Add a third bulb to the same loop',()=>{const L=lit();return S.closed&&L.length===3&&inSeries(L)&&'Three bulbs in series are dimmer still. The current fell to '+A2(S.Ib)+' because the resistance of the loop went up: R = R₁ + R₂ + R₃ = '+fx(bulbs.filter(b=>b.userData.edge).reduce((a,b)=>a+b.userData.R,0),1)+' Ω. Now take one bulb out and leave its gap empty.'}],
   ['gap','Take one bulb out and leave the gap open',()=>S.closed&&S.Ib<.002&&bulbs.filter(b=>b.userData.edge).length>=2&&'Every bulb goes out. A series circuit has one path only: break it anywhere and the current stops everywhere. Open the Parallel tab next.']]},
  {tab:'2 · Parallel',intro:'Parallel circuit: give each bulb its own branch, joined straight across the battery. Put bulbs in two of the upright gaps and join the top rail with a wire, then close the switch.',steps:[
   ['build','Put two bulbs in separate branches and close the switch',()=>{const L=lit();return S.closed&&L.length===2&&fullV(L)&&same(L.reduce((a,e)=>a+Math.abs(e.I),0),S.Ib)&&'Both bulbs are at full brightness. Each one is joined straight across the battery, so each has its own path: a parallel circuit. Now measure the voltage across each bulb.'}],
@@ -226,7 +252,15 @@ $('tabs').innerHTML=TASKS.map((t,i)=>`<button class="tab" role="tab" aria-select
 document.querySelectorAll('#tabs .tab').forEach(b=>b.onclick=()=>setTab(+b.dataset.i));
 $('next').onclick=()=>{S.ch=(S.ch+1)%GOALS.length;S.chDone=false;S.hold=0;steps();say('Next target: '+fx(S.emf/GOALS[S.ch][0],2)+' A. Rearrange the resistors.')};
 $('reset').onclick=()=>{starter();say('Board cleared: the bottom rail is wired, the switch is open.')};
-document.querySelectorAll('#emf button').forEach(b=>b.onclick=()=>{S.emf=+b.dataset.v;bat.setLabel(S.emf+' V');document.querySelectorAll('#emf button').forEach(x=>x.setAttribute('aria-pressed',x===b));changed();steps();say('Battery: '+S.emf+' V.'+(S.emf===9?' The bulbs are made for 6 V, so on 9 V a single bulb is far too bright.':''))});
+document.querySelectorAll('#emf button').forEach(b=>b.onclick=()=>{S.emf=+b.dataset.v;bat.setLabel(S.emf+' V');document.querySelectorAll('#emf button').forEach(x=>x.setAttribute('aria-pressed',x===b));changed();steps();say('Battery: '+S.emf+' V.'+(S.emf>S.bulbV*1.4?' A '+vTxt(S.bulbV)+' bulb alone on '+S.emf+' V gets far too much voltage and will burn out.':''))});
+/* new parts: the rating of the bulbs and the value of your own resistor waiting in the tray */
+function bulbNote(){const v=S.bulbV,r=v/IRATED;$('bulbNote').textContent='Take as many bulbs as you like from the tray. A '+vTxt(v)+' bulb is '+fx(r,r<10?2:1).replace(/\.0+$/,'')+' Ω and glows normally with '+vTxt(v)+' across it. Much more than that burns it out.'}
+document.querySelectorAll('#bulbV button').forEach(b=>b.onclick=()=>{S.bulbV=+b.dataset.v;document.querySelectorAll('#bulbV button').forEach(x=>x.setAttribute('aria-pressed',x===b));bulbNote();say('The bulbs in the tray are now '+vTxt(S.bulbV)+' bulbs. Bulbs already on the board keep their rating.')});
+const hex=c=>'#'+c.toString(16).padStart(6,'0');
+function showBands(r){$('rBands').innerHTML=bandsOf(r).concat([GOLD]).map(c=>`<i style="background:${hex(c)}"></i>`).join('')}
+$('rVal').addEventListener('input',()=>{const v=parseFloat(String($('rVal').value).replace(',','.'));if(!(v>=.1&&v<=100000)){$('rVal').setAttribute('aria-invalid','true');return}$('rVal').removeAttribute('aria-invalid');S.rNew=v;showBands(v)});
+$('rVal').addEventListener('change',()=>{const v=parseFloat(String($('rVal').value).replace(',','.'));if(!(v>=.1&&v<=100000)){$('rVal').value=S.rNew;$('rVal').removeAttribute('aria-invalid');say('Use a value between 0.1 Ω and 100 kΩ.')}else say('The resistor at the bottom of the tray is now '+fmtOhm(v)+'. Resistors already on the board keep their value.')});
+showBands(S.rNew);bulbNote();
 function check(dt){const t=TASKS[S.tab];
  if(S.tab===2){if(S.chDone)return;const g=GOALS[S.ch],tg=S.emf/g[0],ok=S.closed&&noBulb()&&ammI()>.003&&same(ammI(),S.Ib)&&Math.abs(ammI()-tg)<=.015*tg+.002;S.hold=ok?S.hold+dt:0;
   if(S.hold>.8){S.chDone=true;S.done[key('g'+S.ch)]=true;if(GOALS.every((q,i)=>S.done[key('g'+i)]))S.done['2:all']=true;say('Target reached: '+A2(ammI())+'. R = V ÷ I = '+fx(BAT.U/S.Ib,1)+' Ω, which is '+g[1]+'.'+(S.done['2:all']?' You have made all six.':''));steps()}
@@ -287,7 +321,14 @@ function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now
    say('Short circuit! There is a path from one end of the battery to the other with almost no resistance'+(amm.userData.edge&&Math.abs(amm.userData.edge.I)>10&&S.tab!==2?' (an ammeter has almost none, so never connect it straight across the battery or across a part)':'')+'. A huge current flows, the wires get hot and the battery is damaged. The breaker is opening the switch.')}
   if(S.shortT>1.3){setSwitch(false);S.tripped=true}}
  else{S.shortT=0;S.short=false}
- bulbs.forEach(b=>{const e=b.userData.edge,p=e&&!S.short?e.I*e.I*RBULB/PRATED:0;b.userData.g=(b.userData.g||0)+(p-(b.userData.g||0))*Math.min(1,dt*9);b.userData.part.glow(Math.pow(b.userData.g,.75))});
+ bulbs.forEach(b=>{const u=b.userData,e=u.edge,r=e&&!S.short&&!u.blown?Math.abs(e.U)/u.Vr:0,p=r*r;   // power as a share of the rated power (the resistance stays the same)
+  u.ratio=r;u.g=(u.g||0)+(Math.min(p,2.2)-(u.g||0))*Math.min(1,dt*9);u.part.glow(Math.pow(u.g,.75));
+  if(r>1.4){u.over+=dt;if(u.over>.7){u.blown=true;u.part.blown(true);changed();say('The '+vTxt(u.Vr)+' bulb burned out! It had '+V2(Math.abs(e.U))+' across it, much more than the '+vTxt(u.Vr)+' it is made for, so the filament melted. A blown bulb is a break in the circuit. Put it back in the tray to get a new one.')}}else u.over=Math.max(0,u.over-dt);
+  if(!e&&!K.holder(b)&&(u.blown||u.Vr!==S.bulbV))rateBulb(b,S.bulbV)});      // back in the tray: a fresh bulb of the chosen rating
+ cress.forEach(c=>{const u=c.userData;if(!u.edge&&!K.holder(c)&&u.R!==S.rNew)setOwnR(c,S.rNew)});
+ // the trays show only the top part of each stack
+ [bulbs,cress].forEach(st=>{let top=null;st.forEach(it=>{const u=it.userData,free=!u.edge&&!K.holder(it);if(free&&!top)top=it;const show=!free||it===top;u.hidden=!show;it.visible=show})});
+ bulbList();
  // meters
  ammP.show(amm.userData.edge?fx(Math.min(99.99,ammI()),2):'0.00','A',!amm.userData.edge);
  probes.forEach(q=>{if(!K.holder(q))return;const i=nearPeg(q.position,.42);q.userData.peg=i;if(i>=0)q.position.set(PEG[i].x,PEG[i].y,.14)});    // a probe held on a terminal reads at once: hold one in each hand
@@ -306,6 +347,10 @@ function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now
  const kq=probes.map(p=>p.position.x.toFixed(2)+p.position.y.toFixed(2)+p.position.z.toFixed(2)).join()+volt.g.position.x.toFixed(2);if(kq!==S.cab){S.cab=kq;volt.g.updateMatrixWorld(true);probes.forEach((p,i)=>{p.updateMatrixWorld(true);const a=p.localToWorld(p.tail.clone()),b=volt.post(1-i);cab[i].set([a,V(a.x-.05,Math.max(.12,a.y-.7),a.z+.25),V(b.x+(a.x-b.x)*.3,.07,b.z+.6),V(b.x,.09,b.z+.3),b])})}
  check(dt)}
 
+function bulbState(u){if(u.blown)return ['blown','bad'];const r=u.ratio||0;if(r<.05)return ['off','off'];if(r<.3)return ['too little voltage: no light','off'];if(r<.8)return ['dim','off'];if(r<=1.15)return ['working normally','ok'];return ['too bright: it will burn out','warn']}
+function bulbList(){const on=bulbs.filter(b=>b.userData.edge);const k=on.map(b=>{const u=b.userData,st=bulbState(u);return u.Vr+'|'+st[0]+'|'+(u.edge?fx(Math.abs(u.edge.U),1):'')}).join();if(k===bulbList.k)return;bulbList.k=k;
+ $('bList').innerHTML=on.length?on.map((b,i)=>{const u=b.userData,st=bulbState(u);return `<li><span>${i+1}. <b>${vTxt(u.Vr)}</b> bulb, gets ${fx(Math.abs(u.edge.U),1)} V</span><span class="${st[1]}">${st[0]}</span></li>`}).join(''):''}
+
 /* ---------- heads-up layer ---------- */
 function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00',blue=dk?'#7FB2FF':'#2F6FD0',bad=dk?'#FF8A7A':'#C0392B',el=$('showEl').checked,sc=v=>K.toScreen(v);
  // moving charge on every part that carries a current
@@ -313,10 +358,10 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00'
   for(let i=0;i<n;i++){const u=(i+e.ph)/n,p=sc(tmp.set(a.x+(b.x-a.x)*u,a.y+(b.y-a.y)*u,.5)),r=K.W*.0045+1.5;g.beginPath();g.arc(p[0],p[1],r,0,6.3);g.fill();g.stroke()}});
  // names of the parts in the trays
  if(rheo.userData.edge&&!K.holder(rheo)&&!K.holder(wip)&&K.W>520)K.tag('slide the knob',V(wip.position.x,wip.position.y+.34,.5),ink,0,false);
- if(K.W>520)parts.forEach(it=>{const u=it.userData;if(!u.edge&&!K.holder(it)&&(u.type!=='wire'||it===wires.filter(w=>!w.userData.edge&&!K.holder(w)).slice(-1)[0]))K.tag(u.type==='wire'?'wires':u.name,V(it.position.x,it.position.y-(u.type==='wire'?.32:.42),0),ink,0,true)});
+ if(K.W>520)parts.forEach(it=>{const u=it.userData;if(!u.edge&&!K.holder(it)&&!u.hidden&&(u.type!=='wire'||it===wires.filter(w=>!w.userData.edge&&!K.holder(w)).slice(-1)[0]))K.tag(u.type==='wire'?'wires':u.type==='bulb'?vTxt(u.Vr)+' bulbs':u.custom?'your '+u.name:u.name,V(it.position.x,it.position.y-(u.type==='wire'?.32:.42),0),ink,0,true)});
  probes.forEach(p=>{if(p.userData.peg<0&&!K.holder(p))K.tag(p===probes[0]?'+':'−',V(p.position.x-.25,p.position.y+.25,.5),p===probes[0]?bad:ink,0,true)});
- K.tag(S.closed?'switch closed':'switch open: pinch to close',V(SW.mid.x,SW.mid.y+.72,0),S.closed?(dk?'#4ACB8A':'#1E8A55'):ink,0,true);
- const vals=$('showVals').checked&&!S.short;FREE.forEach(e=>{const it=e.part;if(!it||it.userData.type==='wire'||K.holder(it))return;const ty=it.userData.type,res=ty==='res',tx=vals?fx(Math.abs(e.I),2)+' A'+(K.W>620?' · '+fx(Math.abs(e.U),2)+' V':''):res?it.userData.name:ty==='rheo'?'R = '+S.rheo+' Ω':ty==='cap'?it.userData.name+' · '+fx(Math.abs(it.userData.vc),2)+' V':'';if(tx)K.tag(tx,V(e.mid.x,e.mid.y-(e.id==='v2'&&K.W<=620?.4:.74),.3),ink,0,!vals)});
+ K.tag(S.closed?'switch closed':'switch open: grab to close',V(SW.mid.x,SW.mid.y+.72,0),S.closed?(dk?'#4ACB8A':'#1E8A55'):ink,0,true);
+ const vals=$('showVals').checked&&!S.short,green=dk?'#4ACB8A':'#1E8A55';FREE.forEach(e=>{const it=e.part;if(!it||it.userData.type==='wire'||K.holder(it))return;const ty=it.userData.type,res=ty==='res';if(ty==='bulb'&&!vals){const st=bulbState(it.userData);if(st[0]!=='off'||S.closed)K.tag(st[0]==='working normally'?vTxt(it.userData.Vr)+' · OK':st[0]==='too little voltage: no light'?'no light':st[0].split(':')[0],V(e.mid.x,e.mid.y-(e.id==='v2'&&K.W<=620?.4:.74),.3),st[1]==='ok'?green:st[1]==='bad'?bad:st[1]==='warn'?amber:ink,0,true);return}const tx=vals?fx(Math.abs(e.I),2)+' A'+(K.W>620?' · '+fx(Math.abs(e.U),2)+' V':''):res?it.userData.name:ty==='rheo'?'R = '+S.rheo+' Ω':ty==='cap'?it.userData.name+' · '+fx(Math.abs(it.userData.vc),2)+' V':'';if(tx)K.tag(tx,V(e.mid.x,e.mid.y-(e.id==='v2'&&K.W<=620?.4:.74),.3),ink,0,!vals)});
  if(S.short){const p=sc(V(BAT.mid.x,BAT.mid.y,.5)),r=K.W*.07*(1+.12*Math.sin(S.time*20));g.strokeStyle=bad;g.lineWidth=5;g.beginPath();g.arc(p[0],p[1],r,0,6.3);g.stroke();K.tag('SHORT CIRCUIT',V(0,5.2,.5),bad,0,true)}
  else if(S.tripped&&!S.closed)K.tag('breaker tripped: fix the circuit, then close the switch',V(0,5.2,.5),bad,0,true);
  // a wire being drawn from terminal to terminal
@@ -324,7 +369,7 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00'
 
 const theme0=K.theme;K.theme=()=>{theme0();const dk=K.isDark();board.face.color.set(dk?0x6C7D85:0xFFFFFF);trayM.color.set(dk?0x2A3A41:0xD9DFDC)};   // the white board and trays go slate grey in dark mode
 HandKit.themeButton($('themeBtn'),K);K.start();setTab(0);K.items.forEach(it=>{if(it.userData.placed)it.position.copy(it.userData.goal)});
-window.__HK=Object.assign(K,{S,PEG,FREE,ALL,BAT,SW,parts,bulbs,ress,wires,amm,probes,caps,rheo,wip,place,unplace,setSwitch,setTab,setRheo,solve,starter,resBetween,TASKS,GOALS});
+window.__HK=Object.assign(K,{S,PEG,FREE,ALL,BAT,SW,parts,bulbs,cress,rateBulb,setOwnR,bandsOf,ress,wires,amm,probes,caps,rheo,wip,place,unplace,setSwitch,setTab,setRheo,solve,starter,resBetween,TASKS,GOALS});
 })();
 </script>
 </body></html>

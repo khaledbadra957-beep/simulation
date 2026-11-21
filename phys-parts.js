@@ -226,7 +226,7 @@
       return g;
     }
     /* lamp in a holder. glow(u): 0 = off, 1 = normal brightness */
-    P.bulb = function (E) {
+    P.bulb = function (E, text) {
       var g = partBase(E, .42), gl = new T.MeshPhysicalMaterial({ color: 0xFFF6D8, transparent: true, opacity: .32, roughness: .03, depthWrite: false, envMapIntensity: 1.6, emissive: 0xFFC860, emissiveIntensity: 0 }), fil = std(0x55504A, .5, .4, { emissive: 0xFFB040, emissiveIntensity: 0 });
       var base = P.turned([[0, 0], [.46, 0], [.46, .08], [.4, .12], [.3, .12], [.3, .24], [.24, .3]], std(0xEDE7D8, .45), 32); base.rotation.x = PI / 2; g.add(base);
       var screw = P.turned([[.2, .2], [.215, .23], [.2, .26], [.215, .29], [.2, .32], [.215, .35], [.2, .38]], P.brass, 20); screw.rotation.x = PI / 2; g.add(screw);
@@ -234,17 +234,26 @@
       [-1, 1].forEach(function (s) { var sup = mesh(new T.CylinderGeometry(.012, .012, .3, 6), P.steel, s * .09, 0, .5); sup.rotation.x = PI / 2; g.add(sup); var scw = mesh(new T.CylinderGeometry(.05, .05, .05, 10), P.brass, s * .42, 0, .1); scw.rotation.x = PI / 2; g.add(scw); });
       var coil = mesh(new T.TorusGeometry(.09, .02, 6, 14, PI), fil, 0, 0, .65); coil.rotation.x = PI / 2; g.add(coil);
       var halo = new T.Sprite(new T.SpriteMaterial({ map: K.canvasTex(128, 128, function (x) { var gr = x.createRadialGradient(64, 64, 4, 64, 64, 64); gr.addColorStop(0, 'rgba(255,236,170,1)'); gr.addColorStop(.3, 'rgba(255,190,80,.55)'); gr.addColorStop(1, 'rgba(255,160,50,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128); }), transparent: true, opacity: 0, depthWrite: false })); halo.position.z = .75; g.add(halo);
-      return { g: g, glow: function (u) { var v = Math.max(0, Math.min(1.5, u)); gl.emissiveIntensity = v * 1.1; gl.opacity = .32 + .4 * Math.min(1, v); fil.emissiveIntensity = Math.min(1, u * 6) * 2.2; halo.material.opacity = Math.min(.8, v * .7); var s = .8 + 1.5 * v; halo.scale.set(s, s, 1); } };
+      // a small printed tag under the lamp gives its rated voltage (setLabel); blown(true) leaves a broken, smoky lamp
+      var btext = text || '', btx = ptex(192, 64, function (x) { x.clearRect(0, 0, 192, 64); if (!btext) return; x.fillStyle = '#F4F3EE'; x.beginPath(); if (x.roundRect) x.roundRect(4, 6, 184, 52, 12); else x.rect(4, 6, 184, 52); x.fill(); x.fillStyle = '#1B2024'; x.font = '700 38px ' + MONO; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(btext, 96, 34, 176); });
+      var btag = mesh(new T.PlaneGeometry(.6, .2), new T.MeshBasicMaterial({ map: btx, transparent: true, depthWrite: false }), 0, -.62, .03); g.add(btag);
+      var isBlown = false, cBase = gl.color.getHex();
+      return { g: g, glow: function (u) { if (isBlown) u = 0; var v = Math.max(0, Math.min(1.5, u)); gl.emissiveIntensity = v * 1.1; gl.opacity = (isBlown ? .55 : .32) + .4 * Math.min(1, v); fil.emissiveIntensity = Math.min(1, u * 6) * 2.2; halo.material.opacity = Math.min(.8, v * .7); var s = .8 + 1.5 * v; halo.scale.set(s, s, 1); },
+        setLabel: function (t) { btext = t; var c = btx.image.getContext('2d'); c.clearRect(0, 0, 192, 64); if (t) { c.fillStyle = '#F4F3EE'; c.beginPath(); if (c.roundRect) c.roundRect(4, 6, 184, 52, 12); else c.rect(4, 6, 184, 52); c.fill(); c.fillStyle = '#1B2024'; c.font = '700 38px ' + MONO; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(t, 96, 34, 176); } btx.needsUpdate = true; },
+        blown: function (on) { isBlown = !!on; gl.color.setHex(on ? 0x8A8378 : cBase); coil.visible = !on; if (on) { gl.emissiveIntensity = 0; fil.emissiveIntensity = 0; halo.material.opacity = 0; } } };
     };
     /* resistor with colour bands on a printed plinth. bands: three hex colours */
     P.resistor = function (E, text, bands) {
       var g = partBase(E, .52);
       g.add(mesh(P.rbox(1.0, .86, .07, .06, .015), std(0xF4F3EE, .5), 0, -.08, 0));
       var b = P.turned([[0, -.4], [.13, -.4], [.17, -.34], [.17, -.2], [.14, -.14], [.14, .14], [.17, .2], [.17, .34], [.13, .4], [0, .4]], std(0xD9C29A, .5), 20); b.rotation.z = PI / 2; b.position.set(0, .1, .2); g.add(b);
-      (bands || []).concat([0xC9A227]).forEach(function (c, i) { var r = mesh(new T.CylinderGeometry(i === 3 ? .175 : (i === 0 ? .175 : .145), i === 3 ? .175 : (i === 0 ? .175 : .145), .06, 18), std(c, .45), i === 3 ? .27 : -.27 + i * .14, .1, .2); r.rotation.z = PI / 2; g.add(r); });
+      var bandM = [];
+      (bands || []).concat([0xC9A227]).forEach(function (c, i) { var m = std(c, .45); bandM.push(m); var r = mesh(new T.CylinderGeometry(i === 3 ? .175 : (i === 0 ? .175 : .145), i === 3 ? .175 : (i === 0 ? .175 : .145), .06, 18), m, i === 3 ? .27 : -.27 + i * .14, .1, .2); r.rotation.z = PI / 2; g.add(r); });
       [-1, 1].forEach(function (s) { var w = mesh(new T.CylinderGeometry(.025, .025, .14, 6), P.steel, s * .46, .1, .2); w.rotation.z = PI / 2; g.add(w); var d = mesh(new T.CylinderGeometry(.025, .025, .2, 6), P.steel, s * .52, .05, .11); d.rotation.x = PI / 2; g.add(d); });
-      var lb = P.label(text, .8, .24, { ink: '#1B2024', size: .82, res: 192 }); lb.position.set(0, -.3, .04); g.add(lb);
-      return { g: g };
+      var rtext = text, rtx = ptex(192, 58, function (x) { x.clearRect(0, 0, 192, 58); x.fillStyle = '#1B2024'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '700 48px ' + MONO; x.fillText(rtext, 96, 31, 180); });
+      var lb = mesh(new T.PlaneGeometry(.8, .24), new T.MeshBasicMaterial({ map: rtx, transparent: true }), 0, -.3, .04); g.add(lb);
+      // set(text, bands): print a new value and repaint the first three colour bands
+      return { g: g, set: function (t, bd) { rtext = t; var c = rtx.image.getContext('2d'); c.clearRect(0, 0, 192, 58); c.fillStyle = '#1B2024'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '700 48px ' + MONO; c.fillText(t, 96, 31, 180); rtx.needsUpdate = true; (bd || []).forEach(function (col, i) { if (bandM[i]) bandM[i].color.setHex(col); }); } };
     };
     /* capacitor: a can on a printed plinth, with a bar that fills as it charges. charge(u): 0 = empty, 1 = full (u < 0: charged the other way) */
     P.capacitor = function (E, text) {

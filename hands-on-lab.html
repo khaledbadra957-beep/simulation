@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Hands-On Lab: Galvanic Cell</title>
-<meta name="description" content="Build a galvanic cell with your own hands: the camera tracks your hand, pinch to grab the metals, the salt bridge, the bulb and the word cards. Works with mouse or touch too.">
+<meta name="description" content="Build a galvanic cell with your own hands: the camera tracks your hand, close your hand to grab the metals, the salt bridge, the bulb and the word cards. Works with mouse or touch too.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -13,7 +13,7 @@
   <div>
    <p class="eyebrow">Grade 10–12 Chemistry · Electrochemistry · Camera lab</p>
    <h1>Hands-On Lab: Galvanic Cell</h1>
-   <p class="lede">Build the same zinc–copper cell as in the Galvanic Cell Lab, with your own hand. Hold your hand up to the camera, pinch your thumb and first finger together to pick something up, move it, and open your fingers to let go.</p>
+   <p class="lede">Build the same zinc–copper cell as in the Galvanic Cell Lab, with your own hand. Hold your hand up to the camera, close your hand to pick something up, move it, and open your fingers to let go.</p>
   </div>
   <div class="row"><a class="btn" href="galvanic-cell-lab.html" style="text-decoration:none">2-D Galvanic Cell Lab</a><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
  </header>
@@ -23,7 +23,7 @@
    <canvas id="gl" aria-label="3-D lab bench with two beakers, metal strips, a salt bridge, a multimeter, a bulb and word cards"></canvas>
    <canvas id="hud" class="hud"></canvas>
    <div class="intro" id="intro">
-    <h2>Pinch to grab</h2>
+    <h2>Close your hand to grab</h2>
     <p>The camera follows your hand. Your video stays on this device and is never uploaded.</p>
     <div class="row" style="justify-content:center">
      <button class="btn primary" id="startCam" type="button">Start with my camera</button>
@@ -49,7 +49,7 @@
     <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
     <div class="row" style="margin-top:10px"><button class="btn" id="reset" type="button">Start again</button></div>
    </div>
-   <p class="small">Tip: keep your hand about an arm's length from the camera, with light on it. A ring shows where you are pointing; it closes when you pinch.</p>
+   <p class="small">Tip: keep your hand about an arm's length from the camera, with light on it. A ring shows where you are pointing; it closes when you close your hand.</p>
   </aside>
  </div>
 </div>
