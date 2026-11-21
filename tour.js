@@ -79,7 +79,8 @@
       var dob = tip.querySelector('.t-do'); if (dob) dob.onclick = function () { try { s.doIt(); } catch (er) { } check(); };
       tip.classList.toggle('live', live); tip.classList.toggle('mid', !s.el);
       if (live) { nx.disabled = true; poll = setInterval(check, 200); check(); }
-      if (e) { var r0 = e.getBoundingClientRect(); if (r0.top < 0 || r0.bottom > innerHeight) e.scrollIntoView({ block: 'center', behavior: 'auto' }); }
+      if (e) { var r0 = e.getBoundingClientRect(), nb = document.querySelector('.lg-nav'), lim = nb && nb.getClientRects().length ? nb.getBoundingClientRect().top : innerHeight;
+        if (r0.top < 0 || r0.bottom > lim) { e.scrollIntoView({ block: 'center', behavior: 'auto' }); var r1 = e.getBoundingClientRect(); if (r1.bottom > lim - 8 && r1.top > 8) window.scrollBy(0, Math.min(r1.bottom - lim + 16, r1.top - 8)); } }
       place(); setTimeout(place, 60);
       var f = tip.querySelector(live && dob ? '.t-do' : '.t-next'); if (f && !f.disabled) f.focus({ preventScroll: true });
     }

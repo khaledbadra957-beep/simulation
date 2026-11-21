@@ -640,7 +640,7 @@
     'keplers-laws.html': { intro: '#t-retro', game: null, ex: '#t-ex' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
-    'reaction-rates-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
+    'reaction-rates-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'titration-lab.html': { intro: '[data-tab="dil"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'torque-lab.html': { intro: '[data-tab="door"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'wave-speed-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },

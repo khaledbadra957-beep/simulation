@@ -90,6 +90,10 @@ input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
 .readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px 18px;margin:12px 0 8px}.exgrid[hidden],[data-exf][hidden]{display:none}
+.exgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.exgrid span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.exgrid input,.extab input{font:600 15px var(--data);width:7.5em;padding:6px 8px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink)}.extab input{width:8.5em}
+.exgrid input[aria-invalid="true"],.extab input[aria-invalid="true"]{border-color:#C0392B}.exqs{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
 .ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
 .ans input{width:8em}
@@ -139,6 +143,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   <button class="tab" role="tab" aria-selected="false" data-tab="energy" aria-controls="p-energy">2 · Energy view</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="law" aria-controls="p-law">3 · Find the rate law</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">4 · Challenge</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Your exercise</button>
  </div>
 
  <!-- ================= TAB 1: COLLISION BOX ================= -->
@@ -283,6 +288,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
     <option value="1">CH₃Cl + OH⁻ → CH₃OH + Cl⁻</option>
     <option value="2">(CH₃)₃CBr + OH⁻ → (CH₃)₃COH + Br⁻</option>
     <option value="3">Mystery reaction: A + B → products</option>
+    <option value="4" hidden>Your data</option>
    </select>
   </div>
   <p class="note">Rate law: <span class="mono" id="lawGeneric">rate = k[NO]<sup>m</sup>[O₂]<sup>n</sup></span>. Choose starting concentrations, run a trial and the lab measures the rate at the very start. Change one concentration at a time.</p>
@@ -343,6 +349,26 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
  </section>
 
+ <!-- ================= YOUR EXERCISE ================= -->
+ <section class="bench" id="p-ex" role="tabpanel" hidden>
+  <div class="benchhead"><h2>Your exercise, solved in the lab</h2><div class="transport"><button class="btn small" type="button" id="exEg">Example</button><button class="btn small primary" type="button" id="exSolve">▶ Solve it in the lab</button></div></div>
+  <div class="seg" role="group" aria-label="Kind of exercise"><button type="button" data-exk="law" aria-pressed="true">Rate law from a table</button><button type="button" data-exk="ed" aria-pressed="false">Energy diagram: Ea and ΔH</button></div>
+  <div data-exf="law">
+   <div class="exgrid">
+    <label>First reactant <span><input id="exX" value="NO" autocomplete="off"></span></label>
+    <label>Second reactant <span><input id="exY" value="O₂" autocomplete="off"></span></label>
+   </div>
+   <div class="tablewrap"><table class="extab"><thead><tr><th>Trial</th><th id="exHX">[NO] (M)</th><th id="exHY">[O₂] (M)</th><th>Initial rate (M/s)</th></tr></thead><tbody id="exTb"></tbody></table></div>
+   <p class="note">Leave a row empty if your table has only three trials. Rates like 2.8e-5 or 2.8×10^-5 are fine.</p>
+  </div>
+  <div class="exgrid" data-exf="ed" hidden>
+   <label>ΔH of the reaction <span><input id="exDH" inputmode="decimal" value="-60"> kJ/mol</span></label>
+   <label>Activation energy, forward <span><input id="exEf" inputmode="decimal" value="90"> kJ/mol</span></label>
+  </div>
+  <p class="note" id="exMsg"></p>
+  <div class="card"><h3>Your exercise</h3><p id="exText" style="margin:0"></p><ol id="exQs" class="exqs"></ol></div>
+ </section>
+
  <footer>Designed and built by Mr Khaled. Model: hard-sphere particles in a box kept at constant temperature by a water bath. A collision reacts only if A meets B and the energy along the line between their centres is at least Ea.</footer>
 </div>
 
@@ -362,7 +388,7 @@ $('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('d
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
 let tab='box';
 $$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
- ['box','energy','law','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
+ ['box','energy','law','chal','ex'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
 $('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');$$('.bench').forEach(x=>x.classList.remove('fs'));
  if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
  $('#fsBtn').textContent=on?'Exit full screen':'Full screen';drawAll()};
@@ -613,10 +639,11 @@ function setRxn(){rx=RXN[+$('#rxnSel').value];if(rx===RXN[3])randomMystery();tri
  $('#mSel').value='';$('#nSel').value='';$('#kIn').value='';$('#lawStatus').className='status';$('#lawStatus').textContent='Run trials, then fill in m, n and k.';renderTrials();showUnit()}
 function showUnit(){const m=+$('#mSel').value,n=+$('#nSel').value;if($('#mSel').value===''||$('#nSel').value===''){$('#kUnit').textContent='units?';return}
  const o=m+n;$('#kUnit').textContent=o===0?'M/s':o===1?'1/s':`M${sup(-(o-1))}·s⁻¹`}
+const cfx=v=>{v=+v;return v>=0.1&&Math.abs(v*100-Math.round(v*100))<1e-9?fx(v,2):String(+v.toPrecision(3))};
 function renderTrials(){const tb=$('#tb');if(!trials.length){tb.innerHTML='<tr class="empty"><td colspan="4">No trials yet. Run at least three.</td></tr>';$('#cmp').hidden=true;return}
- tb.innerHTML=trials.map((t,k)=>`<tr data-k="${k}" class="${picks.includes(k)?'pick':''}" tabindex="0"><td>${k+1}</td><td>${fx(t.x,2)}</td><td>${fx(t.y,2)}</td><td>${sci(t.r)}</td></tr>`).join('');
+ tb.innerHTML=trials.map((t,k)=>`<tr data-k="${k}" class="${picks.includes(k)?'pick':''}" tabindex="0"><td>${k+1}</td><td>${cfx(t.x)}</td><td>${cfx(t.y)}</td><td>${sci(t.r)}</td></tr>`).join('');
  $$('#tb tr[data-k]').forEach(tr=>{const go=()=>{const k=+tr.dataset.k;picks=picks.includes(k)?picks.filter(q=>q!==k):[...picks.slice(-1),k];renderTrials()};tr.onclick=go;tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
- if(picks.length===2){const [a,b]=picks.map(k=>trials[k]);const [i,j]=picks;const lines=[`Trial ${j+1} ÷ Trial ${i+1}`,`[${rx.x}] ratio: ${fx(b.x,2)} / ${fx(a.x,2)} = ${fx(b.x/a.x,2)}`,`[${rx.y}] ratio: ${fx(b.y,2)} / ${fx(a.y,2)} = ${fx(b.y/a.y,2)}`,`rate ratio:  ${sci(b.r)} / ${sci(a.r)} = ${fx(b.r/a.r,2)}`];
+ if(picks.length===2){const [a,b]=picks.map(k=>trials[k]);const [i,j]=picks;const lines=[`Trial ${j+1} ÷ Trial ${i+1}`,`[${rx.x}] ratio: ${cfx(b.x)} / ${cfx(a.x)} = ${fx(b.x/a.x,2)}`,`[${rx.y}] ratio: ${cfx(b.y)} / ${cfx(a.y)} = ${fx(b.y/a.y,2)}`,`rate ratio:  ${sci(b.r)} / ${sci(a.r)} = ${fx(b.r/a.r,2)}`];
   const sx=Math.abs(b.x/a.x-1)<1e-9,sy=Math.abs(b.y/a.y-1)<1e-9;
   if(sx&&!sy)lines.push(`Only [${rx.y}] changed, so (${fx(b.y/a.y,2)})ⁿ = ${fx(b.r/a.r,2)}`);else if(sy&&!sx)lines.push(`Only [${rx.x}] changed, so (${fx(b.x/a.x,2)})ᵐ = ${fx(b.r/a.r,2)}`);else if(!sx&&!sy)lines.push('Both changed. Pick two trials where only one concentration changes.');
   $('#cmp').textContent=lines.join('\n');$('#cmp').hidden=false}else $('#cmp').hidden=true}
@@ -664,11 +691,77 @@ function nextQ(){if(!order.length||qi>=order.length-1){order=shuffle([...QS.keys
   const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
 $('#qNext').onclick=nextQ;
 
+
+/* =========================================================
+   YOUR EXERCISE — solved step by step in the lab (tour.js)
+   ========================================================= */
+RXN[4]={x:'X',y:'Y',m:1,n:1,k:1};
+const EXROWS=[[0.10,0.10,'2.8e-5'],[0.20,0.10,'1.1e-4'],[0.10,0.20,'5.6e-5'],['','','']];
+$('#exTb').innerHTML=EXROWS.map((r,i)=>`<tr><td>${i+1}</td><td><input id="exx${i}" inputmode="decimal" value="${r[0]}" aria-label="Trial ${i+1} first concentration"></td><td><input id="exy${i}" inputmode="decimal" value="${r[1]}" aria-label="Trial ${i+1} second concentration"></td><td><input id="exr${i}" inputmode="decimal" value="${r[2]}" aria-label="Trial ${i+1} rate"></td></tr>`).join('');
+let exK='law';
+$$('[data-exk]').forEach(b=>b.onclick=()=>{exK=b.dataset.exk;$$('[data-exk]').forEach(x=>x.setAttribute('aria-pressed',x===b));$$('[data-exf]').forEach(g=>g.hidden=g.dataset.exf!==exK);exRead()});
+const exNum=v=>{v=String(v).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/\s/g,'').replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return v===''?NaN:Number(v)};
+function exRead(){const m=$('#exMsg'),bad=t=>{m.textContent=t;$('#exText').textContent='';$('#exQs').innerHTML='';return null},qs=a=>$('#exQs').innerHTML=a.map(q=>'<li>'+q+'</li>').join('');
+ if(exK==='law'){const X=$('#exX').value.trim()||'A',Y=$('#exY').value.trim()||'B';$('#exHX').textContent=`[${X}] (M)`;$('#exHY').textContent=`[${Y}] (M)`;
+  const rows=[];for(let i=0;i<4;i++){const ids=['exx'+i,'exy'+i,'exr'+i],v=ids.map(id=>exNum($('#'+id).value)),empty=ids.every(id=>!$('#'+id).value.trim());
+   ids.forEach((id,j)=>$('#'+id).setAttribute('aria-invalid',!empty&&!(v[j]>0)?'true':'false'));if(empty)continue;if(!v.every(q=>q>0))return bad(`Trial ${i+1}: type three positive numbers.`);rows.push({x:v[0],y:v[1],r:v[2],i})}
+  if(rows.length<3)return bad('Type at least three trials.');
+  const pair=(same,diff)=>{for(let a=0;a<rows.length;a++)for(let b=0;b<rows.length;b++)if(a!==b&&Math.abs(rows[a][same]/rows[b][same]-1)<1e-9&&rows[b][diff]>rows[a][diff]*1.0001)return [a,b];return null};
+  const pm=pair('y','x'),pn=pair('x','y');
+  if(!pm)return bad(`You need two trials where [${Y}] stays the same and [${X}] changes.`);if(!pn)return bad(`You need two trials where [${X}] stays the same and [${Y}] changes.`);
+  const ord=p=>{const[a,b]=p.map(q=>rows[q]);return null},om=Math.log(rows[pm[1]].r/rows[pm[0]].r)/Math.log(rows[pm[1]].x/rows[pm[0]].x),on=Math.log(rows[pn[1]].r/rows[pn[0]].r)/Math.log(rows[pn[1]].y/rows[pn[0]].y);
+  const mI=Math.round(om),nI=Math.round(on);
+  if(Math.abs(om-mI)>0.2||Math.abs(on-nI)>0.2)return bad(`The orders do not come out as whole numbers (m ≈ ${fx(om,2)}, n ≈ ${fx(on,2)}). Check the table.`);
+  if(mI<0||mI>2||nI<0||nI>2)return bad('The lab handles orders 0, 1 and 2.');
+  const ks=rows.map(q=>q.r/(Math.pow(q.x,mI)*Math.pow(q.y,nI))),k=Number((ks.reduce((a,b)=>a+b,0)/ks.length).toPrecision(3));
+  if(ks.some(q=>Math.abs(q/k-1)>0.08))return bad('The trials do not fit one rate law: k comes out different for each trial. Check the numbers.');
+  m.textContent='Ready. Press “Solve it in the lab”.';
+  $('#exText').innerHTML=`For the reaction of ${X} with ${Y}, these initial rates were measured (rate = k[${X}]<sup>m</sup>[${Y}]<sup>n</sup>).`;
+  qs([`Find the order m with respect to ${X}.`,`Find the order n with respect to ${Y}.`,'Write the rate law and give the overall order.','Find k and its units.']);
+  return {k:'law',X,Y,rows,pm,pn,m:mI,n:nI,kv:k}}
+ const dH=exNum($('#exDH').value),Ef=exNum($('#exEf').value);
+ ['exDH','exEf'].forEach((id,j)=>$('#'+id).setAttribute('aria-invalid',isFinite([dH,Ef][j])?'false':'true'));
+ if(!isFinite(dH)||!isFinite(Ef))return bad('Type ΔH and the forward activation energy in kJ/mol.');
+ if(dH<-120||dH>120||Ef<20||Ef>200||dH%5||Ef%5)return bad('The lab’s sliders go from −120 to +120 kJ/mol for ΔH and 20 to 200 kJ/mol for Ea, in steps of 5.');
+ if(Ef<=Math.max(0,dH))return bad('The activation energy must be bigger than ΔH: the hump is above the products.');
+ m.textContent='Ready. Press “Solve it in the lab”.';
+ $('#exText').innerHTML=`A reaction has ΔH = ${(dH>0?'+':dH<0?'−':'')+Math.abs(dH)} kJ/mol and a forward activation energy Ea = ${Ef} kJ/mol.`;
+ qs(['Is the reaction exothermic or endothermic?','Find the activation energy of the reverse reaction.','What does a catalyst change, and what stays the same?']);
+ return {k:'ed',dH,Ef}}
+['exX','exY'].concat([0,1,2,3].flatMap(i=>['exx'+i,'exy'+i,'exr'+i])).concat(['exDH','exEf']).forEach(id=>$('#'+id).addEventListener('input',exRead));
+$('#exEg').onclick=()=>{if(exK==='law'){$('#exX').value='CH₃Cl';$('#exY').value='OH⁻';[[0.10,0.10,'6.0e-8'],[0.20,0.10,'1.2e-7'],[0.10,0.20,'1.2e-7'],[0.20,0.20,'2.4e-7']].forEach((r,i)=>{$('#exx'+i).value=r[0];$('#exy'+i).value=r[1];$('#exr'+i).value=r[2]})}else{$('#exDH').value=40;$('#exEf').value=110}exRead()};
+exRead();
+function exSolve(){const X=exRead();if(!X||!window.Tour)return;
+ const calc=t=>'<div class="t-calc">'+t+'</div>',go=t=>{const b=document.querySelector('.lg-nav [data-ph="lab"]');if(b&&root.getAttribute('data-phase')!=='lab')b.click();const tb=$(`.tab[data-tab="${t}"]`);if(tb)tb.click()};
+ const steps=[];
+ if(X.k==='law'){const R=X.rows,o=X.m+X.n,unit=o===0?'M/s':o===1?'1/s':`M${sup(-(o-1))}·s⁻¹`,idx=r=>R.indexOf(r)+1;
+  const setUp=()=>{go('law');RXN[4].x=X.X;RXN[4].y=X.Y;RXN[4].m=X.m;RXN[4].n=X.n;RXN[4].k=X.kv;$('#rxnSel').value='4';$('#rxnSel').querySelector('option[value="4"]').hidden=false;setRxn();trials=R.map(q=>({x:q.x,y:q.y,r:q.r}));renderTrials()};
+  const cmpStep=(p,which)=>{const[a,b]=p.map(q=>R[q]),cr=which==='m'?b.x/a.x:b.y/a.y,rr=b.r/a.r,ord=which==='m'?X.m:X.n,name=which==='m'?X.X:X.Y;
+   return {el:'#tb',title:'Order in '+name+' ('+which+')',interactive:true,onShow:()=>{picks=[];renderTrials()},html:`<p>Tap trials <b>${p[0]+1}</b> and <b>${p[1]+1}</b>: only [${name}] changes.</p>`+calc(`concentration ratio = ${fx(cr,2)}\nrate ratio = ${sci(b.r)} / ${sci(a.r)} = ${fx(rr,2)}\n(${fx(cr,2)})^${which} = ${fx(rr,2)}  →  ${which} = ${ord}`)+`<p>${ord===0?'The rate does not change: order 0.':ord===1?'The rate changes by the same factor: order 1.':'The rate changes by the factor squared: order 2.'}</p>`,
+    wait:()=>picks.length===2&&picks.includes(p[0])&&picks.includes(p[1]),doIt:()=>{picks=[p[0],p[1]];renderTrials()},done:()=>$('#cmp').textContent.split('\n').pop()}};
+  steps.push({title:'Solve it in the lab',html:'<p>'+$('#exText').innerHTML+'</p><p>We put your trials in the lab’s table, compare pairs where only one concentration changes, then find k.</p>',onShow:setUp});
+  steps.push({el:'#tb',title:'Your trials',html:'<p>Your measurements are now in the table. In the lab you could make more with <b>Run trial</b>.</p>'});
+  steps.push(cmpStep(X.pm,'m'));steps.push(cmpStep(X.pn,'n'));
+  const t0=R[0];
+  steps.push({el:()=>$('#kIn').closest('.card'),title:'Find k',html:calc(`rate = k[${X.X}]^${X.m}[${X.Y}]^${X.n}\nTrial 1: ${sci(t0.r)} = k × (${cfx(t0.x)})^${X.m} × (${cfx(t0.y)})^${X.n}\nk = ${sci(t0.r)} / ${sci(Math.pow(t0.x,X.m)*Math.pow(t0.y,X.n))}\nk = ${sci(t0.r/(Math.pow(t0.x,X.m)*Math.pow(t0.y,X.n)))} ${unit}`+(Math.abs(t0.r/(Math.pow(t0.x,X.m)*Math.pow(t0.y,X.n))/X.kv-1)>0.004?`\nAverage of all ${R.length} trials: k = ${sci(X.kv)} ${unit}`:''))+`<p>Overall order = m + n = ${o}, so the units of k are ${unit}.</p>`});
+  steps.push({el:()=>$('#kIn').closest('.card'),title:'Type your rate law',interactive:true,html:'<p>Choose m and n, type k and press <b>Check</b>.</p>',wait:()=>/ok/.test($('#lawStatus').className),doIt:()=>{$('#mSel').value=String(X.m);$('#nSel').value=String(X.n);showUnit();$('#kIn').value=String(X.kv);$('#checkLaw').click()},done:()=>$('#lawStatus').textContent});
+  steps.push({title:'Your answers',html:calc(`m = ${X.m}, n = ${X.n}\nrate = k[${X.X}]${X.m===1?'':'^'+X.m}[${X.Y}]${X.n===1?'':'^'+X.n}\noverall order = ${o}\nk = ${sci(X.kv)} ${unit}`)+'<p>Compare them with your own working.</p>'})}
+ else{const {dH,Ef}=X,Er=Ef-dH,sg=v=>(v>0?'+':v<0?'−':'')+Math.abs(v),setR=(id,v)=>{const e=$(id);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}))};
+  steps.push({title:'Solve it in the lab',html:'<p>'+$('#exText').innerHTML+'</p><p>We draw the energy diagram, then read Ea for the reverse reaction.</p>',onShow:()=>{go('energy');if($('#cCat2').checked){$('#cCat2').checked=false;$('#cCat2').dispatchEvent(new Event('change'))}}});
+  steps.push({el:()=>$('#sDH').closest('.field'),title:'ΔH = '+sg(dH)+' kJ/mol',html:`<p>Set ΔH to <b>${sg(dH)} kJ/mol</b>.</p>`,wait:()=>+$('#sDH').value===dH,doIt:()=>setR('#sDH',dH),done:()=>'The reaction is '+$('#eType').textContent+'.'});
+  steps.push({el:()=>$('#sEf').closest('.field'),title:'Ea forward = '+Ef+' kJ/mol',html:`<p>Set Ea forward to <b>${Ef} kJ/mol</b>.</p>`,wait:()=>+$('#sEf').value===Ef,doIt:()=>setR('#sEf',Ef),done:'The hump is '+Ef+' kJ/mol above the reactants.'});
+  steps.push({el:()=>$('#ed'),title:dH<0?'Exothermic':'Endothermic',html:`<p>${dH<0?'The products are <b>lower</b> than the reactants: energy is released, ΔH < 0.':'The products are <b>higher</b> than the reactants: energy is absorbed, ΔH > 0.'}</p>`});
+  steps.push({el:()=>$('#eRev').closest('.card'),title:'Ea of the reverse reaction',html:calc(`Ea(reverse) = Ea(forward) − ΔH\nEa(reverse) = ${Ef} − (${sg(dH)})\nEa(reverse) = ${Er} kJ/mol`)+`<p>Going back, the climb starts from the products. ${dH<0?'They are lower, so the reverse hump is higher.':'They are higher, so the reverse hump is lower.'}</p>`,done:()=>'Lab: '+$('#eRev').textContent+'.',wait:()=>true});
+  steps.push({el:'#cCat2',title:'Add a catalyst',interactive:true,html:'<p>Tick <b>Add a catalyst</b>. It gives a new path with a lower hump.</p>',wait:()=>$('#cCat2').checked,doIt:()=>{$('#cCat2').checked=true;$('#cCat2').dispatchEvent(new Event('change'))},done:()=>'Ea with catalyst: '+$('#eCat').textContent+'. ΔH: '+$('#eCatH').textContent+'.'});
+  steps.push({title:'Your answers',html:calc(`${dH<0?'Exothermic':'Endothermic'} (ΔH ${sg(dH)} kJ/mol)\nEa(reverse) = Ea(forward) − ΔH = ${Er} kJ/mol\nA catalyst lowers Ea (both ways); ΔH stays the same.`)+'<p>Compare them with your own working.</p>'})}
+ setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+$('#exSolve').onclick=exSolve;
 /* ---------- boot ---------- */
 function drawAll(){if(!C.ink)readColors();if(tab==='box'){drawBox();drawGraph()}if(tab==='energy'){drawMB();drawED()}}
 addEventListener('resize',drawAll);
 readColors();showSet();showXY();makeControl();newRun();setRxn();nextQ();themeLabel();
 requestAnimationFrame(loop);
 </script>
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>
