@@ -164,6 +164,18 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .stage-ui .seg{border:1px solid var(--line);border-radius:10px;width:100%}
 .stage-ui .seg button{border:0;border-radius:7px;background:none;padding:0 8px;border-right:0}
 .stage-ui .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink)}
+.stage-ui .solo-in{padding:8px 4px 24px}
+.stage-ui .exhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.stage-ui .exhead h2{font:800 1.4rem/1.2 var(--display)}
+.stage-ui .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.stage-ui .card h3{margin:0;font:700 15px/1.2 var(--body)}
+.stage-ui .exf .seg{width:auto;max-width:100%;flex-wrap:wrap}.stage-ui .exf .seg button{min-height:38px;white-space:normal}
+.stage-ui .exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px 18px}
+.stage-ui .exgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}
+.stage-ui .exgrid span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .exgrid input,.stage-ui .exgrid select{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .exgrid input[aria-invalid="true"]{border-color:#C0392B}
+.stage-ui .exq ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+.stage-ui #exSolve svg{flex:none}
 </style>
 <link rel="stylesheet" href="site.css">
 
@@ -238,6 +250,21 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
    </section>
   </aside>
  </section>
+  <section class="screen solo" data-screens="ex" hidden><div class="solo-in">
+   <div class="exhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button><button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+   <div class="card exf">
+    <div class="field"><span class="field-label" id="exKindL">What does your exercise give you?</span>
+     <div class="seg" id="exKind" role="group" aria-labelledby="exKindL"><button type="button" data-k="f" aria-pressed="true">L and v: find the frequencies</button><button type="button" data-k="v" aria-pressed="false">L and a resonance: find v</button></div></div>
+    <div class="exgrid">
+     <label>Length of the string L <span><input id="exL" type="number" inputmode="decimal" min="0.6" max="1.5" step="0.05" value="1.2"> m</span></label>
+     <label data-k="f">Wave speed v <span><input id="exV" type="number" inputmode="decimal" min="16" max="40" step="1" value="24"> m/s</span></label>
+     <label data-k="v" hidden>Resonance frequency f <span><input id="exF" type="number" inputmode="decimal" min="1" max="60" step="0.1" value="20"> Hz</span></label>
+     <label>Harmonic n <span><select id="exN"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></span></label>
+    </div>
+    <p class="note" id="exMsg">The lab can do L from 0.60 to 1.50 m, v from 16 to 40 m/s and frequencies up to 60 Hz.</p>
+   </div>
+   <div class="card exq"><h3>Your exercise</h3><p id="exText"></p><ol id="exQs"></ol></div>
+  </div></section>
 </main>
 <p class="vh fine">Model: an ideal string obeying the damped wave equation, solved step by step in your browser. The vertical scale is stretched so the motion is easy to see, and the driver's own movement is drawn larger than it would be on a real bench.</p>
 <div hidden id="pdfSrc"><p class="eyebrow">Grade 11 physics · Standing waves</p><p class="lede">A vibrator shakes one end of a stretched string. Change how fast it shakes and watch the string. At a few special frequencies the string swings many times wider than the driver that feeds it.</p><div class="prose"><p>The driver sends a wave down the string. The wave reflects at the fixed end and travels back. The round trip takes 2L ÷ v seconds.</p><p>If that time equals a whole number of driver periods, each returning wave arrives exactly in step with the next push. Every push adds energy, and the swing grows until damping removes energy as fast as the driver supplies it. At any other frequency the returning waves arrive out of step and mostly cancel the new ones.</p></div><ol class="steps">
@@ -248,7 +275,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
         <li>Switch damping between light and heavy and compare the height and width of the peaks.</li>
         <li>Hide the predicted curve and run a sweep, so the class sees the curve appear from measurements.</li>
       </ol></div>
-<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', simple: true }, { id: 'lab', name: 'Lab' } ] };</script>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', simple: true }, { id: 'lab', name: 'Lab' }, { id: 'ex', name: 'Exercise' } ] };</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script src="lab-viz.js"></script>
 <script>
@@ -945,8 +972,63 @@ if (window.ResizeObserver){
   window.addEventListener('resize', function(){ fit(stage); fit(plot); });
 }
 requestAnimationFrame(function(t){ lastT = t; requestAnimationFrame(frame); });
+
+/* ---------- Exercise: type your numbers, then solve it in the lab (tour.js) ---------- */
+var EX = { k: 'f', L: 1.2, v: 24, f: 20, n: 2 };
+function exRead(){
+  var num = function (id, lo, hi) { var el = $(id), x = parseFloat(String(el.value).replace(',', '.')), ok = isFinite(x) && x >= lo - 1e-9 && x <= hi + 1e-9; el.setAttribute('aria-invalid', ok ? 'false' : 'true'); return ok ? x : null; };
+  var L = num('exL', .6, 1.5), n = +$('exN').value, msg = '', ok = true, v, f;
+  if (L == null) { ok = false; msg = 'L must be between 0.60 and 1.50 m.'; } else L = Math.round(L / .05) * .05;
+  if (EX.k === 'f') { v = num('exV', 16, 40); if (v == null) { ok = false; msg = 'v must be between 16 and 40 m/s.'; } else { v = Math.round(v); if (L != null && n * v / (2 * L) > 60) { ok = false; msg = 'The ' + ordinal(n) + ' harmonic would be ' + (n * v / (2 * L)).toFixed(1) + ' Hz, above the 60 Hz the driver can do. Choose a smaller n.'; } } }
+  else { f = num('exF', 1, 60); if (f == null) { ok = false; msg = 'f must be between 1 and 60 Hz.'; } else if (L != null) { v = 2 * L * f / n; if (v < 16 || v > 40) { ok = false; msg = 'With these numbers v = 2Lf ÷ n = ' + v.toFixed(1) + ' m/s, outside the 16 to 40 m/s the lab can do.'; } } }
+  $('exMsg').textContent = ok ? 'Ready. Press “Solve it in the lab”.' : msg;
+  if (!ok) return null; EX.L = L; EX.n = n; if (EX.k === 'f') { EX.v = v; EX.f = n * v / (2 * L); } else { EX.f = f; EX.v = 2 * L * f / n; }
+  var Ls = EX.L.toFixed(2);
+  $('exText').textContent = EX.k === 'f' ? 'A string of length L = ' + Ls + ' m is fixed at both ends. Waves travel along it at v = ' + EX.v + ' m/s.' : 'A string of length L = ' + Ls + ' m, fixed at both ends, resonates at f = ' + EX.f + ' Hz in its ' + ordinal(n) + ' harmonic (' + n + (n > 1 ? ' loops' : ' loop') + ').';
+  $('exQs').innerHTML = (EX.k === 'f' ? ['Find the fundamental frequency f₁.', 'Find the frequency of the ' + ordinal(n) + ' harmonic, f' + sub(n) + '.', 'Find its wavelength λ' + sub(n) + '.', 'How many nodes and antinodes does it have?'] : ['Find the wave speed v.', 'Find the fundamental frequency f₁.', 'Find the wavelength λ' + sub(n) + '.', 'How many nodes and antinodes does it have?']).map(function (q) { return '<li>' + q + '</li>'; }).join('');
+  return EX;
+}
+Array.prototype.forEach.call($('exKind').querySelectorAll('button'), function (b) { b.onclick = function () { EX.k = b.dataset.k; Array.prototype.forEach.call($('exKind').querySelectorAll('button'), function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+  document.querySelectorAll('.exgrid [data-k]').forEach(function (l) { l.hidden = l.dataset.k !== EX.k; }); exRead(); }; });
+['exL', 'exV', 'exF', 'exN'].forEach(function (id) { $(id).addEventListener('input', exRead); $(id).addEventListener('change', exRead); });
+$('exEg').onclick = function () { if (EX.k === 'f') { $('exL').value = 0.8; $('exV').value = 32; $('exN').value = 3; } else { $('exL').value = 1.0; $('exF').value = 30; $('exN').value = 2; } exRead(); };
+exRead();
+function exSolve(){
+  var E = exRead(); if (!E || !window.Tour) return;
+  var L = E.L, v = E.v, n = E.n, f1 = v / (2 * L), fn = n * f1, lam = 2 * L / n, Ls = L.toFixed(2), r1 = function (x) { return Math.round(x * 10) / 10; };
+  var setRange = function (el, x) { el.value = x; el.dispatchEvent(new Event('input', { bubbles: true })); };
+  var calc = function (t) { return '<div class="t-calc">' + t + '</div>'; };
+  var findV = E.k === 'v', qn = 0, Q = function () { return (++qn) + ' · '; };
+  var steps = [
+    { title: 'Solve it in the lab', html: '<p>' + $('exText').textContent + '</p><p>First we set up the same string in the lab, then we find each answer and check it on the string.</p>',
+      onShow: function () { var b = document.querySelector('.lg-nav [data-ph="lab"]'); if (b) b.click(); stopSweep(); S.playing = true; } },
+    { el: function () { return ui.len.closest('.field'); }, title: 'Set the length', html: '<p>Drag <b>Length L</b> to <b>' + Ls + ' m</b>.</p>',
+      wait: function () { return Math.abs(S.L - L) < .001; }, doIt: function () { setRange(ui.len, L); }, done: 'L = ' + Ls + ' m.', auto: 900 }
+  ];
+  if (findV) steps.push({ title: Q() + 'Find the wave speed', html: calc('fₙ = n · v ÷ 2L\nv = 2L · fₙ ÷ n = 2 × ' + Ls + ' × ' + E.f + ' ÷ ' + n + '\nv = ' + r1(v) + ' m/s') + '<p>Now give the string this wave speed in the lab.</p>' });
+  steps.push({ el: function () { return ui.speed.closest('.field'); }, title: findV ? 'Set the wave speed' : 'Set the wave speed', html: '<p>Drag <b>Wave speed v</b> to <b>' + Math.round(v) + ' m/s</b>.' + (Math.abs(v - Math.round(v)) > .01 ? ' (The slider moves in whole m/s, so the lab uses ' + Math.round(v) + '.)' : '') + '</p>',
+    wait: function () { return Math.abs(S.v - Math.round(v)) < .001; }, doIt: function () { setRange(ui.speed, Math.round(v)); }, done: 'v = ' + Math.round(v) + ' m/s.', auto: 900 });
+  var vL = Math.round(v), f1L = vL / (2 * L), fnL = n * f1L;
+  steps.push({ el: function () { return ui.freq.closest('.group'); }, title: Q() + 'The fundamental f₁',
+    html: calc('f₁ = v ÷ 2L = ' + vL + ' ÷ (2 × ' + Ls + ')\nf₁ = ' + f1L.toFixed(1) + ' Hz') + '<p>Check it: set the driver to <b>' + f1L.toFixed(1) + ' Hz</b>. Use the slider, the ±0.1 buttons or the 1st harmonic button.</p>',
+    wait: function () { return Math.abs(S.f - f1L) < .06; }, doIt: function () { S.f = r1(f1L); stopSweep(); },
+    done: 'Resonance: one loop. The whole string swings, with a node at each end and an antinode in the middle.' });
+  if (n > 1) steps.push({ el: function () { return ui.freq.closest('.group'); }, title: Q() + (findV ? 'Check the ' : 'The ') + ordinal(n) + ' harmonic',
+    html: calc('f' + sub(n) + ' = n · f₁ = ' + n + ' × ' + f1L.toFixed(1) + '\nf' + sub(n) + ' = ' + fnL.toFixed(1) + ' Hz') + '<p>Set the driver to <b>' + fnL.toFixed(1) + ' Hz</b> (or press the ' + ordinal(n) + ' button) and count the loops.</p>',
+    wait: function () { return Math.abs(S.f - fnL) < .06; }, doIt: function () { S.f = r1(fnL); stopSweep(); },
+    done: n + ' loops on the string: this is the ' + ordinal(n) + ' harmonic.' });
+  steps.push({ el: function () { return ui.rLambda.closest('.group'); }, title: Q() + 'The wavelength λ' + sub(n),
+    onShow: function () { var d = document.querySelector('details.maths'); if (d) d.open = true; },
+    html: calc('n half-wavelengths fit in L:\nL = n · λ ÷ 2  →  λ' + sub(n) + ' = 2L ÷ n = 2 × ' + Ls + ' ÷ ' + n + '\nλ' + sub(n) + ' = ' + (2 * L / n).toFixed(2) + ' m') + '<p>The lab shows the same: λ = v ÷ f = ' + vL + ' ÷ ' + fnL.toFixed(1) + ' = ' + (vL / fnL).toFixed(2) + ' m, and ' + n + ' half-waves fit in L.</p>' });
+  steps.push({ el: function () { return stage.el.closest('.scene'); }, title: Q() + 'Nodes and antinodes', onShow: function () { if (!S.labels) $('cLab').click(); },
+    html: '<p>Look at the string: N marks a node (it never moves), A an antinode (it swings the most).</p>' + calc('nodes     = n + 1 = ' + (n + 1) + ' (the two ends count)\nantinodes = n     = ' + n) });
+  steps.push({ title: 'Your answers', html: calc((findV ? 'v  = ' + r1(v) + ' m/s\n' : '') + 'f₁ = ' + (findV ? (v / (2 * L)).toFixed(1) : f1.toFixed(1)) + ' Hz\n' + (n > 1 || !findV ? 'f' + sub(n) + ' = ' + (findV ? E.f.toFixed(1) : fn.toFixed(1)) + ' Hz\n' : '') + 'λ' + sub(n) + ' = ' + lam.toFixed(2) + ' m\nnodes ' + (n + 1) + ', antinodes ' + n) + '<p>Compare them with your own working.</p>' });
+  setTimeout(function () { Tour.start(steps, { label: 'Exercise', skipText: 'Stop', doneText: 'Finish', lazy: true }); }, 80);
+}
+$('exSolve').onclick = exSolve;
 })();
 </script>
 
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>
