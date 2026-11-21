@@ -166,6 +166,13 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
 .stage-ui .legend3{font-size:12.5px}
 .stage-ui #axis{border:1px solid var(--line);border-radius:10px}
 .stage-ui .solo-in{padding:8px 4px 20px}
+.stage-ui .exhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.stage-ui .exhead h2{margin:0;font:800 1.4rem/1.2 var(--display)}
+.stage-ui .exgrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px 18px}@media (max-width:560px){.stage-ui .exgrid{grid-template-columns:minmax(0,1fr)}}
+.stage-ui .exgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}
+.stage-ui .exgrid span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .exgrid input[type=number]{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .exgrid input[aria-invalid="true"]{border-color:var(--bad,#C0392B)}
+.stage-ui .exq p{margin:0}.stage-ui .exq ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
 @media (max-width:860px),(max-height:560px){.stage-ui .scene{aspect-ratio:1000/600}.stage-ui .hint3{display:none}}
 </style><script src="lab-viz.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
@@ -344,8 +351,22 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   </div>
  </div></section>
 
+ <section class="screen solo" id="p-ex" data-screens="ex" hidden><div class="solo-in">
+  <div class="exhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button><button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+  <section class="group exf">
+   <div class="exgrid">
+    <label>Half-cell 1 (left beaker) <select id="exM1" class="sel"></select></label>
+    <label>Concentration of its ion <span><input id="exC1" type="number" inputmode="decimal" min="0.001" max="2" step="any" value="1"> M</span></label>
+    <label>Half-cell 2 (right beaker) <select id="exM2" class="sel"></select></label>
+    <label>Concentration of its ion <span><input id="exC2" type="number" inputmode="decimal" min="0.001" max="2" step="any" value="1"> M</span></label>
+   </div>
+   <p class="note" id="exMsg">Leave 1 M for standard conditions. The lab can do 0.001 to 2 M.</p>
+  </section>
+  <section class="group exq"><h2>Your exercise</h2><p id="exText"></p><ol id="exQs"></ol></section>
+ </div></section>
+
 </main>
-<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'cell', simple: true }, { id: 'lab', name: 'Lab', tab: 'cell' }, { id: 'zoom', name: 'Zoom', tab: 'cell' }, { id: 'three', name: '3D', tab: 'three' }, { id: 'series', name: 'Series', tab: 'series' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ] };
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'cell', simple: true }, { id: 'lab', name: 'Lab', tab: 'cell' }, { id: 'zoom', name: 'Zoom', tab: 'cell' }, { id: 'three', name: '3D', tab: 'three' }, { id: 'series', name: 'Series', tab: 'series' }, { id: 'chal', name: 'Challenge', tab: 'chal' }, { id: 'ex', name: 'Exercise' } ] };
 (function(){ var a = document.getElementById('swBtn'), b = document.getElementById('swBtn2');
   b.onclick = function(){ a.click(); };
   var sync = function(){ b.textContent = a.textContent; }; new MutationObserver(sync).observe(a, { childList: true, characterData: true, subtree: true }); sync(); })();</script>
@@ -445,7 +466,7 @@ function texts(){const {A,K}=cell;
  $('#notation').textContent=show?`⊖ ${A.s} | ${ionOf(A)} ‖ salt bridge ‖ ${ionOf(K)} | ${K.s} ⊕`:'⊖ ? | ? ‖ salt bridge ‖ ? | ? ⊕';
  const e=n=>n===1?'e⁻':`${n}e⁻`,cf=n=>n===1?'':n;
  $('#halfEq').textContent=show?`Anode (−), oxidation:   ${A.s} → ${ionOf(A)} + ${e(A.z)}\nCathode (+), reduction: ${ionOf(K)} + ${e(K.z)} → ${K.s}\nOverall: ${cf(cell.ca)}${A.s} + ${cf(cell.ck)}${ionOf(K)} → ${cf(cell.ca)}${ionOf(A)} + ${cf(cell.ck)}${K.s}   (${cell.n} e⁻ transferred)`:'Make your prediction to see the half-equations.';
- $('#rE0').textContent=`${fx(K.E,2)} − (${fx(A.E,2)}) = ${fx(K.E-A.E,2)} V`}
+ $('#rE0').textContent=`${fx(K.E,2)} − (${fx(A.E,2)}) = ${fx(K.E-A.E,2)} V`.replace(/-/g,'−')}
 function readouts(){const c=conc();$('#oCL').textContent=fx(c.L,c.L<.01?4:3)+' M';$('#oCR').textContent=fx(c.R,c.R<.01?4:3)+' M';
  $('#rE').textContent=fx(cell.E,3)+' V';$('#rV').textContent=fx(cell.V,3)+' V';$('#rI').textContent=cell.dev==='volt'?'≈ 0 (voltmeter only)':fx(cell.I*1000,0)+' mA';
  if(!cell.noCell){const c=conc(),E0=cell.same?0:cell.K.E-cell.A.E,cf=(v,k)=>k===1?fx(v,3):`(${fx(v,3)})${k===2?'²':'³'}`;$('#nernst').textContent=`E = E° − (0.0592/${cell.n})·log(${cf(c.A,cell.ca)} / ${cf(c.K,cell.ck)}) = ${fx(E0,2)} − ${fx(0.0592/cell.n,4)}·log(${fx(Math.pow(c.A,cell.ca)/Math.pow(c.K,cell.ck),3)}) = ${fx(cell.E,3)} V`}else $('#nernst').textContent='E = 0 V';
@@ -967,8 +988,67 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
  if(tab==='cell'){physics(dt);stepParticles(dt);zoomStep(dt);try{drawCell();drawZoom()}catch(e){console.warn(e)}racc+=dt;if(racc>.2){racc=0;readouts();drawVG()}}
  if(tab==='three')T3.step(dt);
  requestAnimationFrame(loop)}
+
+/* =========================================================
+   EXERCISE: the student's cell, solved step by step in the lab (tour.js)
+   ========================================================= */
+M.forEach((m,i)=>{['#exM1','#exM2'].forEach(id=>$(id).insertAdjacentHTML('beforeend',`<option value="${i}">${m.s} in ${m.salt} (E° ${sg(m.E)} V)</option>`))});
+function sg(v){return (v>0?'+':v<0?'−':'')+fx(Math.abs(v),2)}
+$('#exM1').value=1;$('#exM2').value=7;
+const EXG={i1:1,i2:7,c1:1,c2:1};
+function exRead(){const num=(id)=>{const el=$(id),x=parseFloat(String(el.value).replace(',','.')),ok=isFinite(x)&&x>=0.001&&x<=2;el.setAttribute('aria-invalid',ok?'false':'true');return ok?x:null};
+ const i1=+$('#exM1').value,i2=+$('#exM2').value,c1=num('#exC1'),c2=num('#exC2'),m=$('#exMsg');
+ const clr=()=>{$('#exText').textContent='';$('#exQs').innerHTML=''};
+ if(c1==null||c2==null){m.textContent='Each concentration must be between 0.001 and 2 M.';clr();return null}
+ if(i1===i2&&Math.abs(Math.log10(c1/c2))<0.004){m.textContent='Same metal and same concentration: there is no cell (E = 0 V). Choose two metals, or change one concentration.';clr();return null}
+ m.textContent='Ready. Press “Solve it in the lab”.';Object.assign(EXG,{i1,i2,c1,c2});
+ const A=M[i1],B=M[i2],std=c1===1&&c2===1,same=i1===i2;
+ $('#exText').textContent=same?`A concentration cell is made of two ${A.name} half-cells: ${A.s} in ${c1} M ${ionOf(A)} and ${A.s} in ${c2} M ${ionOf(A)}, joined by a salt bridge.`:
+  `A galvanic cell is made of ${/^[aeiou]/.test(A.name)?'an':'a'} ${A.name} electrode in ${std?'':c1+' M '}${A.salt} solution and ${/^[aeiou]/.test(B.name)?'an':'a'} ${B.name} electrode in ${std?'':c2+' M '}${B.salt} solution${std?' (standard conditions, 1 M)':''}, joined by a salt bridge. E°(${ionOf(A)}/${A.s}) = ${sg(A.E)} V, E°(${ionOf(B)}/${B.s}) = ${sg(B.E)} V.`;
+ const q=same?['Which electrode is the anode and which is the cathode?','Write the half-equations.','Calculate the emf of the cell (Nernst equation).','Write the cell notation.']:
+  ['Which electrode is the anode and which is the cathode?','Write the half-equations and the overall equation.','Calculate E°cell.'].concat(std?[]:['Calculate the emf of the cell with the Nernst equation.']).concat(['Write the cell notation.','Which electrode gains mass, and which loses mass?']);
+ $('#exQs').innerHTML=q.map(t=>'<li>'+t+'</li>').join('');return EXG}
+['#exM1','#exM2','#exC1','#exC2'].forEach(id=>{$(id).addEventListener('input',exRead);$(id).addEventListener('change',exRead)});
+$('#exEg').onclick=()=>{$('#exM1').value=2;$('#exM2').value=6;$('#exC1').value=0.1;$('#exC2').value=1;exRead()};
+exRead();
+function exSolve(){const X=exRead();if(!X||!window.Tour)return;
+ const L=M[X.i1],R=M[X.i2],same=X.i1===X.i2,cL=X.c1,cR=X.c2,std=cL===1&&cR===1;
+ const anL=same?cL<cR:L.E<R.E,A=anL?L:R,K=anL?R:L,cA=anL?cL:cR,cK=anL?cR:cL,aSide=anL?'left':'right',kSideN=anL?'right':'left';
+ const n=A.z*K.z/gcd(A.z,K.z),ca=n/A.z,ck=n/K.z,E0=same?0:K.E-A.E,Qv=Math.pow(cA,ca)/Math.pow(cK,ck),E=E0-0.0592/n*Math.log10(Qv);
+ const e=z=>z===1?'e⁻':z+'e⁻',cf=k=>k===1?'':k,calc=t=>'<div class="t-calc">'+t+'</div>',mc=c=>(+c.toPrecision(3)).toString();
+ const go=ph=>()=>{const b=document.querySelector('.lg-nav [data-ph="'+ph+'"]');if(b&&document.documentElement.getAttribute('data-screen')!==ph)b.click()};
+ const pickSel=(sel,i)=>{const el=$(sel);el.value=i;el.dispatchEvent(new Event('change',{bubbles:true}))};
+ const near=(k,c)=>Math.abs(Math.log10(cell.c[k]/c))<0.051;
+ const snap=(k,c)=>{cell.c[k]=c;orient();texts();renderPred();initParticles();readouts()};
+ const setC=(k,c)=>{const el=$(k==='L'?'#sCL':'#sCR');el.value=Math.log10(c).toFixed(2);el.dispatchEvent(new Event('input',{bubbles:true}));snap(k,c)};
+ const halfs=`Anode (−), oxidation:   ${A.s} → ${ionOf(A)} + ${e(A.z)}\nCathode (+), reduction: ${ionOf(K)} + ${e(K.z)} → ${K.s}`+(same?'':`\nOverall (${n} e⁻): ${cf(ca)}${A.s} + ${cf(ck)}${ionOf(K)} → ${cf(ca)}${ionOf(A)} + ${cf(ck)}${K.s}`);
+ const qOf=(c,k)=>k===1?mc(c):'('+mc(c)+')'+(k===2?'²':'³');
+ const nernst=`E = E° − (0.0592 / n) · log Q\nQ = [${ionOf(A)}]${ca>1?(ca===2?'²':'³'):''}${same?' anode':''} / [${ionOf(K)}]${ck>1?(ck===2?'²':'³'):''}${same?' cathode':''} = ${qOf(cA,ca)} / ${qOf(cK,ck)} = ${mc(Qv)}\nE = ${fx(E0,2)} − (0.0592 / ${n}) · log ${mc(Qv)}\nE = ${fx(E,3)} V`;
+ const notation=std?`⊖ ${A.s} | ${ionOf(A)} ‖ ${ionOf(K)} | ${K.s} ⊕`:`⊖ ${A.s} | ${ionOf(A)} (${mc(cA)} M) ‖ ${ionOf(K)} (${mc(cK)} M) | ${K.s} ⊕`;
+ const steps=[{title:'Solve it in the lab',html:'<p>'+$('#exText').textContent+'</p><p>We build the same cell, find the anode, calculate, then check with the voltmeter.</p>',
+   onShow:()=>{go('lab')();if(cell.closed){cell.closed=false;syncSwitch()}$('#cPred').checked=true;$('#sCL').value=0;$('#sCR').value=0;zoomReset();setup()}},
+  {el:()=>$('#mL').closest('.field'),title:'Left beaker: '+L.name,html:`<p>Put <b>${L.s} in ${L.salt}</b> on the left.</p>`,wait:()=>cell.L===L,doIt:()=>pickSel('#mL',X.i1),done:L.s+' electrode in '+L.salt+'.'},
+  {el:()=>$('#mR').closest('.field'),title:'Right beaker: '+R.name,html:`<p>Put <b>${R.s} in ${R.salt}</b> on the right.</p>`,wait:()=>cell.R===R,doIt:()=>pickSel('#mR',X.i2),done:R.s+' electrode in '+R.salt+'.'}];
+ if(same)steps.push({title:'Which is the anode?',html:`<p>Both electrodes are ${A.name}, so E° is the same on both sides and <b>E°cell = 0</b>.</p><p>The <b>more dilute</b> side (${mc(cA)} M, ${aSide} beaker) is the anode: its metal dissolves to make the solution more concentrated. The ${mc(cK)} M side (${kSideN}) is the cathode.</p>`});
+ else steps.push({el:'#predCard',title:'Which is the anode?',html:`<p>Compare E°: ${L.s} ${sg(L.E)} V, ${R.s} ${sg(R.E)} V.</p><p>The metal with the <b>lower E°</b> loses electrons more easily, so it is oxidised: it is the <b>anode (−)</b>. Tap your answer.</p>`,
+   wait:()=>cell.answered,doIt:()=>{const b=document.querySelector('#predBtns [data-p="'+cell.an+'"]');if(b)b.click()},done:`Anode: ${A.name} (${aSide}). Cathode: ${K.name} (${kSideN}).`});
+ steps.push({title:'Half-equations',html:calc(halfs)+(same?'':`<p>${ca>1||ck>1?`The electrons must cancel, so we multiply: ${cf(ca)?ca+' × '+A.s:''}${cf(ca)&&cf(ck)?' and ':''}${cf(ck)?ck+' × '+ionOf(K):''}, ${n} electrons each way.`:`${n} electrons are lost and ${n} are gained, so they cancel.`}</p>`)});
+ if(!same)steps.push({title:'E°cell',html:calc(`E°cell = E°cathode − E°anode\nE°cell = ${fx(K.E,2).replace('-','−')} − (${fx(A.E,2).replace('-','−')})\nE°cell = ${fx(E0,2)} V`)+'<p>Positive, so the cell works by itself (spontaneous).</p>'});
+ if(!std){if(Math.abs(cL-1)>1e-9)steps.push({el:()=>$('#sCL').closest('.field'),title:'Left concentration: '+mc(cL)+' M',html:`<p>Drag the slider until [${ionOf(L)}] shows about <b>${mc(cL)} M</b>.</p>`,wait:()=>{if(near('L',cL)){if(cell.c.L!==cL)snap('L',cL);return true}return false},doIt:()=>setC('L',cL),done:`[${ionOf(L)}] = ${mc(cL)} M.`});
+  if(Math.abs(cR-1)>1e-9)steps.push({el:()=>$('#sCR').closest('.field'),title:'Right concentration: '+mc(cR)+' M',html:`<p>Drag the slider until [${ionOf(R)}] shows about <b>${mc(cR)} M</b>.</p>`,wait:()=>{if(near('R',cR)){if(cell.c.R!==cR)snap('R',cR);return true}return false},doIt:()=>setC('R',cR),done:`[${ionOf(R)}] = ${mc(cR)} M.`})}
+ steps.push({el:()=>document.querySelector('[data-dev="volt"]').parentElement,title:'Connect the voltmeter',html:'<p>Choose <b>Voltmeter</b>. It lets almost no current through, so it reads the emf without using the cell up.</p>',wait:()=>cell.dev==='volt',doIt:()=>document.querySelector('[data-dev="volt"]').click(),done:'Voltmeter connected.'});
+ steps.push({el:'#swBtn',title:'Close the switch',html:'<p>Close the switch to connect the meter.</p>',wait:()=>cell.closed,doIt:()=>{if(!cell.closed)$('#swBtn').click()},done:'Electrons can now flow from the anode to the cathode through the wire.'});
+ if(!std||same)steps.push({title:'emf with the Nernst equation',html:calc(nernst)+`<p>${E<E0-1e-6?'Q is bigger than 1, so E is a little lower than E°.':E>E0+1e-6?'Q is smaller than 1, so E is a little higher than E°.':'Q = 1, so E = E°.'}</p>`});
+ steps.push({el:()=>$('#rV').closest('.group'),title:'Check with the voltmeter',onShow:go('zoom'),html:`<p>We expect <b>${fx(std&&!same?E0:E,2)} V</b>. Read the voltmeter and E°cell here.</p>`,
+   done:()=>'Voltmeter: '+$('#rV').textContent+(same?'':' · E°cell: '+$('#rE0').textContent.split('=').pop().trim())+'.',wait:()=>/V/.test($('#rV').textContent)&&cell.closed});
+ steps.push({el:()=>$('#notation').closest('.group'),title:'Cell notation',html:calc(notation)+'<p>Anode on the left, cathode on the right. | is a phase boundary (metal | solution) and ‖ is the salt bridge.</p>'});
+ steps.push({title:'Your answers',html:calc(`Anode (−): ${A.name}${same?' ('+mc(cA)+' M side)':''}  ·  Cathode (+): ${K.name}${same?' ('+mc(cK)+' M side)':''}\n${halfs}`+(same?'':`\nE°cell = ${fx(E0,2)} V`)+(!std||same?`\nemf E = ${fx(E,3)} V`:'')+`\n${notation}\n${A.s} anode loses mass · ${K.s} cathode gains mass`)+'<p>Compare them with your own working.</p>'});
+ setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+$('#exSolve').onclick=exSolve;
+
 readColors();setup();readouts();$('#ordNew').onclick();nextQ();themeLabel();
 requestAnimationFrame(loop);
 </script>
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>
