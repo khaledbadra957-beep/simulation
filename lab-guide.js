@@ -645,7 +645,7 @@
     'torque-lab.html': { intro: '[data-tab="door"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'wave-speed-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'five-types-of-chemical-reactions.html': { intro: '[data-tab="build"]', game: '[data-tab="game"]' },
-    'entropy-lab.html': { intro: '[data-tab="spr"]', game: '[data-tab="chal"]', gameName: 'Spontaneous?' },
+    'entropy-lab.html': { intro: '[data-tab="spr"]', game: '[data-tab="chal"]', gameName: 'Spontaneous?', ex: '[data-tab="ex"]' },
     'equilibrium-table-lab.html': { intro: '[data-tab="step"]', game: '[data-tab="chal"]', gameName: 'You calculate' }
   };
   var ph = PH[file] || {};
@@ -676,6 +676,7 @@
     '.lg-nav .lg-btn{position:static!important;box-shadow:none;margin-left:6px!important;padding:9px 13px}' +
     '.lg-nav .home svg{width:26px;height:26px;opacity:1;border:0}' +
     '@media (max-width:560px){.lg-nav .ttl{display:none}.lg-nav{justify-content:center}.lg-nav button.ph svg{width:38px;height:25px}.lg-nav .lg-btn .gtxt{display:none}}' +
+    '@media (max-width:440px){.lg-nav{gap:2px;padding-left:6px;padding-right:6px}.lg-nav button.ph{padding:4px 3px;font-size:11.5px}.lg-nav button.ph svg{width:32px;height:21px}.lg-nav .lg-btn{margin-left:2px!important;padding:8px 10px}}' +
     'body{padding-bottom:78px!important}' +
     '.lg-home{position:fixed;inset:0;z-index:80;background-color:var(--bg,#F5F6F2);background-image:linear-gradient(var(--paper-line,rgba(19,35,43,.045)) 1px,transparent 1px),linear-gradient(90deg,var(--paper-line,rgba(19,35,43,.045)) 1px,transparent 1px);background-size:28px 28px;color:var(--ink,#13232B);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(14px,3vh,28px);padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));overflow:auto;font-family:var(--body,system-ui,sans-serif)}' +
     '.lg-home .ey{margin:0;font:500 13px/1.3 var(--data,ui-monospace,monospace);color:var(--muted,#52646C);text-align:center;max-width:60ch}' +
