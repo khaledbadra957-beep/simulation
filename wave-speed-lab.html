@@ -154,6 +154,16 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
 .stage-ui .q{font-size:1.25rem}
 .stage-ui .credit{text-align:center}
 .stage-ui .transport .chk label{min-height:40px}
+.stage-ui .exhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.stage-ui .exhead h2{margin:0;font:800 1.4rem/1.2 var(--display)}
+.stage-ui .exf,.stage-ui .exq{background:var(--surface);border:1px solid var(--line)}
+.stage-ui .exf .seg{width:auto;max-width:100%}.stage-ui .exf .seg button{min-height:38px}
+.stage-ui .exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px 18px}
+.stage-ui .exgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}
+.stage-ui .exgrid span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .exgrid input,.stage-ui .exgrid select{min-width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .exgrid input[aria-invalid="true"]{border-color:var(--bad,#C0392B)}
+.stage-ui .exq h3{margin:0;font:700 15px/1.2 var(--body)}.stage-ui .exq p{margin:0}.stage-ui .exq ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+.stage-ui #exSolve svg{flex:none}
 </style><link rel="stylesheet" href="site.css">
 </head><body>
 <header class="topbar">
@@ -315,6 +325,25 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   </aside>
  </section>
 
+ <!-- ===== Exercise ===== -->
+ <section class="screen solo" id="p-ex" data-screens="ex" hidden>
+  <div class="solo-in">
+   <div class="exhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button><button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+   <div class="card exf">
+    <div class="field"><span class="flabel" id="exKindL">What is your exercise about?</span>
+     <div class="seg" id="exKind" role="group" aria-labelledby="exKindL"><button type="button" data-k="str" aria-pressed="true">A wave on a string</button><button type="button" data-k="snd" aria-pressed="false">A sound wave</button></div></div>
+    <div class="exgrid">
+     <label data-k="str">Tension in the string <span><select id="exT"><option value="0">10 N</option><option value="1">22.5 N</option><option value="2" selected>40 N</option><option value="3">62.5 N</option><option value="4">90 N</option></select></span></label>
+     <label data-k="str">Frequency of the source <span><input id="exFs" type="number" inputmode="decimal" min="0.25" max="3" step="0.25" value="1"> Hz</span></label>
+     <label data-k="snd" hidden>Medium <span><select id="exM"><option value="340">Air (340 m/s)</option><option value="1480">Water (1480 m/s)</option></select></span></label>
+     <label data-k="snd" hidden>Frequency of the sound <span><input id="exFa" type="number" inputmode="decimal" min="170" max="1020" step="10" value="680"> Hz</span></label>
+    </div>
+    <p class="note" id="exMsg">String: μ = 2.5 kg/m, frequency 0.25 to 3 Hz in steps of 0.25. Sound: 170 to 1020 Hz in steps of 10.</p>
+   </div>
+   <div class="card exq"><h3>Your exercise</h3><p id="exText"></p><ol id="exQs"></ol></div>
+  </div>
+ </section>
+
  <!-- ===== Challenge ===== -->
  <section class="screen solo" id="p-chal" data-screens="chal" hidden>
   <div class="solo-in">
@@ -332,7 +361,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   </div>
  </section>
 </main>
-<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'lab', simple: true }, { id: 'lab', name: 'String lab', tab: 'lab' }, { id: 'race', name: 'Pulse race', tab: 'race' }, { id: 'sound', name: 'Sound', tab: 'sound' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ] };</script>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'lab', simple: true }, { id: 'lab', name: 'String lab', tab: 'lab' }, { id: 'race', name: 'Pulse race', tab: 'race' }, { id: 'sound', name: 'Sound', tab: 'sound' }, { id: 'ex', name: 'Exercise' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ] };</script>
 <script src="lab-viz.js"></script>
 <script>
 (()=>{
@@ -649,7 +678,54 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
  requestAnimationFrame(loop)}
 readLab();readRace();readSound();newQ();requestAnimationFrame(loop);
 window.__wsl={S,RA,RB,R,L1,SD};
+
+/* ================= Exercise: your numbers, solved in the lab (tour.js) ================= */
+const EX={k:'str',ti:2,f:1,v:340,fa:680};
+function exRead(){const num=(id,lo,hi,st)=>{const el=$('#'+id),x=parseFloat(String(el.value).replace(',','.')),ok=isFinite(x)&&x>=lo-1e-9&&x<=hi+1e-9&&Math.abs(x/st-Math.round(x/st))<1e-6;el.setAttribute('aria-invalid',ok?'false':'true');return ok?x:null};
+ let ok=true;
+ if(EX.k==='str'){EX.ti=+$('#exT').value;const f=num('exFs',.25,3,.25);if(f==null){ok=false;$('#exMsg').textContent='The frequency must be 0.25, 0.5, 0.75 … up to 3 Hz.'}else EX.f=f}
+ else{EX.v=+$('#exM').value;const f=num('exFa',170,1020,10);if(f==null){ok=false;$('#exMsg').textContent='The frequency must be between 170 and 1020 Hz, in steps of 10.'}else EX.fa=f}
+ if(ok)$('#exMsg').textContent='Ready. Press “Solve it in the lab”.';
+ if(EX.k==='str'){const T=TENS[EX.ti];$('#exText').textContent=`A string has a mass per unit length μ = ${MU} kg/m and is pulled with a tension of ${T} N. One end is shaken up and down at ${fx(EX.f)} Hz.`;
+  $('#exQs').innerHTML=['Find the speed of the waves on the string.','Find the wavelength.','Find the period of the wave.'].map(q=>'<li>'+q+'</li>').join('')}
+ else{$('#exText').textContent=`A speaker plays a note of ${EX.fa} Hz in ${EX.v===340?"air":"water"}. Sound travels at ${EX.v} m/s in ${EX.v===340?'air':'water'}.`;
+  $('#exQs').innerHTML=['Find the wavelength of the sound.','Find its period.'].map(q=>'<li>'+q+'</li>').join('')}
+ return ok?EX:null}
+$$('#exKind button').forEach(b=>b.onclick=()=>{EX.k=b.dataset.k;$$('#exKind button').forEach(o=>o.setAttribute('aria-pressed',o===b));$$('.exgrid [data-k]').forEach(l=>l.hidden=l.dataset.k!==EX.k);exRead()});
+['exT','exFs','exM','exFa'].forEach(id=>{$('#'+id).addEventListener('input',exRead);$('#'+id).addEventListener('change',exRead)});
+$('#exEg').onclick=()=>{if(EX.k==='str'){$('#exT').value=3;$('#exFs').value=1.25}else{$('#exM').value=340;$('#exFa').value=850}exRead()};
+exRead();
+function exSolve(){const E=exRead();if(!E||!window.Tour)return;
+ const go=id=>{const b=document.querySelector('.lg-nav [data-ph="'+id+'"]');if(b&&document.documentElement.getAttribute('data-screen')!==id)b.click()};
+ const setR=(id,x)=>{const el=$('#'+id);el.value=x;el.dispatchEvent(new Event('input',{bubbles:true}))};
+ const calc=t=>'<div class="t-calc">'+t+'</div>';let steps;
+ if(E.k==='str'){const T=TENS[E.ti],v=speedOf(T),f=E.f,lam=v/f,per=1/f;
+  steps=[
+   {title:'Solve it in the lab',html:'<p>'+$('#exText').textContent+'</p><p>We set up the same string, then find each answer and check it with the lab.</p>',onShow:()=>{go('lab');if(!L1.run)$('#play1').click()}},
+   {el:()=>$('[data-mode="osc"]').parentElement,title:'Shake it steadily',html:'<p>Choose <b>Oscillate</b>: the hand moves the end up and down at a steady frequency.</p>',wait:()=>S.mode==='osc',doIt:()=>$('[data-mode="osc"]').click(),done:'The end now oscillates.',auto:900},
+   {el:()=>$('#ten1').closest('.field'),title:'Set the tension',html:'<p>Drag <b>Tension</b> to <b>'+T+' N</b>.</p>',wait:()=>S.ti===E.ti,doIt:()=>setR('ten1',E.ti),done:'Tension = '+T+' N.',auto:900},
+   {el:()=>$('#f1').closest('.field'),title:'Set the frequency',html:'<p>Drag <b>Frequency</b> to <b>'+fx(f)+' Hz</b>.</p>',wait:()=>Math.abs(S.f-f)<1e-9,doIt:()=>setR('f1',f),done:'f = '+fx(f)+' Hz.',auto:900},
+   {el:()=>$('#tVals').closest('label'),title:'1 · The speed',html:calc('v = √(T ÷ μ) = √('+T+' ÷ '+MU+')\nv = '+fx(v,1)+' m/s')+'<p>Tick <b>Values</b> to see the speed the lab uses.</p>',
+    wait:()=>$('#tVals').checked,doIt:()=>$('#tVals').click(),done:()=>'The lab shows v = '+$('#rv').textContent+': the same.'},
+   {el:()=>$('#mIn').closest('.group'),title:'2 · The wavelength',onShow:()=>{const d=$('#mIn').closest('details');if(d)d.open=true},
+    html:calc('v = f × λ  →  λ = v ÷ f = '+fx(v,1)+' ÷ '+fx(f)+'\nλ = '+fx(lam)+' m')+'<p>Now measure it: pause the wave, drag the ruler so 0 is under one crest and read the next crest. Type it in <b>My λ</b> and press <b>Check</b>.</p>',
+    wait:()=>$('#mRes').classList.contains('ok'),doIt:()=>{if(L1.run)$('#play1').click();$('#mIn').value=fx(lam);$('#mCheck').click()},doLabel:'Show me',done:'Measured λ = '+fx(lam)+' m, the same as the calculation.'},
+   {el:()=>$('#rper').closest('.group'),title:'3 · The period',html:calc('T = 1 ÷ f = 1 ÷ '+fx(f)+'\nT = '+fx(per)+' s')+'<p>Each bead goes up, down and back in '+fx(per)+' s. Check: f × λ = '+fx(f)+' × '+fx(lam)+' = '+fx(v,1)+' m/s.</p>'},
+   {title:'Your answers',html:calc('v = '+fx(v,1)+' m/s\nλ = '+fx(lam)+' m\nT = '+fx(per)+' s')+'<p>Compare them with your own working.</p>'}]}
+ else{const v=E.v,f=E.fa,lam=v/f,per=1/f,med=v===340?'Air':'Water';
+  steps=[
+   {title:'Solve it in the lab',html:'<p>'+$('#exText').textContent+'</p><p>We set up the same sound, then find each answer and look at it in the lab.</p>',onShow:()=>go('sound')},
+   {el:()=>$('[data-med]').parentElement,title:'Choose the medium',html:'<p>Choose <b>'+med+'</b>.</p>',wait:()=>SD.v===v,doIt:()=>$('[data-med="'+v+'"]').click(),done:'Sound travels at '+v+' m/s in '+med.toLowerCase()+'.',auto:900},
+   {el:()=>$('#sf').closest('.field'),title:'Set the frequency',html:'<p>Drag <b>Frequency</b> to <b>'+f+' Hz</b>.</p>',wait:()=>SD.f===f,doIt:()=>setR('sf',f),done:'f = '+f+' Hz.',auto:900},
+   {el:()=>$('#sLam').closest('label'),title:'1 · The wavelength',html:calc('v = f × λ  →  λ = v ÷ f = '+v+' ÷ '+f+'\nλ = '+fx(lam)+' m')+'<p>Tick <b>Mark λ</b>: the lab marks one wavelength between two compressions.</p>',
+    wait:()=>$('#sLam').checked,doIt:()=>$('#sLam').click(),done:'The marked λ is '+fx(lam)+' m: the distance from one compression to the next.'},
+   {el:()=>$('#c3').closest('.scene'),title:'2 · The period',html:calc('T = 1 ÷ f = 1 ÷ '+f+'\nT = '+fx(per,5)+' s = '+fx(per*1000,2)+' ms')+'<p>Each air particle moves back and forth once in '+fx(per*1000,2)+' ms. The lab runs '+SLOW+' times slower so you can see it.</p>'},
+   {el:'#tone',title:'Listen',interactive:true,onLeave:()=>stopTone(),html:'<p>Press <b>Play tone</b> to hear '+f+' Hz. A higher frequency sounds higher and has a shorter wavelength.</p>'},
+   {title:'Your answers',html:calc('λ = '+fx(lam)+' m\nT = '+fx(per*1000,2)+' ms ('+fx(per,5)+' s)')+'<p>Compare them with your own working.</p>'}]}
+ setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+$('#exSolve').onclick=exSolve;
 })();
 </script>
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>

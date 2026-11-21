@@ -577,6 +577,36 @@
       nav.querySelectorAll('[data-ph]').forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.ph === 'home')); });
     }
     nav.addEventListener('click', function (e) { var b = e.target.closest('[data-ph]'); if (!b) return; if (b.dataset.ph === 'home') showHome(); else setScreen(b.dataset.ph); });
+
+    /* ---------- guided tour: lights up one part of the screen at a time (tour.js) ---------- */
+    var tourBtn = null, tb = document.querySelector('.topbar'), fsB = tb && tb.querySelector('[data-tool="fs"]');
+    if (tb) {
+      tourBtn = document.createElement('button'); tourBtn.type = 'button'; tourBtn.className = 'tb-btn'; tourBtn.dataset.tool = 'tour';
+      tourBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 8.5l-2 5-5 2 2-5z" fill="currentColor"/></svg><span>Tour</span>';
+      tourBtn.setAttribute('aria-label', 'Take a tour of this lab');
+      tb.insertBefore(tourBtn, fsB || null);
+    }
+    function tourSteps() {
+      var vis = function (sel) { return Array.prototype.filter.call(document.querySelectorAll(sel), function (e) { var r = e.getBoundingClientRect(); return r.width > 4 && r.height > 4 && !e.closest('[hidden]'); }); };
+      var g = vis('.screen:not([hidden]) .panel > .group')[0], gh = g && g.querySelector('h2'), pb = vis('.screen:not([hidden]) .transport .btn.primary')[0];
+      var st = [{ el: function () { return vis('.screen:not([hidden]) .scene')[0] || vis('.screen:not([hidden]) .solo-in')[0]; }, title: 'The experiment', text: 'Everything you change shows up here. Click or drag what you see.' }];
+      (LAB.tour || []).forEach(function (q) { st.push(q); });
+      if (g) st.push({ el: g, title: gh ? gh.textContent.trim() : 'Controls', text: 'Change one thing at a time, then look at the experiment again.' });
+      if (pb) st.push({ el: pb, title: 'Run it', text: 'Press “' + pb.textContent.trim() + '” to run the experiment.' });
+      st.push({ el: '.lg-nav .scr', title: 'Screens', text: 'Intro is the simplest. Each screen adds a little more. Home shows them all.' });
+      st.push({ el: '.lg-nav .btn-reset', title: 'Reset', text: 'Puts this screen back to the start.' });
+      st.push({ el: '.lg-nav .lg-btn', title: 'Guide', text: 'The big idea, things to try, key words and questions. Teachers can print a worksheet from here.' });
+      st.push({ el: '[data-tool="theme"]', title: 'Light or dark', text: 'Dark is easier on the eyes in a dim room. Every lab remembers your choice.' });
+      return st;
+    }
+    function runTour() { if (!window.Tour) return; if (document.querySelector('.lg-home')) setScreen(ids[0]); setTimeout(function () { Tour.start(tourSteps(), { key: 'lab:' + stem }); }, 60); }
+    if (tourBtn) tourBtn.onclick = runTour;
+    LAB.startTour = runTour;
+    var tj = document.createElement('script'); tj.src = 'tour.js'; tj.onload = function () {
+      // offer the tour once, after the first screen opens
+      var tryOffer = function () { if (document.querySelector('.lg-home') || !tourBtn) return false; Tour.offer({ key: 'lab:' + stem, near: tourBtn, title: 'New to this lab?', text: 'A 30-second tour shows what each part does.', start: runTour }); return true; };
+      if (!tryOffer()) { var iv = setInterval(function () { if (tryOffer()) clearInterval(iv); }, 800); setTimeout(function () { clearInterval(iv); }, 120000); }
+    }; document.head.appendChild(tj);
     window.addEventListener('hashchange', function () { var h = (location.hash || '').slice(1); if (ids.indexOf(h) >= 0 && root.getAttribute('data-screen') !== h) setScreen(h, false); });
 
     // top-bar tools: Full screen and Dark mode, the same on every lab

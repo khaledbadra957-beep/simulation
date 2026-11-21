@@ -124,6 +124,12 @@ footer{color:var(--muted);font-size:.85rem}
 .stage-ui .banner{padding:8px 12px;font-size:14.5px}
 .stage-ui #scrub3{width:100%}
 .stage-ui .pick[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.stage-ui .solo-in{padding:8px 4px 24px}
+.stage-ui .exhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.stage-ui .exhead h2{margin:0;font:800 1.35rem/1.2 var(--display)}
+.stage-ui .exin{display:flex;flex-direction:column;gap:6px;font-weight:700}
+.stage-ui .exin input{font:600 1.25rem var(--data);padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--stage);color:var(--ink);width:100%}
+.stage-ui .exin input[aria-invalid="true"]{border-color:var(--bad)}
+.stage-ui #exSolve svg{flex:none}
 .stage-ui .play > .extra.obsbar{height:auto;display:flex;align-items:center;gap:14px;padding:10px 12px;overflow:visible}
 .stage-ui .obsbar .obs{flex:1 1 auto;margin:0}
 .stage-ui .obsbar .read{flex:none;display:flex}
@@ -205,8 +211,17 @@ footer{color:var(--muted);font-size:.85rem}
       <p class="fb" id="fb4" hidden></p></section>
   </aside>
 </section>
+<section class="screen solo" id="p-ex" data-screens="ex" hidden><div class="solo-in">
+  <div class="exhead"><h2>Exercise: balance your equation</h2><div class="row"><button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+  <section class="group">
+    <label class="exin"><span>Type the equation from your exercise (without the big numbers)</span><input id="exEq" type="text" autocomplete="off" spellcheck="false" autocapitalize="off" value="Fe + O2 -> Fe2O3" aria-describedby="exMsg"></label>
+    <p class="note">Write formulas with normal numbers: H2O, Ca(OH)2. Use -> or = for the arrow.</p>
+    <div class="picks" id="exEgs" aria-label="Examples"></div>
+    <p class="fb" id="exMsg" aria-live="polite"></p>
+  </section>
+</div></section>
 </main>
-<script>window.LAB = { screens: [ { id: 'signs', name: 'Signs', tab: 'signs' }, { id: 'mass', name: 'Mass', tab: 'mass' }, { id: 'atoms', name: 'Atoms', tab: 'atoms' }, { id: 'bal', name: 'Balance', tab: 'bal' } ] };</script>
+<script>window.LAB = { screens: [ { id: 'signs', name: 'Signs', tab: 'signs' }, { id: 'mass', name: 'Mass', tab: 'mass' }, { id: 'atoms', name: 'Atoms', tab: 'atoms' }, { id: 'bal', name: 'Balance', tab: 'bal' }, { id: 'ex', name: 'Exercise' } ] };</script>
 <script src="lab-svg.js"></script>
 <script>
 (function(){
@@ -563,8 +578,66 @@ $('#hint4').onclick=()=>{const e=EQ4[i4],fb=$('#fb4');fb.hidden=false;fb.classNa
 picks1();reset1();reset2();build3();reset4();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{draw1();draw2();draw3();draw4()});
 new MutationObserver(()=>{draw1();draw2();draw3();draw4()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ===================== EXERCISE: balance any equation, step by step in the lab (tour.js) ===================== */
+const ELN={H:'Hydrogen',He:'Helium',Li:'Lithium',Be:'Beryllium',B:'Boron',C:'Carbon',N:'Nitrogen',O:'Oxygen',F:'Fluorine',Ne:'Neon',Na:'Sodium',Mg:'Magnesium',Al:'Aluminum',Si:'Silicon',P:'Phosphorus',S:'Sulfur',Cl:'Chlorine',Ar:'Argon',K:'Potassium',Ca:'Calcium',
+ Fe:'Iron',Cu:'Copper',Zn:'Zinc',Ag:'Silver',Au:'Gold',Pb:'Lead',Sn:'Tin',Mn:'Manganese',Cr:'Chromium',Ni:'Nickel',Co:'Cobalt',Ba:'Barium',Br:'Bromine',I:'Iodine',Hg:'Mercury',Li2:'',Sr:'Strontium',Ti:'Titanium',Pt:'Platinum',U:'Uranium'};
+const ELC={Fe:'#B5651D',Cu:'#C87533',Zn:'#8FA3B0',Ag:'#C9CED4',Au:'#E2B23C',Pb:'#5C6670',K:'#8E44AD',Ca:'#7FB77E',P:'#F08A24',Br:'#A0322D',I:'#7B3F9E',F:'#90E0A0',Si:'#C9A27E',Ba:'#59B3A2',Mn:'#9C7AB8',Cr:'#7A9CB8',Ni:'#6FA287',Hg:'#A9B4BF',Li:'#C96F6F',B:'#E9A8A0',Sn:'#9AA3AA',Co:'#3F6FB8'};
+const toAscii=t=>t.replace(/[₀-₉]/g,c=>'0123456789'['₀₁₂₃₄₅₆₇₈₉'.indexOf(c)]);
+function parseF(f){let i=0;const st=[{}];while(i<f.length){const ch=f[i];
+  if(ch==='('){st.push({});i++;continue}
+  if(ch===')'){i++;let n='';while(/\d/.test(f[i]||''))n+=f[i++];const g=st.pop(),k=n?+n:1;if(!st.length)return null;for(const e in g)st[st.length-1][e]=(st[st.length-1][e]||0)+g[e]*k;continue}
+  const m=/^([A-Z][a-z]?)(\d*)/.exec(f.slice(i));if(!m)return null;if(!ELN[m[1]])return {bad:m[1]};const k=m[2]?+m[2]:1;st[st.length-1][m[1]]=(st[st.length-1][m[1]]||0)+k;i+=m[0].length}
+ return st.length===1?st[0]:null}
+function parseEq(t){t=toAscii(String(t)).replace(/\s+/g,'').replace(/→|⟶|-+>|=+>?/g,'>');const sides=t.split('>');if(sides.length!==2||!sides[0]||!sides[1])return {err:'Use one arrow (->) between the reactants and the products.'};
+ const L=[],R=[];for(const [side,arr] of [[sides[0],L],[sides[1],R]])for(let f of side.split('+')){if(!f)return {err:'There is a + with nothing after it.'};f=f.replace(/^\d+/,'');const a=parseF(f);if(!a)return {err:'I cannot read “'+f+'”. Check the capital letters and the brackets.'};if(a.bad)return {err:'“'+a.bad+'” is not an element I know.'};arr.push({f,a})}
+ const els=[...new Set([...L,...R].flatMap(x=>Object.keys(x.a)))];for(const e of els){const l=L.some(x=>x.a[e]),r=R.some(x=>x.a[e]);if(!l||!r)return {err:(ELN[e]||e)+' ('+e+') is only on one side, so this equation cannot be balanced. Check the formulas.'}}
+ if(L.length+R.length>6)return {err:'Use at most 6 formulas.'};
+ // smallest whole numbers from 1 to 8 that balance every element
+ const sp=L.concat(R),n=sp.length,co=new Array(n).fill(1);let best=null;
+ (function rec(k){if(best)return;if(k===n){if(els.every(e=>L.reduce((s,x,i)=>s+co[i]*(x.a[e]||0),0)===R.reduce((s,x,i)=>s+co[L.length+i]*(x.a[e]||0),0)))best=co.slice();return}for(let c=1;c<=8&&!best;c++){co[k]=c;rec(k+1)}})(0);
+ if(!best)return {err:'This one needs numbers bigger than 8. The lab’s buttons only go up to 8.'};
+ const g=best.reduce((a,b)=>gcd(a,b));return {L,R,els,ans:best.map(c=>c/g)}}
+function geoOf(a){const atoms=[];Object.keys(a).sort((x,y)=>(x==='H')-(y==='H')||(x==='O')-(y==='O')).forEach(e=>{for(let k=0;k<a[e];k++)atoms.push(e)});
+ const pos=[[0,0],[26,0],[-26,0],[13,-22],[-13,-22],[13,22],[-13,22],[39,-22],[-39,-22],[39,22],[-39,22],[52,0],[-52,0],[0,-44],[0,44],[26,-44],[-26,-44],[26,44],[-26,44]];
+ const g={a:atoms.slice(0,pos.length).map((e,i)=>[e,pos[i][0],pos[i][1]]),b:[]};for(let i=1;i<g.a.length;i++){let bj=0,bd=1e9;for(let j=0;j<i;j++){const d=Math.hypot(g.a[i][1]-g.a[j][1],g.a[i][2]-g.a[j][2]);if(d<bd){bd=d;bj=j}}g.b.push([bj,i])}
+ const xs=g.a.map(q=>q[1]);return {g,w:Math.max(...xs)-Math.min(...xs)+34}}
+function useEq(P){const key=P.L.map(x=>x.f).join('+')+'>'+P.R.map(x=>x.f).join('+');let i=EQ4.findIndex(e=>e.L.concat(e.R).join('+')===P.L.map(x=>x.f).concat(P.R.map(x=>x.f)).join('+'));
+ [...P.L,...P.R].forEach(x=>{if(!GEO[x.f]){const q=geoOf(x.a);GEO[x.f]=q.g;WID[x.f]=q.w}Object.keys(x.a).forEach(e=>{if(!AT[e])AT[e]={c:ELC[e]||'#A7B0B8',r:15,m:0,name:ELN[e]||e}})});
+ if(i<0){EQ4.push({L:P.L.map(x=>x.f),R:P.R.map(x=>x.f),ans:P.ans,mine:1});i=EQ4.length-1}i4=i;reset4();return i}
+const EXEGS=['Fe + O2 -> Fe2O3','C3H8 + O2 -> CO2 + H2O','KClO3 -> KCl + O2','Ca(OH)2 + HCl -> CaCl2 + H2O','Al + HCl -> AlCl3 + H2','N2 + H2 -> NH3'];
+$('#exEgs').innerHTML=EXEGS.map(t=>`<button class="pick" type="button" data-eq="${t}">${sub(t.replace('->','→'))}</button>`).join('');
+$$('#exEgs .pick').forEach(b=>b.onclick=()=>{$('#exEq').value=b.dataset.eq;exCheck()});
+function exCheck(){const P=parseEq($('#exEq').value),m=$('#exMsg');$('#exEq').setAttribute('aria-invalid',P.err?'true':'false');m.className='fb '+(P.err?'bad':'good');
+ m.innerHTML=P.err?'<b>'+P.err+'</b>':'<b>Ready.</b> '+P.L.map(x=>sub(x.f)).join(' + ')+' → '+P.R.map(x=>sub(x.f)).join(' + ')+' · elements: '+P.els.map(e=>ELN[e]+' ('+e+')').join(', ')+'.';return P.err?null:P}
+$('#exEq').addEventListener('input',exCheck);$('#exEq').addEventListener('keydown',e=>{if(e.key==='Enter')exSolve()});exCheck();
+function exSolve(){const P=exCheck();if(!P||!window.Tour)return;
+ const sp=P.L.concat(P.R),nL=P.L.length,ans=P.ans,side=i=>i<nL?'L':'R',cnt=(e,i)=>sp[i].a[e]||0,tot=i=>Object.values(sp[i].a).reduce((a,b)=>a+b,0);
+ const atomsTxt=(i,c)=>Object.keys(sp[i].a).map(e=>c*cnt(e,i)+' '+e).join(', ');
+ // the order: the biggest formula first, single elements last; each next formula is the one an element now fixes
+ const set=new Set(),plan=[];const isEl=i=>Object.keys(sp[i].a).length===1;
+ let first=sp.map((x,i)=>i).sort((a,b)=>(isEl(a)-isEl(b))||tot(b)-tot(a))[0];plan.push({i:first,why:null});set.add(first);
+ while(set.size<sp.length){let pick=null;for(const i of sp.map((x,k)=>k).filter(k=>!set.has(k)).sort((a,b)=>isEl(a)-isEl(b))){for(const e of Object.keys(sp[i].a)){const others=sp.map((x,k)=>k).filter(k=>k!==i&&cnt(e,k));if(others.every(k=>set.has(k))){pick={i,e};break}}if(pick)break}
+  if(!pick){const i=sp.map((x,k)=>k).find(k=>!set.has(k));pick={i,e:Object.keys(sp[i].a)[0]}}plan.push({i:pick.i,why:pick.e});set.add(pick.i)}
+ const calc=t=>'<div class="t-calc">'+t+'</div>',F=i=>sub(sp[i].f),eqTxt=c=>P.L.map((x,i)=>(c&&c[i]>1?c[i]:'')+sub(x.f)).join(' + ')+' → '+P.R.map((x,i)=>(c&&c[nL+i]>1?c[nL+i]:'')+sub(x.f)).join(' + ');
+ const stepEl=i=>()=>{const b=document.querySelector('#eq4 .step button[data-i="'+i+'"]');return b&&b.parentElement};
+ const steps=[{title:'Balance it in the lab',html:'<p>Your equation: <b>'+eqTxt()+'</b></p><p>We count the atoms on each side, then put one number in front of each formula until every element matches.</p><p class="note">The lab balances the formulas exactly as you typed them, so check them first.</p>',
+   onShow:()=>{const b=document.querySelector('.lg-nav [data-ph="bal"]');if(b&&document.documentElement.getAttribute('data-screen')!=='bal')b.click();useEq(P)}},
+  {el:()=>$('#count4').closest('.group'),title:'Count the atoms',html:'<p>With a 1 in front of every formula, this table counts each kind of atom on the left and on the right. The ✗ rows do not match yet.</p><p><b>Only change the big numbers in front.</b> The small numbers belong to the formula: changing them would make a different substance.</p>'}];
+ plan.forEach((p,k)=>{const i=p.i,c=ans[i];let why;
+  if(p.why==null)why='Start with '+F(i)+', the formula with the most atoms. We need '+c+' of '+(c>1?'them':'it')+': '+c+' × '+F(i)+' = '+atomsTxt(i,c)+'.';
+  else{const e=p.why,k1=cnt(e,i),oth=sp.map((x,q)=>q).filter(q=>q!==i&&cnt(e,q)),opp=oth.filter(q=>side(q)!==side(i)),same=oth.filter(q=>side(q)===side(i)),N=opp.reduce((s,q)=>s+ans[q]*cnt(e,q),0),Sm=same.reduce((s,q)=>s+ans[q]*cnt(e,q),0);
+   const one=Object.keys(sp[i].a).length===1&&k1===1,need=N-Sm;
+   why=ELN[e]+' ('+e+'): the '+(side(i)==='L'?'right':'left')+' side has '+N+' '+e+'.'+(Sm?' '+Sm+' of them are already on this side, so '+need+' more are needed.':'')+(one?' Each '+F(i)+' is one atom, so we need '+c+' × '+F(i)+'.':' Each '+F(i)+' has '+k1+' '+e+', so we need '+need+' ÷ '+k1+' = '+c+' × '+F(i)+'.')}
+  steps.push({el:stepEl(i),at:'bottom',avoid:'#s4 circle, #count4',title:'Set the number in front of '+F(i),html:'<p>'+why+'</p><p>'+(c===1?'It already shows <b>1</b>, so leave it.':'Press <b>+</b> or <b>−</b> until it shows <b>'+c+'</b>.')+'</p>',
+   wait:()=>co4[i]===c,doIt:()=>{co4[i]=c;render4()},done:()=>{const[cL,cR]=counts4();const fixed=Object.keys(sp[i].a).filter(e=>cL[e]===cR[e]);return c+' × '+F(i)+(fixed.length?'. Now '+fixed.map(e=>e).join(' and ')+' match'+(fixed.length>1?'':'es')+'.':'.')},auto:1100})});
+ steps.push({el:'#ban4',title:'Check',html:'<p>Every row of the table should show ✓, and the numbers should be the smallest whole numbers.</p>',wait:()=>{const[cL,cR]=counts4();return Object.keys(cL).every(k=>cL[k]===cR[k])},done:'Balanced! The same atoms are on both sides, so mass is conserved.'});
+ steps.push({title:'Your answer',html:calc(eqTxt(ans)+'\n\n'+P.els.map(e=>e+': '+P.L.reduce((s,x,i)=>s+ans[i]*(x.a[e]||0),0)+' on each side').join('\n'))+'<p>Compare it with your own working.</p>'});
+ setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+$('#exSolve').onclick=exSolve;
 })();
 </script>
 
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>

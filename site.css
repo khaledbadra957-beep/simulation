@@ -154,7 +154,7 @@ html.stage-ui [hidden]{display:none!important}
 html.stage-ui :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 
 /* top bar */
-.stage-ui .topbar{position:fixed;top:0;left:0;right:0;z-index:57;height:calc(var(--tb-h) + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:12px;
+.stage-ui .topbar{position:fixed;top:0;left:0;right:0;z-index:57;flex-wrap:nowrap;height:calc(var(--tb-h) + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:12px;
   padding:env(safe-area-inset-top,0px) max(14px,env(safe-area-inset-right,0px)) 0 max(10px,env(safe-area-inset-left,0px));background:var(--surface);border-bottom:1px solid var(--line)}
 .stage-ui .topbar h1{margin:0;font:800 20px/1.1 var(--display);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .stage-ui .tb-back{flex:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;color:var(--ink);text-decoration:none}
