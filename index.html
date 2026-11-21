@@ -12,7 +12,7 @@
 <style>
 /* Homepage · DESIGN.md §7: one filter row, real pictures, one card per experiment, textbook order per grade */
 :root{
-  --bg:#F4F5F1; --surface:#FFFFFF; --sunk:#EEF1EC; --ink:#13232B; --muted:#55666E; --line:#D9DED7;
+  --bg:#F4F5F7; --surface:#FFFFFF; --sunk:#EDEFF2; --ink:#13232B; --muted:#55666E; --line:#D9DCE1;
   --accent:#0A6A88; --on-accent:#FFFFFF; --phys:#0A6A88; --chem:#7A3F8F; --hot:#E2632B; --focus:#E2632B;
   --sans:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif; --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
   color-scheme:light;
@@ -146,6 +146,14 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s,color .3s,bord
 @media (prefers-reduced-motion: reduce){.sh-back,.sh{animation:none}}
 @media print{.card .share,.sh-back{display:none}}
 
+
+/* back to the filters: phones only (on wider screens the filter row stays on screen) */
+.tofilters{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:20;display:flex;align-items:center;gap:8px;height:48px;padding:0 18px 0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 15px/1 var(--sans);box-shadow:0 6px 20px rgba(0,0,0,.16);cursor:pointer;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}
+.tofilters.on{opacity:1;transform:none;pointer-events:auto}
+.tofilters svg{width:18px;height:18px}
+.tofilters .tf-n{font-weight:600;color:var(--muted);font-size:13.5px}
+.tofilters .tf-n:empty{display:none}
+@media (prefers-reduced-motion: reduce){.tofilters{transition:none}}
 @media (max-width:820px){
   .hero{grid-template-columns:minmax(0,1fr);margin:22px 0 16px;gap:18px}
   .lede{font-size:16.5px}
@@ -588,6 +596,28 @@ var GROUPS = [
   if (window.matchMedia) { var mq = matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', tLabel); }
   tLabel();
   render(false);
+})();
+</script>
+<button type="button" class="tofilters" id="toFilters" aria-label="Back to the filters"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Filters <span class="tf-n" id="tfN"></span></button>
+<script>
+(function(){
+  var b = document.getElementById('toFilters'), f = document.querySelector('.filters'), n = document.getElementById('tfN');
+  if (!b || !f || !window.IntersectionObserver) return;
+  // show the button once the filter row has scrolled out of view (it never does where the row is sticky)
+  new IntersectionObserver(function(e){ b.classList.toggle('on', !e[0].isIntersecting && e[0].boundingClientRect.top < 0); }).observe(f);
+  function summary(){
+    var g = document.querySelector('#gradeSeg [aria-pressed="true"]'), sb = document.querySelector('#subSeg [aria-pressed="true"]'), q = document.getElementById('q');
+    var parts = [];
+    if (g && g.dataset.grade !== 'all') parts.push('G' + g.dataset.grade);
+    if (sb && sb.dataset.sub !== 'all') parts.push(sb.textContent.trim());
+    if (q && q.value.trim()) parts.push('“' + q.value.trim().slice(0, 12) + '”');
+    n.textContent = parts.length ? '· ' + parts.join(' · ') : '';
+  }
+  f.addEventListener('click', function(){ setTimeout(summary, 0); }); f.addEventListener('input', summary); summary();
+  b.addEventListener('click', function(){
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    f.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  });
 })();
 </script>
 </body>

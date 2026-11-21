@@ -10,14 +10,14 @@
    Atkinson Hyperlegible (made for easy reading) for text, IBM Plex Mono for numbers and readings.
    The names each lab already uses are all set here, so every lab draws with the same colours. */
 :root{
-  --bg:#F5F6F2; --surface:#FBFBF8; --stage:#FFFFFF; --ink:#13232B; --muted:#52646C; --line:#D3DAD4; --grid:#E4E8E1;
+  --bg:#F5F6F8; --surface:#FBFBFC; --stage:#FFFFFF; --ink:#13232B; --muted:#52646C; --line:#D3D7DD; --grid:#E4E7EB;
   --accent:#0A6A88; --accent-ink:#FFFFFF; --on-accent:#FFFFFF; --btn:#0A6A88; --on-btn:#FFFFFF; --focus:#0A6A88;
   --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
   --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   /* the same, under the names some labs use */
   --mono:var(--data); --font-display:var(--display); --font-body:var(--body); --font-mono:var(--data);
-  --fg:var(--ink); --text-main:var(--ink); --text-muted:var(--muted); --surface2:#EEF1EC; --sunk:#EEF1EC;
+  --fg:var(--ink); --text-main:var(--ink); --text-muted:var(--muted); --surface2:#EDEFF2; --sunk:#EDEFF2;
   --paper-line:rgba(19,35,43,.045);
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -133,7 +133,7 @@ html.fs-lock,html.fs-lock body{overflow:hidden}
    Labs without the class are not touched by anything below.
    ===================================================================== */
 html.stage-ui{
-  --bg:#F4F5F1; --surface:#FFFFFF; --sunk:#EEF1EC; --stage:#FFFFFF; --ink:#13232B; --muted:#55666E; --line:#D9DED7;
+  --bg:#F4F5F7; --surface:#FFFFFF; --sunk:#EDEFF2; --stage:#FFFFFF; --ink:#13232B; --muted:#55666E; --line:#D9DCE1;
   --accent:#0A6A88; --on-accent:#FFFFFF; --accent-ink:#FFFFFF; --reset:#E2632B; --focus:#E2632B; --ok:#1E8A55; --bad:#C0392B;
   --c-teal:#1B8AA6; --c-terra:#D2532B; --c-green:#2E8B57; --c-ochre:#C88A12; --c-violet:#7A52B3; --c-rose:#C2185B;
   --tb-h:56px; --bar-h:64px; --gap:12px; --panel-w:320px;
