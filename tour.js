@@ -100,7 +100,7 @@
         // four shades around the lit part block clicks elsewhere; the lit part itself is clickable when the step waits for the student
         var set = function (d, l, t, w, h) { d.style.inset = 'auto'; d.style.left = l + 'px'; d.style.top = t + 'px'; d.style.width = Math.max(0, w) + 'px'; d.style.height = Math.max(0, h) + 'px'; };
         set(shades[0], 0, 0, W, T); set(shades[1], 0, B, W, H - B); set(shades[2], 0, T, L, B - T); set(shades[3], R, T, W - R, B - T);
-        cover.style.display = typeof s.wait === 'function' ? 'none' : ''; set(cover, L, T, R - L, B - T);
+        cover.style.display = typeof s.wait === 'function' || s.interactive ? 'none' : ''; set(cover, L, T, R - L, B - T);
       } else { hole.style.display = 'none'; shades.forEach(function (d, k) { d.style.inset = 'auto'; d.style.left = '0'; d.style.top = '0'; d.style.width = k ? '0' : '100vw'; d.style.height = k ? '0' : '100vh'; }); cover.style.display = 'none'; }
       if (!r) { pl = 'sheet'; x = (W - tw) / 2; y = (H - th) / 2; }
       else if (W < 560) { pl = 'sheet'; x = (W - tw) / 2; y = r.bottom + gap + th < H - 8 ? r.bottom + gap : r.top - gap - th > 8 ? r.top - gap - th : H - th - 12; }
