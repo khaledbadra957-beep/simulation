@@ -637,7 +637,7 @@
     'enthalpy-lab.html': { intro: '#t-heat', game: null, ex: '#t-ex' },
     'esterification-lab.html': { intro: '[data-tab="build"]', game: '[data-tab="chal"]' },
     'galvanic-cell-lab.html': { intro: '[data-tab="cell"]', game: '[data-tab="chal"]' },
-    'keplers-laws.html': { intro: '#t-retro', game: null },
+    'keplers-laws.html': { intro: '#t-retro', game: null, ex: '#t-ex' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
     'reaction-rates-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
