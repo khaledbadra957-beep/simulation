@@ -91,6 +91,8 @@ h1{margin:0;font:800 clamp(40px,5.4vw,72px)/.96 var(--display);letter-spacing:-.
 
 /* header: brand on the left, dark mode on the right */
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbtns{display:flex;gap:8px}
+@media (max-width:420px){#tourBtn span{display:none}#tourBtn{width:40px;padding:0;justify-content:center}}
 .theme{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 14.5px/1 var(--sans);cursor:pointer;transition:border-color .15s,color .15s,transform .08s}
 .theme:hover{border-color:var(--accent);color:var(--accent)}
 .theme:active{transform:scale(.96)}
@@ -176,7 +178,8 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s,color .3s,bord
 <div class="wrap">
 <header class="top">
   <a class="brand" href="index.html"><span class="mark" aria-hidden="true">MK</span><span><b>Mr Khaled</b><small>Physics &amp; Chemistry</small></span></a>
-  <button type="button" class="theme" id="themeBtn" aria-label="Dark mode"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+  <span class="topbtns"><button type="button" class="theme" id="tourBtn" aria-label="Take a tour of this page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 8.5l-2 5-5 2 2-5z" fill="currentColor"/></svg><span>Tour</span></button>
+  <button type="button" class="theme" id="themeBtn" aria-label="Dark mode"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button></span>
 </header>
 
 <section class="hero">
@@ -596,6 +599,24 @@ var GROUPS = [
   if (window.matchMedia) { var mq = matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', tLabel); }
   tLabel();
   render(false);
+})();
+</script>
+<script src="tour.js"></script>
+<script>
+(function(){
+  if (!window.Tour) return;
+  var steps = [
+    { el: '#q', title: 'Search', text: 'Type a topic, for example waves, titration or half-life.' },
+    { el: '#gradeSeg', title: 'Your grade', text: 'Pick a grade to see only its labs, in the order of your textbook.' },
+    { el: '#subSeg', title: 'Subject', text: 'Physics, chemistry, or both.' },
+    { el: function () { return document.querySelector('#list .card'); }, title: 'Open a lab', text: 'The picture shows what you will see. Tap the card to start.' },
+    { el: function () { return document.querySelector('#list .card .share'); }, title: 'Share with the class', text: 'Shows a QR code students can scan, or puts the link big on the board.' },
+    { el: function () { var c = document.querySelector('#list .card a.cam, #list .card .cam'); return c; }, title: 'Camera labs', text: 'Some labs also come with a camera version: you move the apparatus with your own hand.' },
+    { el: '#themeBtn', title: 'Light or dark', text: 'Dark is easier on the eyes in a dim room. Every lab remembers your choice.' }
+  ];
+  function run() { Tour.start(steps, { key: 'home' }); }
+  document.getElementById('tourBtn').onclick = run;
+  setTimeout(function () { Tour.offer({ key: 'home', near: '#tourBtn', title: 'New here?', text: 'A 30-second tour shows how to find a lab and share it with your class.', start: run }); }, 1200);
 })();
 </script>
 <button type="button" class="tofilters" id="toFilters" aria-label="Back to the filters"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Filters <span class="tf-n" id="tfN"></span></button>
