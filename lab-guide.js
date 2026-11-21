@@ -634,7 +634,7 @@
   var PH = {  // intro tab, challenge tab (null = none), names
     'chemical-change-lab.html': { intro: '[data-tab="signs"]', game: '[data-tab="bal"]', gameName: 'Balance it' },
     'chemical-equilibrium-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
-    'enthalpy-lab.html': { intro: '#t-heat', game: null },
+    'enthalpy-lab.html': { intro: '#t-heat', game: null, ex: '#t-ex' },
     'esterification-lab.html': { intro: '[data-tab="build"]', game: '[data-tab="chal"]' },
     'galvanic-cell-lab.html': { intro: '[data-tab="cell"]', game: '[data-tab="chal"]' },
     'keplers-laws.html': { intro: '#t-retro', game: null },
