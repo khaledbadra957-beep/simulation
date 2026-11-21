@@ -1,6 +1,6 @@
 /* hand-kit.js — shared engine for the camera "hands-on" labs.
    HandKit.create(o) builds a 3-D lab bench (three.js) whose objects can be picked up either with a real hand
-   seen by the camera (MediaPipe hand tracking: pinch thumb + first finger to grab) or with mouse / touch.
+   seen by the camera (MediaPipe hand tracking: close the hand into a fist to grab, open it to let go) or with mouse / touch.
    The look follows the 2-D labs: same wall, bench, glass, metal and label colours, light and dark theme.
    o: { stage, canvas, hud, video, intro, startCam, startMouse, showCam, status(text, cls),
         layout(k), onGrab(item), onDrop(item), onFrame(dt, now), onHUD(g), targets(item) } */
@@ -148,12 +148,15 @@
       if (!raw) { h.lms = null; if (h.pinch && now - h.seen > (firm ? 1500 : 450)) setPinch(h, false); if (now - h.seen > 1200 && st.mode === 'cam') h.cur.has = false; return; }
       var lms = smoothHand(h, raw, now); h.lms = lms; h.seen = now;
       var px = function (i) { return (1 - lms[i].x) * k.W; }, py = function (i) { return lms[i].y * k.H; };
-      var tx = (k.mapX(lms[4].x) + k.mapX(lms[8].x)) / 2, ty = (k.mapY(lms[4].y) + k.mapY(lms[8].y)) / 2;
+      // the grab point is the middle of the palm: it stays put while the fingers close
+      var PALM = [0, 5, 9, 13, 17], tx = 0, ty = 0; PALM.forEach(function (i) { tx += k.mapX(lms[i].x); ty += k.mapY(lms[i].y); }); tx /= 5; ty /= 5;
       setCursor(h, tx, ty);
       var size = Math.hypot(px(0) - px(9), py(0) - py(9)) || 1; h.ratio = Math.hypot(px(4) - px(8), py(4) - py(8)) / size;
+      /* how open the hand is: each fingertip's distance from the wrist over its knuckle's distance. About 1.9 for an open hand, about 1.1 for a fist */
+      var curl = 0; [[8, 5], [12, 9], [16, 13], [20, 17]].forEach(function (f) { curl += Math.hypot(px(f[0]) - px(0), py(f[0]) - py(0)) / (Math.hypot(px(f[1]) - px(0), py(f[1]) - py(0)) || 1); }); h.curl = curl / 4;
       h.ang = Math.atan2(px(9) - px(0), py(0) - py(9));
-      if (h.needOpen) { if (h.ratio > .5) h.needOpen = false; else return; }
-      var want = h.pinch ? h.ratio < (firm ? .6 : .55) : h.ratio < .33;
+      if (h.needOpen) { if (h.curl > 1.55) h.needOpen = false; else return; }
+      var want = h.pinch ? h.curl < (firm ? 1.6 : 1.5) : h.curl < 1.3;   // close to grab, open to let go (a gap between the two stops flicker)
       if (h.pinch && !want && firm) { if (!h.openT) h.openT = now; if (now - h.openT < 450) want = true; } else h.openT = 0;
       setPinch(h, want);
     }
@@ -184,6 +187,10 @@
        If hand-model.js is missing, a simple jointed hand is drawn instead. ---------- */
     var BONES = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20]];
     var OPEN = [[0, 0, 0], [-.34, .2, .1], [-.6, .46, .16], [-.76, .7, .18], [-.86, .93, .18], [-.28, .95, 0], [-.31, 1.35, .02], [-.32, 1.6, .05], [-.33, 1.82, .08], [-.02, 1.0, 0], [-.02, 1.45, .02], [-.02, 1.74, .05], [-.02, 1.98, .08], [.22, .95, 0], [.25, 1.36, .02], [.27, 1.61, .05], [.28, 1.81, .08], [.42, .82, 0], [.5, 1.12, .02], [.55, 1.33, .05], [.58, 1.5, .08]];
+    /* a closed fist, built from the open hand: each finger bends forward at the three joints (80°, 90°, 90°); the thumb folds across */
+    var FIST = OPEN.map(function (p) { return p.slice(); });
+    [5, 9, 13, 17].forEach(function (m) { var ang = 0, prev = OPEN[m]; for (var j = 1; j <= 3; j++) { var a = OPEN[m + j - 1], b = OPEN[m + j], L = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]); ang += j === 1 ? 80 : 90; var r = ang * Math.PI / 180; FIST[m + j] = [OPEN[m][0], prev[1] + L * Math.cos(r), prev[2] + L * Math.sin(r)]; prev = FIST[m + j]; } });
+    [[2, -.5, .5, .3], [3, -.38, .74, .46], [4, -.18, .84, .5]].forEach(function (q) { FIST[q[0]] = [q[1], q[2], q[3]]; });
     var PINCH = OPEN.map(function (p) { return p.slice(); }); [[1, -.3, .22, .2], [2, -.5, .52, .34], [3, -.56, .82, .4], [4, -.5, 1.05, .4], [6, -.37, 1.27, .22], [7, -.47, 1.3, .38], [8, -.5, 1.1, .42], [10, -.03, 1.38, .2], [11, -.05, 1.5, .45], [12, -.07, 1.38, .62], [14, .24, 1.3, .2], [15, .25, 1.4, .43], [16, .25, 1.28, .58], [18, .48, 1.08, .17], [19, .5, 1.16, .36], [20, .5, 1.06, .48]].forEach(function (q) { PINCH[q[0]] = [q[1], q[2], q[3]]; });
     var glove = new T.MeshStandardMaterial({ color: 0x3E8FCB, roughness: .5, metalness: .05, envMapIntensity: .6 }), cuffMat = new T.MeshStandardMaterial({ color: 0xF4F6F7, roughness: .85 });
     var sph = new T.SphereGeometry(1, 14, 10), cyl = new T.CylinderGeometry(1, 1, 1, 12), ZH = 1.7, UP = new T.Vector3(0, 1, 0), tv = new T.Vector3(), tq = new T.Quaternion();
@@ -212,6 +219,13 @@
         var dec = function (str) { var b = atob(str), u = new Uint8Array(b.length); for (var n = 0; n < b.length; n++) u[n] = b.charCodeAt(n); return u; };
         var q = new Uint16Array(dec(m.pos).buffer), nq = new Int8Array(dec(m.nrm).buffer), pos = new Float32Array(m.nv * 3), nrm = new Float32Array(m.nv * 3), n, idx = new Uint16Array(dec(m.idx).buffer), rev = new Uint16Array(idx.length);
         for (n = 0; n < m.nv * 3; n++) { pos[n] = m.min[n % 3] + q[n] / 65535 * m.size[n % 3]; nrm[n] = nq[n] / 127; }
+        // no forearm: everything below the wrist is folded into a small rounded end, so only the hand is drawn
+        var CUT = -.1, cx = 0, cz = 0, cn = 0;
+        for (n = 0; n < m.nv; n++) if (Math.abs(pos[n * 3 + 1] - CUT) < .06) { cx += pos[n * 3]; cz += pos[n * 3 + 2]; cn++; }
+        if (cn) { cx /= cn; cz /= cn; }
+        for (n = 0; n < m.nv; n++) { var vy = pos[n * 3 + 1]; if (vy >= CUT) continue; var dd = CUT - vy, kk = Math.max(0, 1 - dd / .3), ky = Math.sqrt(Math.max(0, 1 - kk * kk));
+          pos[n * 3] = cx + (pos[n * 3] - cx) * kk; pos[n * 3 + 2] = cz + (pos[n * 3 + 2] - cz) * kk; pos[n * 3 + 1] = CUT - .16 * ky;
+          nrm[n * 3] *= kk; nrm[n * 3 + 2] *= kk; nrm[n * 3 + 1] = -ky; var nl = Math.hypot(nrm[n * 3], nrm[n * 3 + 1], nrm[n * 3 + 2]) || 1; nrm[n * 3] /= nl; nrm[n * 3 + 1] /= nl; nrm[n * 3 + 2] /= nl; }
         for (n = 0; n < idx.length; n += 3) { rev[n] = idx[n]; rev[n + 1] = idx[n + 2]; rev[n + 2] = idx[n + 1]; }
         var jw8 = dec(m.jw), jw = new Float32Array(m.nv * 4); for (n = 0; n < m.nv; n++) { var sum = jw8[n * 4] + jw8[n * 4 + 1] + jw8[n * 4 + 2] + jw8[n * 4 + 3] || 1; for (var c = 0; c < 4; c++) jw[n * 4 + c] = jw8[n * 4 + c] / sum; }
         var rest = m.rest.map(function (p) { return { x: p[0], y: p[1], z: p[2] }; }), L0 = m.bones.map(function (b) { return Math.hypot(rest[b[1]].x - rest[b[0]].x, rest[b[1]].y - rest[b[0]].y, rest[b[1]].z - rest[b[0]].z); }), RF = new Float32Array(240);
@@ -221,13 +235,13 @@
     })();
     var REST = HM ? null : OPEN.map(function (p) { return { x: p[0], y: p[1], z: p[2] }; }), RL = HM ? HM.L0 : [];   // rest length of each finger bone, in the order the skin uses: bone b joins point (b % 4 ? b : 0) to point b + 1
     if (!HM) for (var rb = 0; rb < 20; rb++) { var ra = REST[rb % 4 ? rb : 0], rc = REST[rb + 1]; RL.push(Math.hypot(rc.x - ra.x, rc.y - ra.y, rc.z - ra.z)); }
-    var HAND_MIN = .72, HAND_MAX = 1.08, TW = new T.Vector3();                 // drawn size of a tracked hand, wrist to middle knuckle, in bench units
+    var HAND_MIN = .52, HAND_MAX = .78, TW = new T.Vector3();                  // drawn size of a tracked hand, wrist to middle knuckle, in bench units (kept small so it does not hide the apparatus)
     var RS = HM ? Math.hypot(window.HAND_MODEL.rest[9][0] - window.HAND_MODEL.rest[0][0], window.HAND_MODEL.rest[9][1] - window.HAND_MODEL.rest[0][1], window.HAND_MODEL.rest[9][2] - window.HAND_MODEL.rest[0][2]) : 1.0;   // wrist to middle knuckle at rest
     /* skin tones, and the blue lab glove */
     var TONES = [['t1', 0xF1CDB6, 'Skin tone 1'], ['t2', 0xDDA987, 'Skin tone 2'], ['t3', 0xC0875F, 'Skin tone 3'], ['t4', 0x94603F, 'Skin tone 4'], ['t5', 0x63402C, 'Skin tone 5'], ['glove', 0x3E8FCB, 'Blue lab glove']];
     var skinMat = new T.MeshStandardMaterial({ vertexColors: true, roughness: .62, metalness: 0, envMapIntensity: .3 }), LV = new Float32Array(240), toneBox = null;
     k.wear = { gog: false, coat: false, gloves: false };
-    k.tone = 't3'; try { var tn0 = localStorage.getItem('hand-tone'); if (tn0 && TONES.some(function (t) { return t[0] === tn0; })) k.tone = tn0; } catch (e) { }
+    k.tone = 'glove'; try { var tn0 = localStorage.getItem('hand-colour'); if (tn0 && TONES.some(function (t) { return t[0] === tn0; })) k.tone = tn0; } catch (e) { }
     function paint() {
       var id = k.wear.gloves ? 'glove' : k.tone, t = TONES.filter(function (q) { return q[0] === id; })[0] || TONES[2];
       if (!HM) { glove.color.setHex(t[1]); return; }
@@ -236,11 +250,11 @@
       HM.col.needsUpdate = true; skinMat.roughness = isGlove ? .42 : .62;
     }
     k.setTone = function (id) {
-      var t = TONES.filter(function (q) { return q[0] === id; })[0] || TONES[2]; k.tone = t[0]; try { localStorage.setItem('hand-tone', k.tone); } catch (e) { }
+      var t = TONES.filter(function (q) { return q[0] === id; })[0] || TONES[2]; k.tone = t[0]; if (k._toneReady) try { localStorage.setItem('hand-colour', k.tone); } catch (e) { }
       if (toneBox) Array.prototype.forEach.call(toneBox.children, function (b) { b.setAttribute('aria-pressed', b.dataset.tone === k.tone ? 'true' : 'false'); });
       paint();
     };
-    k.setTone(k.tone);
+    k.setTone(k.tone); k._toneReady = true;
     if (HM) {
       toneBox = document.createElement('div'); toneBox.className = 'tones'; toneBox.setAttribute('role', 'group'); toneBox.setAttribute('aria-label', 'Hand colour');
       TONES.forEach(function (t) { var b = document.createElement('button'); b.type = 'button'; b.title = t[2]; b.setAttribute('aria-label', t[2]); b.dataset.tone = t[0]; b.style.background = '#' + ('00000' + t[1].toString(16)).slice(-6); b.setAttribute('aria-pressed', t[0] === k.tone ? 'true' : 'false');
@@ -307,14 +321,15 @@
         /* a hand close to the camera looks huge in the picture; on the bench it would hide the apparatus. Keep the drawn hand within
            a sensible size (the mouse hand is 0.9), shrinking or growing it around the pinch point so grabbing still lines up. */
         var want = Math.max(HAND_MIN, Math.min(HAND_MAX, size));
-        if (want !== size) { var f = want / size; tv.addVectors(P[4], P[8]).multiplyScalar(.5); for (i = 0; i < 21; i++) P[i].sub(tv).multiplyScalar(f).add(tv); size = want; }
-        tv.addVectors(P[4], P[8]).multiplyScalar(.5); planePoint(h.cur.sx, h.cur.sy, tv.z, TW).sub(tv); for (i = 0; i < 21; i++) P[i].add(TW);   // the drawn pinch point sits exactly on the cursor
+        var palmC = function (out) { out.set(0, 0, 0); [0, 5, 9, 13, 17].forEach(function (j) { out.add(P[j]); }); return out.multiplyScalar(.2); };
+        if (want !== size) { var f = want / size; palmC(tv); for (i = 0; i < 21; i++) P[i].sub(tv).multiplyScalar(f).add(tv); size = want; }
+        palmC(tv); planePoint(h.cur.sx, h.cur.sy, tv.z, TW).sub(tv); for (i = 0; i < 21; i++) P[i].add(TW);   // the middle of the drawn palm sits exactly on the cursor
         R.raw = R.sc * RS;
-      } else {                                            // mouse or touch: a posed hand whose pinch point is the pointer
-        h.pose += ((h.pinch ? 1 : 0) - h.pose) * .35; size = .9; var s = size / 1.0, flip = NH > 1 && h.i === 0 ? -1 : 1, a = h.pose;
-        var mx = (OPEN[4][0] + OPEN[8][0]) / 2 * (1 - a) + PINCH[4][0] * a * .5 + PINCH[8][0] * a * .5, my = (OPEN[4][1] + OPEN[8][1]) / 2 * (1 - a) + (PINCH[4][1] + PINCH[8][1]) / 2 * a;
+      } else {                                            // mouse or touch: a posed hand that closes into a fist while the button is down
+        h.pose += ((h.pinch ? 1 : 0) - h.pose) * .35; size = .68; var s = size / 1.0, flip = NH > 1 && h.i === 0 ? -1 : 1, a = h.pose;
+        var mx = 0, my = 0; [0, 5, 9, 13, 17].forEach(function (j) { mx += OPEN[j][0] / 5; my += OPEN[j][1] / 5; });    // the middle of the palm is the pointer (it does not move when the hand closes)
         planePoint(h.cur.sx, h.cur.sy, ZH, tv);
-        for (i = 0; i < 21; i++) { var ox = OPEN[i][0] + (PINCH[i][0] - OPEN[i][0]) * a, oy = OPEN[i][1] + (PINCH[i][1] - OPEN[i][1]) * a, oz = OPEN[i][2] + (PINCH[i][2] - OPEN[i][2]) * a; P[i].set(tv.x + (ox - mx) * s * flip, tv.y + (oy - my) * s, tv.z - oz * s); }
+        for (i = 0; i < 21; i++) { var ox = OPEN[i][0] + (FIST[i][0] - OPEN[i][0]) * a, oy = OPEN[i][1] + (FIST[i][1] - OPEN[i][1]) * a, oz = OPEN[i][2] + (FIST[i][2] - OPEN[i][2]) * a; P[i].set(tv.x + (ox - mx) * s * flip, tv.y + (oy - my) * s, tv.z - oz * s); }
       }
       var rf = size * .112;
       if (HM) {
@@ -482,7 +497,7 @@
         if (h.held && o.targets) { g.setLineDash([6, 6]); g.lineWidth = 2; g.strokeStyle = isDark() ? 'rgba(86,195,223,.85)' : 'rgba(10,106,136,.8)'; (o.targets(h.held) || []).forEach(function (v) { var q = k.toScreen(v); g.beginPath(); g.arc(q[0], q[1], Math.max(22, k.W * .035), 0, 6.3); g.stroke(); }); g.setLineDash([]); }
         if (h.cur.has && st.mode) { var rr = h.pinch ? 7 : 15; g.lineWidth = 4.5; g.strokeStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.arc(h.cur.sx, h.cur.sy, rr, 0, 6.3); g.stroke();
           g.lineWidth = 2.5; g.strokeStyle = h.pinch ? '#E0A63A' : h.hover ? '#2FBF7A' : '#FFFFFF'; g.beginPath(); g.arc(h.cur.sx, h.cur.sy, rr, 0, 6.3); g.stroke();
-          if (!h.pinch && h.hover && !h.held) { g.font = '700 12px "IBM Plex Mono",monospace'; g.textAlign = 'center'; g.fillStyle = isDark() ? '#4ACB8A' : '#1E8A55'; g.fillText(h.lms && !h.ptr ? 'pinch to grab' : 'press to grab', h.cur.sx, h.cur.sy + 34); } }
+          if (!h.pinch && h.hover && !h.held) { g.font = '700 12px "IBM Plex Mono",monospace'; g.textAlign = 'center'; g.fillStyle = isDark() ? '#4ACB8A' : '#1E8A55'; g.fillText(h.lms && !h.ptr ? 'close your hand to grab' : 'press to grab', h.cur.sx, h.cur.sy + 34); } }
       });
     }
 
@@ -502,7 +517,7 @@
         try { tracker = await mk('GPU'); } catch (e) { tracker = await mk('CPU'); }
         if (mir && vision.PoseLandmarker) { var mkP = function (d) { return vision.PoseLandmarker.createFromOptions(files, { baseOptions: { modelAssetPath: POSE_MODEL, delegate: d }, runningMode: 'VIDEO', numPoses: 1 }); };
           mkP('GPU').catch(function () { return mkP('CPU'); }).then(function (pz) { poser = pz; }).catch(function () { }); }
-        st.mode = 'cam'; if (o.intro) o.intro.hidden = true; resize(); say(NH > 1 ? 'Camera on. Hold up both hands and pinch to grab.' : 'Camera on. Hold up one hand and pinch to grab.', 'ok');
+        st.mode = 'cam'; if (o.intro) o.intro.hidden = true; resize(); say(NH > 1 ? 'Camera on. Hold up both hands, palms to the camera. Close a hand to grab, open it to let go.' : 'Camera on. Hold up your hand, palm to the camera. Close your hand to grab, open it to let go.', 'ok');
         var last = -1, lost = 0;
         (function tick() { requestAnimationFrame(tick); if (video.readyState < 2 || video.currentTime === last) return; last = video.currentTime; var now = performance.now();
           try { var r = tracker.detectForVideo(video, now), L = r.landmarks || [], hd = r.handedness || r.handednesses || [], l = L[0];

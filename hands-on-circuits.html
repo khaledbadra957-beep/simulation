@@ -38,7 +38,7 @@
   <div>
    <p class="eyebrow">Grade 12 Physics · Module 19 Electric current and circuits · Simple circuits · Camera lab</p>
    <h1>Hands-On Lab: Circuit Builder</h1>
-   <p class="lede">Build circuits on the board with your own hand: bulbs of any rating, resistors of any value, a rheostat, capacitors and wires. Close the switch, measure with the ammeter and the multimeter, read the equivalent resistance, and watch a capacitor charge and discharge. Pinch your thumb and first finger to pick a part up.</p>
+   <p class="lede">Build circuits on the board with your own hand: bulbs of any rating, resistors of any value, a rheostat, capacitors and wires. Close the switch, measure with the ammeter and the multimeter, read the equivalent resistance, and watch a capacitor charge and discharge. Close your hand to pick a part up.</p>
   </div>
   <div class="row"><button class="btn" id="themeBtn" type="button">Dark mode</button></div>
  </header>
@@ -49,8 +49,8 @@
    <canvas id="gl" aria-label="3-D circuit board with a battery, a switch and eight terminals, with bulbs, resistors, wires, an ammeter and a voltmeter to place"></canvas>
    <canvas id="hud" class="hud"></canvas>
    <div class="intro" id="intro">
-    <h2>Pinch a part, drop it in a gap</h2>
-    <p>The camera follows both of your hands. Your video stays on this device and is never uploaded. Pinch the switch to open or close it. On a touch screen you can use two fingers.</p>
+    <h2>Grab a part, drop it in a gap</h2>
+    <p>The camera follows both of your hands. Your video stays on this device and is never uploaded. Grab the switch to open or close it. On a touch screen you can use two fingers.</p>
     <div class="row" style="justify-content:center">
      <button class="btn primary" id="startCam" type="button">Start with my camera</button>
      <button class="btn" id="startMouse" type="button">Use mouse or touch</button>
@@ -94,7 +94,7 @@
     <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
     <div class="row"><button class="btn" id="reset" type="button">Clear the board</button></div>
    </div>
-   <p class="small">Tips: a part dropped on a gap that is in use swaps places with the part there. To add a wire quickly, pinch a terminal and drag to the next terminal. Pinch the black knob of the rheostat and slide it to change its resistance. The ammeter goes in the loop; the multimeter probes touch two terminals.</p>
+   <p class="small">Tips: a part dropped on a gap that is in use swaps places with the part there. To add a wire quickly, grab a terminal and drag to the next terminal. Grab the black knob of the rheostat and slide it to change its resistance. The ammeter goes in the loop; the multimeter probes touch two terminals.</p>
   </aside>
  </div>
 </div>
@@ -219,7 +219,7 @@ const inSeries=L=>L.every(e=>same(Math.abs(e.I),S.Ib)),fullV=L=>L.every(e=>same(
 const ammI=()=>amm.userData.edge?Math.abs(amm.userData.edge.I):0,A2=v=>fx(v,2)+' A',V2=v=>fx(v,2)+' V';
 const noBulb=()=>!bulbs.some(b=>b.userData.edge&&Math.abs(b.userData.edge.I)>.003);
 const TASKS=[
- {tab:'1 · Series',intro:'Series circuit: put two bulbs into one loop, so the current has to go through one and then the other. Then pinch the switch to close it.',steps:[
+ {tab:'1 · Series',intro:'Series circuit: put two bulbs into one loop, so the current has to go through one and then the other. Then grab the switch to close it.',steps:[
   ['build','Put two bulbs in one loop and close the switch',()=>{const L=lit();return S.closed&&L.length===2&&inSeries(L)&&'Both bulbs glow, but dimly: they share the battery\'s '+S.emf+' V. There is only one path for the current, so this is a series circuit. Now put the ammeter into the loop: drop it on one of the wires to swap them.'}],
   ['amm','Put the ammeter into the loop',()=>{const L=lit();if(L.length>=2&&inSeries(L)&&ammI()>.01){S.ammEdge=amm.userData.edge.id;S.amm1=ammI();return 'The ammeter reads '+A2(ammI())+'. An ammeter goes in the loop, so that the current passes through it. Now move it to a different gap in the same loop.'}}],
   ['amm2','Move the ammeter to another place in the loop',()=>{const L=lit();return L.length>=2&&inSeries(L)&&ammI()>.01&&amm.userData.edge.id!==S.ammEdge&&'The same reading: '+A2(ammI())+'. In a series circuit the current is the same everywhere. The bulbs do not use current up; they turn electrical energy into light and heat. Now use the voltmeter: touch its two probes on the two ends of a bulb.'}],
@@ -360,7 +360,7 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00'
  if(rheo.userData.edge&&!K.holder(rheo)&&!K.holder(wip)&&K.W>520)K.tag('slide the knob',V(wip.position.x,wip.position.y+.34,.5),ink,0,false);
  if(K.W>520)parts.forEach(it=>{const u=it.userData;if(!u.edge&&!K.holder(it)&&!u.hidden&&(u.type!=='wire'||it===wires.filter(w=>!w.userData.edge&&!K.holder(w)).slice(-1)[0]))K.tag(u.type==='wire'?'wires':u.type==='bulb'?vTxt(u.Vr)+' bulbs':u.custom?'your '+u.name:u.name,V(it.position.x,it.position.y-(u.type==='wire'?.32:.42),0),ink,0,true)});
  probes.forEach(p=>{if(p.userData.peg<0&&!K.holder(p))K.tag(p===probes[0]?'+':'−',V(p.position.x-.25,p.position.y+.25,.5),p===probes[0]?bad:ink,0,true)});
- K.tag(S.closed?'switch closed':'switch open: pinch to close',V(SW.mid.x,SW.mid.y+.72,0),S.closed?(dk?'#4ACB8A':'#1E8A55'):ink,0,true);
+ K.tag(S.closed?'switch closed':'switch open: grab to close',V(SW.mid.x,SW.mid.y+.72,0),S.closed?(dk?'#4ACB8A':'#1E8A55'):ink,0,true);
  const vals=$('showVals').checked&&!S.short,green=dk?'#4ACB8A':'#1E8A55';FREE.forEach(e=>{const it=e.part;if(!it||it.userData.type==='wire'||K.holder(it))return;const ty=it.userData.type,res=ty==='res';if(ty==='bulb'&&!vals){const st=bulbState(it.userData);if(st[0]!=='off'||S.closed)K.tag(st[0]==='working normally'?vTxt(it.userData.Vr)+' · OK':st[0]==='too little voltage: no light'?'no light':st[0].split(':')[0],V(e.mid.x,e.mid.y-(e.id==='v2'&&K.W<=620?.4:.74),.3),st[1]==='ok'?green:st[1]==='bad'?bad:st[1]==='warn'?amber:ink,0,true);return}const tx=vals?fx(Math.abs(e.I),2)+' A'+(K.W>620?' · '+fx(Math.abs(e.U),2)+' V':''):res?it.userData.name:ty==='rheo'?'R = '+S.rheo+' Ω':ty==='cap'?it.userData.name+' · '+fx(Math.abs(it.userData.vc),2)+' V':'';if(tx)K.tag(tx,V(e.mid.x,e.mid.y-(e.id==='v2'&&K.W<=620?.4:.74),.3),ink,0,!vals)});
  if(S.short){const p=sc(V(BAT.mid.x,BAT.mid.y,.5)),r=K.W*.07*(1+.12*Math.sin(S.time*20));g.strokeStyle=bad;g.lineWidth=5;g.beginPath();g.arc(p[0],p[1],r,0,6.3);g.stroke();K.tag('SHORT CIRCUIT',V(0,5.2,.5),bad,0,true)}
  else if(S.tripped&&!S.closed)K.tag('breaker tripped: fix the circuit, then close the switch',V(0,5.2,.5),bad,0,true);
