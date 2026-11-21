@@ -24,7 +24,7 @@
     '.tour-tip button.t-skip{border:0;color:var(--muted,#55666E);padding:0 6px}.tour-tip button:focus-visible{outline:3px solid var(--focus,#E2632B);outline-offset:2px}' +
     '.tour-tip .t-arrow{position:absolute;width:14px;height:14px;background:inherit;border:inherit;transform:rotate(45deg)}' +
     '.tour-tip[data-place="below"] .t-arrow{top:-8px;border-right:0;border-bottom:0}.tour-tip[data-place="above"] .t-arrow{bottom:-8px;border-left:0;border-top:0}' +
-    '.tour-tip[data-place="right"] .t-arrow{left:-8px;border-top:0;border-right:0}.tour-tip[data-place="left"] .t-arrow{right:-8px;border-bottom:0;border-left:0}.tour-tip[data-place="sheet"] .t-arrow{display:none}' +
+    '.tour-tip[data-place="right"] .t-arrow{left:-8px;border-top:0;border-right:0}.tour-tip[data-place="left"] .t-arrow{right:-8px;border-bottom:0;border-left:0}.tour-tip[data-place="sheet"] .t-arrow,.tour-tip[data-place="bottom"] .t-arrow{display:none}' +
     '.tour-offer{position:fixed;z-index:990;width:min(300px,calc(100vw - 24px));background:var(--surface,#fff);color:var(--ink,#13232B);border:1px solid var(--line,#D9DCE1);border-radius:14px;padding:12px 14px;box-shadow:0 12px 32px rgba(0,0,0,.22);font:14.5px/1.4 var(--body,system-ui,sans-serif);animation:tourIn .35s cubic-bezier(.2,.7,.2,1) both}' +
     '.tour-offer b{display:block;font:800 16px/1.2 var(--display,system-ui,sans-serif);margin-bottom:2px}.tour-offer .t-row{display:flex;gap:8px;margin-top:10px}' +
     '.tour-offer button{font:700 14px/1 var(--body,system-ui,sans-serif);border-radius:9px;min-height:36px;padding:0 13px;cursor:pointer;border:1px solid var(--line,#D9DCE1);background:transparent;color:var(--ink,#13232B)}.tour-offer button.go{background:var(--accent,#0A6A88);border-color:var(--accent,#0A6A88);color:var(--on-accent,#fff)}' +
@@ -102,7 +102,13 @@
         set(shades[0], 0, 0, W, T); set(shades[1], 0, B, W, H - B); set(shades[2], 0, T, L, B - T); set(shades[3], R, T, W - R, B - T);
         cover.style.display = typeof s.wait === 'function' || s.interactive ? 'none' : ''; set(cover, L, T, R - L, B - T);
       } else { hole.style.display = 'none'; shades.forEach(function (d, k) { d.style.inset = 'auto'; d.style.left = '0'; d.style.top = '0'; d.style.width = k ? '0' : '100vw'; d.style.height = k ? '0' : '100vh'; }); cover.style.display = 'none'; }
-      if (!r) { pl = 'sheet'; x = (W - tw) / 2; y = (H - th) / 2; }
+      var nav = s.at === 'bottom' && document.querySelector('.lg-nav'), nb = nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : H, by = nb - th - 12;
+      if (r && s.at === 'bottom' && W >= 560 && by > r.bottom + gap) { pl = 'bottom'; y = by; x = r.left + r.width / 2 - tw / 2;
+        // s.avoid: things the card should not cover (e.g. the drawn molecules); try a few spots along the bottom and keep the clearest
+        if (s.avoid) { var av = Array.prototype.map.call(document.querySelectorAll(s.avoid), function (q) { return q.getBoundingClientRect(); }), best = 1e18;
+          for (var cx = 12; cx <= W - tw - 12; cx += 40) { var ov = 0; av.forEach(function (q) { ov += Math.max(0, Math.min(cx + tw, q.right) - Math.max(cx, q.left)) * Math.max(0, Math.min(by + th, q.bottom) - Math.max(by, q.top)); });
+            ov += Math.abs(cx + tw / 2 - (r.left + r.width / 2)) * 0.01; if (ov < best) { best = ov; x = cx; } } } }
+      else if (!r) { pl = 'sheet'; x = (W - tw) / 2; y = (H - th) / 2; }
       else if (W < 560) { pl = 'sheet'; x = (W - tw) / 2; y = r.bottom + gap + th < H - 8 ? r.bottom + gap : r.top - gap - th > 8 ? r.top - gap - th : H - th - 12; }
       else if (r.bottom + gap + th < H - 8) { pl = 'below'; y = r.bottom + gap; x = r.left + r.width / 2 - tw / 2; }
       else if (r.top - gap - th > 8) { pl = 'above'; y = r.top - gap - th; x = r.left + r.width / 2 - tw / 2; }
