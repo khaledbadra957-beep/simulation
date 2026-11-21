@@ -77,6 +77,9 @@ p{margin:0}
 .tabp{display:flex;flex-direction:column;gap:16px}
 .lab{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;align-items:start}
 @media (max-width:900px){.lab{grid-template-columns:minmax(0,1fr)}}
+.exhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.exhead h2{margin:0;font:800 1.4rem/1.2 var(--display)}
+.exin{display:flex;flex-direction:column;gap:6px;font-weight:700}.exin input{font:600 1.2rem var(--mono);padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--sunk);color:var(--ink);width:100%}
+#p-ex .card+.card{margin-top:14px}#exPick{max-width:100%}.exqs{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}#exMol{max-height:240px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .card h3{font-family:var(--mono);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .caption{font-size:.87rem;color:var(--muted)}
@@ -471,9 +474,20 @@ body.fs-on{overflow:hidden}
     </div>
   </div></section>
 
+  <section class="screen solo" id="p-ex" data-screens="ex" hidden><div class="solo-in">
+    <div class="exhead"><h2>Exercise</h2><div class="row"><button class="btn" type="button" id="exEg">Example</button><button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+    <div class="card">
+      <label class="exin"><span>Type a condensed formula to name it, or a name to draw it</span><input id="exIn" type="text" autocomplete="off" spellcheck="false" autocapitalize="off" value="CH3CH(CH3)CH(OH)CH3"></label>
+      <div class="chips" id="exEgs" aria-label="Examples"></div>
+      <select id="exPick" aria-label="Pick a structure from the class list"></select>
+      <div id="exMsg" class="verdict wait" aria-live="polite"></div>
+    </div>
+    <div class="card"><h3>Your exercise</h3><p id="exText" style="margin:0"></p><div class="molwrap"><svg class="mol" id="exMol" role="img" aria-label="The structure the lab read from your exercise"></svg></div><ol id="exQs" class="exqs"></ol></div>
+  </div></section>
+
 </main>
   <p class="vh">Names follow IUPAC rules as taught in school: the parent chain is the longest chain that contains the main functional group and any C=C or C≡C, numbered so that the main group (then the multiple bond, then the substituents) gets the lowest numbers; substituents are listed in alphabetical order, ignoring di-, tri- and tetra-. Both styles are shown and accepted, for example but-2-ene (current IUPAC) and 2-butene (older style used in Inspire Chemistry). Esters are named alkyl + alkanoate (propan-2-yl ethanoate), ethers as alkoxyalkanes (2-methoxypropane), and groups on nitrogen take the locant N (N-methylethanamide). In rings the ring is the parent (methylcyclohexane, 2-methylphenol); when a chain is longer than the ring, the older chain-as-parent name is also accepted, and benzene common names (toluene, o-, m-, p-xylene) are shown too. Test results follow Mr Khaled's identification table.</p>
-<script>window.LAB = { screens: [ { id: 'build', name: 'Build', tab: 'build' }, { id: 'quiz', name: 'Name it', tab: 'quiz' }, { id: 'iso', name: 'Isomers', tab: 'iso' }, { id: 'ester', name: 'Esters', tab: 'ester' }, { id: 'lab', name: 'Tests', tab: 'lab' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
+<script>window.LAB = { screens: [ { id: 'build', name: 'Build', tab: 'build' }, { id: 'quiz', name: 'Name it', tab: 'quiz' }, { id: 'iso', name: 'Isomers', tab: 'iso' }, { id: 'ester', name: 'Esters', tab: 'ester' }, { id: 'lab', name: 'Tests', tab: 'lab' }, { id: 'ex', name: 'Exercise' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
 
 
 <script>
@@ -1756,9 +1770,204 @@ document.querySelectorAll('.themeBtn').forEach(function(b){ b.addEventListener('
 }); });
 if (window.matchMedia) { try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paintTheme); } catch (e) {} }
 
+
+/* =========== EXERCISE: name a formula, or draw a name, step by step in the lab (tour.js) =========== */
+var EXO = { mode: null, st: null, R: null, input: '', desc: [], read: [] };
+var exHi = false, bHiOld = build.opt.highlight;
+build.opt.highlight = function(){ return exHi || bHiOld(); };
+var SUBN = { methyl: 'CH3', ethyl: 'C2H5', propyl: 'C3H7', butyl: 'C4H9', isopropyl: 'iPr', fluoro: 'F', chloro: 'Cl', bromo: 'Br', iodo: 'I', hydroxy: 'OH', amino: 'NH2', oxo: 'O' };
+var GWORD = { CH3: 'a methyl group –CH₃', C2H5: 'an ethyl group –C₂H₅', C3H7: 'a propyl group –C₃H₇', C4H9: 'a butyl group –C₄H₉', iPr: 'an isopropyl group –CH(CH₃)₂', F: '–F', Cl: '–Cl', Br: '–Br', I: '–I', OH: '–OH', NH2: '–NH₂', O: '=O' };
+var MULTN = { di: 2, tri: 3, tetra: 4 };
+function exPlace(n, groups){
+  // groups: [[carbon 1..n, group]] → builder state slots; =O goes above, end groups on the ends first
+  var st = emptyState(n), err = null;
+  groups.forEach(function(g){
+    var i = g[0] - 1, G = g[1]; if (i < 0 || i >= n){ err = 'C' + g[0] + ' does not exist: the chain has ' + n + ' carbon' + (n > 1 ? 's' : '') + '.'; return; }
+    var s = st.slots[i], end = i === 0 ? 'l' : i === n - 1 ? 'r' : null, order = G === 'O' ? ['u', 'd', end] : end ? [end, 'u', 'd'] : ['u', 'd'];
+    if (n === 1) order = G === 'O' ? ['u', 'd', 'l', 'r'] : ['l', 'r', 'u', 'd'];
+    var k = order.filter(function(x){ return x && !s[x]; })[0];
+    if (!k){ err = 'Too many groups on C' + g[0] + ': a carbon has only 4 bonds.'; return; }
+    s[k] = G;
+  });
+  return { st: st, err: err };
+}
+function exParseName(raw){
+  var s = String(raw).toLowerCase().replace(/[‐-―−]/g, '-').replace(/\s+acid$/, 'acid').replace(/\s+/g, '').replace(/\((?:1-methylethyl)\)|1-methylethyl|\(propan-2-yl\)|propan-2-yl/g, 'isopropyl');
+  if (!s) return { err: 'Type a name or a formula.' };
+  if (/cyclo|benz|phen|anilin/.test(s)) return { err: 'For rings and benzene, pick the structure from the class list below.' };
+  var stems = /(meth|eth|prop|but|pent|hex|hept|oct|non|dec)/g, m, last = null;
+  while ((m = stems.exec(s))){ if (m[1] === 'non' && s[m.index - 1] === 'a') continue; if (!/^yl/.test(s.slice(m.index + m[1].length))) last = { i: m.index, stem: m[1] }; }
+  if (!last) return { err: 'I cannot find the parent chain (meth-, eth-, prop-, but-, …) in this name.' };
+  var n = STEM.indexOf(last.stem), pre = s.slice(0, last.i).replace(/-$/, ''), r = s.slice(last.i + last.stem.length), read = [];
+  // older style: "2-methyl-2-butanol", "2-butene": numbers left just before the parent belong to the ending
+  var pend = []; var pm = /(?:^|-)([\d,]+)$/.exec(pre); if (pm){ pend = pm[1].split(',').map(Number); pre = pre.slice(0, pre.length - pm[0].length); }
+  read.push(['<b>' + last.stem + '-</b>', n + ' carbons in the main chain']);
+  var i = 0, take = function(re){ var x = re.exec(r.slice(i)); if (x){ i += x[0].length; return x; } return null; }, D = [], T = [];
+  take(/^a(?=-[\d,]+-(?:di|tri))/);
+  while (true){
+    var lm = take(/^-?([\d,]+)-(?=(?:di|tri)?(?:en|yn))/), u = take(/^(di|tri)?(en|yn)/);
+    if (!u){ if (lm) return { err: 'Numbers must come before -ene or -yne.' }; break; }
+    var k = MULTN[u[1]] || 1, locs = lm ? lm[1].split(',').map(Number) : pend.length ? pend.splice(0, k) : k === 1 ? [1] : null;
+    if (!locs || locs.length !== k) return { err: 'The number of locants does not match ' + (u[1] || '') + u[2] + 'e.' };
+    locs.forEach(function(L){ (u[2] === 'en' ? D : T).push(L); });
+    read.push(['<b>-' + locs.join(',') + '-' + (u[1] || '') + u[2] + 'e</b>', (u[2] === 'en' ? 'C=C double bond' : 'C≡C triple bond') + (k > 1 ? 's' : '') + ' starting at C' + locs.join(' and C')]);
+  }
+  if (!D.length && !T.length && !take(/^an/)) return { err: 'I cannot read the ending “' + r + '”. Try e.g. butane, but-2-ene, butan-2-ol.' };
+  var groups = [], ePart = r.slice(i);
+  if (/^e$/.test(ePart) || ePart === ''){ if (!D.length && !T.length) read.push(['<b>-ane</b>', 'only single C–C bonds']); }
+  else {
+    i += (r.slice(i)[0] === 'e' && !/^e(ne|al)/.test(r.slice(i))) ? 1 : 0;
+    var sl = take(/^-?([\d,]+)-/), sf = take(/^(di|tri)?(ol|al|one|oicacid|amine)$/);
+    if (!sf) return { err: 'I cannot read the ending “' + r + '”.' };
+    var k2 = MULTN[sf[1]] || 1, kind = sf[2], locs2 = sl ? sl[1].split(',').map(Number) : pend.length ? pend.splice(0, k2) : null;
+    if (!locs2){ if (kind === 'al' || kind === 'oicacid') locs2 = k2 === 2 ? [1, n] : [1]; else if (kind === 'one') locs2 = k2 === 1 ? [2] : null; else locs2 = k2 === 1 ? [1] : k2 === 2 && n === 2 ? [1, 2] : null; }
+    if (!locs2 || locs2.length !== k2) return { err: 'Add the numbers for the -' + kind.replace('oicacid', 'oic acid') + ' groups.' };
+    var lab = { ol: ['–OH', 'alcohol'], al: ['–CHO', 'aldehyde'], one: ['C=O', 'ketone'], oicacid: ['–COOH', 'carboxylic acid'], amine: ['–NH₂', 'amine'] }[kind];
+    locs2.forEach(function(L){ if (kind === 'ol') groups.push([L, 'OH']); else if (kind === 'amine') groups.push([L, 'NH2']); else if (kind === 'one') groups.push([L, 'O']); else { groups.push([L, 'O']); if (kind === 'oicacid') groups.push([L, 'OH']); } });
+    read.push(['<b>-' + (sl || locs2.length > 1 ? locs2.join(',') + '-' : '') + (sf[1] || '') + kind.replace('oicacid', 'oic acid') + '</b>', lab[1] + ': ' + lab[0] + ' on C' + locs2.join(' and C')]);
+  }
+  if (pend.length) return { err: 'I do not know where the number ' + pend.join(',') + ' belongs.' };
+  // prefixes: "3-ethyl-2-methyl", "2,3-dimethyl", "1-bromo-2-chloro", "methyl"
+  if (pre){
+    var toks = pre.split('-'), loc = null;
+    for (var t = 0; t < toks.length; t++){
+      var tk = toks[t]; if (!tk) continue;
+      if (/^[\d,]+$/.test(tk)){ if (loc) return { err: 'Two sets of numbers in a row: ' + loc.join(',') + ' and ' + tk + '.' }; loc = tk.split(',').map(Number); continue; }
+      var j = 0;
+      while (j < tk.length){
+        var mm = /^(di|tri|tetra)?(methyl|ethyl|propyl|butyl|isopropyl|fluoro|chloro|bromo|iodo|hydroxy|amino|oxo)/.exec(tk.slice(j));
+        if (!mm) return { err: 'I do not know the group “' + tk.slice(j) + '”.' };
+        j += mm[0].length; var cnt = MULTN[mm[1]] || 1, L2 = loc || (cnt === 1 ? [/^(methyl|ethyl|propyl|butyl|isopropyl)$/.test(mm[2]) ? 2 : 1] : null); loc = null;
+        if (!L2 || L2.length !== cnt) return { err: (mm[1] || '') + mm[2] + ' needs ' + cnt + ' number' + (cnt > 1 ? 's' : '') + ' in front of it.' };
+        L2.forEach(function(L){ groups.push([L, SUBN[mm[2]]]); });
+        read.push(['<b>' + L2.join(',') + '-' + (mm[1] || '') + mm[2] + '</b>', GWORD[SUBN[mm[2]]] + ' on C' + L2.join(' and C')]);
+      }
+    }
+    if (loc) return { err: 'The numbers ' + loc.join(',') + ' have no group after them.' };
+  }
+  if (n < 1 || n > 10) return { err: 'The lab can draw chains of 1 to 10 carbons.' };
+  var bad = D.concat(T).filter(function(L){ return L < 1 || L >= n; }); if (bad.length) return { err: 'A multiple bond at C' + bad[0] + ' does not fit in a chain of ' + n + ' carbons.' };
+  var P = exPlace(n, groups); if (P.err) return { err: P.err };
+  D.forEach(function(L){ P.st.bonds[L - 1] = 2; }); T.forEach(function(L){ P.st.bonds[L - 1] = 3; });
+  var G = toGraph(P.st), over = G.atoms.slice(0, n).map(function(a, k){ return hCount(a) < 0 ? k + 1 : 0; }).filter(Boolean);
+  if (over.length) return { err: 'C' + over[0] + ' would have more than 4 bonds. Check the name.' };
+  return { st: P.st, read: read };
+}
+var BRANCH = { CH3: 'CH3', C2H5: 'C2H5', CH2CH3: 'C2H5', C3H7: 'C3H7', CH2CH2CH3: 'C3H7', 'CH(CH3)2': 'iPr', C4H9: 'C4H9', CH2CH2CH2CH3: 'C4H9', OH: 'OH', HO: 'OH', NH2: 'NH2', H2N: 'NH2', F: 'F', Cl: 'Cl', Br: 'Br', I: 'I', '=O': 'O', O: 'O' };
+function exParseFormula(raw){
+  var s = String(raw).replace(/[₀-₉]/g, function(c){ return '0123456789'['₀₁₂₃₄₅₆₇₈₉'.indexOf(c)]; }).replace(/\s+/g, '').replace(/[−–—‐]/g, '-').replace(/≡/g, '#').replace(/-/g, '');
+  var units = [], bonds = [], lead = [], i = 0, nextB = 1, err = null;
+  function paren(){ // "(…)" with an optional count after it
+    var depth = 0, j = i; for (; j < s.length; j++){ if (s[j] === '(') depth++; else if (s[j] === ')'){ depth--; if (!depth) break; } }
+    if (depth) { err = 'A bracket is not closed.'; return null; }
+    var inner = s.slice(i + 1, j); i = j + 1; var cm = /^\d+/.exec(s.slice(i)), c = cm ? +cm[0] : 1; if (cm) i += cm[0].length;
+    var g = BRANCH[inner]; if (!g){ err = 'I do not know the branch (' + inner + '). Use CH3, C2H5, CH(CH3)2, OH, Cl, NH2, =O …'; return null; }
+    var o = []; for (var k = 0; k < c; k++) o.push(g); return o;
+  }
+  function inline(){ // groups written right after a carbon: OH, Cl, Br3, NH2, O (C=O), OOH (COOH)
+    var x = s.slice(i), mm;
+    if ((mm = /^OOH/.exec(x))){ i += 3; return ['O', 'OH']; }
+    if ((mm = /^OH/.exec(x))){ i += 2; return ['OH']; }
+    if ((mm = /^NH2/.exec(x))){ i += 3; return ['NH2']; }
+    if ((mm = /^(Cl|Br|F|I)(\d*)/.exec(x))){ i += mm[0].length; var o = [], c = mm[2] ? +mm[2] : 1; for (var k = 0; k < c; k++) o.push(mm[1]); return o; }
+    if ((mm = /^O(?!H)/.exec(x))){ i += 1; return ['O']; }
+    return null;
+  }
+  while (i < s.length && !err){
+    var x = s.slice(i), mm;
+    if (x[0] === '=' || x[0] === '#'){ nextB = x[0] === '=' ? 2 : 3; i++; continue; }
+    if (x[0] === '(' ){ var g0 = paren(); if (!g0) break; if (units.length) units[units.length - 1].g = units[units.length - 1].g.concat(g0); else lead = lead.concat(g0); continue; }
+    if ((mm = /^C(?!l)(H(\d*))?/.exec(x))){
+      i += mm[0].length; if (units.length) bonds.push(nextB); else if (nextB !== 1){ err = 'A bond sign cannot come first.'; break; } nextB = 1;
+      var u = { h: mm[1] ? (mm[2] ? +mm[2] : 1) : 0, g: [] }; if (!units.length){ u.g = lead; lead = []; } units.push(u);
+      var more; while ((more = inline())) u.g = u.g.concat(more);
+      continue;
+    }
+    if (!units.length && (mm = /^(HO|H2N|Cl|Br|F|I|H)/.exec(x))){ i += mm[0].length; if (mm[1] === 'H') lead.push('H'); else lead.push(BRANCH[mm[1]]); continue; }
+    err = 'I cannot read “' + x.slice(0, 6) + '”. Write it like CH3CH(CH3)CH2OH.'; break;
+  }
+  if (err) return { err: err };
+  if (!units.length) return { err: 'There is no carbon in this formula.' };
+  if (units.length > 10) return { err: 'The lab can draw chains of up to 10 carbons.' };
+  var n = units.length, groups = [], extraH = [];
+  units.forEach(function(u, k){ u.g.forEach(function(G){ if (G === 'H') extraH.push(k); else groups.push([k + 1, G]); }); });
+  extraH.forEach(function(k){ units[k].h++; });
+  var P = exPlace(n, groups); if (P.err) return { err: P.err };
+  bonds.forEach(function(b, k){ P.st.bonds[k] = b; });
+  var G = toGraph(P.st);
+  for (var k = 0; k < n; k++){ var h = hCount(G.atoms[k]); if (h < 0) return { err: 'Carbon ' + (k + 1) + ' has more than 4 bonds. Check the formula.' }; if (h !== units[k].h) return { err: 'Carbon ' + (k + 1) + ' should be written ' + cLabel(h) + ' (it has ' + h + ' H), not ' + cLabel(units[k].h) + '. Check the formula.' }; }
+  var desc = ['<b>' + n + '</b> carbon' + (n > 1 ? 's' : '') + ' in the row'];
+  bonds.forEach(function(b, k){ if (b > 1) desc.push((b === 2 ? 'a double' : 'a triple') + ' bond between C' + (k + 1) + ' and C' + (k + 2)); });
+  groups.forEach(function(g){ if (!(g[1] === 'OH' && groups.some(function(h){ return h[0] === g[0] && h[1] === 'O'; }) && false)) desc.push(GWORD[g[1]] + ' on C' + g[0]); });
+  return { st: P.st, desc: desc };
+}
+var EXEG = ['CH3CH(CH3)CH2CH3', 'CH3CH2CH(OH)CH3', 'CH2=CHCH(CH3)2', 'CH3COCH2CH3', 'CH3CH(Cl)COOH', '2-methylbut-2-ene', '3-ethyl-2-methylpentane', '2-ethylbutane'];
+$('exEgs').innerHTML = EXEG.map(function(t){ return '<button class="btn small" type="button" data-eg="' + t + '">' + (/[A-Z]/.test(t) ? t.replace(/(\d)/g, function(d){ return sub(d); }) : t) + '</button>'; }).join('');
+$('exEgs').addEventListener('click', function(e){ var b = e.target.closest('[data-eg]'); if (!b) return; $('exIn').value = b.getAttribute('data-eg'); $('exPick').value = ''; exRead(); });
+(function(){ var html = '<option value="">Or pick a structure from the class list (rings and benzene too)…</option>';
+  Object.keys(PRESET_LABEL).forEach(function(c){ html += '<optgroup label="' + PRESET_LABEL[c] + '">' + BANK.map(function(b, i){ return b.cat === c ? '<option value="' + i + '">' + esc(formulaText(b.st)) + '</option>' : ''; }).join('') + '</optgroup>'; });
+  $('exPick').innerHTML = html; })();
+function formulaText(st){ var f = formula(toGraph(st)); return f.text + ' · ' + family(nameMolecule(st)).label; }
+$('exPick').addEventListener('change', function(){ if (this.value !== '') $('exIn').value = ''; exRead(); });
+$('exIn').addEventListener('input', function(){ if (this.value) $('exPick').value = ''; exRead(); });
+$('exIn').addEventListener('keydown', function(e){ if (e.key === 'Enter') exSolve(); });
+function descState(st){
+  var d = [];
+  if (st.ring) d.push(st.arom ? 'Shape: <b>Ring</b> → benzene' : 'Shape: <b>Ring</b> of ' + st.n + ' carbons');
+  else d.push('<b>' + st.n + '</b> carbon' + (st.n > 1 ? 's' : '') + ' in the row');
+  if (!st.arom) st.bonds.forEach(function(b, k){ if (b > 1) d.push((b === 2 ? 'a double' : 'a triple') + ' bond between C' + (k + 1) + ' and C' + ((k + 1) % st.n + 1)); });
+  st.slots.forEach(function(sl, k){ Object.keys(sl).forEach(function(x){ d.push(GWORD[sl[x]] + ' on C' + (k + 1)); }); });
+  return d;
+}
+function isFormula(t){ return /C/.test(t) && !/[a-z]{3,}/.test(t.replace(/Cl|Br/g, '')); }
+function exRead(){
+  var t = $('exIn').value.trim(), pk = $('exPick').value, msg = $('exMsg'), P;
+  EXO.mode = null;
+  if (pk !== ''){ P = { st: clone(BANK[+pk].st) }; P.desc = descState(P.st); EXO.mode = 'name'; }
+  else if (!t){ msg.className = 'verdict wait'; msg.textContent = 'Type a formula or a name, or pick one.'; $('exText').textContent = ''; $('exQs').innerHTML = ''; $('exMol').innerHTML = ''; return null; }
+  else if (isFormula(t)){ P = exParseFormula(t); EXO.mode = 'name'; }
+  else { P = exParseName(t); EXO.mode = 'draw'; }
+  if (P.err){ msg.className = 'verdict bad'; msg.textContent = P.err; $('exText').textContent = ''; $('exQs').innerHTML = ''; $('exMol').innerHTML = ''; EXO.mode = null; return null; }
+  EXO.st = P.st; EXO.R = nameMolecule(P.st); EXO.input = t; EXO.desc = P.desc; EXO.read = P.read || [];
+  var f = formula(EXO.R.G);
+  msg.className = 'verdict good'; msg.textContent = 'Ready. Press “Solve it in the lab”.';
+  if (EXO.mode === 'name'){ $('exText').innerHTML = t ? 'Name the compound <b class="mono">' + esc(t.replace(/(\d)/g, function(d){ return sub(d); })) + '</b> (molecular formula ' + f.text + '):' : 'Name this compound (' + f.text + '):'; $('exQs').innerHTML = '<li>What is its family (main functional group)?</li><li>Find the longest chain and number it.</li><li>Give its IUPAC name.</li>'; }
+  else { $('exText').innerHTML = 'Draw the structure of <b>' + esc(t) + '</b>:'; $('exQs').innerHTML = '<li>Draw (build) the structure.</li><li>Is the name correct by IUPAC rules? If not, give the correct name.</li><li>Write its molecular formula.</li>'; }
+  drawMol($('exMol'), P.st, {});
+  return EXO;
+}
+exRead();
+function exSolve(){
+  var X = exRead(); if (!X || !window.Tour) return;
+  var st = X.st, R = X.R, f = formula(R.G), fam = family(R), mode = X.mode, typedOk = mode === 'draw' && acceptedNames(st, R).indexOf(normAnswer(X.input)) >= 0;
+  var calc = function(t){ return '<div class="t-calc">' + t + '</div>'; }, mol = function(){ return document.querySelector('#bBuilder .molwrap'); };
+  var same = function(){ var a = nameMolecule(build.st); return a.iupac === R.iupac && formula(a.G).key === f.key; };
+  var go = function(){ var b = document.querySelector('.lg-nav [data-ph="build"]'); if (b && document.documentElement.getAttribute('data-screen') !== 'build') b.click(); };
+  var oldGuess = $('bGuess').checked, guess = function(on){ if ($('bGuess').checked !== on){ $('bGuess').checked = on; $('bGuess').dispatchEvent(new Event('change', { bubbles: true })); } };
+  var li = document.createElement('ol'); li.innerHTML = steps(R);
+  var parts = Array.prototype.map.call(li.children, function(x){ var t = x.querySelector('.t'), title = t ? t.textContent : ''; if (t) t.remove(); return [title, x.innerHTML]; });
+  var naming = parts.filter(function(p){ return p[0] !== 'Put it together'; });
+  var buildTxt = mode === 'draw' ? calc(X.read.map(function(r){ return r[0].replace(/<\/?b>/g, '') + '  →  ' + r[1]; }).join('\n')) + '<p>Read the name from the end: the parent chain first, then the ending, then the groups in front.</p>'
+    : X.desc ? (X.input ? '<p>Copy the formula into the builder:</p>' : '<p>Build this in the builder:</p>') + calc(X.desc.map(function(d){ return '• ' + d.replace(/<\/?b>/g, ''); }).join('\n')) : '<p>Build the structure in the builder.</p>';
+  var steps_ = [{ title: mode === 'draw' ? 'Draw it in the lab' : 'Name it in the lab', html: '<p>' + $('exText').innerHTML + '</p><p>' + (mode === 'draw' ? 'We read the name, build the structure, then check that the name follows the IUPAC rules.' : 'We build the structure, then name it step by step: family, longest chain, numbering, groups.') + '</p>',
+    onShow: function(){ go(); exHi = false; guess(mode === 'name'); build.set(M(1, '')); } },
+    { el: '#bBuilder', title: mode === 'draw' ? 'Build it from the name' : 'Build it', html: buildTxt + '<p class="note">Use + and − for the carbons, tap a bond to make it double or triple, tap a carbon to add a group.</p>', wait: same, doIt: function(){ build.set(st); }, done: 'Built: ' + f.text + '.', interactive: true }];
+  if (mode === 'name' || !typedOk){
+    if (mode === 'draw') steps_.push({ el: function(){ return $('bNameBox'); }, title: 'Is the name correct?', html: '<p>The structure is right, but <b>' + esc(X.input) + '</b> does not follow the IUPAC rules. The lab names it <b>' + esc(R.iupac) + '</b>. Let us see why.</p>', onShow: function(){ exHi = true; build.render(); } });
+    naming.forEach(function(p){ steps_.push({ el: mol, title: p[0], html: '<p>' + p[1] + '</p>', onShow: function(){ if (/Parent|Numbering|Substituents/.test(p[0])){ exHi = true; build.render(); } } }); });
+    if (mode === 'name') steps_.push({ el: '#bGuessBox', title: 'Your turn: type the name', interactive: true, html: '<p>Put it together: groups in alphabetical order with their numbers, then the parent chain and the ending. Type it and press <b>Check</b>.</p>',
+      wait: function(){ return bSolved; }, doIt: function(){ $('bAns').value = R.iupac; $('bCheck').click(); }, done: function(){ return 'Correct: ' + R.iupac + '.'; } });
+  } else steps_.push({ el: function(){ return $('bNameBox'); }, title: 'Is the name correct?', html: '<p>The lab names this structure <b>' + esc(R.iupac) + '</b>' + (R.inspire ? ' (older style ' + esc(R.inspire) + ')' : '') + ', so <b>' + esc(X.input) + '</b> is correct.</p>', onShow: function(){ exHi = true; build.render(); } });
+  steps_.push({ el: '#bFacts', title: 'Formula and family', html: '<p>Count the atoms in the structure: molecular formula <b>' + f.text + '</b>. Family: <b>' + fam.label + (fam.degree ? ', ' + fam.degree : '') + '</b>.</p>' });
+  steps_.push({ title: 'Your answers', html: calc('Name:     ' + R.iupac + (R.inspire ? '\nOlder style: ' + R.inspire : '') + (R.common ? '\nCommon name: ' + R.common : '') + '\nFormula:  ' + f.text + '\nFamily:   ' + fam.label + (mode === 'draw' && !typedOk ? '\n“' + X.input + '” is not the IUPAC name.' : '')) + '<p>Compare them with your own working.</p>' });
+  setTimeout(function(){ Tour.start(steps_, { label: 'Exercise', skipText: 'Stop', doneText: 'Finish', lazy: true, onEnd: function(){ exHi = false; guess(oldGuess); build.render(); } }); }, 80);
+}
+$('exSolve').addEventListener('click', exSolve);
+$('exEg').addEventListener('click', function(){ $('exIn').value = 'CH3CH(CH3)CH(OH)CH3'; $('exPick').value = ''; exRead(); });
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="organic-3d.js"></script>
 <script>if (window.Organic3D) window.Organic3D.update(build.st);</script>
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
