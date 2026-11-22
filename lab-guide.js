@@ -635,7 +635,7 @@
     'chemical-change-lab.html': { intro: '[data-tab="signs"]', game: '[data-tab="bal"]', gameName: 'Balance it' },
     'chemical-equilibrium-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'enthalpy-lab.html': { intro: '#t-heat', game: null, ex: '#t-ex' },
-    'esterification-lab.html': { intro: '[data-tab="build"]', game: '[data-tab="chal"]' },
+    'esterification-lab.html': { intro: '[data-tab="build"]', game: '[data-tab="chal"]', ex: '[data-tab="my"]' },
     'galvanic-cell-lab.html': { intro: '[data-tab="cell"]', game: '[data-tab="chal"]' },
     'keplers-laws.html': { intro: '#t-retro', game: null, ex: '#t-ex' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },

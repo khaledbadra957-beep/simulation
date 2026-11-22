@@ -127,6 +127,10 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .runs{display:flex;flex-wrap:wrap;gap:6px}
 .runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+.mygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px 18px}
+.mygrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.mygrid label>span{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:600 14px var(--data);color:var(--muted)}
+.mygrid input,.mygrid select{font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);max-width:100%}.mygrid input{width:6.5em}.mygrid select{font-family:var(--body)}
+.mygrid [hidden]{display:none!important}.myqs{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style><link rel="stylesheet" href="site.css">
 </head><body>
@@ -150,6 +154,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   <button class="tab" role="tab" aria-selected="false" data-tab="eq" aria-controls="p-eq">2 · Equilibrium and yield</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">3 · Exercise step by step</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">4 · Challenge</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="my" aria-controls="p-my">Your exercise</button>
  </div>
 
  <!-- ================= TAB 1 ================= -->
@@ -238,6 +243,27 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
  </section>
 
+
+ <!-- ================= YOUR EXERCISE ================= -->
+ <section class="bench" id="p-my" role="tabpanel" hidden>
+  <div class="benchhead"><h2>Your exercise, solved in the lab</h2><div class="transport"><button class="btn small" type="button" id="myEg">Example</button><button class="btn small primary" type="button" id="mySolve">▶ Solve it in the lab</button></div></div>
+  <div class="mygrid">
+   <label>Carboxylic acid <span><select id="myAcid"></select></span></label>
+   <label>Alcohol <span><select id="myAlc"></select></span></label>
+   <label>Amount of acid <span><input id="myAv" inputmode="decimal"><select id="myAu" aria-label="unit for the acid"><option value="mol">mol</option><option value="g">g</option><option value="mL">mL</option></select></span></label>
+   <label id="myAdL">Density of the acid <span><input id="myAd" inputmode="decimal"> g/mL</span></label>
+   <label>Amount of alcohol <span><input id="myBv" inputmode="decimal"><select id="myBu" aria-label="unit for the alcohol"><option value="mol">mol</option><option value="g">g</option><option value="mL">mL</option></select></span></label>
+   <label id="myBdL">Density of the alcohol <span><input id="myBd" inputmode="decimal"> g/mL</span></label>
+   <label>What do we know at the end? <span><select id="myKn"><option value="mass">Mass of ester formed</option><option value="nest">Amount of ester formed</option><option value="left">Amount of acid left</option><option value="titr">Acid left, titrated with NaOH</option><option value="K">The constant K</option><option value="yield">The yield</option><option value="class">Nothing else (use the alcohol class)</option></select></span></label>
+   <label id="myKvL"><i id="myKvLab" style="font-style:normal"></i> <span><input id="myKv" inputmode="decimal"></span></label>
+   <label id="myKv2L">Volume of NaOH used <span><input id="myKv2" inputmode="decimal"> mL</span></label>
+  </div>
+  <div class="checks"><label><input type="checkbox" id="myRem"> The water is removed as it forms (Dean–Stark)</label></div>
+  <p class="note">M(C) = 12, M(H) = 1, M(O) = 16 g/mol. Numbers like 0.67 or 6.7e-1 are fine.</p>
+  <p class="status" id="myMsg" aria-live="polite"></p>
+  <div class="card"><h3>Your exercise</h3><p id="myText" style="margin:0"></p><ol id="myQs" class="myqs"></ol></div>
+ </section>
+
  <footer>Designed and built by Mr Khaled. Model: equilibrium constant K = 4 for primary alcohols, 2.25 for secondary and 0.0028 for tertiary, which give the classic yields of 67 %, 60 % and 5 % for an equimolar mixture. Times are illustrative.</footer>
 </div>
 
@@ -259,7 +285,7 @@ $('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('d
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
 let tab='build';
 $$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
- ['build','eq','ex','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
+ ['build','eq','ex','chal','my'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
 $('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');$$('.bench').forEach(x=>x.classList.remove('fs'));
  if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
  $('#fsBtn').textContent=on?'Exit full screen':'Full screen';drawAll()};
@@ -344,8 +370,8 @@ $('#cHide').onchange=()=>renderBuild();
    ========================================================= */
 const eq={cls:1,heat:false,cat:false,rem:false,running:false,t:0,x:0,hist:[],done:false,runs:[]};
 function kOf(){return .004*(eq.heat?8:1)*(eq.cat?12:1)}
-function eqParams(){return {a:+$('#sA').value,b:+$('#sB').value,K:KCLS[eq.cls]}}
-function syncEq(){const [a,b]=pick();eq.cls=b.cls;$$('[data-cls]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.cls===eq.cls));resetEq()}
+function eqParams(){return {a:+$('#sA').value,b:+$('#sB').value,K:eq.Kx!=null?eq.Kx:KCLS[eq.cls]}}
+function syncEq(){const [a,b]=pick();eq.cls=b.cls;eq.Kx=null;$$('[data-cls]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.cls===eq.cls));resetEq()}
 function resetEq(){eq.running=false;eq.t=0;eq.x=0;eq.hist=[[0,0]];eq.done=false;$('#runBtn').textContent='Start the reaction';
  const p=eqParams();eq.xe=xEq(p.a,p.b,p.K,eq.rem);eq.tc=1/(kOf()*Math.max(.3,(p.a+p.b)/2));eq.tmax=eq.tc*(eq.rem?5:7);eq.t95=null;updEq()}
 function f(x){const p=eqParams();return kOf()*((p.a-x)*(p.b-x)-(eq.rem?0:x*x/p.K))}
@@ -353,21 +379,21 @@ function stepEq(dt){const n=Math.max(1,Math.ceil(dt/(eq.tc/400)));const h=dt/n;f
   if(eq.t95===null&&eq.x>=.95*eq.xe)eq.t95=eq.t}}
 const fmtT=t=>t>=48?fx(t/24,1)+' days':t>=1?fx(t,1)+' h':Math.round(t*60)+' min';
 function updEq(){const p=eqParams(),[A,B]=pick();
- $('#oA').textContent=fx(p.a,1)+' mol';$('#oB').textContent=fx(p.b,1)+' mol';
+ $('#oA').textContent=s3(p.a)+' mol';$('#oB').textContent=s3(p.b)+' mol';
  $('#eqTitle').textContent=`acid + alcohol ⇌ ester + water`;
  const th=Math.min(p.a,p.b);$('#rT').textContent=fmtT(eq.t);$('#rX').textContent=fx(eq.x,3)+' mol';$('#rTh').textContent=fx(th,2)+' mol';$('#rY').textContent=fx(100*eq.x/th,1)+' %';
  const at=eq.done,x=at?eq.xe:eq.x,lab=at?'t_eq':'t';
  const w=eq.rem?'removed':`x${at||eq.t>0?' = '+fx(x,3):''}`;
  $('#ice').innerHTML=`<thead><tr><th>(mol)</th><th>acid</th><th>alcohol</th><th>ester</th><th>water</th></tr></thead><tbody>
-  <tr><td>t₀</td><td>${fx(p.a,1)}</td><td>${fx(p.b,1)}</td><td>0</td><td>0</td></tr>
+  <tr><td>t₀</td><td>${s3(p.a)}</td><td>${s3(p.b)}</td><td>0</td><td>0</td></tr>
   <tr><td>Δn</td><td>−x</td><td>−x</td><td>+x</td><td>+x</td></tr>
-  <tr><td>${at?'t_eq':'t'}</td><td>${fx(p.a,1)} − x${eq.t>0?' = '+fx(p.a-x,3):''}</td><td>${fx(p.b,1)} − x${eq.t>0?' = '+fx(p.b-x,3):''}</td><td>x${eq.t>0?' = '+fx(x,3):''}</td><td>${w}</td></tr></tbody>`;
+  <tr><td>${at?'t_eq':'t'}</td><td>${s3(p.a)} − x${eq.t>0?' = '+fx(p.a-x,3):''}</td><td>${s3(p.b)} − x${eq.t>0?' = '+fx(p.b-x,3):''}</td><td>x${eq.t>0?' = '+fx(x,3):''}</td><td>${w}</td></tr></tbody>`;
  const lim=p.a<p.b?'the acid':p.b<p.a?'the alcohol':'equimolar, so either reagent';
  $('#yieldSol').textContent=`Theoretical n(ester) by ATSR = n₀ of the limiting reagent (${lim}) = ${fx(th,2)} mol\n`+
-  (at?`At equilibrium x = ${fx(eq.xe,3)} mol\nYield = n(ester)obtained / n(ester)theoretical × 100 = ${fx(eq.xe,3)} / ${fx(th,2)} × 100 = ${fx(100*eq.xe/th,1)} %\n`+(eq.rem?'Water was removed, so the reverse reaction (hydrolysis) cannot happen: the reaction becomes complete.':`Check: K = x² / ((n₀acid − x)(n₀alcohol − x)) = ${fx(eq.xe*eq.xe/((p.a-eq.xe)*(p.b-eq.xe)),2)}  (K = ${KCLS[eq.cls]} for a ${CLSNAME[eq.cls]} alcohol)\nConversion of the acid = x / n₀(acid) = ${fx(eq.xe/p.a,2)}`):'Run the reaction until n(ester) stops changing.');
+  (at?`At equilibrium x = ${fx(eq.xe,3)} mol\nYield = n(ester)obtained / n(ester)theoretical × 100 = ${fx(eq.xe,3)} / ${fx(th,2)} × 100 = ${fx(100*eq.xe/th,1)} %\n`+(eq.rem?'Water was removed, so the reverse reaction (hydrolysis) cannot happen: the reaction becomes complete.':`Check: K = x² / ((n₀acid − x)(n₀alcohol − x)) = ${fx(eq.xe*eq.xe/((p.a-eq.xe)*(p.b-eq.xe)),2)}  (${eq.Kx!=null?'K = '+s3(p.K)+' from your exercise':'K = '+KCLS[eq.cls]+' for a '+CLSNAME[eq.cls]+' alcohol'})\nConversion of the acid = x / n₀(acid) = ${fx(eq.xe/p.a,2)}`):'Run the reaction until n(ester) stops changing.');
  drawEq()}
 function drawEq(){const c=$('#eg');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const L=46,Rm=12,T=14,B=32;const p=eqParams();const th=Math.min(p.a,p.b);
- const ymax=Math.max(.5,Math.ceil(th*1.15*10)/10),tmax=eq.tmax;const X=t=>L+t/tmax*(w-L-Rm),Y=v=>h-B-v/ymax*(h-T-B);
+ const ymax=Math.max(.1,Math.ceil(th*1.15*10)/10),tmax=eq.tmax;const X=t=>L+t/tmax*(w-L-Rm),Y=v=>h-B-v/ymax*(h-T-B);
  x.strokeStyle=C.grid;x.lineWidth=1;const ys=ymax>2?.5:ymax>1?.25:.1;
  for(let v=0;v<=ymax+1e-9;v+=ys){x.beginPath();x.moveTo(L,Y(v));x.lineTo(w-Rm,Y(v));x.stroke();txt(x,fx(v,ys<.25?1:2),L-5,Y(v),C.muted,10,'right','middle')}
  const unit=tmax>=72?24:1,uName=unit===24?'days':'h';const span=tmax/unit;const st=span>20?5:span>8?2:span>3?1:.5;
@@ -381,11 +407,11 @@ function renderRuns(){const tb=$('#runsTb');if(!eq.runs.length){tb.innerHTML='<t
 $('#runBtn').onclick=()=>{if(eq.done)resetEq();eq.running=!eq.running;$('#runBtn').textContent=eq.running?'Pause':'Continue'};
 $('#resetBtn').onclick=resetEq;
 ['#sA','#sB'].forEach(s=>$(s).addEventListener('input',resetEq));
-$$('[data-cls]').forEach(b=>b.onclick=()=>{segPick(b);eq.cls=+b.dataset.cls;resetEq()});
+$$('[data-cls]').forEach(b=>b.onclick=()=>{segPick(b);eq.cls=+b.dataset.cls;eq.Kx=null;resetEq()});
 $('#cHeat').onchange=e=>{eq.heat=e.target.checked;resetEq()};$('#cCat').onchange=e=>{eq.cat=e.target.checked;resetEq()};$('#cRem').onchange=e=>{eq.rem=e.target.checked;resetEq()};
 let last=performance.now(),acc=0;
 function loop(now){const real=Math.min(.05,(now-last)/1000);last=now;
- if(eq.running&&tab==='eq'){stepEq(real*eq.tmax/9);eq.hist.push([eq.t,eq.x]);
+ if(eq.running&&tab==='eq'){stepEq(real*eq.tmax/9*(eq.fast?3:1));eq.hist.push([eq.t,eq.x]);
   if(eq.t>=eq.tmax){eq.running=false;eq.done=true;eq.x=eq.xe;eq.hist.push([eq.t,eq.x]);$('#runBtn').textContent='Run again';const p=eqParams();
    eq.runs.push({ab:`${fx(p.a,1)} / ${fx(p.b,1)}`,cls:['','I','II','III'][eq.cls],cond:[eq.heat?'heated':'room temp.',eq.cat?'H₂SO₄':'no catalyst',eq.rem?'water removed':''].filter(Boolean).join(', '),t:'≈ '+fmtT(eq.t95||eq.tmax),y:fx(100*eq.xe/Math.min(p.a,p.b),0)+' %'});
    if(eq.runs.length>8)eq.runs.shift();renderRuns()}
@@ -587,10 +613,98 @@ function drawRig(){const sv=$('#rigSvg');if(!sv)return;const t=performance.now()
  leg.forEach(([nm,c],i)=>{const lx=LX-LR+4+(i%2)*96,ly=LY+LR+16+Math.floor(i/2)*15;s+=`<circle cx="${lx}" cy="${ly-4}" r="5" fill="${c}"/>`+lab(lx+9,ly,nm)});
  sv.innerHTML=s}
 
+/* =========================================================
+   YOUR EXERCISE — the student's own numbers, solved in the lab (tour.js)
+   ========================================================= */
+const RHO={'methanoic acid':1.22,'ethanoic acid':1.05,'propanoic acid':0.99,'butanoic acid':0.96,'2-methylpropanoic acid':0.95,'methanol':0.79,'ethanol':0.79,'propan-1-ol':0.80,'propan-2-ol':0.79,'butan-1-ol':0.81,'butan-2-ol':0.81,'2-methylpropan-1-ol':0.80,'2-methylpropan-2-ol':0.78,'2-methylbutan-1-ol':0.82,'3-methylbutan-1-ol':0.81,'pentan-2-ol':0.81};
+const s3=v=>(!isFinite(v)?'∞':v===0?'0':Math.abs(v)>=1000?v.toFixed(0):Number(v).toPrecision(3)).replace(/^-/,'−');
+ACIDS.forEach((a,i)=>$('#myAcid').insertAdjacentHTML('beforeend',`<option value="${i}">${a.name}</option>`));
+ALCS.forEach((a,i)=>$('#myAlc').insertAdjacentHTML('beforeend',`<option value="${i}">${a.name} (${['','I','II','III'][a.cls]})</option>`));
+const MYEG=[
+ {acid:1,alc:1,av:'12.0',au:'g',bv:'11.5',bu:'mL',bd:'0.80',kn:'mass',kv:'11.7',rem:false},
+ {acid:1,alc:1,av:'2.0',au:'mol',bv:'1.0',bu:'mol',kn:'K',kv:'4',rem:false},
+ {acid:2,alc:3,av:'0.50',au:'mol',bv:'0.50',bu:'mol',kn:'titr',kv:'2.0',kv2:'100',rem:false},
+ {acid:1,alc:9,av:'1.0',au:'mol',bv:'0.50',bu:'mol',kn:'class',rem:true},
+ {acid:0,alc:1,av:'0.40',au:'mol',bv:'0.40',bu:'mol',kn:'yield',kv:'67',rem:false}];
+let myEgI=1;
+function myLoad(e){$('#myAcid').value=e.acid;$('#myAlc').value=e.alc;$('#myAv').value=e.av;$('#myAu').value=e.au;$('#myBv').value=e.bv;$('#myBu').value=e.bu;
+ $('#myAd').value=e.ad||RHO[ACIDS[e.acid].name];$('#myBd').value=e.bd||RHO[ALCS[e.alc].name];$('#myKn').value=e.kn;$('#myKv').value=e.kv||'';$('#myKv2').value=e.kv2||'';$('#myRem').checked=!!e.rem;myUI();myRead()}
+function myUI(){const k=$('#myKn').value;$('#myAdL').hidden=$('#myAu').value!=='mL';$('#myBdL').hidden=$('#myBu').value!=='mL';
+ $('#myKvL').hidden=k==='class';$('#myKv2L').hidden=k!=='titr';
+ $('#myKvLab').textContent={mass:'Mass of ester (g)',nest:'Amount of ester (mol)',left:'Acid left (mol)',titr:'NaOH concentration (mol/L)',K:'K',yield:'Yield (%)'}[k]||''}
+$('#myAcid').onchange=()=>{$('#myAd').value=RHO[ACIDS[+$('#myAcid').value].name];myRead()};
+$('#myAlc').onchange=()=>{$('#myBd').value=RHO[ALCS[+$('#myAlc').value].name];myRead()};
+['#myAu','#myBu','#myKn'].forEach(s=>$(s).addEventListener('change',()=>{myUI();myRead()}));
+['#myAv','#myBv','#myAd','#myBd','#myKv','#myKv2'].forEach(s=>$(s).addEventListener('input',myRead));
+$('#myRem').onchange=myRead;
+$('#myEg').onclick=()=>{myLoad(MYEG[myEgI%MYEG.length]);myEgI++};
+
+function myRead(){const m=$('#myMsg'),bad=t=>{m.className='status bad';m.textContent=t;$('#myText').textContent='';$('#myQs').innerHTML='';return null};
+ const A=ACIDS[+$('#myAcid').value],B=ALCS[+$('#myAlc').value],MA=Macid(A),MB=Malc(B),ME=Mest(A,B);
+ const amt=(v,u,d,M,who)=>{const x=num(v);if(!(x>0))return {err:`Type the starting amount of ${who}.`};
+  if(u==='mol')return {n:x,how:null,txt:`${s3(x)} mol of ${who}`};
+  if(u==='g')return {n:x/M,how:`n = m ÷ M = ${s3(x)} ÷ ${M} = ${s3(x/M)} mol`,txt:`${s3(x)} g of ${who}`};
+  const rho=num(d);if(!(rho>0))return {err:`Type the density of ${who} (g/mL).`};const mass=x*rho;
+  return {n:mass/M,how:`m = ρ × V = ${s3(rho)} × ${s3(x)} = ${s3(mass)} g\nn = m ÷ M = ${s3(mass)} ÷ ${M} = ${s3(mass/M)} mol`,txt:`${s3(x)} mL of ${who} (ρ = ${s3(rho)} g/mL)`}};
+ const ia=amt($('#myAv').value,$('#myAu').value,$('#myAd').value,MA,A.name),ib=amt($('#myBv').value,$('#myBu').value,$('#myBd').value,MB,B.name);
+ if(ia.err)return bad(ia.err);if(ib.err)return bad(ib.err);
+ const a=ia.n,b=ib.n,th=Math.min(a,b),rem=$('#myRem').checked,k=$('#myKn').value,v=num($('#myKv').value);
+ if(a>50||b>50)return bad('Those amounts are very large. Check the numbers.');
+ let x,K,how='',endTxt='';
+ if(rem&&k!=='class')return bad('With the water removed the reaction is complete: choose “Nothing else” for what we know at the end.');
+ if(k==='class'){K=rem?Infinity:KCLS[B.cls];x=rem?th:xEq(a,b,K,false);endTxt='';how=rem?'Water is removed, so the reverse reaction cannot happen: the reaction is complete and x = n₀ of the limiting reagent.':`K for a ${CLSNAME[B.cls]} alcohol = ${KCLS[B.cls]}.`}
+ else{if(!isFinite(v)||v<0)return bad('Type the value we know at the end.');
+  if(k==='mass'){x=v/ME;how=`x = n(ester) = m ÷ M = ${s3(v)} ÷ ${ME} = ${s3(x)} mol`;endTxt=`At equilibrium, ${s3(v)} g of ester has formed.`}
+  else if(k==='nest'){x=v;how=`x = n(ester) = ${s3(x)} mol`;endTxt=`At equilibrium, ${s3(v)} mol of ester has formed.`}
+  else if(k==='left'){x=a-v;how=`x = n₀(acid) − n(acid left) = ${s3(a)} − ${s3(v)} = ${s3(x)} mol`;endTxt=`At equilibrium, ${s3(v)} mol of acid is left.`}
+  else if(k==='titr'){const Vb=num($('#myKv2').value);if(!(v>0&&Vb>0))return bad('Type the NaOH concentration and the volume used (mL).');const left=v*Vb/1000;x=a-left;
+   how=`At the equivalence point n(acid left) = n(OH⁻) = C × V = ${s3(v)} × ${s3(Vb/1000)} = ${s3(left)} mol\nx = n₀(acid) − n(acid left) = ${s3(a)} − ${s3(left)} = ${s3(x)} mol`;endTxt=`The acid left at equilibrium is titrated with ${s3(v)} mol/L NaOH: ${s3(Vb)} mL are needed.`}
+  else if(k==='K'){if(!(v>0))return bad('K must be a positive number.');K=v;x=xEq(a,b,K,false);
+   const qa=1-K,qb=K*(a+b),qc=-K*a*b;how=`K = x² ÷ ((${s3(a)} − x)(${s3(b)} − x)) = ${s3(K)}\n`+(Math.abs(qa)<1e-12?`${s3(qb)}x − ${s3(-qc)} = 0`:`${s3(qa)}x² + ${s3(qb)}x − ${s3(-qc)} = 0  (quadratic)`)+`\nKeep the root between 0 and ${s3(th)}: x = ${s3(x)} mol`;endTxt=`The equilibrium constant is K = ${s3(K)}.`}
+  else if(k==='yield'){if(!(v>0&&v<=100))return bad('The yield is between 0 and 100 %.');x=v/100*th;how=`x = yield × n(ester)theoretical = ${s3(v/100)} × ${s3(th)} = ${s3(x)} mol`;endTxt=`The yield of the reaction is ${s3(v)} %.`}}
+ if(!(x>0))return bad('These data mean no ester formed (x ≤ 0). Check the numbers.');
+ if(x>th*(1+1e-6))return bad(`These data give x = ${s3(x)} mol, more than the most ester possible (${s3(th)} mol). Check the numbers.`);
+ if(x>=th*(1-1e-6)&&!rem)return bad('That would use up the limiting reagent completely, but esterification is limited. Check the numbers (or tick “water removed”).');
+ if(K==null)K=x*x/((a-x)*(b-x));
+ const y=100*x/th;
+ m.className='status ok';m.textContent='Ready. Press “Solve it in the lab”.';
+ $('#myText').innerHTML=`${ia.txt} is heated under reflux with ${ib.txt} and a few drops of concentrated H₂SO₄${rem?', and the water is removed as it forms (Dean–Stark)':''}. ${endTxt}`;
+ const qs=['Write the equation and name the ester.','Find the starting amounts and the theoretical amount of ester (ATSR).',k==='mass'||k==='nest'?'Find the amounts of acid and alcohol left at equilibrium.':'Find the amount (and mass) of ester at equilibrium.','Calculate the yield.'];
+ if(!rem&&k!=='K'&&k!=='class')qs.push('Calculate the equilibrium constant K.');
+ if(!rem&&Math.abs(a-b)<=1e-9*Math.max(a,b))qs.push('The mixture is equimolar: what is the class of the alcohol?');
+ $('#myQs').innerHTML=qs.map(q=>'<li>'+q+'</li>').join('');
+ return {A,B,MA,MB,ME,ia,ib,a,b,th,rem,k,v,x,K,y,how}}
+
+/* put the student's run into tab 2 */
+function myLab(X){myGo('eq');const set=(id,val)=>{const e=$(id);e.min='0.01';e.max=String(Math.max(3,Math.ceil(val*1.2*10)/10));e.step='any';e.value=String(val)};
+ set('#sA',X.a);set('#sB',X.b);eq.cls=X.B.cls;$$('[data-cls]').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.cls===eq.cls));
+ eq.Kx=X.rem?null:X.K;['cHeat','cCat'].forEach(id=>{$('#'+id).checked=true});eq.heat=true;eq.cat=true;$('#cRem').checked=X.rem;eq.rem=X.rem;eq.fast=false;resetEq()}
+const myGo=t=>{const ph=t==='build'?'intro':'lab',b=document.querySelector(`.lg-nav [data-ph="${ph}"]`);if(b&&root.getAttribute('data-phase')!==ph)b.click();const tb=$(`.tab[data-tab="${t}"]`);if(tb&&tab!==t)tb.click()};
+function mySolve(){const X=myRead();if(!X||!window.Tour)return;
+ const {A,B,a,b,th,x,K,y,rem}=X,calc=t=>'<div class="t-calc">'+t+'</div>',S=[],eqm=Math.abs(a-b)<=1e-9*Math.max(a,b),limTxt=a<b?`The limiting reagent is the acid (${A.name}).`:b<a?`The limiting reagent is the alcohol (${B.name}).`:'The mixture is equimolar, so either reagent is limiting.';
+ S.push({title:'Solve it in the lab',html:'<p>'+$('#myText').innerHTML+'</p><p>We name the ester, run your mixture in the reflux apparatus, then fill in the table and find the yield.</p>'});
+ S.push({el:'#eqn',title:'The equation and the name',onShow:()=>{myGo('build');$('#acidSel').value=$('#myAcid').value;$('#alcSel').value=$('#myAlc').value;named=true;renderBuild();renderBuild2()},
+  html:calc(`${A.f} + ${B.f} ⇌ ${esterF(A,B)} + H₂O\n${esterName(A,B)}: “${B.yl}” from the alcohol + “${A.ate}” from the acid`)+'<p>The acid loses its OH and the alcohol the H of its OH group: together they make the water.</p>'});
+ S.push({title:'Molar masses and starting amounts',html:calc(`M(acid) = ${X.MA} g/mol · M(alcohol) = ${X.MB} g/mol · M(ester) = ${X.ME} g/mol\n`+
+  `n₀(acid): ${X.ia.how||s3(a)+' mol (given)'}\nn₀(alcohol): ${X.ib.how||s3(b)+' mol (given)'}`)});
+ S.push({el:()=>$('#sA').closest('.col'),title:'Your mixture in the lab',onShow:()=>myLab(X),html:'<p>The sliders hold your amounts'+(rem?' and the water is removed with a Dean–Stark trap':'')+'. Heat and the H₂SO₄ catalyst are on so the reaction is quick: they only change the speed, not the yield.</p>'});
+ S.push({el:()=>$('#rTh').closest('div'),title:'Theoretical amount (ATSR)',html:calc(`${limTxt}\nn(ester)theoretical = n₀(limiting) = ${s3(th)} mol`)});
+ S.push({el:'#runBtn',title:'Run the reaction',interactive:true,html:'<p>Press <b>Start the reaction</b> and watch n(ester) climb'+(rem?' all the way to the theoretical amount.':' and level off below the theoretical amount.')+'</p>',
+  wait:()=>eq.done,doIt:()=>{eq.fast=true;if(!eq.running)$('#runBtn').click()},done:()=>`n(ester) = ${s3(eq.xe)} mol, yield ${fx(100*eq.xe/th,1)} %`});
+ S.push({el:'#ice',title:'Find x from the data',html:calc(X.how)+(X.k==='K'||X.k==='class'?'':`<p>The lab used K = ${s3(K)} (from your numbers), so it reaches the same x.</p>`)});
+ S.push({el:'#ice',title:'The table in moles',html:calc(`          acid       alcohol    ester   water\nt₀        ${s3(a)}      ${s3(b)}      0       0\nt_eq      ${s3(a-x)}      ${s3(b-x)}      ${s3(x)}   ${rem?'removed':s3(x)}`)+`<p>n(ester) = ${s3(x)} mol, so m(ester) = n × M = ${s3(x)} × ${X.ME} = ${s3(x*X.ME)} g.</p>`});
+ S.push({el:'#yieldSol',title:'The yield',html:calc(`yield = n(ester)obtained ÷ n(ester)theoretical × 100\n      = ${s3(x)} ÷ ${s3(th)} × 100 = ${fx(y,1)} %`)});
+ if(!rem){const kk=x*x/((a-x)*(b-x));S.push({el:'#yieldSol',title:X.k==='K'?'Check K':'The equilibrium constant',html:calc(`K = x² ÷ ((n₀acid − x)(n₀alcohol − x))\n  = ${s3(x)}² ÷ (${s3(a-x)} × ${s3(b-x)}) = ${s3(kk)}`)+'<p>The volume cancels, so we can use moles.</p>'+(eqm?`<p>Equimolar mixture, yield ≈ ${fx(y,0)} % → ${y>63?'primary (67 %)':y>30?'secondary (60 %)':'tertiary (about 5 %)'} alcohol. ${B.name[0].toUpperCase()+B.name.slice(1)} is ${CLSNAME[B.cls]}.</p>`:`<p>Not equimolar: the excess of one reagent pushes the yield ${y>(B.cls===1?67:60)?'above':'away from'} the ${B.cls===1?'67':'60'} % of an equimolar mixture.</p>`)})}
+ S.push({title:'Your answers',html:calc(`Ester: ${esterName(A,B)} (M = ${X.ME} g/mol)\nn₀(acid) = ${s3(a)} mol · n₀(alcohol) = ${s3(b)} mol\nn(ester)theoretical = ${s3(th)} mol\nx = n(ester) = ${s3(x)} mol = ${s3(x*X.ME)} g\nleft: acid ${s3(a-x)} mol · alcohol ${s3(b-x)} mol\nyield = ${fx(y,1)} %`+(rem?'':`\nK = ${s3(x*x/((a-x)*(b-x)))}`))+'<p>Compare them with your own working.</p>'});
+ setTimeout(()=>Tour.start(S,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true,onEnd:()=>{eq.fast=false}}),80)}
+$('#mySolve').onclick=mySolve;
+myLoad(MYEG[0]);
+
 function drawAll(){if(!C.ink)readColors();if(tab==='eq'&&eq.hist)drawEq()}
 addEventListener('resize',drawAll);
 readColors();renderBuild();syncEq();notesEx();nextQ();themeLabel();
 requestAnimationFrame(loop);
 </script>
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>
