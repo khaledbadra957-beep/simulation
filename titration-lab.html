@@ -169,7 +169,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .rlres.empty{font-family:var(--body);font-size:1rem;font-weight:400;color:var(--muted)}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
-</style><script src="lab-viz.js"></script><link rel="stylesheet" href="site.css">
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
 
 <div class="wrap">
@@ -264,7 +264,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
     <label for="rxSel" class="flabel">Reaction</label><select id="rxSel" class="sel"></select>
     <label for="indSel" class="flabel" id="indLab">Indicator</label><select id="indSel" class="sel"></select>
    </div>
-   <button class="btn small" id="titNew" type="button">New unknown</button>
+   <div class="transport" id="titParts"><button class="btn small" id="titNew" type="button">New unknown</button></div>
   </div>
   <p class="note" id="titInfo"></p>
   <div class="grid2">
@@ -636,6 +636,7 @@ $('#cChk').onclick=()=>{const v=num($('#cIn').value),m=$('#cMsg');m.hidden=false
 $('#cSol').onclick=()=>{const r=tt.rx,ve=Veq();const el=$('#cSolTxt');el.hidden=!el.hidden;
  el.textContent=r.type==='rx'?`${r.rule}\nTrue V_E = ${fx(ve,2)} mL (your concordant trials should agree)\nC(Fe²⁺) = 5 × C(MnO₄⁻) × V_E / Vₐ = 5 × ${r.Cb} × ${fx(ve,2)} / ${r.Va} = ${(5*r.Cb*ve/r.Va).toPrecision(3)} mol/L`
  :`${r.rule}\nTrue V_E = ${fx(ve,2)} mL (your concordant trials should agree)\nCₐ = ${r.z===2?'C_b × V_E / (2 × Vₐ)':'C_b × V_E / Vₐ'} = ${r.Cb} × ${fx(ve,2)} / ${r.z===2?'(2 × '+r.Va+')':r.Va} = ${(r.Cb*ve/(r.z*r.Va)).toPrecision(3)} mol/L`};
+const TG={};
 function drawTit(){if(tab!=='tit')return;const c=$('#tcv');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const base=h-24;const r=tt.rx;LabViz.bench(x,w,h,base);
  // stand
  LabViz.stand(x,w*.16+3,20,base,w*.3,91,w*.42);
@@ -650,6 +651,7 @@ function drawTit(){if(tab!=='tit')return;const c=$('#tcv');const {x,w,h}=fit(c);
   x.fillStyle='#2C3236';LabViz.rr(x,bx-15,84,30,14,4);x.fill();x.fillStyle='#C9A34A';x.beginPath();x.arc(bx+19,91,3.5,0,7);x.fill()}
  // flask on white tile
  const s=56,fxp=bx,stW=150,fbase=base-Math.max(22,stW*.26);LabViz.stirrer(x,fxp,fbase,stW,true);
+ Object.assign(TG,{w,h,bx,top,len,bw,level,base,rodX:w*.16+3,baseW:w*.3,fxp,fbase,s,stW,meter:null,probe:null});
  const col=flaskRGBA();const fl=(r.Va+tt.Vb)/120;const sol=col[3]<0.05?'rgba(200,225,245,.35)':`rgba(${col[0]},${col[1]},${col[2]},${col[3]})`;
  erlen(x,fxp,fbase,s,Math.min(.9,fl),sol,'');const surfY=fbase-(fbase-(fbase-s*1.6)-s*.45)*Math.min(.9,fl);LabViz.stirBar(x,fxp,fbase-7,s*.26,performance.now()/140);
  for(const rp of (tt.rip=tt.rip||[])){rp.t+=1/60;const u=rp.t/.6;x.strokeStyle=`rgba(255,255,255,${.7*(1-u)})`;x.lineWidth=1.5;x.beginPath();x.ellipse(fxp,surfY,4+u*s*.5,1.5+u*3,0,0,7);x.stroke()}tt.rip=tt.rip.filter(q=>q.t<.6);
@@ -670,7 +672,7 @@ function drawTit(){if(tab!=='tit')return;const c=$('#tcv');const {x,w,h}=fit(c);
  // particles in the flask (macro ↔ micro)
  LabViz.lens(x,w*.8,pcy,PR,(x,cx,cy,R)=>drawParticles(x,cx,cy,R),{from:[fxp+s*.3,fbase-s*.35],title:'inside the flask'});
  // pH meter
- if(r.type==='ab'&&$('#cMeter').checked){const pv=pHof(tt.Vb),mx0=w*.025,mw=Math.max(96,w*.15),my0=base-96,ftop=fbase-s*1.6,p0=[fxp-15,ftop-62],p1=[fxp-5,fbase-26];
+ if(r.type==='ab'&&$('#cMeter').checked){const pv=pHof(tt.Vb),mx0=w*.025,mw=Math.max(96,w*.15),my0=base-96,ftop=fbase-s*1.6,p0=[fxp-15,ftop-62],p1=[fxp-5,fbase-26];TG.meter=[mx0,my0,mw];TG.probe=[p0,p1];
   LabViz.contact(x,mx0+mw/2,base,mw*.6);const mg=x.createLinearGradient(0,my0,0,base);mg.addColorStop(0,'#3A444A');mg.addColorStop(1,'#1E2428');x.fillStyle=mg;LabViz.rr(x,mx0,my0,mw,96,8);x.fill();
   LabViz.lcd(x,mx0+8,my0+12,mw-16,30,fx(pv,2),{unit:'pH'});x.fillStyle='#9AA3AA';x.font='600 9px "IBM Plex Mono",monospace';x.textAlign='center';x.fillText('pH METER',mx0+mw/2,my0+60);
   for(let k=0;k<3;k++){x.fillStyle=k===0?'#4FB3D9':'#5B666C';LabViz.rr(x,mx0+10+k*(mw-20)/3,my0+68,(mw-20)/3-6,14,3);x.fill()}
@@ -828,6 +830,21 @@ function rlCurveDraw(){const cv=$('#rlCurve'),pts=rlPHpts(),r=RX.find(z=>z.id===
  x.fillStyle=C.rose;pts.forEach(p=>{x.beginPath();x.arc(X(p[0]),Y(p[1]),4.5,0,7);x.fill()});txt(x,'your readings',X(vmax*0.04),Y(11.8),C.rose,12)}
 $('#rlPh').addEventListener('input',()=>drawReal());
 rlFill();rlCalc();
+/* ---------- labels + "Find the part" on the titration bench (parts.js) ---------- */
+if(window.LabParts){const titParts=()=>{const g=TG;if(!g.w)return [];const sy=g.top+g.len,L=[
+ {id:'burette',name:'Burette',what:'A long glass tube marked from 0 to 50 mL. It delivers the titrant drop by drop, and you read it to ±0.05 mL.',hint:'The tall tube with the scale on it.',q:'Which piece of glassware delivers the titrant drop by drop?',x:g.bx-g.bw/2-16,y:g.top+g.len*.3,boxes:[[g.bx-g.bw/2-2,g.top,g.bx+g.bw/2+20,sy]]},
+ {id:'meniscus',name:'Meniscus',what:'The curved surface of the liquid. Read the volume at the bottom of the curve, with your eye level with it.',hint:'Look at the top of the liquid inside the burette.',q:'Where do you read the volume in the burette?',x:g.bx+g.bw/2+34,y:g.level,boxes:[[g.bx-g.bw/2-3,g.level-7,g.bx+g.bw/2+3,g.level+7]]},
+ {id:'stopcock',name:'Stopcock (tap)',what:'Turn it to let the titrant run fast, slowly or one drop at a time. Close it the moment the indicator changes colour.',hint:'The tap near the bottom of the burette.',q:'Which part do you turn to control the flow?',x:g.bx+50,y:sy+12,boxes:[[g.bx-12,sy+4,g.bx+40,sy+22]]},
+ {id:'tip',name:'Burette tip (jet)',what:'The narrow end the drops fall from. Before you start it must be full of liquid with no air bubble, or your first reading is wrong.',hint:'The narrow end just above the flask.',q:'Where must there be no air bubble before you start?',x:g.bx-20,y:sy+36,boxes:[[g.bx-5,sy+24,g.bx+5,sy+44]]},
+ {id:'clamp',name:'Burette clamp',what:'Holds the burette upright on the stand so the scale is vertical and easy to read.',hint:'It grips the burette near the top.',q:'What holds the burette upright?',x:(g.rodX+g.bx)/2,y:74,boxes:[[g.rodX-10,80,g.bx+16,100]]},
+ {id:'stand',name:'Retort stand',what:'A heavy base with a metal rod. The clamp is fixed to the rod.',hint:'The metal rod and heavy base on the left.',q:'Find the stand that the clamp is fixed to.',x:g.rodX+16,y:(110+g.base)/2,boxes:[[g.rodX-9,110,g.rodX+9,g.base-12],[g.rodX-g.baseW*.2,g.base-12,g.rodX+g.baseW*.8,g.base]]},
+ {id:'flask',name:'Conical flask',what:'Holds the measured volume of the solution being analysed (from a pipette) and a few drops of indicator. Its shape lets you swirl it without splashing.',hint:'The glass flask under the burette.',q:'Where is the solution being analysed?',x:g.fxp+g.s*.18+16,y:g.fbase-g.s*1.25,boxes:[[g.fxp-g.s,g.fbase-g.s*1.6,g.fxp+g.s,g.fbase]]},
+ {id:'stirbar',name:'Magnetic stir bar',what:'A small magnet coated in plastic. It spins inside the flask so each drop mixes in at once.',hint:'The small white bar at the bottom of the flask.',q:'What mixes the solution inside the flask?',x:g.fxp+g.s*.55,y:g.fbase-g.s*.22,boxes:[[g.fxp-g.s*.32,g.fbase-15,g.fxp+g.s*.32,g.fbase-1]]},
+ {id:'stirrer',name:'Magnetic stirrer',what:'Its spinning magnet turns the stir bar. Without one, you swirl the flask by hand after every few drops.',hint:'The grey box the flask stands on.',q:'What does the flask stand on to keep it mixed?',x:g.fxp+g.stW/2+14,y:g.fbase+g.stW*.13,boxes:[[g.fxp-g.stW/2,g.fbase,g.fxp+g.stW/2,g.fbase+g.stW*.26]]}];
+ if(g.meter){const [x0,y0,mw]=g.meter,[p0,p1]=g.probe;L.push({id:'meter',name:'pH meter',what:'Shows the pH of the mixture as you add titrant, so you can draw the titration curve and find the equivalence point.',hint:'The black box with a screen.',q:'Which instrument shows the pH?',x:x0+mw/2,y:y0-14,boxes:[[x0,y0,x0+mw,y0+96]]},
+  {id:'probe',name:'pH probe (glass electrode)',what:'Dips into the solution and senses its pH. Rinse it with distilled water before and after use.',hint:'The thin rod dipping into the flask.',q:'Which part dips into the solution to measure its pH?',x:p0[0]-16,y:p0[1]+12,boxes:[[Math.min(p0[0],p1[0])-6,p0[1]-14,Math.max(p0[0],p1[0])+6,p1[1]]]})}
+ return L};
+ window.__lp=LabParts.attach({key:'titration',wrap:$('#tcv').parentElement,stage:$('#tcv'),bar:$('#titParts'),parts:titParts,max:6})}
 function drawAll(){if(!C.ink)readColors();if(tab==='dil'&&dil.st)drawDil();if(tab==='prep'&&prep.s)drawPrep();if(tab==='tit')drawTit();if(tab==='real')drawReal()}
 addEventListener('resize',drawAll);
 readColors();dilTask();prepTask();newUnknown();setQuestion();nextQ();themeLabel();requestAnimationFrame(loop);
