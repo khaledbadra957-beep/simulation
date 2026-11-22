@@ -122,7 +122,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
-</style><script src="lab-viz.js"></script><link rel="stylesheet" href="site.css">
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
 <div class="wrap">
 <style>.mk-home{display:flex;width:fit-content;align-items:center;gap:6px;font:600 14px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit;opacity:.78;text-decoration:none;padding:8px 14px;border:1.5px solid currentColor;border-radius:999px;margin:0 0 6px}.mk-home:hover,.mk-home:focus-visible{opacity:1}</style><a class="mk-home" href="index.html"><span aria-hidden="true">&larr;</span> All simulations</a>
@@ -471,8 +471,10 @@ function updateReadouts(){const nA=countA();
  $('#rC').textContent=fx(c,1);$('#rS').textContent=fx(s,1);$('#rP').textContent=sim.coll.length?fx(100*sim.succ.length/sim.coll.length,1)+' %':'–';
  $('#rEa').textContent=fx(sim.cat?EA_CAT:EA,1)+' kJ/mol';$('#rAlab').textContent=sim.mode==='solid'?'Solid A left (as M)':'[A] now'}
 
+let BG=null;
 function drawBox(){const c=$('#box');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);
  const pad=22,sc=Math.min((w-2*pad)/BW,(h-2*pad)/BH),ox=(w-BW*sc)/2,oy=(h-BH*sc)/2;
+ BG={sc,ox,oy};
  // water bath tint shows temperature
  const hot=(sim.T-250)/350;x.fillStyle=`rgba(${Math.round(60+180*hot)},${Math.round(130-60*hot)},${Math.round(220-160*hot)},0.07)`;LabViz.chamber(x,ox,oy,BW*sc,BH*sc,'back');x.fillRect(ox,oy,BW*sc,BH*sc);
  txt(x,`${sim.T} K`,ox+8,oy+16,C.muted,12);
@@ -759,6 +761,15 @@ $('#exSolve').onclick=exSolve;
 /* ---------- boot ---------- */
 function drawAll(){if(!C.ink)readColors();if(tab==='box'){drawBox();drawGraph()}if(tab==='energy'){drawMB();drawED()}}
 addEventListener('resize',drawAll);
+/* ---------- parts + "Find the part" (parts.js) ---------- */
+if(window.LabParts){const wrapB=document.createElement('div'),cvB=$('#box');cvB.parentNode.insertBefore(wrapB,cvB);wrapB.appendChild(cvB);
+ window.__lp=LabParts.attach({key:'reaction-rates',wrap:wrapB,stage:cvB,bar:$('#p-box .benchhead'),max:4,parts:()=>{const g=BG;if(!g||!cvB.getClientRects().length)return [];const {sc,ox,oy}=g,X=v=>ox+v*sc,Y=v=>oy+v*sc,L=[];
+  L.push({id:'box',name:'Reaction vessel (water bath)',what:'Holds the reacting particles. The bath keeps the temperature steady; its tint shows how hot it is.',hint:'The box around the particles.',q:'Find the reaction vessel.',x:X(4),y:Y(BH)+16,boxes:[[X(0),Y(0),X(BW),Y(BH)]]});
+  L.push({id:'temp',name:'Temperature',what:'Hotter particles move faster: they collide more often and more collisions have at least the activation energy Ea.',hint:'The reading in the top-left corner.',q:'Where is the temperature shown?',x:X(0)+66,y:Y(0)+12,boxes:[[X(0)+4,Y(0)+2,X(0)+60,Y(0)+22]]});
+  const pick=t=>sim.P.find(p=>p.type===t);[['A','Particle A','A reactant particle. It reacts only when it hits a B particle hard enough (energy ≥ Ea).'],['B','Particle B','The other reactant. More B particles (higher concentration) means more collisions every second.'],['AB','Product AB','Formed by a successful collision between A and B.']].forEach(([t,n,w])=>{const p=pick(t);if(p)L.push({id:'p'+t,quiz:false,name:n,what:w,hint:'',x:X(p.x)+18,y:Y(p.y)-18,boxes:[[X(p.x)-p.r*sc*2.2,Y(p.y)-p.r*sc*2.2,X(p.x)+p.r*sc*2.2,Y(p.y)+p.r*sc*2.2]]})});
+  const at=sim.atoms.filter(a=>!a.dead);if(at.length){const xs=at.map(a=>a.x),ys=at.map(a=>a.y);L.push({id:'solid',name:'Solid A (surface)',what:'Only the particles on the surface can be hit. Breaking the solid into smaller pieces (powder) gives a larger surface area and a faster reaction.',hint:'The block of blue particles.',q:'Where are the solid A particles?',x:X(Math.min(...xs))-14,y:Y(Math.min(...ys)),boxes:[[X(Math.min(...xs))-RAD*sc,Y(Math.min(...ys))-RAD*sc,X(Math.max(...xs))+RAD*sc,Y(Math.max(...ys))+RAD*sc]]})}
+  if(sim.cat)L.push({id:'cat',name:'Catalyst',what:'Gives a new path with a lower activation energy, so more collisions succeed. It is not used up.',hint:'The note in the top-right corner.',q:'Where does it show the catalyst was added?',x:X(BW)-120,y:Y(0)+12,boxes:[[X(BW)-110,Y(0)+2,X(BW)-4,Y(0)+22]]});
+  return L}})}
 readColors();showSet();showXY();makeControl();newRun();setRxn();nextQ();themeLabel();
 requestAnimationFrame(loop);
 </script>

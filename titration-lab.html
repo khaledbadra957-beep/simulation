@@ -520,6 +520,7 @@ $('#dropDone').onclick=()=>{const V=curFlask().V,d=dil.level-V;const m=$('#stepM
  $('#dropCtl').hidden=true;$('#lens').hidden=true;m.className='status ok';m.textContent='✓ '+WHY.drop;dil.step++;$$('#dilSteps button').find(b=>b.dataset.k==='drop').disabled=true;drawAll()};
 let animId=null;function anim(ms,f){const t0=performance.now();cancelAnimationFrame(animId);const go=now=>{const u=Math.min(1,(now-t0)/ms);f(u);drawDil();if(u<1)animId=requestAnimationFrame(go);else{dil.swirl=0;dil.inv=0;drawDil()}};animId=requestAnimationFrame(go)}
 function colAt(c){const t=Math.min(1,c/(dil.C0||1));return rgba(dil.st.rgb,.12+.8*t)}
+let DG=null,PG2=null;
 function drawDil(){if(tab!=='dil')return;const c=$('#dcv');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const base=h-30;
  // bench
  LabViz.bench(x,w,h,base);
@@ -531,6 +532,7 @@ function drawDil(){if(tab!=='dil')return;const c=$('#dcv');const {x,w,h}=fit(c);
  const F=curFlask(),fxp=w*.72;const V=F.V;const frac=Math.min(1.02,dil.level/V);const conc=dil.level>0?dil.C0*Math.min(dil.level,V0())/dil.level:0;
  x.save();if(dil.swirl){x.translate(fxp,base);x.rotate(dil.swirl*.12);x.translate(-fxp,-base)}if(dil.inv){x.translate(fxp,base-80);x.rotate(dil.inv*1.2);x.translate(-fxp,-(base-80))}
  const s=Math.min(70,h*.2);let geo;
+ DG={w,h,base,sx,px,fxp,s,ptype:p.type,ftype:F.type,pname:p.name,fname:F.name};
  if(F.type==='vf')geo=volFlask(x,fxp,base,s,frac,colAt(conc),'');else if(F.type==='erl')erlen(x,fxp,base,s,frac,colAt(conc),'');else beaker(x,fxp,base,s*1.8,s*2.4,frac*.8,colAt(conc),'');
  if(dil.stopper&&geo){stopper(x,fxp,geo.neckTop-14,s*.4)}
  x.restore();txt(x,F.name.replace('Volumetric flask','vol. flask'),fxp,base+16,C.muted,11,'center');
@@ -586,7 +588,7 @@ function drawPrep(){if(tab!=='prep')return;const c=$('#pcv');const {x,w,h}=fit(c
  if(!prep.onPan&&prep.dissolved<1&&prep.m>0){x.fillStyle=rgba(prep.s.rgb,1-prep.dissolved);x.fillRect(kx-20,base-8,40,6)}
  if(prep.dissolved>0&&prep.dissolved<1){const rod=()=>{x.beginPath();x.moveTo(kx-10+Math.sin(prep.dissolved*20)*10,base-100);x.lineTo(kx+Math.sin(prep.dissolved*20)*16,base-8)};x.lineCap='round';rod();x.strokeStyle='rgba(60,90,100,.6)';x.lineWidth=6;x.stroke();rod();x.strokeStyle='rgba(235,248,255,.9)';x.lineWidth=3;x.stroke();x.lineCap='butt'}
  // flask
- const fxp=w*.8;const s=Math.min(62,h*.18);const geo=volFlask(x,fxp,base,s,Math.max(prep.inFlask*.25,prep.level),rgba(prep.s.rgb,.15+.5*Math.min(1,prep.inFlask)*(prep.level>0?.6:1)),`vol. flask ${prep.V} mL`);
+ const fxp=w*.8;const s=Math.min(62,h*.18);PG2={w,h,base,bx,kx,fxp,s};const geo=volFlask(x,fxp,base,s,Math.max(prep.inFlask*.25,prep.level),rgba(prep.s.rgb,.15+.5*Math.min(1,prep.inFlask)*(prep.level>0?.6:1)),`vol. flask ${prep.V} mL`);
  if(prep.step>=8){stopper(x,fxp,geo.neckTop-14,s*.4)}
  if(prep.step>=9){x.fillStyle='#FFF8DC';x.fillRect(fxp-48,base-s*.9,96,34);x.strokeStyle='#333';x.lineWidth=1;x.strokeRect(fxp-48,base-s*.9,96,34);txt(x,prep.s.f,fxp,base-s*.9+14,'#222',11,'center','alphabetic',700);txt(x,`${(prep.m/prep.s.M/(prep.V/1000)).toPrecision(3)} mol/L`,fxp,base-s*.9+28,'#222',10,'center')}
  if(prep.inFlask>0&&prep.inFlask<1){x.strokeStyle=C.ink;x.lineWidth=2;x.beginPath();x.moveTo(fxp-16,geo.neckTop-26);x.lineTo(fxp,geo.neckTop-6);x.lineTo(fxp+16,geo.neckTop-26);x.stroke()}}
@@ -845,6 +847,22 @@ if(window.LabParts){const titParts=()=>{const g=TG;if(!g.w)return [];const sy=g.
   {id:'probe',name:'pH probe (glass electrode)',what:'Dips into the solution and senses its pH. Rinse it with distilled water before and after use.',hint:'The thin rod dipping into the flask.',q:'Which part dips into the solution to measure its pH?',x:p0[0]-16,y:p0[1]+12,boxes:[[Math.min(p0[0],p1[0])-6,p0[1]-14,Math.max(p0[0],p1[0])+6,p1[1]]]})}
  return L};
  window.__lp=LabParts.attach({key:'titration',wrap:$('#tcv').parentElement,stage:$('#tcv'),bar:$('#titParts'),parts:titParts,max:6})}
+
+/* ---------- parts + "Find the part" on the dilution and preparation benches (parts.js) ---------- */
+if(window.LabParts){const wrapC=id=>{const c=$(id),w=document.createElement('div');c.parentNode.insertBefore(w,c);w.appendChild(c);return w};
+ const wDil=wrapC('#dcv'),wPrep=wrapC('#pcv');
+ window.__lpDil=LabParts.attach({key:'titration-dil',wrap:wDil,stage:$('#dcv'),bar:$('#p-dil .benchhead'),max:4,parts:()=>{const g=DG;if(!g||!$('#dcv').getClientRects().length)return [];const L=[];
+  L.push({id:'stock',name:'Stock solution',what:'The concentrated solution you start from (C₀). You take a measured volume V₀ of it.',hint:'The reagent bottle on the left.',q:'Find the stock solution.',x:g.sx+44,y:g.base-104,boxes:[[g.sx-32,g.base-122,g.sx+32,g.base]]});
+  if(g.ptype==='cyl')L.push({id:'measure',name:'Graduated cylinder',what:'Measures volume roughly (to about ±0.5 mL). Fine for rough work, not for an accurate dilution.',hint:'The tall measuring cylinder.',q:'What measures the volume of stock solution?',x:g.px+28,y:g.base-100,boxes:[[g.px-15,g.base-124,g.px+15,g.base]]});
+  else L.push({id:'measure',name:g.ptype==='vol'?'Volumetric pipette':'Graduated pipette',what:g.ptype==='vol'?'Delivers one exact volume (e.g. 10.00 mL ± 0.02 mL). Fill it to the mark with a pipette filler, never by mouth.':'Has a scale, so it can deliver different volumes, a little less accurately than a volumetric pipette.',hint:'The long thin glass tube.',q:'Which tool measures V₀ accurately?',x:g.px+22,y:110,boxes:[[g.px-10,62,g.px+10,g.base-100]]});
+  L.push({id:'flask',name:g.ftype==='vf'?'Volumetric flask':g.ftype==='erl'?'Conical flask':'Beaker',what:g.ftype==='vf'?'Holds one exact volume when filled to the calibration line (e.g. 100.0 mL). Use it to make up the diluted solution.':'Not accurate enough to make up a solution of known concentration: use a volumetric flask.',hint:'The flask on the right.',q:'Which glassware makes up the final volume?',x:g.fxp-g.s-16,y:g.base-g.s*.8,boxes:[[g.fxp-g.s,g.base-g.s*2.7,g.fxp+g.s,g.base]]});
+  return L}});
+ window.__lpPrep=LabParts.attach({key:'titration-prep',wrap:wPrep,stage:$('#pcv'),bar:$('#p-prep .benchhead'),max:4,parts:()=>{const g=PG2;if(!g||!$('#pcv').getClientRects().length)return [];const L=[];
+  L.push({id:'balance',name:'Analytical balance',what:'Weighs the solid to ±0.01 g (or better). The glass draught shield stops air currents changing the reading.',hint:'The balance with a glass cover.',q:'Which instrument weighs the solid?',x:g.bx-90,y:g.base-90,boxes:[[g.bx-75,g.base-136,g.bx+75,g.base]]});
+  L.push({id:'display',name:'Balance display',what:'Shows the mass in grams. Press tare (zero) with the empty weighing boat on the pan first.',hint:'The screen on the balance.',q:'Where do you read the mass?',x:g.bx+62,y:g.base-23,boxes:[[g.bx-46,g.base-34,g.bx+46,g.base-12]]});
+  L.push({id:'beaker',name:'Beaker',what:'Dissolve the solid here first in a little distilled water, stirring with a glass rod.',hint:'The beaker in the middle.',q:'Where do you dissolve the solid?',x:g.kx-56,y:g.base-70,boxes:[[g.kx-40,g.base-92,g.kx+40,g.base]]});
+  L.push({id:'vflask',name:'Volumetric flask',what:'Pour in the solution, rinse the beaker into it, then add water up to the calibration line and mix.',hint:'The flask on the right.',q:'Which flask gives the exact final volume?',x:g.fxp-g.s-16,y:g.base-g.s*.8,boxes:[[g.fxp-g.s,g.base-g.s*2.7,g.fxp+g.s,g.base]]});
+  return L}})}
 function drawAll(){if(!C.ink)readColors();if(tab==='dil'&&dil.st)drawDil();if(tab==='prep'&&prep.s)drawPrep();if(tab==='tit')drawTit();if(tab==='real')drawReal()}
 addEventListener('resize',drawAll);
 readColors();dilTask();prepTask();newUnknown();setQuestion();nextQ();themeLabel();requestAnimationFrame(loop);

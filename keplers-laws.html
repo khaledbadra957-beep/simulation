@@ -501,6 +501,7 @@ p{margin:0}
   <p class="foot">The look and controls follow the layout of PhET Interactive Simulations' Kepler's Laws (University of Colorado Boulder, phet.colorado.edu); this is a separate lesson tool built for this class. Orbits follow Kepler's equation and Newton's gravity exactly, in astronomical units (AU) and years, so speeds and times are real. Planets and moons are drawn larger than scale so you can see them.</p>
 </div>
 
+<script src="parts.js"></script>
 <script>
 (function(){
 'use strict';
@@ -643,6 +644,7 @@ function drawGrid(s, V){
   }
   label(c, 'Grid: ' + step + ' AU', V.cx + V.half, s.H - 14, { a: 'right', c: C.dim, s: 12 });
 }
+var K1 = null;
 function drawBase(s, extra){
   var c = s.ctx; clear(s); var V = view(s);
   if ($('oGrid').checked) drawGrid(s, V);
@@ -668,6 +670,7 @@ function drawBase(s, extra){
     c.setLineDash([3, 3]); c.strokeStyle = '#BBBBBB'; c.lineWidth = 2; c.beginPath(); c.arc(tx, ty, 12, 0, TAU); c.stroke(); c.setLineDash([]);
     label(c, 'V', tx, ty + 1, { a: 'center', c: '#DDDDDD', w: '700', s: 13 });
   }
+  if (s === st1) K1 = { V: V, p: p, px: px, py: py, tv: $('oVel').checked ? [px + p.vx * KV(V), py - p.vy * KV(V)] : null };
   if ($('oSpeed').checked) label(c, '|v| = ' + (Math.hypot(p.vx, p.vy) * AUYR).toFixed(2) + ' km/s', px, py - 26, { a: 'center', c: C.text, w: '700', s: 14 });
   if (preview && preview.bad) label(c, preview.bad, V.cx, V.cy - V.half - 8 < 30 ? 30 : V.cy - V.half - 8, { a: 'center', c: C.bad, w: '700', s: 14 });
   return V;
@@ -749,6 +752,19 @@ function drawFirst(){
     if ($('f1Foci').checked){ cross(c, V.cx, V.cy, C.focus, 8); cross(c, V.X(G.f2x), V.Y(G.f2y), C.focus, 8); }
   }});
 }
+/* ---------- parts + "Find the part" on the First-Law orbit (parts.js) ---------- */
+if (window.LabParts) window.__lp = LabParts.attach({ key: 'kepler-first', wrap: $('cFirst').parentElement, stage: $('cFirst'), bar: document.querySelector('#ovr-first .pp'), max: 5, parts: function () {
+  var k = K1; if (!k || !$('cFirst').getClientRects().length) return []; var V = k.V, G = geom(), L = [], rs = 14 + 5 * (O.mass - 1), pt = function (x, y, r) { return [V.X(x) - r, V.Y(y) - r, V.X(x) + r, V.Y(y) + r]; };
+  var orb = []; for (var t = 0; t < 24; t++) { if (O.e > 0.02 && (t === 0 || t === 12)) continue; var th = t / 24 * TAU, ex = G.cx + O.a * Math.cos(th) * G.cw - G.b * Math.sin(th) * G.sw, ey = G.cy + O.a * Math.cos(th) * G.sw + G.b * Math.sin(th) * G.cw; orb.push(pt(ex, ey, 9)); }
+  var e0 = orb[6]; L.push({ id: 'orbit', name: 'Orbit (ellipse)', what: 'The path of the planet. Kepler’s first law: it is an ellipse with the star at one focus.', hint: 'The white oval line.', q: 'Find the orbit.', x: (e0[0] + e0[2]) / 2 + 18, y: (e0[1] + e0[3]) / 2 - 14, boxes: orb });
+  L.push({ id: 'star', name: 'Star (at one focus)', what: 'The star is not at the centre of the ellipse but at one of its two foci.', hint: 'The bright star.', q: 'Where is the star?', x: V.cx + rs + 12, y: V.cy - rs - 6, boxes: [[V.cx - rs, V.cy - rs, V.cx + rs, V.cy + rs]] });
+  L.push({ id: 'planet', quiz: false, name: 'Planet', what: 'Moves fastest when it is closest to the star and slowest when it is farthest (Kepler’s second law).', x: k.px + 18, y: k.py - 18, boxes: [[k.px - 12, k.py - 12, k.px + 12, k.py + 12]] });
+  if (O.e > 0.02) { var rp = O.a * (1 - O.e), ra = O.a * (1 + O.e);
+    L.push({ id: 'peri', name: 'Perihelion (closest point)', what: 'The point of the orbit nearest the star: distance = a(1 − e). The planet moves fastest here.', hint: 'The end of the orbit nearest the star.', q: 'Where is the planet closest to the star?', x: V.X(rp * G.cw) + 16, y: V.Y(rp * G.sw) + 20, boxes: [pt(rp * G.cw, rp * G.sw, 11)] });
+    L.push({ id: 'aph', name: 'Aphelion (farthest point)', what: 'The point of the orbit farthest from the star: distance = a(1 + e). The planet moves slowest here.', hint: 'The end of the orbit farthest from the star.', q: 'Where is the planet farthest from the star?', x: V.X(-ra * G.cw) - 16, y: V.Y(-ra * G.sw) + 20, boxes: [pt(-ra * G.cw, -ra * G.sw, 11)] });
+    if ($('f1Foci').checked) L.push({ id: 'f2', name: 'Empty focus', what: 'The second focus of the ellipse. Nothing is there: d₁ + d₂ (planet to each focus) is always 2a.', hint: 'The blue cross that is not on the star.', q: 'Find the empty focus.', x: V.X(G.f2x) - 16, y: V.Y(G.f2y) - 16, boxes: [pt(G.f2x, G.f2y, 10)] }); }
+  if (k.tv) L.push({ id: 'vel', quiz: false, name: 'Velocity arrow', what: 'Shows which way and how fast the planet moves. Drag its tip to change the orbit.', x: k.tv[0] + 18, y: k.tv[1] - 14, boxes: [[Math.min(k.px, k.tv[0]) - 6, Math.min(k.py, k.tv[1]) - 6, Math.max(k.px, k.tv[0]) + 6, Math.max(k.py, k.tv[1]) + 6]] });
+  return L; } });
 function stringDiagram(c, s, V, d1, d2){
   var L = Math.min(280, V.half * 1.1), x0 = V.cx - L / 2, tot = d1 + d2, xm = x0 + L * d1 / tot;
   c.lineCap = 'butt';

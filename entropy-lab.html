@@ -408,6 +408,7 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
   </section>
 </div>
 
+<script src="parts.js"></script>
 <script>
 (function () {
   "use strict";
@@ -954,6 +955,15 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
     mx.textAlign = "right"; mx.fillText("on the left →", w - ml, mt + 2 * d);
   }
   function drawAll() { drawBox(); drawS(); drawM(); }
+  /* ---------- parts + "Find the part" (parts.js) ---------- */
+  if (window.LabParts) { var wrapE = document.createElement('div'); cv.parentNode.insertBefore(wrapE, cv); wrapE.appendChild(cv);
+    window.__lp = LabParts.attach({ key: 'entropy-spread', wrap: wrapE, stage: cv, bar: document.querySelector('.spr-main .ctrls'), max: 4, parts: function () { if (!cv.getClientRects().length) return []; var k = cv.clientWidth / BW, L = [];
+      L.push({ id: 'left', name: 'Left half', what: 'Where all the gas starts. With the wall in, every particle is here: only one way to arrange them, so Ω = 1 and S = 0.', hint: 'The left side of the box.', q: 'Where does the gas start?', x: MID * 0.5 * k, y: 18, boxes: [[6 * k, 6 * k, (MID - 10) * k, (BH - 40) * k]] });
+      L.push({ id: 'right', name: S.wall && !S.everOpen ? 'Right half (vacuum)' : 'Right half', what: 'Empty at first. Once the wall is gone the particles spread into it: there are far more ways to spread out than to stay on one side, so entropy increases.', hint: 'The right side of the box.', q: 'Where is the empty space?', x: MID * 1.5 * k, y: 18, boxes: [[(MID + 10) * k, 6 * k, (BW - 6) * k, (BH - 40) * k]] });
+      if (S.wall) L.push({ id: 'wall', name: 'Wall (partition)', what: 'Keeps the gas on the left. Remove it and the gas spreads out by itself: a spontaneous process.', hint: 'The bar down the middle.', q: 'What keeps the gas on one side?', x: MID * k + 16, y: BH * 0.3 * k, boxes: [[(MID - 6) * k, 0, (MID + 6) * k, BH * k]] });
+      L.push({ id: 'count', name: 'Particle counter', what: 'How many particles are on each side right now. The most likely split is half and half.', hint: 'The numbers at the bottom.', q: 'Where can you read how many particles are on each side?', x: MID * k, y: (BH - 20) * k, boxes: [[(MID / 2 - 70) * k, (BH - 38) * k, (MID / 2 + 70) * k, (BH - 6) * k], [(MID * 1.5 - 70) * k, (BH - 38) * k, (MID * 1.5 + 70) * k, (BH - 6) * k]] });
+      var q = S.p[0]; if (q) L.push({ id: 'particle', quiz: false, name: 'Gas particle', what: 'Moves in a straight line until it hits a wall or another particle. Each one moves at random.', x: q.x * k + 16, y: q.y * k - 16, boxes: [[(q.x - R * 2) * k, (q.y - R * 2) * k, (q.x + R * 2) * k, (q.y + R * 2) * k]] });
+      return L; } }); }
 
   var last = 0;
   function loop(ts) {

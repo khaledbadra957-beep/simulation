@@ -90,7 +90,7 @@
     function pick(i) { sel = i; renderLabels(); place(); }
     /* ---------- quiz ---------- */
     function startQuiz() {
-      P = list(); var qs = shuffle(P.slice()).slice(0, o.max || 6);
+      P = list(); var qs = shuffle(P.filter(function (p) { return p.quiz !== false; })).slice(0, o.max || 6);
       Q = { qs: qs, i: 0, score: 0, res: [], tries: 0, hinted: false, done: false, show: null, fb: null }; renderQuiz();
     }
     function renderQuiz() {

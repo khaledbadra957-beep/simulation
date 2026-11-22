@@ -362,7 +362,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
  </section>
 </main>
 <script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'lab', simple: true }, { id: 'lab', name: 'String lab', tab: 'lab' }, { id: 'race', name: 'Pulse race', tab: 'race' }, { id: 'sound', name: 'Sound', tab: 'sound' }, { id: 'ex', name: 'Exercise' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ] };</script>
-<script src="lab-viz.js"></script>
+<script src="lab-viz.js"></script><script src="parts.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -676,6 +676,21 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
  if(tab==='race')drawRace();
  if(tab==='sound'){SD.t+=dt;drawSound()}
  requestAnimationFrame(loop)}
+/* ---------- parts + "Find the part" (parts.js) ---------- */
+if(window.LabParts){window.__lp=LabParts.attach({key:'wave-speed',wrap:c1.parentElement,stage:c1,bar:$('#p-lab .transport'),max:5,parts:()=>{const G=geo1;if(!G)return [];const L=[],xe=G.left+LEN*G.px,y0=G.mid-S.at(0)*100*G.ys,bead=i=>[G.left+i/S.n*LEN*G.px,G.mid-S.at(i)*100*G.ys];
+ L.push({id:'string',name:'String (8.0 m)',what:'Carries the wave. Its tension and its mass per metre (μ = 2.5 kg/m) set the wave speed: v = √(T/μ). Frequency and amplitude do not.',hint:'The long line of beads.',q:'Which part carries the wave?',x:G.left+LEN*G.px*.62,y:G.mid-44,boxes:[[G.left+LEN*G.px*.15,G.mid-40,G.left+LEN*G.px*.85,G.mid+40]]});
+ if(S.mode==='osc'){const cx=G.left-36,cy=G.mid+80,R=22;L.push({id:'driver',name:'Oscillator',what:'A turning wheel that shakes the end of the string up and down f times every second. f sets the frequency of the wave.',hint:'The wheel at the left end.',q:'What makes the wave at the left end?',x:cx+R+18,y:cy+R+6,boxes:[[cx-R-10,cy-R-8,cx+R+10,cy+R+10]]})}
+ else if(S.mode==='pulse')L.push({id:'driver',name:'Pulser',what:'Press its button to flick the end once: it sends a single pulse along the string.',hint:'The box with a red button at the left.',q:'What sends a single pulse?',x:G.left+6,y:G.mid+104,boxes:[[G.left-56,G.mid+58,G.left-10,G.mid+94]]});
+ else L.push({id:'driver',name:'Handle (by hand)',what:'Drag it up and down to move the end of the string yourself.',hint:'The yellow handle at the left end.',q:'What do you drag to shake the string?',x:G.left+14,y:y0-26,boxes:[[G.left-34,y0-14,G.left-2,y0+14]]});
+ if(S.end==='fixed')L.push({id:'end',name:'Fixed end (clamp)',what:'The end cannot move. A pulse reflects from it upside down.',hint:'The clamp at the right end.',q:'Find the fixed end.',x:xe-28,y:G.mid-70,boxes:[[xe-6,G.mid-62,xe+12,G.mid+62]]});
+ else if(S.end==='loose')L.push({id:'end',name:'Loose end (ring on a pole)',what:'The ring slides up and down the pole. A pulse reflects from it the same way up.',hint:'The ring at the right end.',q:'Find the loose end.',x:xe-28,y:G.mid-70,boxes:[[xe-6,G.mid-92,xe+14,G.h-16]]});
+ const [tx,ty]=bead(20);L.push({id:'mark',quiz:false,name:'Marked bead (every 1 m)',what:'Every tenth bead is yellow: they are 1 m apart, which helps you measure the wavelength.',hint:'A yellow bead near the left.',q:'Find a yellow bead that marks 1 m.',x:tx,y:ty-24,boxes:[[tx-9,ty-9,tx+9,ty+9]]});
+ const [wx,wy]=bead(L1.watch);L.push({id:'watch',quiz:false,name:'Watched bead',what:'The pink bead you clicked. Each bead only moves up and down: the wave moves along, the string does not.',hint:'The pink bead.',q:'Find the bead you are watching.',x:wx+20,y:wy-22,boxes:[[wx-10,wy-10,wx+10,wy+10]]});
+ if($('#tRuler').checked){const x0=G.left+L1.ruler.x*G.px,ry=rulerY(G);L.push({id:'ruler',name:'Metre ruler',what:'Drag it along to measure the wavelength λ (crest to crest) or how far a pulse travels.',hint:'The long brass ruler.',q:'Which tool measures the wavelength?',x:x0+LEN*G.px*.5,y:ry+50,boxes:[[x0-10,ry,x0+LEN*G.px+10,ry+36]]})}
+ if($('#tVRuler').checked){const x0=G.left+L1.vr.x*G.px-46,yc=G.mid-L1.vr.y*100*G.ys,hf=50*G.ys;L.push({id:'vruler',name:'Height ruler (cm)',what:'Measures the amplitude: the height of a crest above the rest line.',hint:'The upright brass ruler.',q:'Which tool measures the amplitude?',x:x0-14,y:yc-hf,boxes:[[x0,yc-hf-10,x0+40,yc+hf+10]]})}
+ const sw=$('#sw1');if(sw&&!sw.hidden)L.push({id:'watchclock',name:'Stopwatch',what:'Times a pulse over a measured distance: speed = distance ÷ time.',hint:'The timer on the drawing.',q:'Which tool times the pulse?',el:'#sw1',pos:'b'});
+ return L}})}
+
 readLab();readRace();readSound();newQ();requestAnimationFrame(loop);
 window.__wsl={S,RA,RB,R,L1,SD};
 
