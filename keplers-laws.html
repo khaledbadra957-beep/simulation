@@ -144,6 +144,11 @@ p{margin:0}
 .law{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--amber);border-radius:12px;padding:14px 16px;
   font-family:var(--display);font-size:1.1rem;font-weight:600;line-height:1.38}
 .law small{display:block;margin-top:6px;font-family:var(--body);font-weight:400;font-size:.93rem;color:var(--muted)}
+.excard+.excard{margin-top:14px}.exhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.exbtns{display:flex;gap:8px;flex-wrap:wrap}
+.exb{font:700 14px var(--body);color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}.exb.pri,.exb[aria-pressed="true"]{background:#0A6A88;color:#fff;border-color:transparent}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px 18px}.exgrid[hidden]{display:none}
+.exgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.exgrid label>span{display:flex;align-items:center;gap:6px;font:600 14px var(--mono,monospace);color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--mono,monospace);width:7.5em;padding:7px 9px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}.exgrid select{width:100%}.exgrid input[aria-invalid="true"]{border-color:#C0392B}
 .try{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
 .try h3{margin:0 0 6px;font-family:var(--display);font-size:1.15rem}
 .try ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:5px;max-width:84ch}
@@ -165,6 +170,7 @@ p{margin:0}
     <button class="tab" role="tab" id="t-second" aria-controls="p-second" aria-selected="false" tabindex="-1"><small>Session 2 · Law of Equal Areas</small><b>Second Law</b></button>
     <button class="tab" role="tab" id="t-third" aria-controls="p-third" aria-selected="false" tabindex="-1"><small>Session 3 · Law of Periods</small><b>Third Law</b></button>
     <button class="tab" role="tab" id="t-moons" aria-controls="p-moons" aria-selected="false" tabindex="-1"><small>Session 3 · worked example</small><b>Jupiter's moons</b></button>
+    <button class="tab" role="tab" id="t-ex" aria-controls="p-ex" aria-selected="false" tabindex="-1"><small>Practice</small><b>Your exercise</b></button>
   </div>
 
   <!-- ================= WARM-UP: RETROGRADE ================= -->
@@ -405,6 +411,35 @@ p{margin:0}
         </ol>
       </div>
     </div>
+  </section>
+
+  <!-- ================= YOUR EXERCISE ================= -->
+  <section class="panel" id="p-ex" role="tabpanel" aria-labelledby="t-ex" hidden>
+    <div class="try excard">
+      <div class="exhead"><h3 style="margin:0">Your exercise, solved in the lab</h3><span class="exbtns"><button type="button" class="exb" id="exEg">Example</button><button type="button" class="exb pri" id="exSolve">▶ Solve it in the lab</button></span></div>
+      <div class="exbtns" role="group" aria-label="Kind of exercise" style="margin:12px 0">
+        <button type="button" class="exb" data-exk="sun" aria-pressed="true">Planet around the Sun: T² = a³</button>
+        <button type="button" class="exb" data-exk="two" aria-pressed="false">Two orbits: (T₁/T₂)² = (r₁/r₂)³</button>
+        <button type="button" class="exb" data-exk="ecc" aria-pressed="false">Eccentricity from perihelion and aphelion</button>
+      </div>
+      <div class="exgrid" data-exf="sun">
+        <label>I know <select id="exKnow"><option value="a">a, distance (AU)</option><option value="T">T, period (years)</option></select></label>
+        <label><span id="exKL">a =</span><span><input id="exV" inputmode="decimal" value="2.8"> <span id="exU">AU</span></span></label>
+      </div>
+      <div class="exgrid" data-exf="two" hidden>
+        <label>Known r₁ <span><input id="exR1" inputmode="decimal" value="6"></span></label>
+        <label>Known T₁ <span><input id="exT1" inputmode="decimal" value="4.5"></span></label>
+        <label>I know the second… <select id="exMode"><option value="r">distance r₂</option><option value="T">period T₂</option></select></label>
+        <label><span id="exK2L">Known r₂</span><span><input id="exK2" inputmode="decimal" value="12"></span></label>
+      </div>
+      <div class="exgrid" data-exf="ecc" hidden>
+        <label>Closest distance (perihelion) <span><input id="exRp" inputmode="decimal" value="0.31"> AU</span></label>
+        <label>Farthest distance (aphelion) <span><input id="exRa" inputmode="decimal" value="0.47"> AU</span></label>
+      </div>
+      <p id="exMsg" style="margin:8px 0 0;color:var(--muted)"></p>
+    </div>
+    <div class="try excard"><h3>Your exercise</h3><p id="exText" style="margin:0 0 6px"></p><ol id="exQs" style="margin:0"></ol></div>
+    <div id="ovb-ex" hidden></div><div id="swb-ex" hidden></div>
   </section>
 
   <!-- shared pieces: moved into whichever tab is open -->
@@ -992,7 +1027,7 @@ function calc(){
 ['cr1', 'cT1', 'cK'].forEach(function(id){ $(id).addEventListener('input', calc); }); $('cMode').addEventListener('change', calc);
 
 /* ================= tabs, shared controls, loop ================= */
-var TABS = ['retro', 'first', 'second', 'third', 'moons'], LAWS = { first: 1, second: 1, third: 1 }, tab = 'retro', playing = !reduce, rate = 1;
+var TABS = ['retro', 'first', 'second', 'third', 'moons', 'ex'], LAWS = { first: 1, second: 1, third: 1 }, tab = 'retro', playing = !reduce, rate = 1;
 function refit(){ stages.forEach(function(s){ s.fit(); }); }
 function selectTab(name, focus){
   tab = name;
@@ -1119,6 +1154,92 @@ function frame(now){
   if (playing){ advance(dt * rate); draw(); }
   requestAnimationFrame(frame);
 }
+
+/* ================= YOUR EXERCISE: solved step by step in the lab (tour.js) ================= */
+var exK = 'sun';
+Array.prototype.forEach.call(document.querySelectorAll('[data-exk]'), function(b){ b.addEventListener('click', function(){ exK = b.getAttribute('data-exk');
+  Array.prototype.forEach.call(document.querySelectorAll('[data-exk]'), function(x){ x.setAttribute('aria-pressed', String(x === b)); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-exf]'), function(g){ g.hidden = g.getAttribute('data-exf') !== exK; }); exRead(); }); });
+function exN(id, lo, hi){ var e = $(id), x = parseFloat(String(e.value).replace(',', '.')), ok = isFinite(x) && x > lo && x <= hi; e.setAttribute('aria-invalid', ok ? 'false' : 'true'); return ok ? x : null; }
+var r3 = function(x){ return String(+x.toPrecision(3)); }, r4 = function(x){ return String(+x.toPrecision(4)); };
+function exRead(){
+  var m = $('exMsg');
+  function bad(t){ m.textContent = t; $('exText').textContent = ''; $('exQs').innerHTML = ''; return null; }
+  function qs(a){ $('exQs').innerHTML = a.map(function(q){ return '<li>' + q + '</li>'; }).join(''); }
+  function ready(){ m.textContent = 'Ready. Press “Solve it in the lab”.'; }
+  if (exK === 'sun'){
+    var know = $('exKnow').value; $('exKL').textContent = know === 'a' ? 'a =' : 'T ='; $('exU').textContent = know === 'a' ? 'AU' : 'years';
+    var v = exN('exV', 0, 1e6); if (v === null) return bad('Type a positive number.');
+    var a = know === 'a' ? v : Math.pow(v, 2 / 3), T = Math.sqrt(a * a * a);
+    if (a < 0.1 || a > 6) return bad('The lab can draw orbits with a from 0.1 to 6 AU (periods from 0.03 to 14.7 years).' + (know === 'T' ? ' That period gives a = ' + r3(a) + ' AU.' : ''));
+    ready(); $('exText').innerHTML = know === 'a' ? 'An asteroid orbits the Sun with an average distance (semi-major axis) of a = ' + v + ' AU.' : 'A comet orbits the Sun with a period of T = ' + v + ' years.';
+    qs([know === 'a' ? 'Find its period T in years.' : 'Find its average distance a in AU.', 'Check that T² ÷ a³ = 1.']); return { k: 'sun', know: know, v: v, a: a, T: T };
+  }
+  if (exK === 'two'){
+    var mode = $('exMode').value; $('exK2L').textContent = mode === 'T' ? 'Known T₂' : 'Known r₂';
+    var R1 = exN('exR1', 0, 1e9), T1 = exN('exT1', 0, 1e9), K = exN('exK2', 0, 1e9);
+    if (R1 === null || T1 === null || K === null) return bad('Type three positive numbers.');
+    ready(); $('exText').innerHTML = 'A moon orbits a planet at r₁ = ' + R1 + ' with a period T₁ = ' + T1 + '. A second moon of the same planet ' + (mode === 'r' ? 'orbits at r₂ = ' + K + '.' : 'has a period T₂ = ' + K + '.');
+    qs([mode === 'r' ? 'Find the period T₂ of the second moon.' : 'Find the distance r₂ of the second moon.', 'Check that T² ÷ r³ is the same for both moons.']); return { k: 'two', R1: R1, T1: T1, K: K, mode: mode };
+  }
+  var rp = exN('exRp', 0, 100), ra = exN('exRa', 0, 100);
+  if (rp === null || ra === null) return bad('Type the closest and farthest distances in AU.');
+  if (ra < rp) return bad('The farthest distance (aphelion) must be bigger than the closest (perihelion).');
+  var A = (ra + rp) / 2, c = A - rp, e = c / A;
+  if (rp < 0.08 || ra > 7) return bad('The lab can draw orbits from 0.08 AU to about 7 AU from the star.');
+  if (e > 0.95) return bad('That orbit is too stretched for the lab to draw (e = ' + r3(e) + ').');
+  ready(); $('exText').innerHTML = 'At its closest, a planet is ' + rp + ' AU from its star; at its farthest it is ' + ra + ' AU away.';
+  qs(['Find the semi-major axis a.', 'Find c, the distance from the centre to the star (a focus).', 'Find the eccentricity e = c / a. Is the orbit nearly circular?']); return { k: 'ecc', rp: rp, ra: ra, a: A, c: c, e: e };
+}
+['exV', 'exR1', 'exT1', 'exK2', 'exRp', 'exRa'].forEach(function(id){ $(id).addEventListener('input', exRead); });
+['exKnow', 'exMode'].forEach(function(id){ $(id).addEventListener('change', exRead); });
+$('exEg').addEventListener('click', function(){
+  if (exK === 'sun'){ $('exKnow').value = 'T'; $('exV').value = 11.86; }
+  else if (exK === 'two'){ $('exR1').value = 4.2; $('exT1').value = 1.8; $('exMode').value = 'T'; $('exK2').value = 3.55; }
+  else { $('exRp').value = 0.98; $('exRa').value = 1.02; }
+  exRead(); });
+exRead();
+function exSolve(){
+  var X = exRead(); if (!X || !window.Tour) return;
+  function calcB(t){ return '<div class="t-calc">' + t + '</div>'; }
+  function go(name){ var b = document.querySelector('.lg-nav [data-ph="lab"]'); if (b && document.documentElement.getAttribute('data-phase') !== 'lab') b.click(); selectTab(name); }
+  function check(id, on){ var e = $(id); if (e.checked !== on && !e.disabled){ e.checked = on; e.dispatchEvent(new Event('change', { bubbles: true })); } }
+  function ckEl(id){ return function(){ return $(id).closest('.pp'); }; }
+  var steps = [];
+  if (X.k === 'sun'){
+    var a = X.a, T = X.T;
+    var setUp = function(){ go('third'); playing = true; syncPlay(); $('target').value = 'none'; O.target = 'none'; trail = []; setOrbit({ a: a, e: 0, w: 0, dir: 1, M: 0 }); setZoom(Math.max(ZMIN, Math.min(ZMAX, a * 1.35))); draw(); };
+    steps.push({ title: 'Solve it in the lab', html: '<p>' + $('exText').innerHTML + '</p><p>We put a planet on the same orbit, time one full orbit, then use T² = a³ (T in years, a in AU, for our Sun).</p>', onShow: setUp });
+    steps.push({ el: ckEl('t3Axis'), title: 'Show a and T', interactive: true, html: '<p>Turn on <b>Semi-major Axis (a)</b> and <b>Period (T)</b>.</p>', wait: function(){ return $('t3Axis').checked && $('t3Per').checked; }, doIt: function(){ check('t3Axis', true); check('t3Per', true); }, done: 'a = ' + r3(a) + ' AU is drawn. The period timer starts.' });
+    steps.push({ el: function(){ return $('cThird'); }, title: 'Time one full orbit', html: '<p>Watch the yellow arc: it counts the years until the planet is back where it started.</p>', wait: function(){ return O.M - periodStart >= TAU - 1e-9; }, doIt: function(){ O.M = periodStart + TAU + 1e-6; draw(); }, done: function(){ return 'Period T = ' + period(O.a).toFixed(2) + ' years.'; } });
+    steps.push({ el: function(){ return $('cThird'); }, title: X.know === 'a' ? 'Calculate T' : 'Calculate a', html: calcB(X.know === 'a' ? 'T² = a³\nT² = ' + r3(a) + '³ = ' + r4(a * a * a) + '\nT = √' + r4(a * a * a) + '\nT = ' + T.toFixed(2) + ' years' : 'a³ = T²\na³ = ' + X.v + '² = ' + r4(X.v * X.v) + '\na = ∛' + r4(X.v * X.v) + '\na = ' + a.toFixed(2) + ' AU') + '<p>' + (a > 1 ? 'Farther than Earth, so the year is longer than Earth’s.' : a < 1 ? 'Closer than Earth, so the year is shorter than Earth’s.' : 'The same as Earth.') + '</p>' });
+    steps.push({ el: function(){ return $('yPow').closest('.pp'); }, title: 'T² against a³', interactive: true, html: '<p>Choose <b>T²</b> and <b>a³</b>. Every orbit, the planets’ and yours, lies on one straight line through the origin: T² ÷ a³ = 1.</p>',
+      wait: function(){ return PX === 3 && PY === 2; }, doIt: function(){ $('xPow').querySelector('[data-v="3"]').click(); $('yPow').querySelector('[data-v="2"]').click(); }, done: function(){ return 'T² ÷ a³ = ' + (T * T / (a * a * a)).toFixed(2) + '.'; } });
+    steps.push({ title: 'Your answers', html: calcB((X.know === 'a' ? 'T = √(a³) = ' + T.toFixed(2) + ' years' : 'a = ∛(T²) = ' + a.toFixed(2) + ' AU') + '\nT² ÷ a³ = ' + r4(T * T) + ' ÷ ' + r4(a * a * a) + ' = 1.00') + '<p>Compare them with your own working.</p>' });
+  } else if (X.k === 'two'){
+    var f = X.mode === 'r' ? Math.pow(X.K / X.R1, 1.5) : Math.pow(X.K / X.T1, 2 / 3), ans = X.mode === 'r' ? X.T1 * f : X.R1 * f, r2 = X.mode === 'r' ? X.K : ans, T2 = X.mode === 'r' ? ans : X.K;
+    var setUp = function(){ go('moons'); };
+    var setCalc = function(){ $('cr1').value = X.R1; $('cT1').value = X.T1; $('cMode').value = X.mode === 'r' ? 'r' : 'T'; $('cK').value = X.K; calc(); };
+    steps.push({ title: 'Solve it in the lab', html: '<p>' + $('exText').innerHTML + '</p><p>Both moons orbit the same planet, so T² ÷ r³ is the same for both: (T₁/T₂)² = (r₁/r₂)³. Units cancel, so any units work as long as they match.</p>', onShow: setUp });
+    steps.push({ el: function(){ return $('mBody').closest('.pp'); }, title: 'The pattern', html: '<p>Look at the last column for Jupiter’s four moons: T² ÷ r³ is the same for all of them. That is Kepler’s third law.</p>' });
+    steps.push({ el: function(){ return $('cr1').closest('.pp'); }, title: 'Put in your numbers', interactive: true, html: '<p>Type r₁ = ' + X.R1 + ', T₁ = ' + X.T1 + ', choose “' + (X.mode === 'r' ? 'distance r₂' : 'period T₂') + '” and type ' + X.K + '.</p>',
+      wait: function(){ return Math.abs(+$('cr1').value - X.R1) < 1e-9 && Math.abs(+$('cT1').value - X.T1) < 1e-9 && $('cMode').value === (X.mode === 'r' ? 'r' : 'T') && Math.abs(+$('cK').value - X.K) < 1e-9; }, doIt: setCalc, done: 'The solver shows every step.' });
+    steps.push({ el: function(){ return $('cSteps'); }, title: X.mode === 'r' ? 'Find T₂' : 'Find r₂', html: calcB(X.mode === 'r' ? '(T₂/T₁)² = (r₂/r₁)³\nT₂ = T₁ × (r₂/r₁)^(3/2)\nT₂ = ' + X.T1 + ' × (' + X.K + ' ÷ ' + X.R1 + ')^(3/2)\nT₂ = ' + X.T1 + ' × ' + f.toFixed(3) + '\nT₂ = ' + r3(ans) : '(r₂/r₁)³ = (T₂/T₁)²\nr₂ = r₁ × (T₂/T₁)^(2/3)\nr₂ = ' + X.R1 + ' × (' + X.K + ' ÷ ' + X.T1 + ')^(2/3)\nr₂ = ' + X.R1 + ' × ' + f.toFixed(3) + '\nr₂ = ' + r3(ans)) + '<p>' + (X.mode === 'r' ? (X.K > X.R1 ? 'Farther out, so a longer period.' : 'Closer in, so a shorter period.') : (X.K > X.T1 ? 'A longer period, so farther out.' : 'A shorter period, so closer in.')) + '</p>' });
+    steps.push({ el: function(){ return $('cSteps'); }, title: 'Check T² ÷ r³', html: calcB('Moon 1: ' + X.T1 + '² ÷ ' + X.R1 + '³ = ' + r3(X.T1 * X.T1 / Math.pow(X.R1, 3)) + '\nMoon 2: ' + r3(T2) + '² ÷ ' + r3(r2) + '³ = ' + r3(T2 * T2 / Math.pow(r2, 3))) + '<p>The same: ✓</p>' });
+    steps.push({ title: 'Your answers', html: calcB((X.mode === 'r' ? 'T₂ = ' + r3(ans) + ' (same time unit as T₁)' : 'r₂ = ' + r3(ans) + ' (same distance unit as r₁)') + '\nT² ÷ r³ = ' + r3(X.T1 * X.T1 / Math.pow(X.R1, 3)) + ' for both') + '<p>Compare them with your own working.</p>' });
+  } else {
+    var A = X.a, c = X.c, e = X.e;
+    var setUp = function(){ go('first'); playing = true; syncPlay(); $('target').value = 'none'; O.target = 'none'; setOrbit({ a: A, e: e, w: 0, dir: 1, M: 0 }); setZoom(Math.max(ZMIN, Math.min(ZMAX, X.ra * 1.3))); draw(); };
+    steps.push({ title: 'Solve it in the lab', html: '<p>' + $('exText').innerHTML + '</p><p>We draw the same ellipse with the star at one focus, then find a, c and e.</p>', onShow: setUp });
+    steps.push({ el: function(){ return $('cFirst'); }, title: 'The orbit', html: '<p>The planet is closest (' + X.rp + ' AU) on the right and farthest (' + X.ra + ' AU) on the left. The star is not at the centre: it sits at one focus.</p>' });
+    steps.push({ el: ckEl('f1Axes'), title: 'Show the axes and foci', interactive: true, html: '<p>Turn on <b>Foci</b>, <b>Axes</b> and <b>Semiaxes</b>.</p>', wait: function(){ return $('f1Foci').checked && $('f1Axes').checked && $('f1Semi').checked; }, doIt: function(){ check('f1Foci', true); check('f1Axes', true); check('f1Semi', true); }, done: 'a (orange), b (green) and c (purple) are drawn.' });
+    steps.push({ el: function(){ return $('f1a').closest('.pp'); }, title: 'a and c', html: calcB('2a = perihelion + aphelion = ' + X.rp + ' + ' + X.ra + ' = ' + r3(X.rp + X.ra) + ' AU\na = ' + r3(A) + ' AU\nc = a − perihelion = ' + r3(A) + ' − ' + X.rp + ' = ' + r3(c) + ' AU') + '<p>c is the distance from the centre of the ellipse to the star.</p>', done: function(){ return 'Lab: a = ' + $('f1a').textContent + ', c = ' + $('f1c').textContent + '.'; }, wait: function(){ return true; } });
+    steps.push({ el: ckEl('f1Ecc'), title: 'Eccentricity', interactive: true, html: calcB('e = c / a = ' + r3(c) + ' / ' + r3(A) + '\ne = ' + e.toFixed(3)) + '<p>Turn on <b>Eccentricity</b> to compare it with real orbits. ' + (e < 0.1 ? 'Close to 0: almost a circle, like Earth (0.017).' : e < 0.3 ? 'A little stretched, like Mercury (0.206).' : 'Very stretched, more like a comet.') + '</p>', wait: function(){ return $('f1Ecc').checked; }, doIt: function(){ check('f1Ecc', true); }, done: function(){ return 'Lab: e = ' + $('f1e').textContent + '.'; } });
+    steps.push({ title: 'Your answers', html: calcB('a = (' + X.rp + ' + ' + X.ra + ') / 2 = ' + r3(A) + ' AU\nc = a − perihelion = ' + r3(c) + ' AU\ne = c / a = ' + e.toFixed(3)) + '<p>Compare them with your own working.</p>' });
+  }
+  setTimeout(function(){ Tour.start(steps, { label: 'Exercise', skipText: 'Stop', doneText: 'Finish', lazy: true }); }, 80);
+}
+$('exSolve').addEventListener('click', exSolve);
 setOrbit(DEF); setZoom(2.3);
 if (reduce){ tR = 1.0; tM = 5; }
 syncPlay(); syncSubs(); calc(); selectTab('retro');
@@ -1126,5 +1247,6 @@ requestAnimationFrame(function(t){ last = t; requestAnimationFrame(frame); });
 })();
 </script>
 
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>

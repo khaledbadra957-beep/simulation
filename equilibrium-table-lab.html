@@ -112,6 +112,7 @@ table.ed{border-collapse:collapse;width:100%;font-size:.9rem}
 table.ed th{font-size:.8125rem;color:var(--muted);text-align:left;padding:4px}
 table.ed td{padding:3px 4px}
 table.ed input,table.ed select{width:100%}
+table.ed select[data-ex="u"]{min-width:4.6rem}table.ed input[data-ex]{min-width:4.2rem}
 table.ed .del{border:0;background:none;color:var(--bad);font-weight:700;font-size:1.1rem;padding:2px 6px}
 .edwrap{overflow-x:auto}
 .score{font-family:var(--data);font-size:.85rem;background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;white-space:nowrap}
@@ -137,6 +138,7 @@ details.model summary{cursor:pointer;font-weight:700;color:var(--accent)}
   <button class="tab" role="tab" aria-selected="true" data-tab="step" aria-controls="p-step">1 · Step by step</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="calc" aria-controls="p-calc">2 · Table calculator</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">3 · You calculate</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Your exercise</button>
  </div>
 
  <!-- ============ 1 · STEP BY STEP ============ -->
@@ -257,6 +259,36 @@ details.model summary{cursor:pointer;font-weight:700;color:var(--accent)}
    </div>
   </div>
  </section>
+
+ <!-- ============ YOUR EXERCISE ============ -->
+ <section id="p-ex" role="tabpanel" class="grid2" hidden>
+  <div class="col">
+   <div class="card">
+    <div class="row" style="justify-content:space-between"><h2>Your exercise, solved in the lab</h2><div class="row"><button class="btn" id="exEg" type="button">Example</button><button class="btn primary" id="exSolve" type="button">▶ Solve it in the lab</button></div></div>
+    <label class="f">Balanced equation<input type="text" id="exEq" autocomplete="off" spellcheck="false" style="font-family:var(--data);font-size:1rem"></label>
+    <p class="fine">Use = or ⇌ between the sides and add states: (g), (aq), (l), (s). Water written as H2O(l) on the left of a reaction in solution is the solvent. Ions: Ag+, Cl-, H3O+.</p>
+    <div class="edwrap"><table class="ed"><thead><tr><th>Substance</th><th>At the start</th><th>Unit</th><th>Solution volume</th></tr></thead><tbody id="exTb"></tbody></table></div>
+    <div class="row" style="align-items:flex-end">
+     <label class="f" style="width:11rem">Volume of the mixture V (L)<input type="text" id="exV" inputmode="decimal" placeholder="none"></label>
+     <label class="f" style="flex:1 1 13rem">What do we know at the end?<select id="exKn">
+      <option value="n">Amount n of one species (mol)</option>
+      <option value="c">Concentration of one species (mol/L)</option>
+      <option value="K">The constant K</option>
+      <option value="tau">The degree of progress τ</option>
+      <option value="pH">The pH (uses H₃O⁺)</option>
+      <option value="total">It is a total reaction</option>
+     </select></label>
+     <label class="f" id="exKSpL" style="flex:1 1 8rem">Species<select id="exKSp"></select></label>
+     <label class="f" id="exKValL" style="width:9rem">Value <span id="exKUnit"></span><input type="text" id="exKVal" inputmode="decimal"></label>
+    </div>
+    <p class="fine">Leave V empty when the volume cancels (esterification). If you give solutions in mL, V is their total unless you type another value.</p>
+    <div id="exMsg" class="verdict info" aria-live="polite"></div>
+   </div>
+  </div>
+  <div class="col">
+   <div class="card"><h2>Your exercise</h2><p class="stmt" id="exText"></p><ol class="steps" id="exQs"></ol></div>
+  </div>
+ </section>
 </div>
 
 <script>
@@ -271,7 +303,7 @@ function themeLabel(){$('#themeBtn').textContent=isDark()?'Light mode':'Dark mod
 try{const t=localStorage.getItem('etl-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
 $('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('etl-theme',n)}catch(e){}themeLabel()};
 $$('.tab').forEach(b=>b.addEventListener('click',()=>{$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b?'true':'false'));
-  ['step','calc','chal'].forEach(t=>$('#p-'+t).hidden=t!==b.dataset.tab)}));
+  ['step','calc','chal','ex'].forEach(t=>$('#p-'+t).hidden=t!==b.dataset.tab)}));
 const css=v=>getComputedStyle(root).getPropertyValue(v).trim();
 
 /* ---------- numbers ---------- */
@@ -461,7 +493,7 @@ function syncX(){$('#xRange').value=Math.round(ST.x/ST.sol.xmax*1000);$('#xOut')
 function drawStepBars(){if(ST.sol)bars($('#bars'),ST.P,ST.sol,ST.x)}
 $('#xRange').addEventListener('input',e=>{cancelAnimationFrame(anim);ST.x=e.target.value/1000*ST.sol.xmax;$('#xOut').textContent=fmt(ST.x);drawStepBars();
   $('#xNote').innerHTML=ST.x>ST.sol.xf*(1+1e-6)?'<b>The reaction never gets here.</b> It stops at x<sub>f</sub> = '+fmt(ST.sol.xf)+' mol because the reverse reaction balances the forward one.':'Drag x. Reactants lose a·x, products gain c·x. The brass line is where the reaction really stops (x<sub>f</sub>).'});
-$('#stSel').addEventListener('change',e=>stLoad(+e.target.value));
+$('#stSel').addEventListener('change',e=>{if(e.target.value==='ex'){if(ST.exP)stLoadP(ST.exP);return}stLoad(+e.target.value)});
 $('#stNext').addEventListener('click',()=>{if(ST.step<NSTEP){ST.step++;stRender()}});
 $('#stPrev').addEventListener('click',()=>{if(ST.step>0){ST.step--;stRender()}});
 $('#stAll').addEventListener('click',()=>{ST.step=NSTEP;stRender();
@@ -576,6 +608,134 @@ $('#qNext').addEventListener('click',()=>{Q.revealed=false;Q.fixed=false;qNew()}
 $('#qHint').addEventListener('click',()=>{Q.hint=true;const vals={};$$('#qTable input').forEach(el=>vals[el.dataset.q+(el.dataset.i||'')]=el.value);
   $('#qTable').innerHTML=tableHTML(Q.P,Q.sol,{quiz:true,hint:true});$$('#qTable input').forEach(el=>el.value=vals[el.dataset.q+(el.dataset.i||'')]||'');$('#qHint').disabled=true});
 
+/* =========================================================
+   YOUR EXERCISE — solved step by step in the lab (tour.js)
+   ========================================================= */
+const SUBD='₀₁₂₃₄₅₆₇₈₉',SUPD='⁰¹²³⁴⁵⁶⁷⁸⁹';
+const AM={H:1,He:4,Li:7,Be:9,B:10.8,C:12,N:14,O:16,F:19,Ne:20,Na:23,Mg:24.3,Al:27,Si:28,P:31,S:32,Cl:35.5,Ar:40,K:39,Ca:40,Cr:52,Mn:55,Fe:56,Co:59,Ni:58.7,Cu:63.5,Zn:65.4,Br:80,Ag:108,Sn:118.7,I:127,Ba:137,Hg:200.6,Pb:207};
+const ELS=new Set('H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pt Au Hg Tl Pb Bi U'.split(' '));
+const exSup=n=>String(n).split('').map(c=>SUPD[+c]).join('');
+function exCharge(s){let m;
+  if((m=s.match(/^(.+?)([⁰¹²³⁴⁵⁶⁷⁸⁹]*)([⁺⁻])$/)))return {core:m[1],q:(m[2]?+[...m[2]].map(c=>SUPD.indexOf(c)).join(''):1)*(m[3]==='⁺'?1:-1)};
+  if((m=s.match(/^(.+?)(?:\^|\s+)(\d*)([+-])$/)))return {core:m[1],q:(m[2]?+m[2]:1)*(m[3]==='+'?1:-1)};
+  if((m=s.match(/^(NH4|H3O)([+-])$/)))return {core:m[1],q:m[2]==='+'?1:-1};
+  if((m=s.match(/^(.*[A-Za-z)\]])(\d?)([+-])$/)))return {core:m[1],q:(m[2]?+m[2]:1)*(m[3]==='+'?1:-1)};
+  return {core:s,q:0}}
+function exAtoms(core){const parts=core.split(/[·.*]/),tot={};
+  for(let part of parts){let mult=1;const lm=part.match(/^(\d+)(.*)$/);if(lm&&parts.length>1){mult=+lm[1];part=lm[2]}
+    const toks=part.match(/[A-Z][a-z]?|\d+|[()[\]]|./g)||[];const st=[{}];
+    for(let i=0;i<toks.length;i++){const t=toks[i];
+      if(t==='('||t==='['){st.push({});continue}
+      if(t===')'||t===']'){if(st.length<2)return null;const g=st.pop();let n=1;if(/^\d+$/.test(toks[i+1]||'')){n=+toks[i+1];i++}for(const e in g)st[st.length-1][e]=(st[st.length-1][e]||0)+g[e]*n;continue}
+      if(/^[A-Z][a-z]?$/.test(t)){if(!ELS.has(t))return null;let n=1;if(/^\d+$/.test(toks[i+1]||'')){n=+toks[i+1];i++}st[st.length-1][t]=(st[st.length-1][t]||0)+n;continue}
+      return null}
+    if(st.length!==1||!Object.keys(st[0]).length)return null;for(const e in st[0])tot[e]=(tot[e]||0)+st[0][e]*mult}
+  return tot}
+function exPretty(core,q){return core.replace(/([A-Za-z)\]])(\d+)/g,(m,a,d)=>a+d.split('').map(c=>SUBD[+c]).join('')).replace(/[·.*](\d*)/g,'·$1')+(q?(Math.abs(q)>1?exSup(Math.abs(q)):'')+(q>0?'⁺':'⁻'):'')}
+function exParseEq(str){let s=String(str).replace(/[₀-₉]/g,c=>SUBD.indexOf(c)).replace(/\s+/g,' ').trim();
+  const parts=s.split(/\s*(?:⇌|<=>|<->|⇄|↔|⟷|==|=|→|->|⟶)\s*/);
+  if(parts.length!==2||!parts[0]||!parts[1])return {err:'Type the equation with = (or ⇌) between the two sides, for example  H2(g) + I2(g) = 2HI(g).'};
+  const out=[];
+  for(const [side,txt] of [['r',parts[0]],['p',parts[1]]]){
+    const terms=txt.replace(/([A-Za-z0-9)\]])\+(?=\d*(?:[A-Z[]|\((?!(?:g|l|s|aq)\))))/gi,'$1 + ').split(/\s+\+\s+/);
+    for(let t of terms){t=t.trim();const m=t.match(/^(\d+)?\s*(.+?)\s*(\((?:g|l|s|aq)\))?$/i);if(!m)return {err:'I can’t read “'+t+'”.'};
+      const c=m[1]?+m[1]:1,st=m[3]?m[3].slice(1,-1).toLowerCase():'',ch=exCharge(m[2].trim()),at=exAtoms(ch.core);
+      if(!at)return {err:'I can’t read the formula “'+m[2]+'”. Check the capital letters (Cl, not CL).'};
+      if(c<1||c>12)return {err:'Use whole-number coefficients from 1 to 12.'};
+      const key=ch.core+'|'+ch.q;if(out.some(x=>x.key===key))return {err:exPretty(ch.core,ch.q)+' appears twice. Write each substance once.'};
+      out.push({key,core:ch.core,q:ch.q,f:exPretty(ch.core,ch.q),c,side,st,at})}}
+  const cnt=side=>{const tot={};let q=0;out.filter(x=>x.side===side).forEach(x=>{for(const e in x.at)tot[e]=(tot[e]||0)+x.at[e]*x.c;q+=x.q*x.c});return [tot,q]};
+  const [L,qL]=cnt('r'),[R,qR]=cnt('p');
+  for(const e of new Set([...Object.keys(L),...Object.keys(R)]))if((L[e]||0)!==(R[e]||0))return {err:'The equation is not balanced: '+e+' '+(L[e]||0)+' on the left, '+(R[e]||0)+' on the right.'};
+  if(qL!==qR)return {err:'The charges do not balance: '+qL+' on the left, '+qR+' on the right.'};
+  if(out.length>6)return {err:'The table has room for 6 substances.'};
+  const anyAq=out.some(x=>x.st==='aq'||x.q!==0);
+  out.forEach(x=>{if(!x.st)x.st=anyAq?'aq':'g';if(x.core==='H2O'&&x.side==='r'&&x.st==='l'&&anyAq)x.st='solv'});
+  if(!out.some(x=>x.side==='r'&&x.st!=='solv'))return {err:'There must be a reactant (other than the solvent water).'};
+  return {sp:out}}
+const exMM=x=>{let M=0;for(const e in x.at){if(!(e in AM))return NaN;M+=AM[e]*x.at[e]}return Math.round(M*10)/10};
+
+/* ---------- form ---------- */
+const exState={rows:{},last:''};
+const EXEG=[
+ {eq:'CH3COOH(l) + C2H5OH(l) = CH3COOC2H5(l) + H2O(l)',rows:{'CH3COOH|0':['6.0','g'],'C2H5OH|0':['4.6','g'],'CH3COOC2H5|0':['0','mol'],'H2O|0':['0','mol']},V:'',kn:'n',ks:'CH3COOH|0',kv:'0.0333'},
+ {eq:'N2O4(g) = 2NO2(g)',rows:{'N2O4|0':['0.040','mol'],'NO2|0':['0','mol']},V:'1.0',kn:'c',ks:'NO2|0',kv:'0.024'},
+ {eq:'CH3COOH(aq) + H2O(l) = CH3COO-(aq) + H3O+(aq)',rows:{'CH3COOH|0':['0.010','M','100'],'CH3COO|-1':['0','mol'],'H3O|1':['0','mol']},V:'',kn:'pH',kv:'3.4'},
+ {eq:'Ag+(aq) + Cl-(aq) = AgCl(s)',rows:{'Ag|1':['0.10','M','20.0'],'Cl|-1':['0.10','M','30.0'],'AgCl|0':['0','mol']},V:'',kn:'total'},
+ {eq:'PCl5(g) = PCl3(g) + Cl2(g)',rows:{'PCl5|0':['0.50','mol'],'PCl3|0':['0','mol'],'Cl2|0':['0','mol']},V:'2.0',kn:'K',kv:'0.040'}];
+let exEgI=1;
+function exLoadEg(e){$('#exEq').value=e.eq;for(const k in e.rows)exState.rows[k]=e.rows[k].slice();$('#exV').value=e.V;$('#exKn').value=e.kn;exState.last='';exSync();if(e.ks)$('#exKSp').value=e.ks;$('#exKVal').value=e.kv||'';exUI();exRead()}
+function exSync(){const P=exParseEq($('#exEq').value),sp=P.err?[]:P.sp,key=sp.map(x=>x.key+x.st).join(',');
+  if(key!==exState.last){exState.last=key;
+    $('#exTb').innerHTML=sp.length?sp.map((x,i)=>{const r=exState.rows[x.key]||['0','mol'];if(x.st==='solv')return '<tr><td class="mono">'+x.f+'(l)</td><td colspan="3" class="fine">solvent: in excess, not counted</td></tr>';
+      return '<tr><td class="mono" style="color:var(--'+(x.side==='r'?'re':'pr')+')">'+x.f+'('+x.st+')</td><td><input type="text" inputmode="decimal" data-ex="v" data-k="'+x.key+'" value="'+r[0]+'" aria-label="initial amount of '+x.f+'"></td>'+
+        '<td><select data-ex="u" data-k="'+x.key+'" aria-label="unit"><option value="mol"'+(r[1]==='mol'?' selected':'')+'>mol</option><option value="g"'+(r[1]==='g'?' selected':'')+'>g</option><option value="M"'+(r[1]==='M'?' selected':'')+'>mol/L</option></select></td>'+
+        '<td><span class="row" style="flex-wrap:nowrap"'+(r[1]==='M'?'':' hidden')+'><input type="text" inputmode="decimal" data-ex="ml" data-k="'+x.key+'" value="'+(r[2]||'')+'" aria-label="volume of solution in mL"> mL</span></td></tr>'}).join(''):'<tr><td colspan="4" class="fine">Type a balanced equation above.</td></tr>';
+    const ks=$('#exKSp'),old=ks.value;ks.innerHTML=sp.filter(x=>x.st!=='solv').map(x=>'<option value="'+x.key+'">'+x.f+'</option>').join('');if(sp.some(x=>x.key===old))ks.value=old;else{const pr=sp.find(x=>x.side==='p'&&x.st!=='s');if(pr)ks.value=pr.key}}
+  return P}
+function exUI(){const t=$('#exKn').value;$('#exKSpL').hidden=!(t==='n'||t==='c');$('#exKValL').hidden=t==='total';
+  $('#exKUnit').textContent={n:'(mol)',c:'(mol/L)',K:'',tau:'(0 to 1, or %)',pH:''}[t]||''}
+$('#exTb').addEventListener('input',e=>{const el=e.target,k=el.dataset.k;if(!k)return;const r=exState.rows[k]||(exState.rows[k]=['0','mol','']);
+  if(el.dataset.ex==='v')r[0]=el.value;if(el.dataset.ex==='ml')r[2]=el.value;if(el.dataset.ex==='u'){r[1]=el.value;el.closest('tr').querySelector('td:last-child .row').hidden=r[1]!=='M'}exRead()});
+$('#exTb').addEventListener('change',e=>{if(e.target.dataset.ex==='u'){exState.rows[e.target.dataset.k][1]=e.target.value;e.target.closest('tr').querySelector('td:last-child .row').hidden=e.target.value!=='M';exRead()}});
+['exEq','exV','exKVal'].forEach(id=>$('#'+id).addEventListener('input',exRead));
+['exKn','exKSp'].forEach(id=>$('#'+id).addEventListener('change',()=>{exUI();exRead()}));
+$('#exEg').addEventListener('click',()=>{exLoadEg(EXEG[exEgI%EXEG.length]);exEgI++});
+
+function exRead(){const m=$('#exMsg'),bad=t=>{m.textContent=t;m.className='verdict info';$('#exText').textContent='';$('#exQs').innerHTML='';return null};
+  const PP=exSync();$('#exEq').setAttribute('aria-invalid',PP.err?'true':'false');if(PP.err)return bad(PP.err);
+  const S=[],said=[];let mlSum=0,anyM=false;
+  for(const x of PP.sp){
+    if(x.st==='solv'){S.push(sp(x.f,x.c,x.side,'solv',null));continue}
+    const r=exState.rows[x.key]||['0','mol'],v=parseNum(r[0]);if(!(v>=0))return bad('Type the starting amount of '+x.f+' (0 if there is none).');
+    let n=v,how='';
+    if(r[1]==='g'){const M=exMM(x);if(!(M>0))return bad('I don’t know the molar mass of '+x.f+'. Give its amount in mol instead.');n=v/M;how='m ÷ M = '+fmt(v)+' ÷ '+fmt(M);if(v>0)said.push(fmt(v)+' g of '+x.f+' (M = '+fmt(M)+' g/mol)')}
+    else if(r[1]==='M'){const ml=parseNum(r[2]);if(!(ml>0))return bad('Type the volume (mL) of the '+x.f+' solution.');anyM=true;mlSum+=ml;n=v*ml/1000;how='C × V = '+fmt(v)+' × '+fmt(ml/1000);if(v>0)said.push(fmt(ml)+' mL of a '+fmt(v)+' mol/L solution of '+x.f)}
+    else if(v>0)said.push(fmt(v)+' mol of '+x.f);
+    S.push(sp(x.f,x.c,x.side,x.st,n,how))}
+  if(!S.some(s=>s.side==='r'&&s.st!=='solv'&&s.n0>0))return bad('Type the starting amounts of the reactants.');
+  let V=parseNum($('#exV').value),Vauto=false;if(!(V>0)){V=null;if(anyM){V=mlSum/1000;Vauto=true}}
+  const inKs=S.filter(s=>s.st!=='solv'&&s.st!=='s'),dn=inKs.reduce((t,s)=>t+(s.side==='p'?s.c:-s.c),0);
+  const t=$('#exKn').value,ksKey=$('#exKSp').value,ki=PP.sp.findIndex(x=>x.key===ksKey);let v=parseNum($('#exKVal').value);
+  if(t!=='total'&&!isFinite(v))return bad('Type the value we know at the end.');
+  if(t==='tau'&&/%/.test($('#exKVal').value))v/=100;
+  if(t==='tau'&&!(v>0&&v<=1))return bad('τ is between 0 and 1 (or 0 % to 100 %).');
+  if(t==='K'&&!(v>0))return bad('K must be a positive number.');
+  if((t==='n'||t==='c')&&ki<0)return bad('Choose the species we know at the end.');
+  if((t==='c'||t==='pH'||(dn!==0&&t!=='total'))&&!V)return bad(t==='c'?'A concentration needs the volume of the mixture: type V.':t==='pH'?'The pH needs the volume of the solution: type V.':'The volume does not cancel in K for this reaction: type the volume V of the mixture.');
+  const P={sp:S,V,known:t==='total'?{type:'total'}:{type:t,sp:ki,v},total:t==='total'};
+  const sol=solve(P);if(!sol.ok)return bad(sol.warn);
+  if(t!=='total'&&sol.xf<=0)return bad('These data mean nothing has reacted (x_f ≤ 0). Check the numbers.');
+  const ksp=ki>=0?PP.sp[ki].f:'';
+  const end={n:'At the end there is '+fmt(v)+' mol of '+ksp+'.',c:'At the end, ['+ksp+'] = '+fmt(v)+' mol/L.',K:'The equilibrium constant is K = '+fmt(v)+'.',tau:'The final degree of progress is τ = '+fmt(v)+'.',pH:'The final pH is '+fmt(v)+'.',total:'The reaction is total.'}[t];
+  const eqTxt=PP.sp.map(x=>(x.c>1?x.c:'')+x.f+'('+(x.st==='solv'?'l':x.st)+')');const ri=PP.sp.findIndex(x=>x.side==='p');
+  P.text=(said.length>1?'We mix ':'We start with ')+(said.length?said.join(' and '):'the reactants')+(V?(Vauto?(said.length>1?' (total volume '+fmt(V)+' L)':''):' in a volume V = '+fmt(V)+' L'):'')+'. '+end;
+  P.eq=eqTxt.slice(0,ri).join(' + ')+(t==='total'?' → ':' ⇌ ')+eqTxt.slice(ri).join(' + ');P.Vauto=Vauto;P.mlSum=mlSum;
+  m.textContent='Ready. Press “Solve it in the lab”.';m.className='verdict ok';
+  $('#exText').innerHTML=P.eq+'<br>'+P.text;
+  $('#exQs').innerHTML=['Build the table of progress (initial, during, final).','Find x_max and the limiting reactant.','Find x_f and the final amounts.','Calculate τ: is the reaction total or limited?'].concat(t==='total'?[]:['Calculate the equilibrium constant K.']).map(q=>'<li>'+q+'</li>').join('');
+  return {P,sol}}
+
+/* ---------- the guided solution ---------- */
+function stLoadP(P){ST.exP=P;ST.P=P;ST.sol=solve(P);ST.step=0;ST.x=0;ST.L=steps(P,ST.sol);$('#stText').textContent=P.text;
+  let o=$('#stSel option[value="ex"]');if(!o){o=document.createElement('option');o.value='ex';$('#stSel').appendChild(o)}o.textContent='Your exercise: '+P.eq;$('#stSel').value='ex';stRender()}
+const exGo=()=>{const b=document.querySelector('.lg-nav [data-ph="intro"]');if(b&&root.getAttribute('data-phase')!=='intro')b.click();const tb=$('.tab[data-tab="step"]');if(tb&&tb.getAttribute('aria-selected')!=='true')tb.click()};
+function exSolve(){const X=exRead();if(!X||!window.Tour)return;const P=X.P,sol=X.sol;
+  const calc=t=>'<div class="t-calc">'+t+'</div>',L=steps(P,sol),steps_=[];
+  const TT=['The initial row','The “during” row','x_max and the limiting reactant','x_f from the data','The final row','The degree of progress τ','The equilibrium constant K'];
+  steps_.push({title:'Solve it in the lab',html:'<p>'+$('#exText').innerHTML+'</p><p>Your exercise is now in the lab’s table. We fill it in one row at a time.</p>',onShow:()=>{exGo();stLoadP(P)}});
+  steps_.push({el:()=>$('#stTable tr.eqrow'),title:'The equation',html:'<p>The balanced equation goes on the first line. Reactants are blue, products green.</p>'+(P.sp.some(s=>s.st==='solv')?'<p>Water is the solvent: it is in excess, so we write “excess” instead of an amount.</p>':'')});
+  for(let k=1;k<=7;k++){if(k===7&&P.total)continue;
+    const el=k===3||k===6||k===7?()=>$('#stRes'):k===1?()=>$('#stTable tr.ri'):k===2?()=>$('#stTable tr.rd'):()=>$('#stTable tr.rf');
+    let pre=k===1&&P.Vauto?'V = '+fmt(P.mlSum)+' mL in total = '+fmt(P.V)+' L<br>':'';
+    steps_.push({el,title:TT[k-1],interactive:true,html:'<p>Press <b>Next step</b> in the lab.</p>'+calc(pre+L[k-1].h),wait:()=>ST.step>=k,doIt:()=>{while(ST.step<k)$('#stNext').click()},done:k===3?()=>'x_max = '+fmt(sol.xmax)+' mol':k===4?()=>'x_f = '+fmt(sol.xf)+' mol':k===6?()=>'τ = '+fmt(sol.tau):k===7?()=>'K = '+(isFinite(sol.K)?fmt(sol.K):'very large'):''})}
+  if(!sol.total)steps_.push({el:'#bars',title:'Where the reaction stops',html:'<p>The bars show each amount. The brass line is x_f: drag x past it and the lab tells you the reaction never gets there, because the reverse reaction balances the forward one.</p>',onShow:()=>{if(ST.step<7)ST.step=7,stRender()}});
+  const act=P.sp.map((s,i)=>[s,i]).filter(a=>a[0].st!=='solv');
+  steps_.push({title:'Your answers',html:calc(act.map(([s])=>'n₀('+s.f+') = '+fmt(s.n0)+' mol').join('<br>')+'<br>x_max = '+fmt(sol.xmax)+' mol · limiting: '+(sol.lims.length>1?'none (stoichiometric)':P.sp[sol.lims[0]].f)+'<br>x_f = '+fmt(sol.xf)+' mol<br>'+act.map(([s,i])=>'n_f('+s.f+') = '+fmt(sol.nf[i])+' mol').join('<br>')+'<br>τ = '+fmt(sol.tau)+' → '+(sol.total?'total reaction':'limited reaction (equilibrium)')+(P.total?'':'<br>K = '+(isFinite(sol.K)?fmt(sol.K):'very large')))+'<p>Compare them with your own working.</p>'});
+  setTimeout(()=>Tour.start(steps_,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+$('#exSolve').addEventListener('click',exSolve);
+exLoadEg(EXEG[0]);
+
 /* test hook */
 window.__ETL={solve,PRE,GEN,Q,ST,CP,parseNum,fmt,qNew};
 
@@ -583,5 +743,6 @@ stLoad(0);cLoad(0);qNew();themeLabel();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
 })();
 </script>
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>

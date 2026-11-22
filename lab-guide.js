@@ -633,20 +633,20 @@
 
   var PH = {  // intro tab, challenge tab (null = none), names
     'chemical-change-lab.html': { intro: '[data-tab="signs"]', game: '[data-tab="bal"]', gameName: 'Balance it' },
-    'chemical-equilibrium-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
+    'chemical-equilibrium-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'enthalpy-lab.html': { intro: '#t-heat', game: null, ex: '#t-ex' },
     'esterification-lab.html': { intro: '[data-tab="build"]', game: '[data-tab="chal"]' },
     'galvanic-cell-lab.html': { intro: '[data-tab="cell"]', game: '[data-tab="chal"]' },
-    'keplers-laws.html': { intro: '#t-retro', game: null },
+    'keplers-laws.html': { intro: '#t-retro', game: null, ex: '#t-ex' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
-    'reaction-rates-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]' },
+    'reaction-rates-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'titration-lab.html': { intro: '[data-tab="dil"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'torque-lab.html': { intro: '[data-tab="door"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'wave-speed-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'five-types-of-chemical-reactions.html': { intro: '[data-tab="build"]', game: '[data-tab="game"]' },
     'entropy-lab.html': { intro: '[data-tab="spr"]', game: '[data-tab="chal"]', gameName: 'Spontaneous?', ex: '[data-tab="ex"]' },
-    'equilibrium-table-lab.html': { intro: '[data-tab="step"]', game: '[data-tab="chal"]', gameName: 'You calculate' }
+    'equilibrium-table-lab.html': { intro: '[data-tab="step"]', game: '[data-tab="chal"]', gameName: 'You calculate', ex: '[data-tab="ex"]' }
   };
   var ph = PH[file] || {};
   var tabBar = document.querySelector('[role="tablist"], .tabs');
