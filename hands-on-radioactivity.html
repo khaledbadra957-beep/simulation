@@ -91,6 +91,7 @@ details summary{cursor:pointer;font-weight:700}details select{padding:4px 6px;bo
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
+<script src="parts.js"></script>
 <script src="phys-parts.js"></script>
 <script>
 (function(){
@@ -429,6 +430,17 @@ $('tShow').onclick=()=>{$('tOut').textContent='This page: Source X gives out '+X
 
 $('reset').onclick=()=>{location.href=location.pathname+location.search};
 const theme0=K.theme;K.theme=()=>{theme0();drawGraph()};
+/* parts + "Find the part" (parts.js) */
+if(window.LabParts)window.__lp=LabParts.hand(K,{key:'hands-radioactivity',stage:$('stage'),parts:()=>[
+ {id:'gm',name:'Geiger–Müller tube',what:'Detects ionising radiation: each alpha, beta or gamma that gets through its thin window makes one click (one count).',hint:'The metal tube on a stand.',q:'Find the Geiger–Müller tube.',obj:tube,at:'t'},
+ {id:'scaler',name:'Scaler-timer',what:'Counts the clicks from the tube over a set time. Take away the background count to get the corrected count.',hint:'The box with a display on the shelf.',q:'Find the scaler-timer.',obj:scaler,at:'t'},
+ {id:'rail',name:'Optical bench with a cm scale',what:'Measures the distance from the source to the tube window. The count rate falls quickly with distance.',hint:'The long metal rail.',q:'Find the optical bench.',obj:rail,at:'b'},
+ {id:'cart',name:'Source holder',what:'Slides along the bench and holds the source rod or a generator bottle in front of the tube.',hint:'The blue block on the rail.',q:'Find the source holder.',obj:cart,at:'t'},
+ {id:'box',name:'Lead box of sealed sources',what:'Keeps the sources shielded when not in use. Always pick a source up with tongs, never with your fingers.',hint:'The grey box on the shelf.',q:'Find the lead box.',obj:box,at:'t',quiz:false},
+ {id:'src',name:'Sealed sources',what:'Am-241 (alpha), Sr-90 (beta), Co-60 (gamma) and a mystery source X. Each capsule sits on a rod.',hint:'The coloured capsules on rods.',q:'Find a sealed source.',obj:srcs.filter(s=>s.visible)},
+ {id:'abs',name:'Absorber plates',what:'Paper stops alpha; 3 mm aluminium stops beta; lead only reduces gamma. Put a plate in the holder in front of the window.',hint:'The thin plates on the wooden rack.',q:'Find the absorber plates.',obj:plates,at:'t'},
+ {id:'bracket',name:'Absorber holder',what:'Holds one absorber plate right in front of the tube window.',hint:'The slotted uprights in front of the tube.',q:'Find the absorber holder.',obj:bracket,at:'t'},
+ {id:'gen',name:'Generator bottles',what:'Make a short-lived isotope (Pa-234m) you can measure the half-life of: the count halves every half-life.',hint:'The two bottles on the shelf.',q:'Find the generator bottles.',obj:gens,at:'t'}]});
 HandKit.themeButton($('themeBtn'),K);K.start();setMode('10');setSpeed(1);steps();table();drawGraph();lcdN.show('0','');lcdT.show('0.0','s');
 say('Start with the background count. All the sources are in the lead box. Press START / STOP on the scaler (or Start in the panel) after choosing 60 s with MODE. Tip: set Time speed to ×5 to save waiting.');
 window.__HK=Object.assign(K,{S,srcs,gens,plates,cart:cartI,btns,parts,totalRate,mounted,slotted,dist,G,GEN,MYS,setMode,setSpeed,startCount,stopCount,resetCount,shaken,fitLog,STEPS,TY,CM,enc,dec,inBox,mountPos});

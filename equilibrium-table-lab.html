@@ -743,6 +743,24 @@ stLoad(0);cLoad(0);qNew();themeLabel();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
 })();
 </script>
+<script src="parts.js"></script>
+<script>
+/* parts + "Find the part" on the table of progress (parts.js) */
+(function(){if(!window.LabParts)return;
+ const mk=(tid,key)=>{const t=document.getElementById(tid);if(!t)return null;const tw=t.closest('.tblwrap')||t,wrap=document.createElement('div'),bar=document.createElement('div');bar.className='lp-hbar';tw.parentNode.insertBefore(bar,tw);tw.parentNode.insertBefore(wrap,tw);wrap.appendChild(tw);
+  const S=q=>()=>t.querySelectorAll(q);
+  return LabParts.attach({key,wrap,stage:t,bar,max:5,parts:()=>t.querySelector('tr.ri')?[
+   {id:'eq',name:'Equation row',what:'The balanced equation, one column for each species. The coefficients tell you how much each amount changes: a·x, b·x, c·x…',hint:'The top row of the table.',q:'Find the equation row.',el:S('tr.eqrow'),pos:'l'},
+   {id:'reac',name:'Reactant columns',what:'The amounts of the reactants. They go down as the reaction goes forward: n₀ − a·x.',hint:'The columns under the species on the left of the arrow.',q:'Find the reactant columns.',el:S('.sp-r, td.r'),pos:'t'},
+   {id:'prod',name:'Product columns',what:'The amounts of the products. They go up as the reaction goes forward: + c·x.',hint:'The columns under the species on the right of the arrow.',q:'Find the product columns.',el:S('.sp-p, td.p'),pos:'t'},
+   {id:'x',name:'Progress column (x)',what:'The progress of the reaction in mol: x = 0 at the start, x = x_f at the end. If the reaction were total, it would reach x_max.',hint:'The column next to the state names.',q:'Find the progress column.',el:S('td.x'),pos:'t'},
+   {id:'ri',name:'Initial state',what:'The amounts you put in, before anything reacts (x = 0).',hint:'The first row of numbers.',q:'Find the initial state row.',el:S('tr.ri'),pos:'c'},
+   {id:'rd',name:'During the reaction',what:'Each amount written with x. This row is the rule: reactants lose a·x, products gain c·x.',hint:'The row with x in every cell.',q:'Find the row for during the reaction.',el:S('tr.rd'),pos:'c'},
+   {id:'rf',name:'Final state',what:'The amounts at the end, with x = x_f. If x_f = x_max the limiting reactant is used up; if x_f < x_max the final state is an equilibrium.',hint:'The row with x_f.',q:'Find the final state row.',el:S('tr.rf'),pos:'c'},
+   {id:'rc',name:'Final concentrations',what:'Final amounts ÷ volume of solution (mol/L). These go into K. Solids and the solvent water are left out.',hint:'The last row.',q:'Find the final concentrations row.',el:S('tr.rc'),pos:'c'}]:[]})};
+ window.__lp=mk('stTable','eqt-step');window.__lp2=mk('cTable','eqt-calc');window.__lp3=mk('qTable','eqt-chal');
+})();
+</script>
 <script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>

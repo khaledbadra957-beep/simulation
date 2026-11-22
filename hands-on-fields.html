@@ -75,6 +75,7 @@ table.data{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:8px}t
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
+<script src="parts.js"></script>
 <script src="phys-parts.js"></script>
 <script>
 (function(){
@@ -292,6 +293,17 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00'
   else if(!K.holder(rprobe)&&K.W>520)K.tag('red probe',V(rprobe.position.x-.3,rprobe.position.y-.75,.35),ink,0,true)}}
 
 const theme0=K.theme;K.theme=()=>{theme0();trayM.color.set(K.isDark()?0x2A3A41:0xD9DFDC);if(G1.userData.regrid)G1.userData.regrid()};
+/* parts + "Find the part" (parts.js) */
+if(window.LabParts)window.__lp=LabParts.hand(K,{key:'hands-fields',stage:$('stage'),gear:false,parts:()=>S.tab===0?[
+ {id:'panel',name:'Acrylic panel with a 1 cm grid',what:'The charged spheres sit in its holders. The grid and the cm scale let you measure distances from a charge.',hint:'The big clear panel with a grid.',q:'Find the acrylic panel.',wb:[[PAN.x0,PAN.y0,-.1,PAN.x1,PAN.y1,0]],at:'b'},
+ {id:'sphere',name:'Charged spheres (±20 nC)',what:'Small metal spheres carrying +20 nC or −20 nC. Field lines leave + charges and end on − charges.',hint:'The red and blue balls.',q:'Find a charged sphere.',obj:spheres.filter(s=>s.visible)},
+ {id:'sensor',name:'Force sensor with a test charge',what:'Measures the force F on a small test charge q at its tip. The field strength is E = F / q.',hint:'The yellow box with a small ball on a stick.',q:'Find the force sensor.',obj:sensor,at:'t'},
+ {id:'tray',name:'Tray',what:'Holds the spheres you are not using.',hint:'The grey tray at the side.',q:'Find the tray.',obj:tray}]:[
+ {id:'paper',name:'Conducting paper',what:'Black paper that conducts a little. A current spreads through it, so every point on it has a potential you can measure.',hint:'The big black sheet in the wooden frame.',q:'Find the conducting paper.',wb:[[PAPER.x0,PAPER.y0,-.1,PAPER.x1,PAPER.y1,0]],at:'b'},
+ {id:'el',name:'Electrodes',what:'Silver-paint electrodes joined to the supply, one at 0 V and one at 6 V. Equipotential lines run between them.',hint:'The silver bars or dots on the paper.',q:'Find the electrodes.',obj:[elGroup.plates,elGroup.points],at:'t'},
+ {id:'sup',name:'DC power supply',what:'Keeps a fixed potential difference (6 V) between the two electrodes.',hint:'The grey box with a voltage knob.',q:'Find the power supply.',obj:sup.g,at:'t'},
+ {id:'vm',name:'Voltmeter',what:'Shows the potential at the probe tip, measured from the 0 V electrode.',hint:'The yellow meter.',q:'Find the voltmeter.',obj:vm.g,at:'t'},
+ {id:'probe',name:'Red probe',what:'Touch the paper with it. Find points that give the same reading and mark them with pins: they lie on one equipotential line.',hint:'The red pen with a lead.',q:'Find the probe.',obj:rprobe,at:'t'}]});
 HandKit.themeButton($('themeBtn'),K);elGroup.points.visible=false;K.start();setTab(0);table1();
 window.__HK=Object.assign(K,{S,addPin,reading1,clearPins,spheres,sensor,rprobe,SLOT,field,volt,solve,setTab,setElec,tipPos,PAPER,PAN,U,TABS,pins});
 })();

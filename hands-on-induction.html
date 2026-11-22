@@ -83,6 +83,7 @@ table.data{width:100%;border-collapse:collapse;font-size:.86rem}table.data th,ta
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
+<script src="parts.js"></script>
 <script src="phys-parts.js"></script>
 <script>
 (function(){
@@ -299,6 +300,13 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),x=mag.position.x,y=mag.posit
  K.tag(S.my?'coil '+S.mys.letter+': ? turns':COIL.N+' turns',V(COIL.x,COIL.y-1.55,.4));if(!K.holder(mag)&&!S.bore)K.tag('bar magnet',V(x,y-.55,0),ink,0,true);
  if(!K.holder(token))K.tag('turn the magnet round',V(token.position.x,token.position.y-.7,.3))}
 
+/* parts + "Find the part" (parts.js) */
+if(window.LabParts)window.__lp=LabParts.hand(K,{key:'hands-induction',stage:$('stage'),gear:false,parts:()=>[
+ {id:'mag',name:'Bar magnet',what:'N pole red, S pole blue. Moving it into or out of the coil changes the magnetic flux through the coil.',hint:'The red and blue bar.',q:'Find the bar magnet.',obj:mag,at:'t'},
+ {id:'coil',name:sleeve.visible?'Mystery coil (covered)':'Coil of copper wire',what:'Many turns of wire. A changing flux through it induces an EMF: ε = −N ΔΦ/Δt. More turns give a bigger EMF.',hint:'The copper coil on two stands.',q:'Find the coil.',obj:sleeve.visible?sleeve:coil.g,at:'t'},
+ {id:'galv',name:'Galvanometer',what:'A centre-zero meter for small currents. The needle swings one way or the other to show the direction of the induced current.',hint:'The meter with a needle.',q:'Find the galvanometer.',obj:galv.g,at:'t'},
+ {id:'track',name:'Track',what:'Keeps the magnet on the axis of the coil, so it goes in straight through the open end.',hint:'The metal rail the magnet slides on.',q:'Find the track.',obj:track,at:'b'},
+ {id:'turn',name:'Turn-round button',what:'Turns the magnet round, so the other pole faces the coil.',hint:'The small round button.',q:'Find the turn-round button.',obj:K.item('turn'),at:'t'}]});
 HandKit.themeButton($('themeBtn'),K);K.start();steps();S.lam=linkage(mag.position.x,0,1);
 try{const c=(new URLSearchParams(location.search).get('coil')||'').toUpperCase();if(turnsOf(c))mystery(c)}catch(e){}
 window.__HK=Object.assign(K,{MYS,encN,decN,mystery,mystTable,dPhi1,S,COIL,MAG,M,linkage,mag,token,galv,coil,setTurns,flip,event,QS,answer,HIST,startChallenge});

@@ -77,6 +77,7 @@ table.data th{font-weight:600;color:var(--muted)}table.data th:first-child,table
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
+<script src="parts.js"></script>
 <script src="phys-parts.js"></script>
 <script>
 (function(){
@@ -235,6 +236,14 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),f=filt(),m=metal(),on=lit(),
  const s=sup.g.position;if(wide)K.tag('photocurrent',V(s.x,3.02,0));if(K.holder(vk)||K.holder(bk))K.tag('move left or right to turn',V(K.holder(vk)?vk.position.x:bk.position.x,(K.holder(vk)?vk.position.y:bk.position.y)+.75,0),amber,0,true)}
 
 K.gear({list:['gog'],say,worn:{gog:'Goggles on. These block ultraviolet light, and they stay on for as long as the lamp is in use.'},why:'The lamp gives out ultraviolet light, and ultraviolet damages your eyes.',ready:'Pick up the violet filter (400 nm) and slide it into the slot on the front of the lamp.',onWear:()=>steps(),x0:()=>-1.2});K.mirror($('mirror'));
+/* parts + "Find the part" (parts.js) */
+if(window.LabParts)window.__lp=LabParts.hand(K,{key:'hands-photoelectric',stage:$('stage'),parts:()=>[
+ {id:'lamp',name:'Lamp',what:'A bright lamp. A colour filter in front of it lets only one frequency of light through to the tube.',hint:'The lamp aimed at the tube.',q:'Find the lamp.',obj:lamp.g,at:'t'},
+ {id:'tube',name:'Vacuum phototube',what:'Two metal plates in a vacuum. Light hitting the cathode (the emitter) can knock out electrons; they fly to the anode (the collector).',hint:'The glass tube with two plates.',q:'Find the phototube.',obj:tube.g,at:'t'},
+ {id:'filt',name:'Colour filters',what:'Each lets one colour through: 400 nm violet to 650 nm red. Shorter wavelength means higher frequency and more energy per photon (E = hf).',hint:'The coloured slides on the wooden rack.',q:'Find the colour filters.',obj:rack,at:'t'},
+ {id:'ballast',name:'Lamp brightness control',what:'Changes the brightness: more photons each second, but each photon still has the same energy.',hint:'The dark box labelled LAMP.',q:'Find the brightness control.',obj:ballast.g,at:'t'},
+ {id:'sup',name:'DC supply (stopping voltage)',what:'Puts a voltage across the tube. Turn it up until the current just stops: that stopping voltage gives the electrons’ maximum kinetic energy, KE = eV.',hint:'The grey box labelled DC SUPPLY.',q:'Find the voltage supply.',obj:sup.g,at:'t'},
+ {id:'amm',name:'Ammeter (nA)',what:'Shows the tiny photocurrent in nanoamps. Zero current means no electrons reach the anode.',hint:'The yellow meter.',q:'Find the ammeter.',obj:amm.g,at:'t'}]});
 HandKit.themeButton($('themeBtn'),K);setV(0);setB(60);setMetal('na');K.start();steps();say('Safety first: the lamp gives out ultraviolet light. Put on the goggles.');
 new ResizeObserver(graph).observe($('graph'));
 window.__HK=Object.assign(K,{S,FILT,METALS,slides,vk,bk,SLOT,setV,setB,setMetal,record,current,fit,sup,amm,ballast,tube,lamp});

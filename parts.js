@@ -21,6 +21,7 @@
     '.lp-hi{position:absolute;border:3px solid var(--accent,#0A6A88);border-radius:8px;box-shadow:0 0 0 4px rgba(10,106,136,.18);pointer-events:none;transition:all .2s}' +
     '.lp-hi.ok{border-color:var(--ok,#1E8A55);box-shadow:0 0 0 4px rgba(30,138,85,.2)}.lp-hi.bad{border-color:var(--bad,#C0392B);box-shadow:0 0 0 4px rgba(192,57,43,.2)}' +
     '.lp-catch{position:absolute;inset:0;cursor:crosshair;pointer-events:auto;z-index:2}' +
+    '.lp-hcol{min-width:0}.lp-panel button,.lp-hbar button{width:auto}.lp-hbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px;flex-wrap:wrap}' +
     '.lp-panel{background:var(--stage,#fff);border:1.5px solid var(--line,#C6D2D1);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;margin-top:10px}' +
     '.lp-panel.lp-float{position:absolute;top:10px;width:min(300px,40%);max-height:calc(100% - 20px);overflow:auto;margin:0;z-index:5;box-shadow:0 10px 30px -10px rgba(0,0,0,.35)}.lp-panel[hidden]{display:none}.lp-k{display:flex;justify-content:space-between;gap:8px;font:600 12px/1.3 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#52646C)}' +
     '.lp-list{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:2px 12px}' +
@@ -49,7 +50,7 @@
       return (o.parts() || []).filter(function (p) { return p.show !== false; }).map(function (p) {
         if (!p.el) return p;
         var els = typeof p.el === 'function' ? p.el() : wrap.querySelectorAll(p.el); if (!els) return null; if (els.nodeType) els = [els];
-        var boxes = []; Array.prototype.forEach.call(els, function (e) { var r = e.getBoundingClientRect(); if (r.width > 1 || r.height > 1) boxes.push([r.left - wr.left, r.top - wr.top, r.right - wr.left, r.bottom - wr.top]); });
+        var boxes = []; Array.prototype.forEach.call(els, function (e) { var r = e.getBoundingClientRect(); var bx = [Math.max(0, r.left - wr.left), Math.max(0, r.top - wr.top), Math.min(wr.width, r.right - wr.left), Math.min(wr.height, r.bottom - wr.top)]; if (bx[2] - bx[0] > 1 && bx[3] - bx[1] > 1) boxes.push(bx); });   // only the part you can see (tables that scroll sideways)
         if (!boxes.length) return null; var q = {}; for (var k in p) q[k] = p[k]; q.boxes = boxes; var b = boxOf(q), pos = p.pos || 'l', W = wrap.clientWidth;
         if (pos === 'l' && b[0] < 26) pos = 'r'; if (pos === 'r' && b[2] > W - 26) pos = 'l';
         q.x = pos === 'l' ? b[0] - 14 : pos === 'r' ? b[2] + 14 : (b[0] + b[2]) / 2; q.y = pos === 't' ? b[1] - 14 : pos === 'b' ? b[3] + 14 : (b[1] + b[3]) / 2;
@@ -113,6 +114,7 @@
       if (Q.i >= Q.qs.length) { Q.done = true; var b = best(); if (!b || Q.score / Q.qs.length > b.s / b.n) { try { localStorage.setItem(KEY, JSON.stringify({ s: Q.score, n: Q.qs.length })); } catch (e) { } } }
       renderQuiz(); }
     function hit(x, y) { var best_ = null, bd = 1e9; P.forEach(function (p) { p.boxes.forEach(function (b) { var pad = 6; if (x >= b[0] - pad && x <= b[2] + pad && y >= b[1] - pad && y <= b[3] + pad) { var a = (b[2] - b[0]) * (b[3] - b[1]); if (a < bd) { bd = a; best_ = p; } } }); }); return best_; }
+    [catcher, layer].forEach(function (x) { x.addEventListener('pointerdown', function (e) { e.stopPropagation(); }); });   // keep clicks away from labs that grab on pointerdown
     catcher.addEventListener('click', function (e) {
       if (mode !== 'quiz' || !Q || Q.done || (Q.show && Q.show.cls !== 'bad')) return; P = list();
       var r = wrap.getBoundingClientRect(), p = hit(e.clientX - r.left, e.clientY - r.top), want = Q.qs[Q.i];
@@ -137,5 +139,29 @@
     var X = function (x) { return ox + x * k; }, Y = function (y) { return oy + y * k; };
     return { X: X, Y: Y, k: k, B: function (a, b, c, d) { return [X(a), Y(b), X(c), Y(d)]; } };
   }
-  window.LabParts = { attach: attach, svgMap: svgMap };
+
+  /* 3-D camera labs (hand-kit.js): parts are three.js objects (obj) or world boxes (wb:[x0,y0,z0,x1,y1,z1]); boxes are projected to the stage */
+  function hand(K, o) {
+    var T = K.T, stage = o.stage, col = el('div', 'lp-hcol'), bar = el('div', 'lp-hbar');
+    stage.parentNode.insertBefore(col, stage); col.appendChild(bar); col.appendChild(stage);
+    var bx = new T.Box3(), tmp = new T.Box3(), v = new T.Vector3();
+    function vis(m) { for (; m; m = m.parent) if (!m.visible) return false; return true; }
+    function wbox(obj) { bx.makeEmpty(); obj.updateMatrixWorld(true); obj.traverse(function (m) { if ((m.isMesh || m.isSprite) && m.geometry && vis(m)) { if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); tmp.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld); bx.union(tmp); } }); return bx.isEmpty() ? null : bx.clone(); }
+    function sbox(b) { var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (var i = 0; i < 8; i++) { v.set(i & 1 ? b.max.x : b.min.x, i & 2 ? b.max.y : b.min.y, i & 4 ? b.max.z : b.min.z).project(K.cam); var sx = (v.x + 1) / 2 * K.W, sy = (1 - v.y) / 2 * K.H; x0 = Math.min(x0, sx); x1 = Math.max(x1, sx); y0 = Math.min(y0, sy); y1 = Math.max(y1, sy); }
+      x0 = Math.max(0, x0); y0 = Math.max(0, y0); x1 = Math.min(K.W, x1); y1 = Math.min(K.H, y1); return x1 - x0 < 2 || y1 - y0 < 2 ? null : [x0, y0, x1, y1]; }
+    function parts() { if (!stage.getClientRects().length) return []; var L = [];
+      var G = { gog: ['Safety goggles', 'Protect your eyes from splashes. Wear them the whole time you work at the bench.', 'Find the safety goggles.'], coat: ['Lab coat', 'Protects your skin and clothes from spills.', 'Find the lab coat.'], gloves: ['Gloves', 'Protect your hands from chemicals that irritate, burn or stain.', 'Find the gloves.'] };
+      var gear = o.gear === false ? [] : K.items.filter(function (it) { var u = it.userData; return u.managed && G[u.gear] && !u.hidden; }).map(function (it) { var g = G[it.userData.gear]; return { id: 'gear-' + it.userData.gear, name: g[0], what: g[1], q: g[2], hint: 'The safety kit at the side of the bench.', obj: it, at: 't' }; });
+      o.parts().concat(gear).forEach(function (p) { if (!p) return; var B = [];
+        [].concat(p.obj || []).forEach(function (ob) { if (ob && vis(ob)) { var w = wbox(ob); if (w) { var s = sbox(w); if (s) B.push(s); } } });
+        (p.wb || []).forEach(function (w) { var s = sbox(new T.Box3(new T.Vector3(w[0], w[1], w[2]), new T.Vector3(w[3], w[4], w[5]))); if (s) B.push(s); });
+        if (!B.length) return;
+        var U = B.reduce(function (a, b) { return [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])]; }), at = p.at || 'r', cx = (U[0] + U[2]) / 2, cy = (U[1] + U[3]) / 2, x, y;
+        if (at === 'r') { x = U[2] + 12; y = cy; if (x > K.W - 12) x = U[0] - 12; } else if (at === 'l') { x = U[0] - 12; y = cy; if (x < 12) x = U[2] + 12; }
+        else if (at === 't') { x = cx; y = U[1] - 12; if (y < 12) y = U[3] + 12; } else if (at === 'c') { x = cx; y = cy; } else { x = cx; y = U[3] + 12; if (y > K.H - 12) y = U[1] - 12; }
+        L.push(Object.assign({}, p, { obj: null, wb: null, boxes: B, x: Math.max(12, Math.min(K.W - 12, x)), y: Math.max(12, Math.min(K.H - 12, y)) }));
+      }); return L; }
+    return attach({ key: o.key, wrap: stage, stage: stage, bar: bar, parts: parts, max: o.max || 5, float: false });
+  }
+  window.LabParts = { attach: attach, svgMap: svgMap, hand: hand };
 })();

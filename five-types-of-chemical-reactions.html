@@ -587,6 +587,21 @@ document.getElementById('gSol').onclick=()=>{const r=document.getElementById('re
  try{const t=localStorage.getItem('ft-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}const lab=()=>b.textContent=dk()?'Light mode':'Dark mode';lab();
  b.onclick=()=>{const n=dk()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('ft-theme',n)}catch(e){}lab()}})();
 </script>
+<script src="parts.js"></script>
+<script>
+/* parts + "Find the part" on the five patterns (parts.js) */
+(function(){if(!window.LabParts)return;const c=document.getElementById('patCanvas');if(!c)return;
+ const wrap=document.createElement('div'),bar=document.createElement('div');bar.className='lp-hbar';c.parentNode.insertBefore(bar,c);c.parentNode.insertBefore(wrap,c);wrap.appendChild(c);
+ const D=[
+  ['syn','Synthesis','Two or more substances join to make one product: A + B → AB. Example: 2Na + Cl₂ → 2NaCl.','Find the pattern where two substances join to make one.'],
+  ['dec','Decomposition','One compound splits into two or more simpler substances: AB → A + B. Example: 2H₂O₂ → 2H₂O + O₂.','Find the pattern where one compound splits up.'],
+  ['sin','Single replacement','A more reactive element takes the place of another in a compound: A + BC → AC + B. Example: Fe + CuSO₄ → FeSO₄ + Cu.','Find the pattern where an element pushes another one out of its compound.'],
+  ['dbl','Double replacement','Two compounds swap partners: AB + CD → AD + CB. Often makes a precipitate, a gas or water. Example: AgNO₃ + NaCl → AgCl + NaNO₃.','Find the pattern where two compounds swap partners.'],
+  ['com','Combustion','A fuel reacts with oxygen, giving out heat and light. A hydrocarbon gives CO₂ + H₂O. Example: CH₄ + 2O₂ → CO₂ + 2H₂O.','Find the pattern where a fuel burns in oxygen.']];
+ window.__lp=LabParts.attach({key:'five-types-patterns',wrap,stage:c,bar,max:5,float:false,parts:()=>{if(!c.getClientRects().length)return [];const W=c.clientWidth,H=c.clientHeight,h=H/5;
+  return D.map((d,i)=>({id:d[0],name:d[1],what:d[2],q:d[3],hint:'Watch which atoms join, split or swap.',x:W-16,y:h*i+h/2,boxes:[[0,h*i,W,h*(i+1)]]}))}});
+})();
+</script>
 <script src="lab-guide.js" defer></script>
 </body>
 </html>

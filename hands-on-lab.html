@@ -57,6 +57,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
+<script src="parts.js"></script>
 <script>
 (function(){
 'use strict';
@@ -183,6 +184,16 @@ function hudDraw(){for(const it of K.items){const u=it.userData;if(u.name&&!u.pl
  if(state.power>.5)K.tag('e⁻ →',V(-2.35,5.85,0),'#C98A12',0,true)}
 
 $('reset').onclick=()=>{occupied.L=occupied.R=null;state.done=false;for(const it of K.items){if(it.userData.gear)continue;it.userData.placed=false;it.userData.locked=false;K.home(it)}buildWires();steps();say(K.safe()?'Pick up the zinc strip first.':'Safety first: put on the goggles, the lab coat and the gloves.')};
+/* parts + "Find the part" (parts.js) */
+if(window.LabParts)window.__lp=LabParts.hand(K,{key:'hands-galvanic',stage:$('stage'),parts:()=>[
+ {id:'bkL',name:'Zinc sulfate beaker',what:'Holds ZnSO₄(aq). The zinc strip goes in here to make the zinc half-cell.',hint:'The beaker with the pale solution on the left.',q:'Find the zinc sulfate solution.',obj:bkL.g,at:'l'},
+ {id:'bkR',name:'Copper(II) sulfate beaker',what:'Holds blue CuSO₄(aq). The copper strip goes in here to make the copper half-cell.',hint:'The beaker with the blue solution.',q:'Find the copper(II) sulfate solution.',obj:bkR.g,at:'r'},
+ {id:'zn',name:'Zinc strip',what:'The anode (−). Zinc is oxidised: Zn → Zn²⁺ + 2e⁻. Electrons leave it through the wire.',hint:'The grey metal strip.',q:'Find the zinc strip.',obj:zn},
+ {id:'cu',name:'Copper strip',what:'The cathode (+). Copper ions are reduced on it: Cu²⁺ + 2e⁻ → Cu.',hint:'The orange-brown metal strip.',q:'Find the copper strip.',obj:cu},
+ {id:'bridge',name:'Salt bridge',what:'A U-tube of gel with a salt such as KNO₃. Its ions move to keep both solutions neutral, so the current keeps flowing.',hint:'The upside-down U tube.',q:'Find the salt bridge.',obj:bridge,at:'t'},
+ {id:'lamp',name:'Bulb',what:'Lights when the cell pushes a current round the circuit.',hint:'The bulb on a small wooden board.',q:'Find the bulb.',obj:lamp,at:'t'},
+ {id:'sw',name:'Switch',what:'Closes the circuit. With the switch closed, electrons can flow from zinc to copper.',hint:'On the rail, on the left.',q:'Find the switch.',wb:[[-3.03,4.96,-.25,-1.67,5.45,.25]],at:'t'},
+ {id:'meter',name:'Multimeter (voltmeter)',what:'Measures the cell voltage. A zinc–copper cell gives about 1.10 V.',hint:'The yellow meter in the middle of the rail.',q:'Find the voltmeter.',wb:[[-.75,4.96,-.17,.75,6.11,.19]],at:'t'}]});
 HandKit.themeButton($('themeBtn'),K);lcd('0.00','0');buildWires();K.gear({say,why:'Copper sulfate solution is harmful and irritates eyes and skin.',ready:'Pick up the zinc strip first.',onWear:()=>steps(),x0:k=>k.halfW>6.7?-k.halfW+1.35:-k.halfW+2.7});K.mirror($('mirror'));K.start();steps();
 window.__HL=Object.assign(K,{SLOT,CARDTARGET,running});
 })();

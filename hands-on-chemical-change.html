@@ -50,6 +50,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
+<script src="parts.js"></script>
 <script>
 (function(){
 'use strict';
@@ -203,6 +204,14 @@ function hudDraw(g){const x=E.x,ink=K.ink(),dk=K.isDark();
  if(E.r<1){const rx=K.halfW-1.25;K.tag('locked for now',V(rx,6.15,.4))}}
 
 K.gear({say,why:'Even kitchen chemicals can splash into your eyes, and hydrogen peroxide irritates the skin.',ready:'Pick up the first bottle, hold it over the beaker and tilt it to pour.',onWear:()=>steps()});K.mirror($('mirror'));
+/* parts + "Find the part" (parts.js) */
+if(window.LabParts)window.__lp=LabParts.hand(K,{key:'hands-chemchange',stage:$('stage'),parts:()=>{const x=E.x,pw=x.bKind==='powder';return [
+ {id:'beaker',name:'Beaker',what:'Where the two substances meet. Watch it closely for the signs of a change.',hint:'The big glass beaker in the middle.',q:'Find the beaker.',obj:beaker.g,at:'l'},
+ {id:'thermo',name:'Digital thermometer',what:'Shows the temperature of the mixture. Getting hotter or colder is a sign of an energy change.',hint:'The yellow probe standing in the beaker.',q:'Find the thermometer.',wb:[[BX+.55,.2,-.3,BX+1.15,3.6,-.1]],at:'r'},
+ {id:'a',name:'Bottle of '+x.a,what:'The first substance. Tilt the bottle over the beaker to pour it in.',hint:'A bottle with a label.',q:'Find the '+x.a+'.',obj:botA.it,at:'t'},
+ {id:'b',name:(pw?'Weighing dish of ':'Bottle of ')+x.b,what:'The second substance. Add it to the beaker and watch what happens.',hint:pw?'The small white dish with a heap of powder.':'The second bottle.',q:'Find the '+x.b+'.',obj:pw?dish:botB.it,at:'t'},
+ {id:'signs',name:'Sign cards',what:'One card for each sign: gas, a new solid, a colour change, an energy change. Drop each sign you see on the beaker.',hint:'The four cards at the side.',q:'Find the sign cards.',obj:SIGNID.map(k=>cards[k])},
+ {id:'verdict',name:'Chemical or physical cards',what:'Your final decision: was a new substance made (chemical) or is it still the same substance (physical)?',hint:'The red and blue cards.',q:'Find the chemical or physical cards.',obj:[cards.chem,cards.phys]}]}});
 HandKit.themeButton($('themeBtn'),K);setExp(0,true);K.start();setExp(0);
 window.__HK=Object.assign(K,{EXP,BX,getE:()=>E,setExp,botA:botA.it,botB:botB.it,dish,cards,done,first});
 })();
