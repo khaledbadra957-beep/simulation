@@ -224,6 +224,7 @@ footer{color:var(--muted);font-size:.85rem}
  <footer>Designed and built by Mr Khaled for his physics and chemistry students · Values follow Inspire Physics Module 8 Lesson 2 (τ = F r sin θ, L = r sin θ, net torque = 0 when balanced).</footer>
 </div>
 
+<script src="parts.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s), NS='http://www.w3.org/2000/svg';
@@ -481,6 +482,33 @@ function exRead(){const m=$('#exMsg'),clr=t=>{m.textContent=t;$('#exText').textC
  return {k:'see',find,m1,d1,m2,d2,ans}}
 ['exF','exR','exT','exM1','exD1','exM2','exD2','exFind'].forEach(id=>{$('#'+id).addEventListener('input',exRead);$('#'+id).addEventListener('change',exRead)});
 $('#exEg').onclick=()=>{if(exK==='door'){$('#exF').value=50;$('#exR').value=0.25;$('#exT').value=90}else{$('#exFind').value='d2';$('#exM1').value=30;$('#exD1').value=1.5;$('#exM2').value=45}exRead()};
+/* ---------- parts + "Find the part" (parts.js) ---------- */
+if(window.LabParts){
+ const lpWrap=sel=>{const sv=$(sel),w=document.createElement('div');sv.parentNode.insertBefore(w,sv);w.appendChild(sv);return w};
+ const wD=lpWrap('#doorSvg'),wS=lpWrap('#seeSvg');
+ const rot=(x,y,cx,cy,deg)=>{const a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return [cx+(x-cx)*c-(y-cy)*s,cy+(x-cx)*s+(y-cy)*c]};
+ const bb=pts=>[Math.min(...pts.map(p=>p[0])),Math.min(...pts.map(p=>p[1])),Math.max(...pts.map(p=>p[0])),Math.max(...pts.map(p=>p[1]))];
+ window.__lp=LabParts.attach({key:'torque-door',wrap:wD,stage:$('#doorSvg'),bar:$('#p-door .benchhead'),max:5,parts:()=>{const sv=$('#doorSvg');if(!sv.getClientRects().length)return [];const {X,Y,B}=LabParts.svgMap(sv,wD),L=[],R=(x,y)=>rot(x,y,HX,HY,-D.ang);
+  const a=-D.ang*Math.PI/180,px=HX+D.r*PXM*Math.cos(a),py=HY+D.r*PXM*Math.sin(a),th=D.th*Math.PI/180,dir=a-th,fl=20+D.F*1.6,fx=Math.cos(dir),fy=Math.sin(dir),sx=px-fx*fl,sy=py-fy*fl;
+  const door=bb([R(HX,HY-9),R(HX+0.9*PXM,HY-9),R(HX+0.9*PXM,HY+9),R(HX,HY+9)]),hd=bb([R(HX+0.8*PXM-30,HY-22),R(HX+0.8*PXM+10,HY-22),R(HX+0.8*PXM+10,HY+22),R(HX+0.8*PXM-30,HY+22)]);
+  L.push({id:'hinge',name:'Hinge (axis of rotation)',what:'The door turns about this line. Distances (r) and lever arms are measured from here.',hint:'Where the door is fixed to the wall.',q:'Find the axis of rotation.',x:X(HX-22),y:Y(HY-40),boxes:[B(HX-14,HY-14,HX+22,HY+14)]});
+  L.push({id:'door',name:'Door',what:'A rigid object that can rotate. It turns faster when the torque on it is bigger: α = τ / I.',hint:'The long wooden board.',q:'Which object rotates?',x:X(HX+0.45*PXM),y:Y(HY+34),boxes:[B(door[0],door[1],door[2],door[3])]});
+  L.push({id:'handle',name:'Handle',what:'Put far from the hinge: a large r gives a large torque for the same force.',hint:'Near the free end of the door.',q:'Why is the handle far from the hinge? Find it.',x:X(HX+0.8*PXM-10),y:Y(HY-40),boxes:[B(hd[0],hd[1],hd[2],hd[3])]});
+  if(D.F>0)L.push({id:'force',name:'Force F',what:'The push on the door. Torque τ = F × r × sin θ: only the part of F perpendicular to the door turns it.',hint:'The arrow pushing the door.',q:'Find the force arrow.',x:X(sx-14),y:Y(sy-14),boxes:[B(Math.min(sx,px)-8,Math.min(sy,py)-8,Math.max(sx,px)+8,Math.max(sy,py)+8)]});
+  L.push({id:'point',name:'Point where the force acts',what:'Its distance from the hinge is r. Push here at 90° for the biggest torque.',hint:'The dot where the arrow touches the door.',q:'Where does the force act on the door?',x:X(px+18),y:Y(py+18),boxes:[B(px-8,py-8,px+8,py+8)]});
+  const Lm=D.r*Math.sin(th);if(Math.abs(Lm)>0.004&&D.F>0){const t=((HX-px)*fx+(HY-py)*fy),qx=px+fx*t,qy=py+fy*t;L.push({id:'arm',name:'Lever arm',what:'The perpendicular distance from the axis to the line of the force: lever arm = r sin θ. Torque = F × lever arm.',hint:'The dashed line from the hinge to the line of the force.',q:'Find the lever arm.',x:X((HX+qx)/2-16),y:Y((HY+qy)/2-16),boxes:[B(Math.min(HX,qx)-6,Math.min(HY,qy)-6,Math.max(HX,qx)+6,Math.max(HY,qy)+6)]})}
+  L.push({id:'wall',name:'Wall',what:'The door frame is fixed in the wall; the door swings open into the room.',hint:'Along the bottom.',q:'Find the wall.',x:X(40),y:Y(HY+70),boxes:[B(0,HY+12,HX-14,HY+38)]});
+  return L}});
+ window.__lp2=LabParts.attach({key:'torque-seesaw',wrap:wS,stage:$('#seeSvg'),bar:$('#p-see .benchhead'),max:5,parts:()=>{const sv=$('#seeSvg');if(!sv.getClientRects().length)return [];const {X,Y,B}=LabParts.svgMap(sv,wS),L=[];
+  const net=S.m1*9.8*S.d1-S.m2*9.8*S.d2,tilt=Math.max(-11,Math.min(11,net/40)),R=(x,y)=>rot(x,y,CX,CY,-tilt);
+  const plank=bb([R(CX-1.9*PX2,CY-6),R(CX+1.9*PX2,CY-6),R(CX+1.9*PX2,CY+8),R(CX-1.9*PX2,CY+8)]);
+  L.push({id:'pivot',name:'Pivot (fulcrum)',what:'The seesaw turns about this point. Each child’s torque is weight × distance from here.',hint:'The triangle under the middle of the plank.',q:'Find the pivot.',x:X(CX+52),y:Y(CY+50),boxes:[B(CX-36,CY-8,CX+36,CY+70)]});
+  L.push({id:'plank',name:'Plank',what:'A rigid beam marked every 0.1 m from the pivot, so you can read each distance.',hint:'The long board.',q:'Find the plank.',x:X(CX+120),y:Y(CY+34),boxes:[B(plank[0],plank[1],plank[2],plank[3])]});
+  [['L',S.m1,S.d1,-1],['R',S.m2,S.d2,1]].forEach(([sd,m,d,sg])=>{const sc=0.75+m/160,[kx,ky]=R(CX+sg*d*PX2,CY-6);
+   L.push({id:'kid'+sd,name:(sd==='L'?'Left':'Right')+' child ('+m+' kg)',what:`Sits ${d.toFixed(2)} m from the pivot. Torque = m g d = ${m} × 9.8 × ${d.toFixed(2)} = ${Math.round(m*9.8*d)} N·m, turning ${sd==='L'?'counter-clockwise':'clockwise'}.`,hint:`On the ${sd==='L'?'left':'right'} of the plank.`,q:`Find the ${sd==='L'?'left':'right'} child.`,x:X(kx-sg*30),y:Y(ky-80*sc),boxes:[B(kx-14*sc,ky-76*sc,kx+14*sc,ky)]});
+   L.push({id:'w'+sd,name:'Weight of the '+(sd==='L'?'left':'right')+' child',what:`The force of gravity on the child: W = m g = ${Math.round(m*9.8)} N, straight down.`,hint:'The red arrow under that child.',q:`Find the weight arrow of the ${sd==='L'?'left':'right'} child.`,x:X(kx+sg*26),y:Y(ky+30),boxes:[B(kx-6,ky+2,kx+6,ky+46+m*.6)]})});
+  return L}})}
+
 exRead();
 function exSolve(){const X=exRead();if(!X||!window.Tour)return;
  const calc=t=>'<div class="t-calc">'+t+'</div>',go=t=>()=>{const b=document.querySelector('.lg-nav [data-ph="lab"]');if(b&&document.documentElement.getAttribute('data-phase')!=='lab')b.click();$('#tab-'+t).click()};

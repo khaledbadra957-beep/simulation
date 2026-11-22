@@ -58,6 +58,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
+<script src="parts.js"></script>
 <script>
 (function(){
 'use strict';
@@ -239,6 +240,19 @@ function hudDraw(g){const ink=K.ink();
   if(K.hover===tap&&!K.held)K.tag(Tt.ind?'hold = flow · quick grab = one drop':'add the indicator first',V(TX+.3,BBOT-.06,.2),ink,-26)}}
 
 K.gear({say,why:'Potassium permanganate stains skin and clothes, and the acid and sodium hydroxide can burn eyes and skin.',ready:'Now carry on with the first step.',onWear:()=>steps()});K.mirror($('mirror'));
+/* parts + "Find the part" (parts.js) */
+if(window.LabParts)window.__lp=LabParts.hand(K,{key:'hands-titration',stage:$('stage'),parts:()=>tab==='dil'?[
+ {id:'stock',name:'Stock solution',what:'The concentrated KMnO₄ solution, 0.020 mol/L. You take exactly 10.0 mL of it with the pipette.',hint:'The bottle with the purple solution.',q:'Find the stock solution.',obj:bottle.g,at:'t'},
+ {id:'pip',name:'Pipette and filler',what:'A 10 mL volumetric pipette delivers exactly 10.00 mL when filled to the ring. The red rubber filler sucks the liquid up: never use your mouth.',hint:'The long glass tube with a red bulb.',q:'Find the pipette.',obj:pip},
+ {id:'flask',name:'Volumetric flask (100 mL)',what:'Holds exactly 100.0 mL when the bottom of the meniscus sits on the ring on its neck. Use it to make up the diluted solution.',hint:'The flask with the long neck and a ring.',q:'Find the volumetric flask.',obj:fl,at:'t'},
+ {id:'wash',name:'Wash bottle',what:'Distilled water. Squeeze it to add water, and add the last drops one at a time so you do not pass the line.',hint:'The squeezy bottle with a bent nozzle.',q:'Find the wash bottle.',obj:wash,at:'t'},
+ {id:'stop',name:'Stopper',what:'Closes the flask so you can turn it over several times to mix the solution evenly.',hint:'A small glass plug.',q:'Find the stopper.',obj:stop,at:'t'}]:[
+ {id:'bur',name:'Burette',what:'A long tube with a scale from 0 to 50 mL. It adds the NaOH and you read how much you used: start reading − end reading.',hint:'The long tube held by the clamp.',q:'Find the burette.',wb:[[TX-.15,BBOT,-.15,TX+.15,BTOP,.15]]},
+ {id:'tap',name:'Tap (stopcock)',what:'Turn it to let NaOH run out. Open it fully at first, then add drop by drop near the end point.',hint:'The blue handle under the burette.',q:'Find the tap.',obj:tap},
+ {id:'erl',name:'Conical flask',what:'Holds the acid (20.0 mL) and the indicator. Its shape lets you swirl it without spilling.',hint:'The flask on the white tile.',q:'Find the conical flask.',obj:erl.g,at:'l'},
+ {id:'ind',name:'Indicator (phenolphthalein)',what:'Colourless in acid, pink in base. The first pale pink that stays shows the end point.',hint:'The small brown dropper bottle.',q:'Find the indicator.',obj:ind,at:'t'},
+ {id:'tile',name:'White tile',what:'Makes the faint colour change at the end point easy to see.',hint:'The white square under the flask.',q:'Find the white tile.',wb:[[TX-1.15,.14,-.8,TX+1.15,.2,.8]],at:'b',quiz:false},
+ {id:'stand',name:'Retort stand and clamp',what:'Holds the burette upright and steady so the readings are correct.',hint:'The metal rod with a clamp.',q:'Find the retort stand.',wb:[[TX-1.45,.14,-.3,TX-1.25,6.9,-.1]],at:'l'}]});
 HandKit.themeButton($('themeBtn'),K);Tt.Ca=Math.round((.06+Math.random()*.06)*1000)/1000;K.start();setTab('dil');
 window.__HK=Object.assign(K,{D,Tt,Veq,pHof,setTab,FX,BOT,TX,TAP,fl});
 })();

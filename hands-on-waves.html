@@ -66,6 +66,7 @@ ol.steps li small{color:var(--muted);font-weight:400}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
+<script src="parts.js"></script>
 <script>
 (function(){
 'use strict';
@@ -213,6 +214,16 @@ function hudDraw(g){const ink=K.ink(),L=endA.position.distanceTo(endB.position)*
   g.lineWidth=2;g.strokeStyle='rgba(255,255,255,.35)';g.beginPath();g.moveTo(m*4,m*2.2);g.lineTo(W*.3,m*2.2);g.stroke();K.tag(S.coat?'goggles and coat on':'goggles on',V(-K.halfW+1.9,6.25,0),dk?'#4ACB8A':'#1E8A55',0,true)}
  if(S.slips)K.tag('safety slips: '+S.slips,V(K.halfW-1.4,6.2,0),dk?'#FF8A7A':'#C0392B',0,true)}
 
+/* parts + "Find the part" (parts.js) */
+const RULE=scene.children.find(m=>m.isMesh&&m.geometry.parameters&&m.geometry.parameters.height===.36&&m.geometry.parameters.depth===.05);
+if(window.LabParts)window.__lp=LabParts.hand(K,{key:'hands-waves',stage:$('stage'),gear:false,parts:()=>{let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;for(let i=0;i<=N;i++){x0=Math.min(x0,X[i]);x1=Math.max(x1,X[i]);y0=Math.min(y0,Y[i]);y1=Math.max(y1,Y[i])}return [
+ {id:'spring',name:'Long spring (slinky)',what:'The medium. A flick sends a pulse along it; shaking it steadily makes a wave. Wave speed v = distance ÷ time = fλ.',hint:'The long coiled spring.',q:'Find the spring.',wb:[[x0,y0-.32,-.3,x1,y1+.32,.3]],at:'t'},
+ {id:'endA',name:'Left handle',what:'Hold it and move your hand to stretch the spring or send pulses. Let go and it is clamped again.',hint:'The wooden knob at the left end.',q:'Find the left handle.',obj:endA,at:'t'},
+ {id:'endB',name:'Right handle',what:'The other end. Clamped, it is a fixed end: the pulse comes back upside down.',hint:'The wooden knob at the right end.',q:'Find the right handle.',obj:endB,at:'t'},
+ {id:'clamp',name:'Clamp stands',what:'Hold the ends of the spring still when you let go.',hint:'The two metal posts.',q:'Find a clamp stand.',wb:[[endA.position.x-.25,0,-.9,endA.position.x+.25,3.0,.1],[endB.position.x-.25,0,-.9,endB.position.x+.25,3.0,.1]],at:'l'},
+ {id:'rule',name:'Metre rule',what:'Measures how far the spring is stretched and how far a pulse travels.',hint:'The long scale behind the spring.',q:'Find the metre rule.',obj:RULE,at:'b'},
+ {id:'gog',name:'Safety goggles',what:'A stretched spring can slip and snap back: protect your eyes.',hint:'At the side of the bench.',q:'Find the safety goggles.',obj:gog,at:'t'},
+ {id:'coat',name:'Lab coat',what:'Protects your clothes and keeps loose sleeves out of the way.',hint:'The white coat.',q:'Find the lab coat.',obj:coat,at:'t'}]}});
 HandKit.themeButton($('themeBtn'),K);K.start();endA.position.copy(CLAMP.A);endB.position.copy(CLAMP.B);Object.assign(S.prev,{ax:CLAMP.A.x,ay:CLAMP.A.y,bx:CLAMP.B.x,by:CLAMP.B.y});BASE.ay=BASE.by=CLAMP.A.y;resetSpring();steps();
 window.__HK=Object.assign(K,{S,phys,M,N,X,Y,disp,CLAMP,endA,endB,gog,coat,frameFn:frame});
 })();

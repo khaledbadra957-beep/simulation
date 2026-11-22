@@ -102,6 +102,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
+<script src="parts.js"></script>
 <script src="phys-parts.js"></script>
 <script>
 (function(){
@@ -368,6 +369,20 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00'
  K.hands.forEach(h=>{if(h.wireFrom==null||!h.pinch)return;const a=sc(V(PEG[h.wireFrom].x,PEG[h.wireFrom].y,.1));g.setLineDash([7,6]);g.strokeStyle=amber;g.lineWidth=4;g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(h.cur.sx,h.cur.sy);g.stroke();g.setLineDash([])})}
 
 const theme0=K.theme;K.theme=()=>{theme0();const dk=K.isDark();board.face.color.set(dk?0x6C7D85:0xFFFFFF);trayM.color.set(dk?0x2A3A41:0xD9DFDC)};   // the white board and trays go slate grey in dark mode
+/* parts + "Find the part" (parts.js) */
+if(window.LabParts){const first=L=>L.find(it=>it.visible&&!it.userData.hidden);
+window.__lp=LabParts.hand(K,{key:'hands-circuits',stage:$('stage'),gear:false,parts:()=>[
+ {id:'board',name:'Circuit board',what:'Connect parts between its metal terminals. A part only works when both its ends are on terminals that make a closed loop.',hint:'The big board with the metal terminals.',q:'Find the circuit board.',obj:board,at:'b'},
+ {id:'bat',name:'Battery',what:'Pushes charge round the circuit. Its voltage (emf) is the energy it gives each coulomb of charge.',hint:'The cell pack with + and − signs.',q:'Find the battery.',obj:bat.g},
+ {id:'sw',name:'Switch',what:'Opens or closes the circuit. No current flows while it is open.',hint:'The knife switch on the board.',q:'Find the switch.',obj:sw,at:'t'},
+ {id:'bulb',name:'Bulb (6 V)',what:'Lights when current flows through it. Too much voltage burns it out.',hint:'A bulb in the tray.',q:'Find a bulb.',obj:first(bulbs),at:'t'},
+ {id:'res',name:'Resistor',what:'Limits the current. Its colour bands give its resistance in ohms (Ω).',hint:'A small part with coloured bands.',q:'Find a resistor.',obj:first(ress.concat(cress)),at:'t'},
+ {id:'rheo',name:'Rheostat',what:'A variable resistor: slide the contact along the coil to change the resistance and so the current.',hint:'The coil with a sliding knob.',q:'Find the rheostat.',obj:rheo,at:'t'},
+ {id:'cap',name:'Capacitor',what:'Stores charge. It charges up slowly through a resistor, then current stops flowing.',hint:'The can-shaped part.',q:'Find a capacitor.',obj:first(caps),at:'t'},
+ {id:'wire',name:'Connecting wire',what:'Joins two terminals with almost no resistance.',hint:'A coloured lead in the tray.',q:'Find a wire.',obj:first(wires),at:'t'},
+ {id:'amm',name:'Ammeter',what:'Measures current in amperes (A). Connect it in series, in the loop, so the current flows through it.',hint:'The meter that sits in the circuit.',q:'Find the ammeter.',obj:amm,at:'t'},
+ {id:'volt',name:'Voltmeter (multimeter)',what:'Measures voltage in volts (V). Touch its two probes across a part, in parallel.',hint:'The yellow multimeter.',q:'Find the voltmeter.',obj:volt.g,at:'l'},
+ {id:'probe',name:'Voltmeter probes',what:'Red (+) and black (−). Put one on each side of the part you want to measure.',hint:'The red and black pens.',q:'Find the voltmeter probes.',obj:probes,at:'t'}]})}
 HandKit.themeButton($('themeBtn'),K);K.start();setTab(0);K.items.forEach(it=>{if(it.userData.placed)it.position.copy(it.userData.goal)});
 window.__HK=Object.assign(K,{S,PEG,FREE,ALL,BAT,SW,parts,bulbs,cress,rateBulb,setOwnR,bandsOf,ress,wires,amm,probes,caps,rheo,wip,place,unplace,setSwitch,setTab,setRheo,solve,starter,resBetween,TASKS,GOALS});
 })();

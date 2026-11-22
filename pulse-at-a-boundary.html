@@ -343,6 +343,7 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
 </main>
 
 <script>window.LAB = { screens: [ { id: 'intro', name: 'Intro' }, { id: 'lab', name: 'Lab' }, { id: 'predict', name: 'Predict' }, { id: 'ex', name: 'Exercise' } ] };</script>
+<script src="parts.js"></script>
 <script>
 (function () {
   "use strict";
@@ -374,7 +375,7 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
   // ---- elements ----------------------------------------------------------
   var $ = function (id) { return document.getElementById(id); };
   var cv = $("cv"), ctx = cv.getContext("2d");
-  var W = 0, H = 0, font = "system-ui", geo = null;
+  var W = 0, H = 0, font = "system-ui", geo = null, PG = null;
 
   function resize() {
     var dpr = Math.min(window.devicePixelRatio || 1, 2.5);
@@ -391,6 +392,7 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
     var pad = Math.max(14, W * 0.025);
     var base = H * 0.58, A = H * 0.24;
     var px = function (x) { return pad + (x - X0) / (X1 - X0) * (W - 2 * pad); };
+    PG = { p0: px(0), pL: px(X0), pR: px(X1), base: base, A: A, W: W, H: H, wall: st.wall, ww: Math.max(26, W * 0.04), wt: base - H * 0.34, wh: H * 0.6, yb: base - A * disp(0, st.t, derive()) };
     var small = W < 560, fs = small ? 13 : 15, i, x, y, n = 220;
     geo = { pad: pad, base: base, A: A, px: px };
     ctx.clearRect(0, 0, W, H);
@@ -878,6 +880,14 @@ select.key{padding:0 34px 0 12px;font-weight:600;-webkit-appearance:none;appeara
     steps.push({ title: "Your answers", html: calc(wall ? "reflected: " + A + " cm, inverted\nenergy: 100% reflected" : "v₂ = " + f2(v2) + " m/s\nreflected: " + f2(Math.abs(R) * A) + " cm, " + inv + "\ntransmitted: " + f2(Tt * A) + " cm, upright\nenergy: " + pc(R * R) + " reflected, " + pc(r * Tt * Tt) + " transmitted") + "<p>Compare them with your own working.</p>" });
     setTimeout(function () { Tour.start(steps, { label: "Exercise", skipText: "Stop", doneText: "Finish", lazy: true }); }, 80);
   }
+  /* ---------- parts + "Find the part" (parts.js) ---------- */
+  if (window.LabParts) window.__lp = LabParts.attach({ key: 'pulse', wrap: cv.parentElement, stage: cv, bar: document.querySelector('.play .transport') || document.querySelector('.transport'), max: 4, parts: function () { var g = PG; if (!g) return []; var L = [];
+    L.push({ id: 'spring1', name: 'Spring 1 (incident side)', what: 'The pulse starts here and travels towards the join. Part of it comes back along this spring: the reflected pulse.', hint: 'The green spring on the left.', q: 'On which spring does the pulse start?', x: g.pL + (g.p0 - g.pL) * 0.25, y: g.base + 44, boxes: [[g.pL + 8, g.base - 26, g.p0 - 12, g.base + 26]] });
+    if (g.wall) L.push({ id: 'wall', name: 'Rigid wall', what: 'The end cannot move. The whole pulse reflects, upside down.', hint: 'The dark block on the right.', q: 'Find the rigid wall.', x: g.p0 + g.ww + 16, y: g.wt + 14, boxes: [[g.p0, g.wt, g.p0 + g.ww, g.wt + g.wh]] });
+    else { L.push({ id: 'spring2', name: 'Spring 2 (transmitted side)', what: 'The part of the pulse that gets through travels on here, always the same way up. Its speed depends on this spring.', hint: 'The blue spring on the right.', q: 'Where does the transmitted pulse go?', x: g.p0 + (g.pR - g.p0) * 0.75, y: g.base + 44, boxes: [[g.p0 + 12, g.base - 26, g.pR - 8, g.base + 26]] });
+      L.push({ id: 'join', name: 'Join (boundary)', what: 'Where the two springs meet. Here the pulse splits into a reflected and a transmitted pulse.', hint: 'The bead where the springs meet.', q: 'Find the boundary between the springs.', x: g.p0, y: g.yb - 26, boxes: [[g.p0 - 10, g.yb - 10, g.p0 + 10, g.yb + 10]] }); }
+    L.push({ id: 'rest', name: 'Rest line', what: 'Where the spring lies when no pulse is passing. Pulses above it are upright; below it, inverted.', hint: 'The dashed line through the springs.', q: 'Find the rest line.', x: g.pL + 18, y: g.base - 20, boxes: [[g.pL - 6, g.base - 4, g.pL + 4, g.base + 4]] });
+    return L; } });
   $("exSolve").onclick = exSolve;
 })();
 </script>

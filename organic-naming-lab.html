@@ -1969,5 +1969,34 @@ $('exEg').addEventListener('click', function(){ $('exIn').value = 'CH3CH(CH3)CH(
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="organic-3d.js"></script>
 <script>if (window.Organic3D) window.Organic3D.update(build.st);</script>
+<script src="parts.js"></script>
+<script>
+/* parts + "Find the part" on the molecule and on the test bench (parts.js) */
+(function(){if(!window.LabParts)return;const $q=(r,q)=>r.querySelectorAll(q);
+ const B=document.getElementById('bBuilder');
+ if(B){const bar=document.createElement('div');bar.className='lp-hbar';B.parentNode.insertBefore(bar,B);
+  const svg=()=>B.querySelector('svg.mol');
+  const off=()=>{const m=svg();if(!m)return [];const C=[...$q(m,'circle.markc')].map(c=>[+c.getAttribute('cx'),+c.getAttribute('cy')]);return [...$q(m,'text.a-c')].filter(t=>!C.some(c=>Math.hypot(c[0]-t.getAttribute('x'),c[1]-t.getAttribute('y'))<2))};
+  window.__lp=LabParts.attach({key:'organic-molecule',wrap:B,stage:B,bar,max:4,float:false,parts:()=>{const m=svg();if(!m)return [];const P=[];
+   if(m.querySelector('circle.markc'))P.push({id:'chain',name:'Main chain',what:'The longest chain of carbons that contains the functional group (or the most C=C / C≡C). It gives the stem: meth-, eth-, prop-, but-, pent-…',hint:'The carbons with a coloured ring.',q:'Find the main chain.',el:()=>$q(m,'circle.markc'),pos:'t'});
+   if(m.querySelector('circle.locb'))P.push({id:'loc',name:'Locants (chain numbers)',what:'Number the main chain from the end that gives the functional group the lowest number, then the multiple bonds, then the branches.',hint:'The small numbered dots.',q:'Find the chain numbers.',el:()=>$q(m,'circle.locb'),pos:'r'});
+   if(m.querySelector('text.pg'))P.push({id:'pg',name:'Functional group',what:'Decides the ending of the name: -ol (alcohol), -al (aldehyde), -one (ketone), -oic acid, -amine… and gets the lowest locant.',hint:'The coloured atoms that are not carbon.',q:'Find the functional group.',el:()=>$q(m,'text.pg'),pos:'t'});
+   if(off().length)P.push({id:'br',name:'Branch (substituent)',what:'Carbons that are not on the main chain. They are named as prefixes in alphabetical order: methyl, ethyl…, with di-, tri- if repeated.',hint:'Carbons outside the coloured rings.',q:'Find a branch.',el:off,pos:'t'});
+   const hal=$q(m,'text.a-cl, text.a-br, text.a-f, text.a-i');if(hal.length)P.push({id:'hal',name:'Halogen',what:'Always a prefix: fluoro-, chloro-, bromo-, iodo-, listed in alphabetical order with the branches.',hint:'Cl, Br, F or I.',q:'Find the halogen.',el:()=>hal,pos:'t'});
+   if(m.querySelector('text.a-c'))P.push({id:'c',name:'Carbon atom',what:'Each label shows a carbon with its hydrogens, e.g. CH₃ at the end of a chain, CH₂ in the middle. Carbon always makes 4 bonds.',hint:'The CH₃ and CH₂ labels.',q:'Find a carbon atom.',el:()=>$q(m,'text.a-c'),pos:'t',quiz:!m.querySelector('circle.markc')});
+   return P}})}
+ const T=document.getElementById('lTests');
+ if(T){const pl=document.getElementById('p-lab'),wrap=pl.querySelector('.solo-in')||pl,bar=document.createElement('div');bar.className='lp-hbar';wrap.parentNode.insertBefore(bar,wrap);
+  const G=i=>()=>[$q(T,'.tgroup')[i]].filter(Boolean);
+  window.__lp2=LabParts.attach({key:'organic-tests',wrap,stage:T,bar,max:5,float:false,parts:()=>pl.hidden?[]:[
+   {id:'bot',name:'Unknown bottles',what:'Six organic liquids with no name. Choose one, then run tests on fresh samples of it.',hint:'The row of bottles A to F.',q:'Find the unknown bottles.',el:()=>[document.getElementById('lBottles')],pos:'t'},
+   {id:'carb',name:'Carbonyl tests',what:'2,4-DNPH gives an orange precipitate with any C=O (aldehyde or ketone). Tollens’ (silver mirror) and Fehling’s (red precipitate) are positive only for aldehydes.',hint:'The group with Brady’s reagent.',q:'Which tests tell an aldehyde from a ketone?',el:G(1),pos:'l'},
+   {id:'ox',name:'Oxidation tests',what:'Purple KMnO₄ or orange K₂Cr₂O₇ change colour with primary and secondary alcohols and aldehydes. Tertiary alcohols and ketones give no change.',hint:'The KMnO₄ and dichromate tests.',q:'Which tests find an alcohol that can be oxidised?',el:G(2),pos:'l'},
+   {id:'acid',name:'Acid and C=C tests',what:'NaHCO₃ fizzes (CO₂) with a carboxylic acid. Bromine water loses its orange colour with a C=C double bond.',hint:'The NaHCO₃ and bromine water tests.',q:'Which tests find a carboxylic acid or a C=C bond?',el:G(3),pos:'l'},
+   {id:'n',name:'Nitrogen tests',what:'Tests for amines, amides and amino acids: nitrous acid, the carbylamine test, NaOH with heat (ammonia from amides) and ninhydrin (purple with amino acids).',hint:'The last group of tests.',q:'Which tests find nitrogen compounds?',el:G(4),pos:'l'},
+   {id:'tube',name:'Test tube',what:'Shows what happens in the test: colour change, precipitate, bubbles or a mirror.',hint:'The glass tube.',q:'Find the test tube.',el:()=>[document.getElementById('lTube')],pos:'r'},
+   {id:'res',name:'Results table',what:'Records every test. Highlighted cells are positive. Use the pattern of results to choose a name for each bottle.',hint:'The table at the bottom.',q:'Find the results table.',el:()=>[document.getElementById('lTable').closest('.tablewrap')||document.getElementById('lTable')],pos:'t'}]})}
+})();
+</script>
 <script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>

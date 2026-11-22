@@ -174,7 +174,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
 .stage-ui .exgrid input[aria-invalid="true"]{border-color:var(--bad,#C0392B)}
 .stage-ui .exq p{margin:0}.stage-ui .exq ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
 @media (max-width:860px),(max-height:560px){.stage-ui .scene{aspect-ratio:1000/600}.stage-ui .hint3{display:none}}
-</style><script src="lab-viz.js"></script><link rel="stylesheet" href="site.css">
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
 
 <header class="topbar">
@@ -1045,6 +1045,18 @@ function exSolve(){const X=exRead();if(!X||!window.Tour)return;
  steps.push({title:'Your answers',html:calc(`Anode (−): ${A.name}${same?' ('+mc(cA)+' M side)':''}  ·  Cathode (+): ${K.name}${same?' ('+mc(cK)+' M side)':''}\n${halfs}`+(same?'':`\nE°cell = ${fx(E0,2)} V`)+(!std||same?`\nemf E = ${fx(E,3)} V`:'')+`\n${notation}\n${A.s} anode loses mass · ${K.s} cathode gains mass`)+'<p>Compare them with your own working.</p>'});
  setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
 $('#exSolve').onclick=exSolve;
+
+/* ---------- labels + "Find the part" (parts.js) ---------- */
+if(window.LabParts){window.__lp=LabParts.attach({key:'galvanic',wrap:$('#cv').parentElement,stage:$('#cv'),bar:$('#p-cell .transport'),max:6,parts:()=>{if(!cell.L)return [];const {s,ox,oy}=CVT,X=v=>ox+v*s,Y=v=>oy+v*s,B=(a,b,c,d)=>[X(a),Y(b),X(c),Y(d)],L=[];
+ for(const side of ['L','R']){const m=cell[side],cx=EX[side],[x0,x1]=BK[side],sgn=side==='L'?-1:1;
+  L.push({id:'el'+side,name:m.name[0].toUpperCase()+m.name.slice(1)+' electrode',what:`A strip of ${m.name} metal dipping into a solution of its own ions. At the anode (−) the metal is oxidised; at the cathode (+) metal ions are reduced and plate onto it.`,hint:`The metal strip in the ${side==='L'?'left':'right'} beaker.`,q:`Find the ${m.name} electrode.`,x:X(cx+sgn*40),y:Y(ETOP+40),boxes:[B(cx-22,ETOP-6,cx+22,EBOT)]});
+  L.push({id:'sol'+side,name:m.salt+' solution',what:`The electrolyte in this half-cell: ${m.name} ions (and ${m.an}) in water. Its ions carry the current inside the beaker.`,hint:`The liquid in the ${side==='L'?'left':'right'} beaker.`,q:`Find the ${m.salt} solution.`,x:X(side==='L'?x0+40:x1-40),y:Y(LIQ+150),boxes:[B(x0,LIQ,x1,BOT)]});
+  L.push({id:'clip'+side,name:'Crocodile clip ('+m.s+')',what:'Connects the wire to the electrode. Electrons travel through the wires, never through the solution.',hint:'The clip at the top of an electrode.',q:'Find the clip that connects a wire to the '+m.name+' electrode.',x:X(cx-sgn*42),y:Y(ETOP-14),boxes:[B(cx-16,ETOP-40,cx+16,ETOP+8)]})}
+ if(cell.bridge)L.push({id:'bridge',name:'Salt bridge',what:'A U-tube of KNO₃ gel. Its ions move into the beakers to keep each solution neutral, so the current can keep flowing. Remove it and the current stops.',hint:'The U-shaped tube joining the two beakers.',q:'What keeps each solution electrically neutral?',x:X(500),y:Y(BR.top-36),boxes:[B(BR.L-22,BR.top-22,BR.R+22,BR.top+22),B(BR.L-22,BR.top,BR.L+22,BR.bot),B(BR.R-22,BR.top,BR.R+22,BR.bot)]});
+ L.push({id:'meter',name:cell.dev==='volt'?'Voltmeter':'Multimeter (V and mA)',what:cell.dev==='volt'?'Measures the cell voltage (E°cell under standard conditions). Its COM (black) lead goes to the anode.':'Shows the voltage and the current (mA) while the bulb or motor runs.',hint:'The yellow meter at the top.',q:'Which instrument shows the cell voltage?',x:X(MT.x+MT.w/2+18),y:Y(MT.y-20),boxes:[B(MT.x-MT.w/2,MT.y-MT.h/2,MT.x+MT.w/2,MT.y+MT.h/2)]});
+ L.push({id:'switch',name:'Switch',what:'Closes the circuit. Nothing happens until it is closed: then electrons flow from the anode to the cathode through the wire.',hint:'On the wire at the top left.',q:'What do you close to start the current?',x:X(SW.x-70),y:Y(SW.y+5),boxes:[B(SW.x-56,SW.y-30,SW.x+56,SW.y+18)]});
+ if(cell.dev!=='volt')L.push({id:'load',name:cell.dev==='bulb'?'Bulb':'Motor',what:'Uses the energy of the electrons flowing through the circuit. The bigger the current, the brighter (or faster) it goes.',hint:'At the top right.',q:'What uses the electrical energy?',x:X(BLB.x+62),y:Y(BLB.y-40),boxes:[B(BLB.x-50,BLB.y-100,BLB.x+50,BLB.y+18)]});
+ return L}})}
 
 readColors();setup();readouts();$('#ordNew').onclick();nextQ();themeLabel();
 requestAnimationFrame(loop);

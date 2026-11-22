@@ -130,7 +130,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
 .exrow{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end}.extab td{vertical-align:middle}.extab td:nth-child(2){color:var(--muted);font-family:var(--body);font-size:.85rem;text-align:left}
 .exqs{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
-</style><script src="lab-viz.js"></script><link rel="stylesheet" href="site.css">
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
 
 <div class="wrap">
@@ -381,8 +381,10 @@ function readouts(){const [f,r]=rates();$('#rM').textContent=fx(conc('M'),2)+' M
  $('#kLive').textContent=k?`Kc at ${sim.T} K ≈ ${fx(k,2)} (from the average concentrations over the last 15 s)`:'Kc: wait until the amounts settle (about 20 s after a change).';
  $('#rState').textContent=sim.t<3?'starting':k&&Math.abs(f-r)<=Math.max(1,.35*Math.max(f,r))?'at equilibrium':f>r?'shifting right →':'← shifting left'}
 
+let BG=null;
 function drawBox(){const c=$('#box');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);
  const pad=24,sc=Math.min((w-2*pad)/WFULL,(h-2*pad)/BH),ox=(w-WFULL*sc)/2,oy=(h-BH*sc)/2;
+ BG={sc,ox,oy};
  // ghost of the full container
  LabViz.chamber(x,ox,oy,WFULL*sc,BH*sc,'back');if(sim.W<WFULL){x.fillStyle=LabViz.dark()?'rgba(0,0,0,.35)':'rgba(120,140,150,.18)';x.fillRect(ox+sim.W*sc,oy,(WFULL-sim.W)*sc,BH*sc)}
  const tint=Math.min(.55,conc('M')/.4*.4);x.fillStyle=hexA(C.no2,tint*.55);x.fillRect(ox,oy,sim.W*sc,BH*sc);
@@ -816,6 +818,16 @@ $('#exSolve').onclick=exSolve;
 
 function drawAll(){if(!C.ink)readColors();if(tab==='box'){drawBox();drawGraph()}if(tab==='qk')updateQK()}
 addEventListener('resize',drawAll);
+/* ---------- parts + "Find the part" (parts.js) ---------- */
+if(window.LabParts){const wrapB=document.createElement('div'),cvB=$('#box');cvB.parentNode.insertBefore(wrapB,cvB);wrapB.appendChild(cvB);
+ window.__lp=LabParts.attach({key:'equilibrium',wrap:wrapB,stage:cvB,bar:$('#p-box .benchhead'),max:5,parts:()=>{const g=BG;if(!g||!cvB.getClientRects().length)return [];const {sc,ox,oy}=g,X=v=>ox+v*sc,Y=v=>oy+v*sc,L=[];
+  L.push({id:'box',name:'Sealed container',what:'Nothing gets in or out, so the system can reach equilibrium: NO₂ keeps turning into N₂O₄ and back at the same rate.',hint:'The glass box around the particles.',q:'Find the sealed container.',x:X(4),y:Y(BH)+16,boxes:[[X(0),Y(0),X(sim.W),Y(BH)]]});
+  L.push({id:'piston',name:'Piston',what:'Push it in to halve the volume (raise the pressure): the system shifts towards fewer gas particles, N₂O₄.',hint:'The movable wall on the right.',q:'What changes the volume?',x:X(sim.W)+18,y:Y(BH*.2),boxes:[[X(sim.W)-4,Y(0),X(sim.W)+14,Y(BH)]]});
+  const m=sim.P.find(p=>p.type==='M'),d=sim.P.find(p=>p.type==='D');
+  if(m)L.push({id:'no2',quiz:false,name:'NO₂ molecule',what:'Brown gas. Two NO₂ molecules that collide hard enough join to make one N₂O₄ (the forward reaction).',hint:'A brown particle.',q:'Find an NO₂ molecule.',x:X(m.x)+18,y:Y(m.y)-18,boxes:[[X(m.x)-RM*sc*2.4,Y(m.y)-RM*sc*2.4,X(m.x)+RM*sc*2.4,Y(m.y)+RM*sc*2.4]]});
+  if(d)L.push({id:'n2o4',quiz:false,name:'N₂O₄ molecule',what:'Two NO₂ joined together; colourless. It can split back into 2 NO₂ (the reverse reaction).',hint:'A pale double particle.',q:'Find an N₂O₄ molecule.',x:X(d.x)+20,y:Y(d.y)-20,boxes:[[X(d.x)-RD*sc*2.2,Y(d.y)-RD*sc*2.2,X(d.x)+RD*sc*2.2,Y(d.y)+RD*sc*2.2]]});
+  L.push({id:'temp',name:'Temperature',what:'Heating favours the endothermic direction (here N₂O₄ → 2NO₂) and changes K. Cooling does the opposite.',hint:'The reading in the top-left corner.',q:'Where is the temperature shown?',x:X(0)+60,y:Y(0)+12,boxes:[[X(0)+4,Y(0)+2,X(0)+54,Y(0)+22]]});
+  return L}})}
 readColors();restart();setRx();nextQ();themeLabel();
 requestAnimationFrame(loop);
 </script>

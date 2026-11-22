@@ -367,7 +367,7 @@ table.data td.nm{font-family:var(--body);color:var(--muted)}
   <p class="foot">Values follow the tables in Inspire Chemistry (Module 14) rounded as the book does; the “type any equation” tool uses the fuller ΔH°<sub>f</sub> table (Wikipedia/CRC). Worked examples follow the book's Analyze → Solve → Evaluate format. Answers are given to three significant figures.</p>
 </div>
 
-<script src="lab-svg.js"></script>
+<script src="lab-svg.js"></script><script src="parts.js"></script>
 <script>
 (function(){
 'use strict';
@@ -1401,6 +1401,27 @@ function exSolve(){
 }
 $('exSolve').addEventListener('click', exSolve);
 var h = (location.hash || '').slice(1); if (TABS.indexOf(h) >= 0) selectTab(h);
+/* ---------- parts + "Find the part" on the two benches (parts.js) ---------- */
+if(window.LabParts){
+ const lpWrap=id=>{const sv=$(id),w=document.createElement('div');sv.parentNode.insertBefore(w,sv);w.appendChild(sv);return w};
+ const wH=lpWrap('svgHeat'),wC=lpWrap('svgCal');
+ window.__lp=LabParts.attach({key:'enthalpy-heat',wrap:wH,stage:$('svgHeat'),bar:$('heatGo').parentNode,max:5,parts:function(){var sv=$('svgHeat');if(!sv.getClientRects().length)return [];var M=LabParts.svgMap(sv,wH),X=M.X,Y=M.Y,B=M.B,L=[];
+  [0,1].forEach(function(k){var cx=k?470:150,S=sampleState(k),nm=k?'B':'A',sz=34+Math.sqrt(S.m)*3.2,top=S.s.liquid?226-122:226-1-sz;
+   L.push({id:'burner'+nm,name:'Burner '+nm,what:'Gives the same heat every second to each sample (200 J/s here), so the two samples can be compared fairly.',hint:'The flame under sample '+nm+'.',q:'Find the burner under sample '+nm+'.',x:X(cx-42),y:Y(272),boxes:[B(cx-26,252,cx+26,290)]});
+   L.push({id:'sample'+nm,name:'Sample '+nm+': '+S.s.n,what:'The substance being heated. How much its temperature rises depends on its mass and its specific heat c: q = c × m × ΔT.',hint:'On the tripod above burner '+nm+'.',q:'Find sample '+nm+'.',x:X(cx-(S.s.liquid?68:sz/2+14)),y:Y(top+20),boxes:[B(cx-(S.s.liquid?55:sz/2),top,cx+(S.s.liquid?55:sz/2),225)]});
+   L.push({id:'thermo'+nm,name:'Thermometer '+nm,what:'Measures the temperature of sample '+nm+'. ΔT = final − initial temperature.',hint:'The scale beside sample '+nm+'.',q:'Which thermometer shows the temperature of sample '+nm+'?',x:X(cx+92+44),y:Y(70),boxes:[B(cx+89,38,cx+123,226)]});
+   if(k===0)L.push({id:'tripod',name:'Tripod',what:'Holds the sample above the flame.',hint:'The three-legged stand.',q:'What holds the sample above the flame?',x:X(cx+66),y:Y(266),boxes:[B(cx-64,232,cx-40,290),B(cx+40,232,cx+64,290)]});
+   if(k===0)L.push({id:'lens',name:'Particle view',what:'A zoom into sample A: the hotter it gets, the faster its particles vibrate. Temperature measures the average kinetic energy of the particles.',hint:'The circle on the left.',q:'Where can you see the particles of sample A?',x:X(cx-100),y:Y(84-54),boxes:[B(cx-138,46,cx-62,122)]})});
+  return L}});
+ window.__lp2=LabParts.attach({key:'enthalpy-cal',wrap:wC,stage:$('svgCal'),bar:$('calGo').parentNode,max:5,parts:function(){var sv=$('svgCal');if(!sv.getClientRects().length)return [];var M=LabParts.svgMap(sv,wC),X=M.X,Y=M.Y,B=M.B,I=calIn(),inCup=cal.run||cal.done,by=inCup?Math.min(250,40+cal.t*600):40,L=[];
+  L.push({id:'cup',name:'Insulated cup (calorimeter)',what:'A polystyrene cup with a lid keeps the heat in, so the heat lost by the metal equals the heat gained by the water.',hint:'The large cup on the left.',q:'Which part stops heat escaping?',x:X(30),y:Y(250),boxes:[B(38,122,222,300)]});
+  L.push({id:'water',name:'Water ('+I.mw+' g)',what:'Absorbs the heat from the metal. Its known mass and c = 4.184 J/(g·°C) let you work out q = c × m × ΔT.',hint:'The liquid in the cup.',q:'Find the water that absorbs the heat.',x:X(108),y:Y(244),boxes:[B(80,170,180,296)]});
+  L.push({id:'metal',name:'Metal block ('+I.M.n+')',what:'Heated first, then dropped into the water. It cools while the water warms until both reach the same final temperature.',hint:inCup?'The block in the water.':'The block hanging above the cup.',q:'Find the hot metal block.',x:X(170),y:Y(by+20),boxes:[B(105,by,155,by+40)]});
+  L.push({id:'stirrer',name:'Stirrer',what:'Mixes the water so the whole cup is at one temperature when you read it.',hint:'The thin metal rod in the cup.',q:'What mixes the water?',x:X(52),y:Y(96),boxes:[B(60,70,72,286)]});
+  L.push({id:'thermo',name:'Thermometer',what:'Measures the water temperature. Read the highest steady value: that is the final temperature T_f.',hint:'The scale in the cup on the right.',q:'Which part measures the water temperature?',x:X(248),y:Y(70),boxes:[B(200,44,234,292)]});
+  L.push({id:'graph',name:'Temperature graph',what:'The metal’s temperature falls (red) and the water’s rises (blue) until they meet at T_f.',hint:'On the right.',q:'Where do you see both temperatures change over time?',x:X(316),y:Y(40),boxes:[B(330,40,620,270)]});
+  return L}})}
+
 drawHeat(); calOut(); drawCal(); drawThermo(); drawHess(); drawForm();
 requestAnimationFrame(function(t){ last = t; requestAnimationFrame(frame); });
 })();

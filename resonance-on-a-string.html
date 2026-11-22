@@ -277,7 +277,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
       </ol></div>
 <script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', simple: true }, { id: 'lab', name: 'Lab' }, { id: 'ex', name: 'Exercise' } ] };</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-<script src="lab-viz.js"></script>
+<script src="lab-viz.js"></script><script src="parts.js"></script>
 <script>
 (function(){
 'use strict';
@@ -418,6 +418,7 @@ function readTokens(){
 var MONO = '"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace';
 var SANS = '"Atkinson Hyperlegible", system-ui, sans-serif';
 
+var RG = null;
 function drawStage(st, tg){
   var c = tg.ctx, w = tg.w, h = tg.h, i;
   c.clearRect(0, 0, w, h);
@@ -469,6 +470,7 @@ function drawStage(st, tg){
     c.globalAlpha = 1;
   }
 
+  if (tg === stage) RG = { x0: x0, xL: xL, cy: cy, Apx: Apx, yr: yr, w: w, h: h, n: st.n, nodes: !!(S.labels && st.state === 'on' && !S.sweeping), span: span };
   // clamp at the fixed end
   LabViz.chrome(c, xL - 1, cy + 22, 6, yr - cy - 26);
   LabViz.chrome(c, xL - 5, cy - 22, 14, 44); c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = 1; c.strokeRect(xL - 5, cy - 22, 14, 44);
@@ -1025,6 +1027,16 @@ function exSolve(){
   steps.push({ title: 'Your answers', html: calc((findV ? 'v  = ' + r1(v) + ' m/s\n' : '') + 'f₁ = ' + (findV ? (v / (2 * L)).toFixed(1) : f1.toFixed(1)) + ' Hz\n' + (n > 1 || !findV ? 'f' + sub(n) + ' = ' + (findV ? E.f.toFixed(1) : fn.toFixed(1)) + ' Hz\n' : '') + 'λ' + sub(n) + ' = ' + lam.toFixed(2) + ' m\nnodes ' + (n + 1) + ', antinodes ' + n) + '<p>Compare them with your own working.</p>' });
   setTimeout(function () { Tour.start(steps, { label: 'Exercise', skipText: 'Stop', doneText: 'Finish', lazy: true }); }, 80);
 }
+/* ---------- parts + "Find the part" (parts.js) ---------- */
+if (window.LabParts) window.__lp = LabParts.attach({ key: 'resonance', wrap: stage.el.parentElement, stage: stage.el, bar: document.querySelector('.play .transport'), max: 5, parts: function () { var g = RG; if (!g) return []; var L = [], bh = g.Apx + 22;
+  L.push({ id: 'driver', name: 'Driver (vibrator)', what: 'Shakes the left end of the string up and down at the frequency you set. At a natural frequency of the string, resonance makes the waves grow big.', hint: 'The dark box at the left end.', q: 'What shakes the string?', x: g.x0 - 27, y: g.cy - bh - 14, boxes: [[g.x0 - 46, g.cy - bh, g.x0 - 8, g.cy + bh]] });
+  L.push({ id: 'string', name: 'String', what: 'Fixed at both ends. Waves reflect from the ends and overlap to make a standing wave when the frequency is right.', hint: 'The line between the driver and the clamp.', q: 'Where does the standing wave form?', x: g.x0 + g.span * 0.3, y: g.cy + 46, boxes: [[g.x0 + g.span * 0.12, g.cy - 34, g.x0 + g.span * 0.88, g.cy + 34]] });
+  L.push({ id: 'clamp', name: 'Fixed end (clamp)', what: 'The string cannot move here, so there is always a node at this end.', hint: 'The clamp at the right end.', q: 'Find the fixed end.', x: g.xL + 2, y: g.cy - 44, boxes: [[g.xL - 6, g.cy - 24, g.xL + 10, g.yr - 4]] });
+  L.push({ id: 'ruler', name: 'Ruler (m)', what: 'Measures the length L of the string. For the n-th harmonic, L = n λ / 2.', hint: 'The scale along the bottom.', q: 'Which tool measures the length of the string?', x: g.x0 + g.span * 0.5, y: g.yr - 12, boxes: [[g.x0, g.yr - 6, g.x0 + g.span, g.h - 2]] });
+  if (g.nodes && g.n > 1) { var nx = g.x0 + g.span / g.n, ax = g.x0 + g.span * 0.5 / g.n;
+    L.push({ id: 'node', name: 'Node (N)', what: 'A point that never moves. Neighbouring nodes are half a wavelength apart.', hint: 'A point marked N on the string.', q: 'Find a node.', x: nx, y: g.cy + 36, boxes: [[nx - 9, g.cy - 9, nx + 9, g.cy + 24]] });
+    L.push({ id: 'anti', name: 'Antinode (A)', what: 'Where the string swings the most, half-way between two nodes.', hint: 'A point marked A on the string.', q: 'Find an antinode.', x: ax + 22, y: g.cy - g.Apx * 4, boxes: [[ax - 14, g.cy - g.Apx * 12 - 14, ax + 14, g.cy + g.Apx * 12 + 6]] }); }
+  return L; } });
 $('exSolve').onclick = exSolve;
 })();
 </script>
