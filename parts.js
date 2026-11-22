@@ -1,4 +1,4 @@
-/* parts.js — numbered labels + a "Find the part" quiz on top of any lab drawing (canvas or SVG).
+/* parts.js — numbered part labels (the “Parts” button) + a "Find the part" quiz on top of any lab drawing (canvas or SVG).
    Light on purpose: no libraries, no 3D, nothing runs while the labels and quiz are closed.
    Idea from the Robotics Lab "Labels / Find the part" screens, rebuilt in plain 2D.
 
@@ -10,6 +10,8 @@
      parts: () => [{ id, name, what, hint, q, x, y, boxes: [[x0,y0,x1,y1], …], show: true }],   // CSS px inside wrap
      max: 6                         // questions per round
    });
+   A part can instead give el: a CSS selector (inside wrap) or a function returning element(s) of an SVG/HTML drawing;
+   its boxes are then measured, and the marker goes on side pos: 'l' | 'r' | 't' | 'b' | 'c' (plus dx, dy).
    api.refresh() re-reads the positions (call after the drawing changes size). */
 (function () {
   'use strict';
@@ -20,7 +22,7 @@
     '.lp-hi.ok{border-color:var(--ok,#1E8A55);box-shadow:0 0 0 4px rgba(30,138,85,.2)}.lp-hi.bad{border-color:var(--bad,#C0392B);box-shadow:0 0 0 4px rgba(192,57,43,.2)}' +
     '.lp-catch{position:absolute;inset:0;cursor:crosshair;pointer-events:auto;z-index:2}' +
     '.lp-panel{background:var(--stage,#fff);border:1.5px solid var(--line,#C6D2D1);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;margin-top:10px}' +
-    '.lp-panel[hidden]{display:none}.lp-k{display:flex;justify-content:space-between;gap:8px;font:600 12px/1.3 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#52646C)}' +
+    '.lp-panel.lp-float{position:absolute;top:10px;width:min(300px,40%);max-height:calc(100% - 20px);overflow:auto;margin:0;z-index:5;box-shadow:0 10px 30px -10px rgba(0,0,0,.35)}.lp-panel[hidden]{display:none}.lp-k{display:flex;justify-content:space-between;gap:8px;font:600 12px/1.3 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#52646C)}' +
     '.lp-list{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:2px 12px}' +
     '.lp-list button{display:flex;gap:8px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:4px 2px;font:inherit;color:inherit;cursor:pointer;border-radius:6px}.lp-list button:hover,.lp-list button.on{background:var(--surface,#F8FAF9)}' +
     '.lp-list i{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;font:700 11px/17px system-ui;text-align:center;font-style:normal}' +
@@ -30,18 +32,30 @@
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-  var ICON_L = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="vertical-align:-3px;margin-right:5px" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6.5h9.2l6.8 5.5-6.8 5.5H4z"/></svg>';
-  var ICON_Q = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="vertical-align:-3px;margin-right:5px" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>';
+  var ICON_L = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="display:inline-block;width:16px;height:16px;flex:none;vertical-align:-3px;margin:0 5px 0 0" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6.5h9.2l6.8 5.5-6.8 5.5H4z"/></svg>';
+  var ICON_Q = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="display:inline-block;width:16px;height:16px;flex:none;vertical-align:-3px;margin:0 5px 0 0" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>';
 
   function attach(o) {
     if (!document.getElementById('lp-css')) { var st = el('style'); st.id = 'lp-css'; st.textContent = CSS; document.head.appendChild(st); }
+    if (getComputedStyle(o.wrap).position === 'static') o.wrap.style.position = 'relative';
     var wrap = o.wrap, layer = el('div', 'lp-layer'), hi = el('div', 'lp-hi'), catcher = el('div', 'lp-catch'), panel = el('div', 'lp-panel');
     hi.hidden = true; catcher.hidden = true; panel.hidden = true; layer.appendChild(hi); wrap.appendChild(layer); wrap.appendChild(catcher); wrap.parentNode.insertBefore(panel, wrap.nextSibling);
-    var bL = el('button', 'btn small', ICON_L + 'Labels'), bQ = el('button', 'btn small', ICON_Q + 'Find the part');
-    [bL, bQ].forEach(function (b) { b.type = 'button'; b.setAttribute('aria-pressed', 'false'); o.bar.appendChild(b); });
+    var bL = el('button', 'btn small', ICON_L + 'Parts'), bQ = el('button', 'btn small', ICON_Q + 'Find the part');
+    [bL, bQ].forEach(function (b) { b.type = 'button'; b.style.whiteSpace = 'nowrap'; b.style.display = 'inline-flex'; b.style.alignItems = 'center'; b.style.flexDirection = 'row'; b.setAttribute('aria-pressed', 'false'); o.bar.appendChild(b); });
     var mode = null, sel = -1, P = [], timer = 0, Q = null, marks = { ids: '', list: [] }, KEY = 'lp:' + (o.key || location.pathname);
     function best() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }
-    function list() { return (o.parts() || []).filter(function (p) { return p.show !== false; }); }
+    function list() {
+      var wr = wrap.getBoundingClientRect();
+      return (o.parts() || []).filter(function (p) { return p.show !== false; }).map(function (p) {
+        if (!p.el) return p;
+        var els = typeof p.el === 'function' ? p.el() : wrap.querySelectorAll(p.el); if (!els) return null; if (els.nodeType) els = [els];
+        var boxes = []; Array.prototype.forEach.call(els, function (e) { var r = e.getBoundingClientRect(); if (r.width > 1 || r.height > 1) boxes.push([r.left - wr.left, r.top - wr.top, r.right - wr.left, r.bottom - wr.top]); });
+        if (!boxes.length) return null; var q = {}; for (var k in p) q[k] = p[k]; q.boxes = boxes; var b = boxOf(q), pos = p.pos || 'l', W = wrap.clientWidth;
+        if (pos === 'l' && b[0] < 26) pos = 'r'; if (pos === 'r' && b[2] > W - 26) pos = 'l';
+        q.x = pos === 'l' ? b[0] - 14 : pos === 'r' ? b[2] + 14 : (b[0] + b[2]) / 2; q.y = pos === 't' ? b[1] - 14 : pos === 'b' ? b[3] + 14 : (b[1] + b[3]) / 2;
+        if (p.dx) q.x += p.dx; if (p.dy) q.y += p.dy; return q;
+      }).filter(Boolean);
+    }
     function boxOf(p) { var b = p.boxes[0].slice(); p.boxes.forEach(function (q) { b[0] = Math.min(b[0], q[0]); b[1] = Math.min(b[1], q[1]); b[2] = Math.max(b[2], q[2]); b[3] = Math.max(b[3], q[3]); }); return b; }
     function showHi(p, cls) { if (!p) { hi.hidden = true; return; } var b = boxOf(p), pad = 4; hi.hidden = false; hi.className = 'lp-hi' + (cls ? ' ' + cls : ''); hi.style.left = (b[0] - pad) + 'px'; hi.style.top = (b[1] - pad) + 'px'; hi.style.width = (b[2] - b[0] + 2 * pad) + 'px'; hi.style.height = (b[3] - b[1] + 2 * pad) + 'px'; }
     function place() {
@@ -50,11 +64,19 @@
         if (mode === 'labels') P.forEach(function (p, i) { var m = el('button', 'lp-m', String(i + 1)); m.type = 'button'; m.title = p.name; m.setAttribute('aria-label', (i + 1) + ': ' + p.name); m.onclick = function () { pick(i); }; layer.appendChild(m); marks.list.push(m); }); }
       marks.list.forEach(function (m, i) { var p = P[i]; m.classList.toggle('on', i === sel); m.style.left = Math.max(12, Math.min(W - 12, p.x)) + 'px'; m.style.top = Math.max(12, Math.min(H - 12, p.y)) + 'px'; });
       if (mode === 'labels') showHi(sel >= 0 ? P[sel] : null); else if (Q && Q.show) showHi(Q.show.p, Q.show.cls);
+      if (mode) float_();
+    }
+    function float_() {
+      var fl = o.float !== false && wrap.closest('.stage-ui') && wrap.clientWidth >= 640;
+      if (fl) { if (panel.parentNode !== wrap) wrap.appendChild(panel); panel.classList.add('lp-float');
+        var W = wrap.clientWidth, pw = panel.offsetWidth || 300, ph = panel.offsetHeight || 200, cost = function (x0) { var c = 0; P.forEach(function (p) { p.boxes.forEach(function (b) { var ox = Math.max(0, Math.min(b[2], x0 + pw) - Math.max(b[0], x0)), oy = Math.max(0, Math.min(b[3], 10 + ph) - Math.max(b[1], 10)); c += ox * oy; }); if (p.x > x0 && p.x < x0 + pw && p.y < 10 + ph) c += 400; }); return c; };
+        if (cost(W - 10 - pw) < cost(10)) { panel.style.right = '10px'; panel.style.left = 'auto'; } else { panel.style.left = '10px'; panel.style.right = 'auto'; } }
+      else if (panel.classList.contains('lp-float') || panel.parentNode === wrap) { panel.classList.remove('lp-float'); panel.style.left = panel.style.right = ''; wrap.parentNode.insertBefore(panel, wrap.nextSibling); }
     }
     function loop() { clearInterval(timer); if (mode) timer = setInterval(place, 400); }
     /* ---------- labels ---------- */
     function renderLabels() {
-      var h = '<div class="lp-k"><span>Labels · ' + P.length + ' parts</span><button class="btn small" type="button" data-x>Close</button></div>';
+      var h = '<div class="lp-k"><span>Parts · ' + P.length + '</span><button class="btn small" type="button" data-x>Close</button></div>';
       if (sel >= 0) { var p = P[sel]; h += '<div class="lp-card"><h4>' + (sel + 1) + ' · ' + esc(p.name) + '</h4><p>' + p.what + '</p></div><div class="lp-row"><button class="btn small" type="button" data-pv>← Back</button><button class="btn small" type="button" data-nx>Next →</button><span class="sp"></span><button class="btn small" type="button" data-all>All parts</button></div>'; }
       else h += '<ol class="lp-list">' + P.map(function (p, i) { return '<li><button type="button" data-i="' + i + '"><i>' + (i + 1) + '</i>' + esc(p.name) + '</button></li>'; }).join('') + '</ol><p class="lp-k" style="text-transform:none;letter-spacing:0">Tap a number on the drawing or a name here.</p>';
       panel.innerHTML = h;
@@ -74,8 +96,8 @@
     function renderQuiz() {
       var n = Q.qs.length, h = '<div class="lp-k"><span>Find the part</span><span>' + (Q.done ? 'Done' : 'Question ' + (Q.i + 1) + ' of ' + n) + '</span></div><div class="lp-bars">' +
         Q.qs.map(function (_, k) { return '<i class="' + (Q.res[k] === true ? 'ok' : Q.res[k] === false ? 'no' : k === Q.i && !Q.done ? 'd' : '') + '"></i>'; }).join('') + '</div>';
-      if (Q.done) { var b = best(), msg = Q.score === n ? 'Flawless — you know this equipment by sight.' : Q.score >= n - 2 ? 'Nice work. One more round and you’ll get them all.' : 'Open the labels, look again, then try another round.';
-        h += '<p class="lp-q">Score: ' + Q.score + ' / ' + n + '</p><p style="margin:0">' + msg + (b ? ' Best on this device: ' + b.s + ' / ' + b.n + '.' : '') + '</p><div class="lp-row"><button class="btn small primary" type="button" data-again>Play again</button><button class="btn small" type="button" data-lab>Show the labels</button><span class="sp"></span><button class="btn small" type="button" data-x>Close</button></div>'; }
+      if (Q.done) { var b = best(), msg = Q.score === n ? 'Flawless — you know this equipment by sight.' : Q.score >= n - 2 ? 'Nice work. One more round and you’ll get them all.' : 'Open Parts, look again, then try another round.';
+        h += '<p class="lp-q">Score: ' + Q.score + ' / ' + n + '</p><p style="margin:0">' + msg + (b ? ' Best on this device: ' + b.s + ' / ' + b.n + '.' : '') + '</p><div class="lp-row"><button class="btn small primary" type="button" data-again>Play again</button><button class="btn small" type="button" data-lab>Show the parts</button><span class="sp"></span><button class="btn small" type="button" data-x>Close</button></div>'; }
       else { var p = Q.qs[Q.i];
         h += '<p class="lp-q">' + esc(p.q || 'Find the ' + (/^[A-Z][a-z]/.test(p.name) ? p.name[0].toLowerCase() + p.name.slice(1) : p.name) + '.') + '</p>' + (Q.fb ? '<p class="lp-fb ' + Q.fb[0] + '">' + Q.fb[1] + '</p>' : '<p class="lp-k" style="text-transform:none;letter-spacing:0">Click it on the drawing.</p>') +
           '<div class="lp-row">' + (Q.show && Q.show.cls !== 'bad' ? '<button class="btn small primary" type="button" data-next>Next →</button>' : '<button class="btn small" type="button" data-hint>Hint</button><button class="btn small" type="button" data-skip>Skip</button>') + '<span class="sp"></span><span class="lp-k">Score ' + Q.score + '</span><button class="btn small" type="button" data-x>Close</button></div>'; }
@@ -107,5 +129,13 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && mode) close(); });
     return { refresh: place, close: close, open: open, parts: list, hit: function (x, y) { P = list(); var p = hit(x, y); return p && p.id; }, get mode() { return mode; } };
   }
-  window.LabParts = { attach: attach };
+  /* map viewBox coordinates of an <svg> (preserveAspectRatio "xMidYMid meet") to CSS px inside wrap */
+  function svgMap(svg, wrap) {
+    var vb = svg.viewBox && svg.viewBox.baseVal, r = svg.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+    if (!vb || !vb.width) return { X: function (x) { return x + r.left - w.left; }, Y: function (y) { return y + r.top - w.top; }, B: function (a, b, c, d) { return [a + r.left - w.left, b + r.top - w.top, c + r.left - w.left, d + r.top - w.top]; } };
+    var k = Math.min(r.width / vb.width, r.height / vb.height), ox = r.left - w.left + (r.width - vb.width * k) / 2 - vb.x * k, oy = r.top - w.top + (r.height - vb.height * k) / 2 - vb.y * k;
+    var X = function (x) { return ox + x * k; }, Y = function (y) { return oy + y * k; };
+    return { X: X, Y: Y, k: k, B: function (a, b, c, d) { return [X(a), Y(b), X(c), Y(d)]; } };
+  }
+  window.LabParts = { attach: attach, svgMap: svgMap };
 })();

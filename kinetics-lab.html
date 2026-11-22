@@ -167,7 +167,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
 .stage-ui .ownf input[type=number],.stage-ui .ownf select{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
 .stage-ui .ownf input[aria-invalid="true"]{border-color:var(--bad)}
 @media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.tall{height:220px}.stage-ui .scene .mkey{display:none}.stage-ui .sc-eq{font-size:12.5px;top:8px;left:8px}}
-</style><script src="lab-viz.js"></script><link rel="stylesheet" href="site.css">
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
 
 <header class="topbar">
@@ -387,6 +387,7 @@ function renderTable(){const r=lab.run;const tb=$('#tb');if(r.samples.length<2&&
 function readouts(){const r=lab.run;$('#rt').textContent=fx(r.t,1)+' min';$('#rI2').textContent=`${f5(r.y)}×10⁻⁵ mol`;$('#rH').textContent=`${f5(r.n1-r.y)}×10⁻⁵ mol`;$('#rI').textContent=`${f5(r.n2-2*r.y)}×10⁻⁵ mol`;
  const done=r.y>=r.ymax*.995;$('#rEnd').textContent=r.t===0?'not started':done?`Yes: n(I₂) = n(I₂)max = ${f5(r.ymax)}×10⁻⁵ mol`:`No: n(I₂) = ${f5(r.y)} < n(I₂)max = ${f5(r.ymax)} (×10⁻⁵ mol)`}
 
+let KG={};
 function drawBeaker(){const c=$('#beaker');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const r=lab.run;
  const bw=Math.min(w*.34,190),bh=Math.min(h*.68,220),bx=w*.06,by=(h-bh-34)/2+6;
  const Vt=r.p.V1+r.p.V2+VACID,level=bh*Math.min(.92,Vt/50);
@@ -408,6 +409,7 @@ function drawBeaker(){const c=$('#beaker');const {x,w,h}=fit(c);x.clearRect(0,0,
  else if(r.y>=r.ymax*.995)txt(x,'Finished',tx,by+80,C.ok,13);
  // macro → micro: what the particles are doing
  const R=Math.max(0,Math.min(84,(h-by-96)/2,(w-tx)/2-6)),cx=Math.min(w-R-8,tx+R+(w-tx-2*R)/2),cy=h-R-10;
+ KG={w,h,bx,by,bw,bh,level,tx,cx,cy,R};
  LabViz.lens(x,cx,cy,R,(x,cx,cy,R)=>drawMicro(x,cx,cy,R,col),{from:[bx+bw*.7,by+bh-level*.45],title:'molecules'})}
 /* particles: about 8 H2O2 at the start; I⁻ and I2 follow the real amounts */
 const KSL=(()=>{const a=[];let sd=11;const rnd=()=>(sd=(sd*9301+49297)%233280)/233280;for(let i=0;i<34;i++){let p,ok,k=0;do{p=[rnd()*1.7-.85,rnd()*1.7-.85];ok=Math.hypot(p[0],p[1])<.8&&a.every(q=>Math.hypot(q[0]-p[0],q[1]-p[1])>.27);k++}while(!ok&&k<300);a.push(p)}return a})();
@@ -590,6 +592,17 @@ $('#qNext').onclick=nextQ;
 
 function drawAll(){if(!C.ink)readColors();if(!lab.run)return;if(tab==='lab'){drawBeaker();drawGraph()}if(tab==='ex')drawEx()}
 addEventListener('resize',drawAll);
+/* ---------- parts + "Find the part" (parts.js) ---------- */
+if(window.LabParts){window.__lp=LabParts.attach({key:'kinetics',wrap:$('#beaker').parentElement,stage:$('#beaker'),bar:$('#p-lab .transport'),max:6,parts:()=>{const g=KG;if(!g.w)return [];const L=[];
+ L.push({id:'beaker',name:'Beaker',what:'Holds the reaction mixture: hydrogen peroxide, potassium iodide and acid. Its scale gives the total volume.',hint:'The glass container on the left.',q:'Find the beaker.',x:g.bx-14,y:g.by+20,boxes:[[g.bx-6,g.by,g.bx+g.bw+6,g.by+g.bh]]});
+ L.push({id:'mix',name:'Reaction mixture',what:'H₂O₂ + 2I⁻ + 2H₃O⁺ → I₂ + 4H₂O. It turns yellow, then brown, as iodine forms: the colour tells you how far the reaction has gone.',hint:'The liquid in the beaker.',q:'Where does the iodine form?',x:g.bx+g.bw*.3,y:g.by+g.bh-g.level*.55,boxes:[[g.bx+4,g.by+g.bh-g.level,g.bx+g.bw-16,g.by+g.bh-16]]});
+ L.push({id:'scale',name:'Volume scale (mL)',what:'Marks the volume of liquid in the beaker, in mL.',hint:'The marks on the right side of the beaker.',q:'Where do you read the volume in the beaker?',x:g.bx+g.bw+20,y:g.by+g.bh*.62,boxes:[[g.bx+g.bw-14,g.by+g.bh*.18,g.bx+g.bw+18,g.by+g.bh*.82]]});
+ L.push({id:'bar',name:'Magnetic stir bar',what:'Spins in the liquid so the reactants stay evenly mixed while the reaction runs.',hint:'The small white bar at the bottom of the beaker.',q:'What keeps the mixture stirred inside the beaker?',x:g.bx+g.bw*.5+g.bw*.18+14,y:g.by+g.bh-22,boxes:[[g.bx+g.bw*.32,g.by+g.bh-15,g.bx+g.bw*.68,g.by+g.bh-1]]});
+ L.push({id:'stirrer',name:'Magnetic stirrer',what:'Its rotating magnet turns the stir bar. Its green light is on while the reaction runs.',hint:'The grey box under the beaker.',q:'What does the beaker stand on?',x:g.bx+g.bw/2,y:g.by+g.bh+44,boxes:[[g.bx-13,g.by+g.bh,g.bx+g.bw+13,g.by+g.bh+32]]});
+ L.push({id:'clock',name:'Time and conditions',what:'The time since mixing, the temperature, and the iodine concentration [I₂]. The rate is how fast [I₂] goes up.',hint:'The numbers to the right of the beaker.',q:'Where do you read the time since mixing?',x:g.tx-12,y:g.by+16,boxes:[[g.tx,g.by+2,g.tx+150,g.by+64]]});
+ if(g.R>20)L.push({id:'lens',name:'Molecule view',what:'Zooms into the liquid: red H₂O₂, purple I⁻ and brown I₂. Only collisions with enough energy react.',hint:'The round window.',q:'Where can you see the molecules?',x:g.cx-g.R*.75,y:g.cy-g.R*.75,boxes:[[g.cx-g.R,g.cy-g.R,g.cx+g.R,g.cy+g.R]]});
+ return L}})}
+
 readColors();showSet();freshRun();setEx(NOTES,true);nextQ();themeLabel();
 requestAnimationFrame(loop);
 </script>

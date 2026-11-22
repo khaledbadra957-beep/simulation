@@ -222,7 +222,7 @@ footer{color:var(--muted);font-size:.85rem}
 </div></section>
 </main>
 <script>window.LAB = { screens: [ { id: 'signs', name: 'Signs', tab: 'signs' }, { id: 'mass', name: 'Mass', tab: 'mass' }, { id: 'atoms', name: 'Atoms', tab: 'atoms' }, { id: 'bal', name: 'Balance', tab: 'bal' }, { id: 'ex', name: 'Exercise' } ] };</script>
-<script src="lab-svg.js"></script>
+<script src="lab-svg.js"></script><script src="parts.js"></script>
 <script>
 (function(){
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
@@ -575,6 +575,31 @@ $('#hint4').onclick=()=>{const e=EQ4[i4],fb=$('#fb4');fb.hidden=false;fb.classNa
   fb.innerHTML=bad?`<b>Hint:</b> start with <b>${AT[bad].name.toLowerCase()}</b>: ${cL[bad]} on the left, ${cR[bad]} on the right. Change the coefficient of a formula that has ${bad} in it, then count again.`+(e.hard?' For this one, try to make the oxygen numbers meet at 6.':''):'<b>It is already balanced.</b> Pick another equation.'};
 
 /* ---------- start ---------- */
+/* ---------- parts + "Find the part" (parts.js) ---------- */
+if(window.LabParts){
+ window.__lp=LabParts.attach({key:'chemchange-1',wrap:$('#s1').parentElement,stage:$('#s1'),bar:$('#runBtn').parentElement,max:4,parts:()=>{const sv=$('#s1');if(!sv.getClientRects().length||!cur1)return [];const {X,Y,B}=LabParts.svgMap(sv,sv.parentElement),e=cur1,L=[];
+  if(e.scene==='beaker'){
+   L.push({id:'beaker',name:'Beaker',what:'A glass container with a pouring lip. The marks on its side give only a rough volume.',hint:'The big glass container in the middle.',q:'Find the beaker.',x:X(286),y:Y(196),boxes:[B(300,144,500,396)]});
+   L.push({id:'thermo',name:'Thermometer',what:'Measures the temperature. A temperature change (getting hot or cold) can be a sign of a chemical change.',hint:'The tall scale standing in the beaker.',q:'Which tool shows if the mixture gets hotter or colder?',x:X(490),y:Y(104),boxes:[B(439,88,473,330)]});
+   L.push({id:'cup',name:'Second container',what:'Holds the second substance. It is poured into the beaker to start the experiment.',hint:'The small container on the right.',q:'Where is the second substance before mixing?',x:X(610),y:Y(80),boxes:[B(520,64,600,172)]});
+   if(MICRO[e.id])L.push({id:'lens',name:'Particle view',what:'Zooms into the liquid to show the particles. In a chemical change the atoms rearrange into new substances.',hint:'The round window on the left.',q:'Where can you see the particles?',x:X(150),y:Y(66),boxes:[B(50,80,250,280)]});}
+  else if(e.scene==='plate'){
+   L.push({id:'plate',name:'Hot plate',what:'An electric heater with a flat top. It heats things without a flame.',hint:'The grey heater at the bottom.',q:'What heats the dish?',x:X(560),y:Y(372),boxes:[B(255,326,545,392)]});
+   L.push({id:'dish',name:e.item==='ice'?'Dish':'Pan',what:'Holds the '+(e.item==='ice'?'ice':'egg')+' on the hot plate.',hint:'Under the '+(e.item==='ice'?'ice':'egg')+'.',q:'What holds the '+(e.item==='ice'?'ice':'egg')+'?',x:X(250),y:Y(312),boxes:[B(270,302,530,324)]});
+   L.push({id:'item',name:e.item==='ice'?'Ice cube':'Raw egg',what:e.item==='ice'?'Melting is a physical change: it is still water, and it can freeze again.':'Cooking an egg is a chemical change: new substances form and it cannot be undone.',hint:'On the dish.',q:'Find the '+(e.item==='ice'?'ice cube':'egg')+'.',x:X(480),y:Y(250),boxes:[B(300,228,505,304)]});}
+  else{
+   L.push({id:'burner',name:'Bunsen burner',what:'Gives a hot flame. Tie long hair back and keep the air hole closed to light it.',hint:'The flame on the left.',q:'Find the Bunsen burner.',x:X(106),y:Y(360),boxes:[B(130,180,190,392)]});
+   L.push({id:'tongs',name:'Crucible tongs',what:'Hold the hot magnesium ribbon so your hand stays far from the flame.',hint:'The long metal tool on the right.',q:'What holds the magnesium ribbon?',x:X(560),y:Y(120),boxes:[B(300,140,650,240)]});
+   L.push({id:'ribbon',name:'Magnesium ribbon',what:'Burns with a dazzling white light and turns into white magnesium oxide: a new substance, so a chemical change.',hint:'The grey strip held by the tongs.',q:'Find the magnesium ribbon.',x:X(220),y:Y(240),boxes:[B(175,226,302,306)]});
+   L.push({id:'mat',name:'Heat-proof mat',what:'Protects the bench and collects the white ash (magnesium oxide).',hint:'The flat dish under the ribbon.',q:'What catches the white ash?',x:X(390),y:Y(372),boxes:[B(226,372,374,396)]});}
+  return L}});
+ window.__lp2=LabParts.attach({key:'chemchange-2',wrap:$('#s2').parentElement,stage:$('#s2'),bar:$('#mixBtn2').parentElement,max:4,parts:()=>{const sv=$('#s2');if(!sv.getClientRects().length)return [];const {X,Y,B}=LabParts.svgMap(sv,sv.parentElement),L=[];
+  L.push({id:'balance',name:'Digital balance',what:'Measures mass in grams. Put the whole set-up on it before and after the reaction to compare.',hint:'The grey scale at the bottom.',q:'Which tool measures the mass?',x:X(146),y:Y(350),boxes:[B(160,322,640,372)]});
+  L.push({id:'display',name:'Balance display',what:'Shows the mass. In a closed container it stays the same: mass is conserved.',hint:'The screen on the balance.',q:'Where do you read the mass?',x:X(510),y:Y(354),boxes:[B(304,338,496,366)]});
+  L.push({id:'flask',name:'Conical flask',what:'Holds the reactants. Its narrow neck is easy to close with a stopper or a balloon.',hint:'The glass flask on the balance.',q:'Where are the reactants?',x:X(286),y:Y(260),boxes:[B(305,150,495,316)]});
+  if(ct2==='closed')L.push({id:'stopper',name:rx2==='gas'?'Balloon (closed system)':'Stopper (closed system)',what:'Closes the flask so nothing can get in or out: the mass stays the same.',hint:'On top of the flask.',q:'What closes the flask?',x:X(330),y:Y(120),boxes:[B(360,50,440,158)]});
+  return L}})}
+
 picks1();reset1();reset2();build3();reset4();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{draw1();draw2();draw3();draw4()});
 new MutationObserver(()=>{draw1();draw2();draw3();draw4()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});

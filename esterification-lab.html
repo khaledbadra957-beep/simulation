@@ -267,7 +267,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
  <footer>Designed and built by Mr Khaled. Model: equilibrium constant K = 4 for primary alcohols, 2.25 for secondary and 0.0028 for tertiary, which give the classic yields of 67 %, 60 % and 5 % for an equimolar mixture. Times are illustrative.</footer>
 </div>
 
-<script src="lab-svg.js"></script>
+<script src="lab-svg.js"></script><script src="parts.js"></script>
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const fx=(x,d=2)=>Number(x).toFixed(d);
@@ -702,6 +702,19 @@ myLoad(MYEG[0]);
 
 function drawAll(){if(!C.ink)readColors();if(tab==='eq'&&eq.hist)drawEq()}
 addEventListener('resize',drawAll);
+/* ---------- parts + "Find the part" on the reflux apparatus (parts.js) ---------- */
+if(window.LabParts){window.__lp=LabParts.attach({key:'esterification',wrap:$('.rig'),stage:$('#rigSvg'),bar:$('#p-eq .benchhead'),max:6,parts:()=>{const sv=$('#rigSvg');if(!sv||!sv.getClientRects().length)return [];const M=LabParts.svgMap(sv,$('.rig')),{X,Y,B}=M,BY=RIG.BY,cx=250,cy=268,r=50,rem=eq.rem,condX=rem?340:cx,cTop=rem?12:20,cBot=rem?144:192,L=[];
+ L.push({id:'mantle',name:'Heating mantle',what:'Heats the round-bottom flask evenly from below. Heating only makes the reaction faster: the yield stays the same.',hint:'The grey heater under the flask.',q:'What heats the flask?',x:X(cx+92),y:Y(BY-30),boxes:[B(cx-78,BY-74,cx+78,BY)]});
+ L.push({id:'flask',name:'Round-bottom flask',what:'Holds the acid, the alcohol and a few drops of H₂SO₄. Its round shape heats evenly.',hint:'The round glass flask above the heater.',q:'Where are the acid and the alcohol?',x:X(cx-r-16),y:Y(cy-10),boxes:[B(cx-r,cy-r,cx+r,cy+r),B(cx-12,192,cx+12,cy-r)]});
+ L.push({id:'chips',name:'Boiling chips',what:'Small porous pieces that make the liquid boil smoothly instead of “bumping” violently.',hint:'The tiny grey pieces at the bottom of the flask.',q:'What stops the liquid from boiling violently?',x:X(cx+r+14),y:Y(cy+r-22),boxes:[B(cx-20,cy+r-12,cx+20,cy+r-1)]});
+ L.push({id:'cond',name:'Condenser',what:'Cold water flows in at the bottom and out at the top. The vapour cools, turns back into liquid and drips back into the flask, so nothing escapes: this is heating under reflux.',hint:'The tall glass tube with a water jacket above the flask.',q:'Which part turns the vapour back into liquid?',x:X(condX-30),y:Y(cTop+68),boxes:[B(condX-18,cTop,condX+18,cBot)]});
+ L.push({id:'waterin',name:'Cooling water in',what:'Cold water enters the condenser at the bottom, so the jacket is always full.',hint:'The hose at the bottom of the condenser.',q:'Where does the cold water go in?',x:X(condX+44),y:Y(cBot-58),boxes:[B(condX+16,cBot-36,condX+60,cBot-22)]});
+ L.push({id:'clamp',name:'Clamp and retort stand',what:'Hold the flask and condenser firmly upright above the heater.',hint:'The metal rod on the left and its clamps.',q:'What holds the apparatus upright?',x:X(112),y:Y(232),boxes:[B(78,18,98,BY-12),B(50,BY-10,200,BY)]});
+ if(rem)L.push({id:'trap',name:'Dean–Stark trap',what:'Collects the water as it forms. With a product removed, the reverse reaction (hydrolysis) cannot happen and the reaction goes to completion.',hint:'The graduated tube where the water collects.',q:'Which part removes the water as it forms?',x:X(380),y:Y(250),boxes:[B(330,138,352,272)]});
+ L.push({id:'acid',name:'Concentrated H₂SO₄ (catalyst)',what:'A few drops speed up the reaction (equilibrium is reached sooner). It does not change the yield. Corrosive: handle with care.',hint:'The brown dropper bottle.',q:'Which bottle holds the catalyst?',x:X(530),y:Y(BY-76),boxes:[B(512,BY-66,548,BY)]});
+ L.push({id:'timer',name:'Lab timer',what:'Shows how long the reaction has run. Compare the time to reach equilibrium with and without heat and catalyst.',hint:'The small clock on the right.',q:'Find the timer.',x:X(705),y:Y(BY-22),boxes:[B(608,BY-44,692,BY)]});
+ return L}})}
+
 readColors();renderBuild();syncEq();notesEx();nextQ();themeLabel();
 requestAnimationFrame(loop);
 </script>
