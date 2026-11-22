@@ -122,6 +122,13 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .runs{display:flex;flex-wrap:wrap;gap:6px}
 .runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px 18px;margin:4px 0}.exgrid[hidden],[data-exf][hidden],#exKnown[hidden],#exVwrap[hidden],#exSpWrap[hidden]{display:none!important}
+.exgrid label,.exrow label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.exgrid span,.exrow span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.exgrid input,.exgrid select,.extab input,.exrow input,.exrow select{font:600 15px var(--data);width:7.5em;max-width:100%;padding:6px 8px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink)}
+.exgrid select,.exrow select{width:auto;font-family:var(--body)}.exgrid .exwide{grid-column:1/-1}.exgrid .exwide input{width:100%;max-width:30em}
+.exgrid input[aria-invalid="true"],.extab input[aria-invalid="true"],.exrow input[aria-invalid="true"]{border-color:#C0392B}
+.exrow{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end}.extab td{vertical-align:middle}.extab td:nth-child(2){color:var(--muted);font-family:var(--body);font-size:.85rem;text-align:left}
+.exqs{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style><script src="lab-viz.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
@@ -144,6 +151,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   <button class="tab" role="tab" aria-selected="true" data-tab="box" aria-controls="p-box">1 · Dynamic equilibrium</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="qk" aria-controls="p-qk">2 · Q, K and the ICE table</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">3 · Challenge</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Your exercise</button>
  </div>
 
  <!-- ================= TAB 1 ================= -->
@@ -258,6 +266,35 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
   <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
  </section>
 
+
+ <!-- ================= YOUR EXERCISE ================= -->
+ <section class="bench" id="p-ex" role="tabpanel" hidden>
+  <div class="benchhead"><h2>Your exercise, solved in the lab</h2><div class="transport"><button class="btn small" type="button" id="exEg">Example</button><button class="btn small primary" type="button" id="exSolve">▶ Solve it in the lab</button></div></div>
+  <div class="seg" role="group" aria-label="Kind of exercise"><button type="button" data-exk="ice" aria-pressed="true">Find the equilibrium amounts</button><button type="button" data-exk="k" aria-pressed="false">Find Kc</button><button type="button" data-exk="qk" aria-pressed="false">Which way? Q and K</button><button type="button" data-exk="lc" aria-pressed="false">Le Châtelier</button></div>
+  <div class="exgrid">
+   <label class="exwide">Balanced equation <span><input id="exEq" value="H2(g) + I2(g) = 2HI(g)" autocomplete="off" spellcheck="false" aria-describedby="exEqNote"></span></label>
+   <label data-exf="ice qk">Kc <span><input id="exK" inputmode="decimal" value="49.7"></span></label>
+   <label data-exf="ice qk k">Temperature (if given) <span><input id="exT" value="731 K" autocomplete="off"></span></label>
+  </div>
+  <p class="note" id="exEqNote">Use = or ⇌ between the sides. Add states like (g), (aq), (s) or (l): solids and liquids are left out of Kc. Ions: Fe3+, SCN-.</p>
+  <div data-exf="ice qk k" class="col">
+   <div class="exrow">
+    <div class="seg" role="group" aria-label="Amounts are given as"><button type="button" data-exg="M" aria-pressed="false">Concentrations (M)</button><button type="button" data-exg="mol" aria-pressed="true">Moles in a volume</button></div>
+    <label id="exVwrap">Volume <span><input id="exV" inputmode="decimal" value="2.00"> L</span></label>
+   </div>
+   <div data-exf="k"><div class="seg" role="group" aria-label="The exercise gives"><button type="button" data-exs="eq" aria-pressed="true">All the equilibrium amounts</button><button type="button" data-exs="ice" aria-pressed="false">Starting amounts + one at equilibrium</button></div></div>
+   <div class="tablewrap"><table class="extab"><thead><tr><th>Substance</th><th></th><th id="exH">Initial</th></tr></thead><tbody id="exTb"></tbody></table></div>
+   <div class="exrow" id="exKnown"><label>At equilibrium, the amount of <span><select id="exKs"></select></span></label><label>is <span><input id="exKv" inputmode="decimal" value="1.56"> <i id="exKu" style="font-style:normal">mol</i></span></label></div>
+  </div>
+  <div data-exf="lc" class="exgrid">
+   <label>Forward reaction <span><select id="exDH"><option value="-1">exothermic (ΔH &lt; 0)</option><option value="1">endothermic (ΔH &gt; 0)</option><option value="0">not given</option></select></span></label>
+   <label>The change <span><select id="exCh"><option value="add">Add some of a substance</option><option value="rem">Remove some of a substance</option><option value="vdown">Decrease the volume (raise the pressure)</option><option value="vup">Increase the volume (lower the pressure)</option><option value="tup">Raise the temperature</option><option value="tdown">Lower the temperature</option><option value="cat">Add a catalyst</option><option value="inert">Add an unreactive gas (same volume)</option></select></span></label>
+   <label id="exSpWrap">Substance <span><select id="exSp"></select></span></label>
+  </div>
+  <p class="note" id="exMsg" aria-live="polite"></p>
+  <div class="card"><h3>Your exercise</h3><p id="exText" style="margin:0"></p><ol id="exQs" class="exqs"></ol></div>
+ </section>
+
  <footer>Designed and built by Mr Khaled. Model: two NO₂ particles join when they collide with at least Ea(forward); each N₂O₄ breaks apart at random with a chance that grows with temperature (Ea reverse is larger, so the forward reaction is exothermic). Nothing in the model is told where equilibrium is: it emerges when the two rates become equal.</footer>
 </div>
 
@@ -277,7 +314,7 @@ $('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('d
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
 let tab='box';
 $$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
- ['box','qk','chal'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
+ ['box','qk','chal','ex'].forEach(t=>$('#p-'+t).hidden=t!==tab);if($('.bench.fs'))exitFs();drawAll()});
 $('#fsBtn').onclick=async()=>{const b=$('#p-'+tab);const on=!b.classList.contains('fs');$$('.bench').forEach(x=>x.classList.remove('fs'));
  if(on){b.classList.add('fs');try{await b.requestFullscreen?.()}catch(e){}}else{try{document.fullscreenElement&&await document.exitFullscreen()}catch(e){}}
  $('#fsBtn').textContent=on?'Exit full screen':'Full screen';drawAll()};
@@ -437,21 +474,23 @@ const RX=[
 let rxq=RX[0],c0=[],xEq=null,xShow=0,anim=null;
 const supN=n=>n===1?'':String(n).split('').map(c=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+c]).join('');
 const sciT=v=>{if(!isFinite(v))return '∞';if(v===0)return '0';const e=Math.floor(Math.log10(Math.abs(v)));if(e>=-2&&e<=3)return Number(v.toPrecision(3)).toString();const m=v/Math.pow(10,e);return `${m.toFixed(2)}×10${e<0?'⁻':''}${supN(Math.abs(e))||'¹'}`};
+const cf=v=>{if(!isFinite(v))return '∞';const a=Math.abs(v);if(a===0)return '0';return (a>=1000||a<1e-4?sciT(v):v.toPrecision(3)).replace(/^-/,'−')};
 RX.forEach((r,i)=>{const o=document.createElement('option');o.value=i;o.textContent=r.name;$('#rxSel').appendChild(o)});
 function exprHTML(){const num=rxq.sp.filter(s=>s[1]>0).map(s=>`[${s[0]}]${s[1]>1?'<sup>'+s[1]+'</sup>':''}`).join('');const den=rxq.sp.filter(s=>s[1]<0).map(s=>`[${s[0]}]${-s[1]>1?'<sup>'+(-s[1])+'</sup>':''}`).join('');return `Kc = ${num} / ${den} = ${sciT(rxq.K)}`}
 function concAt(x){return rxq.sp.map((s,i)=>Math.max(0,c0[i]+s[1]*x))}
 function Qof(cs){let num=1,den=1;rxq.sp.forEach((s,i)=>{const v=Math.pow(cs[i],Math.abs(s[1]));if(s[1]>0)num*=v;else den*=v});return den===0?(num===0?NaN:Infinity):num/den}
 function solve(){let lo=-Infinity,hi=Infinity;rxq.sp.forEach((s,i)=>{const b=-c0[i]/s[1];if(s[1]>0)lo=Math.max(lo,b);else hi=Math.min(hi,b)});
+ if(!isFinite(lo)&&!isFinite(hi))return null;if(!isFinite(lo))lo=hi-1e3;if(!isFinite(hi))hi=lo+1e3;
  if(!(hi>lo))return null;const f=x=>{let s=0;rxq.sp.forEach((sp,i)=>{s+=sp[1]*Math.log(Math.max(1e-300,c0[i]+sp[1]*x))});return s-Math.log(rxq.K)};
  let a=lo,b=hi;for(let k=0;k<200;k++){const m=(a+b)/2;if(f(m)>0)b=m;else a=m}return (a+b)/2}
 function buildSliders(){$('#sliders').innerHTML=rxq.sp.map((s,i)=>`<div class="field"><div class="field-head"><label for="c${i}">[${s[0]}]₀ <span class="note" style="display:inline">${s[1]<0?'reactant':'product'}</span></label><output id="o${i}"></output></div><input id="c${i}" type="range" min="0" max="2" step="0.05" value="${s[2]}"></div>`).join('');
  rxq.sp.forEach((s,i)=>$('#c'+i).addEventListener('input',()=>{readC0();xShow=0;stopAnim();updateQK()}))}
-function readC0(){c0=rxq.sp.map((s,i)=>+$('#c'+i).value);rxq.sp.forEach((s,i)=>$('#o'+i).textContent=fx(c0[i],2)+' M');xEq=solve()}
+function readC0(){c0=rxq.sp.map((s,i)=>+$('#c'+i).value);rxq.sp.forEach((s,i)=>$('#o'+i).textContent=(+$('#c'+i).step>=0.05?fx(c0[i],2):cf(c0[i]))+' M');xEq=solve()}
 function setRx(){rxq=RX[+$('#rxSel').value];$('#rxNote').textContent=`Kc = ${sciT(rxq.K)} at ${rxq.T}. Set the starting concentrations, compare Q with K, then let the reaction run.`;buildSliders();readC0();xShow=0;stopAnim();updateQK()}
 function stopAnim(){if(anim){cancelAnimationFrame(anim);anim=null}}
 function updateQK(){const cs=concAt(xShow),Q=Qof(cs),K=rxq.K;$('#kExpr').innerHTML=exprHTML();
- const num=rxq.sp.map((s,i)=>[s,cs[i]]).filter(a=>a[0][1]>0).map(([s,v])=>`(${fx(v,3)})${supN(s[1])}`).join('');
- const den=rxq.sp.map((s,i)=>[s,cs[i]]).filter(a=>a[0][1]<0).map(([s,v])=>`(${fx(v,3)})${supN(-s[1])}`).join('');
+ const num=rxq.sp.map((s,i)=>[s,cs[i]]).filter(a=>a[0][1]>0).map(([s,v])=>`(${cf(v)})${supN(s[1])}`).join('');
+ const den=rxq.sp.map((s,i)=>[s,cs[i]]).filter(a=>a[0][1]<0).map(([s,v])=>`(${cf(v)})${supN(-s[1])}`).join('');
  $('#qSub').textContent=`Q = ${num} / ${den} = ${isNaN(Q)?'undefined':sciT(Q)}`;
  const m=$('#qkMsg');
  if(xEq===null||isNaN(Q)){m.className='status bad';m.textContent='Nothing can react: you need either all the reactants or all the products to be present.'}
@@ -462,10 +501,10 @@ function updateQK(){const cs=concAt(xShow),Q=Qof(cs),K=rxq.K;$('#kExpr').innerHT
 function renderICE(){const done=xEq!==null&&Math.abs(xShow-xEq)<1e-9;const sp=rxq.sp;
  const head=`<thead><tr><th></th>${sp.map(s=>`<th>[${s[0]}] (M)</th>`).join('')}</tr></thead>`;
  const sx=xEq===null?0:xEq;const cl=n=>`${n<0?'−':'+'}${Math.abs(n)===1?'':Math.abs(n)}x`;
- const rowC=done?sp.map((s,i)=>`<td>${cl(s[1])} = ${s[1]*sx>=0?'+':'−'}${fx(Math.abs(s[1]*sx),3)}</td>`).join(''):sp.map(s=>`<td>${cl(s[1])}</td>`).join('');
- const rowE=done?sp.map((s,i)=>`<td>${fx(c0[i]+s[1]*sx,3)}</td>`).join(''):sp.map((s,i)=>`<td>${fx(c0[i],2)} ${cl(s[1])}</td>`).join('');
- $('#ice').innerHTML=head+`<tbody><tr><td>I · initial</td>${c0.map(v=>`<td>${fx(v,2)}</td>`).join('')}</tr><tr><td>C · change</td>${rowC}</tr><tr><td>E · equilibrium</td>${rowE}</tr>`+'</tbody>';
- $('#iceNote').textContent=done?`x = ${fx(sx,4)} M${sx<0?' (negative: the reaction went backwards, to the left)':''}. Check: putting the E row into the Kc expression gives ${sciT(Qof(concAt(sx)))} ≈ ${sciT(rxq.K)}.`:'Press “Let it reach equilibrium” to find x and fill in the table.'}
+ const rowC=done?sp.map((s,i)=>`<td>${cl(s[1])} = ${s[1]*sx>=0?'+':'−'}${cf(Math.abs(s[1]*sx))}</td>`).join(''):sp.map(s=>`<td>${cl(s[1])}</td>`).join('');
+ const rowE=done?sp.map((s,i)=>`<td>${cf(c0[i]+s[1]*sx)}</td>`).join(''):sp.map((s,i)=>`<td>${cf(c0[i])} ${cl(s[1])}</td>`).join('');
+ $('#ice').innerHTML=head+`<tbody><tr><td>I · initial</td>${c0.map(v=>`<td>${cf(v)}</td>`).join('')}</tr><tr><td>C · change</td>${rowC}</tr><tr><td>E · equilibrium</td>${rowE}</tr>`+'</tbody>';
+ $('#iceNote').textContent=done?`x = ${cf(sx)} M${sx<0?' (negative: the reaction went backwards, to the left)':''}. Check: putting the E row into the Kc expression gives ${sciT(Qof(concAt(sx)))} ≈ ${sciT(rxq.K)}.`:'Press “Let it reach equilibrium” to find x and fill in the table.'}
 function drawGauge(Q){const c=$('#gauge');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const L=20,Rm=20,y=h/2+6;
  const lk=Math.log10(rxq.K),lo=lk-4,hi=lk+4;const X=v=>L+(Math.min(hi,Math.max(lo,v))-lo)/(hi-lo)*(w-L-Rm);
  x.strokeStyle=C.line;x.lineWidth=6;x.lineCap='round';x.beginPath();x.moveTo(L,y);x.lineTo(w-Rm,y);x.stroke();x.lineCap='butt';
@@ -512,10 +551,274 @@ function nextQ(){if(!order.length||qi>=order.length-1){order=shuffle([...QS.keys
   const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
 $('#qNext').onclick=nextQ;
 
+/* =========================================================
+   YOUR EXERCISE — solved step by step in the lab (tour.js)
+   ========================================================= */
+const SUBD='₀₁₂₃₄₅₆₇₈₉',SUPD='⁰¹²³⁴⁵⁶⁷⁸⁹';
+const ELS=new Set('H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu'.split(' '));
+const exNum=v=>{v=String(v).trim().replace(/,/g,'.').replace(/[−–]/g,'-').replace(/\s/g,'').replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return v===''?NaN:Number(v)};
+const exSup=n=>String(n).split('').map(c=>SUPD[+c]).join('');
+function exCharge(s){let m;
+ if((m=s.match(/^(.+?)([⁰¹²³⁴⁵⁶⁷⁸⁹]*)([⁺⁻])$/)))return {core:m[1],q:(m[2]?+[...m[2]].map(c=>SUPD.indexOf(c)).join(''):1)*(m[3]==='⁺'?1:-1)};
+ if((m=s.match(/^(.+?)(?:\^|\s+)(\d*)([+-])$/)))return {core:m[1],q:(m[2]?+m[2]:1)*(m[3]==='+'?1:-1)};
+ if((m=s.match(/^(NH4|H3O)([+-])$/)))return {core:m[1],q:m[2]==='+'?1:-1};
+ if((m=s.match(/^(.*[A-Za-z)\]])(\d?)([+-])$/)))return {core:m[1],q:(m[2]?+m[2]:1)*(m[3]==='+'?1:-1)};
+ return {core:s,q:0}}
+function exAtoms(core){const parts=core.split(/[·.*]/),tot={};
+ for(let part of parts){let mult=1;const lm=part.match(/^(\d+)(.*)$/);if(lm&&parts.length>1){mult=+lm[1];part=lm[2]}
+  const toks=part.match(/[A-Z][a-z]?|\d+|[()[\]]|./g)||[];const st=[{}];let i=0;
+  for(;i<toks.length;i++){const t=toks[i];
+   if(t==='('||t==='['){st.push({});continue}
+   if(t===')'||t===']'){if(st.length<2)return null;const g=st.pop();let n=1;if(/^\d+$/.test(toks[i+1]||'')){n=+toks[i+1];i++}for(const e in g)st[st.length-1][e]=(st[st.length-1][e]||0)+g[e]*n;continue}
+   if(/^[A-Z][a-z]?$/.test(t)){if(!ELS.has(t))return null;let n=1;if(/^\d+$/.test(toks[i+1]||'')){n=+toks[i+1];i++}st[st.length-1][t]=(st[st.length-1][t]||0)+n;continue}
+   return null}
+  if(st.length!==1||!Object.keys(st[0]).length)return null;for(const e in st[0])tot[e]=(tot[e]||0)+st[0][e]*mult}
+ return tot}
+function exPretty(core,q){return core.replace(/([A-Za-z)\]])(\d+)/g,(m,a,d)=>a+d.split('').map(c=>SUBD[+c]).join('')).replace(/[·.*](\d*)/g,'·$1')+(q?(Math.abs(q)>1?exSup(Math.abs(q)):'')+(q>0?'⁺':'⁻'):'')}
+function exParseEq(str){let s=String(str).replace(/[₀-₉]/g,c=>SUBD.indexOf(c)).replace(/\s+/g,' ').trim();
+ const parts=s.split(/\s*(?:⇌|<=>|<->|⇄|↔|⟷|==|=|→|->|⟶)\s*/);
+ if(parts.length!==2||!parts[0]||!parts[1])return {err:'Type the equation with = (or ⇌) between the two sides, for example  H2(g) + I2(g) = 2HI(g).'};
+ const noState=!/\((g|l|s|aq)\)/i.test(s),sp=[];
+ for(const [si,side] of [[-1,parts[0]],[1,parts[1]]]){
+  const terms=side.replace(/([A-Za-z0-9)\]])\+(?=\d*(?:[A-Z[]|\((?!(?:g|l|s|aq)\))))/gi,'$1 + ').split(/\s+\+\s+/);
+  for(let t of terms){t=t.trim();const m=t.match(/^(\d+)?\s*(.+?)\s*(\((?:g|l|s|aq)\))?$/i);if(!m)return {err:`I can’t read “${t}”.`};
+   const n=m[1]?+m[1]:1,st=m[3]?m[3].toLowerCase():'',{core,q}=exCharge(m[2].trim()),at=exAtoms(core);
+   if(!at)return {err:`I can’t read the formula “${m[2]}”. Check the capital letters (Cl, not CL).`};
+   if(n<1||n>12)return {err:'Use whole-number coefficients from 1 to 12.'};
+   const key=core+'|'+q;if(sp.some(x=>x.key===key))return {err:`${exPretty(core,q)} appears twice. Write each substance once.`};
+   sp.push({key,core,q,f:exPretty(core,q),n,side:si,st,at,inc:st!=='(s)'&&st!=='(l)',gas:st==='(g)'||(noState&&true)||(!st&&!noState)})}}
+ const cnt=si=>{const tot={};let q=0;sp.filter(x=>x.side===si).forEach(x=>{for(const e in x.at)tot[e]=(tot[e]||0)+x.at[e]*x.n;q+=x.q*x.n});return [tot,q]};
+ const [L,qL]=cnt(-1),[R,qR]=cnt(1);
+ for(const e of new Set([...Object.keys(L),...Object.keys(R)]))if((L[e]||0)!==(R[e]||0))return {err:`The equation is not balanced: ${e} ${L[e]||0} on the left, ${R[e]||0} on the right.`};
+ if(qL!==qR)return {err:`The charges do not balance: ${qL} on the left, ${qR} on the right.`};
+ const inc=sp.filter(x=>x.inc);
+ if(!inc.length)return {err:'Every substance is a solid or liquid, so there is nothing in Kc.'};
+ if(inc.length>5)return {err:'The lab handles up to 5 substances in Kc.'};
+ const term=x=>(x.n>1?x.n:'')+x.f+(x.st||'');
+ return {sp,inc,noState,pretty:sp.filter(x=>x.side<0).map(term).join(' + ')+' ⇌ '+sp.filter(x=>x.side>0).map(term).join(' + ')}}
+const exBr=x=>`[${x.f}]`+supN(x.n);
+function exKexpr(inc,lhs='Kc'){const num=inc.filter(x=>x.side>0).map(exBr),den=inc.filter(x=>x.side<0).map(exBr);
+ return `${lhs} = `+(num.length?num.join(''):'1')+(den.length?' / '+(den.length>1?'('+den.join('')+')':den[0]):'')}
+function exSubst(inc,cs,lhs){const v=(x,i)=>`(${cf(cs[i])})`+supN(x.n);const num=inc.map((x,i)=>x.side>0?v(x,i):null).filter(Boolean),den=inc.map((x,i)=>x.side<0?v(x,i):null).filter(Boolean);
+ return `${lhs} = `+(num.length?num.join(''):'1')+(den.length?' / '+(den.length>1?'('+den.join('')+')':den[0]):'')}
+function exQ(inc,cs){let num=1,den=1;inc.forEach((x,i)=>{const v=Math.pow(cs[i],x.n);if(x.side>0)num*=v;else den*=v});return den===0?(num===0?NaN:Infinity):num/den}
+const EXCOL={'NO2|0':'brown','N2O4|0':'colourless','FeSCN|2':'blood-red','Fe|3':'pale yellow','CoCl4|-2':'blue','Co(H2O)6|2':'pink','Cr2O7|-2':'orange','CrO4|-2':'yellow','Br2|0':'red-brown','I2|0':'purple'};
+
+/* ---------- form state ---------- */
+let exK='ice',exG='mol',exS='eq',exSp=null,exLast='';
+const exVals={};
+const exMode=()=>exK==='k'?(exS==='eq'?'keq':'k0'):exK;
+const EXSEED={ice:{'H2|0':'1.00','I2|0':'1.00','HI|0':'0'},qk:{'H2|0':'0.10','I2|0':'0.20','HI|0':'0.80'},keq:{'H2|0':'0.22','I2|0':'0.22','HI|0':'1.56'},k0:{'H2|0':'1.00','I2|0':'1.00','HI|0':'0'}};
+for(const m in EXSEED)for(const k in EXSEED[m])exVals[m+':'+k]=EXSEED[m][k];
+const EXEG={
+ ice:[{k:'ice',eq:'N2O4(g) = 2NO2(g)',K:'4.6e-3',T:'25 °C',g:'M',v:{'N2O4|0':'0.50','NO2|0':'0'}},{k:'ice',eq:'H2(g) + I2(g) = 2HI(g)',K:'49.7',T:'731 K',g:'mol',V:'2.00',v:{'H2|0':'1.00','I2|0':'1.00','HI|0':'0'}}],
+ k:[{s:'ice',eq:'2SO2(g) + O2(g) = 2SO3(g)',T:'1000 K',g:'mol',V:'2.00',v:{'SO2|0':'0.40','O2|0':'0.20','SO3|0':'0'},ks:'SO3|0',kv:'0.30'},{s:'eq',eq:'N2(g) + 3H2(g) = 2NH3(g)',T:'500 °C',g:'M',v:{'N2|0':'0.25','H2|0':'0.15','NH3|0':'0.090'}},{s:'ice',eq:'H2(g) + I2(g) = 2HI(g)',T:'731 K',g:'mol',V:'2.00',v:{'H2|0':'1.00','I2|0':'1.00','HI|0':'0'},ks:'HI|0',kv:'1.56'}],
+ qk:[{eq:'N2(g) + 3H2(g) = 2NH3(g)',K:'0.060',T:'500 °C',g:'M',v:{'N2|0':'0.50','H2|0':'1.0','NH3|0':'0.20'}},{eq:'H2(g) + I2(g) = 2HI(g)',K:'49.7',T:'731 K',g:'mol',V:'2.00',v:{'H2|0':'0.10','I2|0':'0.20','HI|0':'0.80'}}],
+ lc:[{eq:'Fe3+(aq) + SCN-(aq) = FeSCN2+(aq)',dh:'-1',ch:'add',sp:'SCN|-1'},{eq:'CaCO3(s) = CaO(s) + CO2(g)',dh:'1',ch:'tup'},{eq:'N2(g) + 3H2(g) = 2NH3(g)',dh:'-1',ch:'vdown'}]};
+const exEgI={ice:0,k:0,qk:0,lc:0};
+function exSyncTable(P){const mode=exMode(),inc=P&&!P.err?P.inc:[],keyS=mode+'#'+inc.map(x=>x.key).join(',');
+ $('#exH').textContent={ice:'Initial',qk:'Right now',keq:'At equilibrium',k0:'Initial'}[mode]||'Amount';
+ if(keyS!==exLast){exLast=keyS;
+  $('#exTb').innerHTML=inc.length?inc.map((x,i)=>`<tr><td>${x.f}${x.st}</td><td>${x.side<0?'reactant':'product'}</td><td><input id="exa${i}" inputmode="decimal" value="${exVals[mode+':'+x.key]??''}" aria-label="${x.f}"> <span class="exu">${exG==='mol'?'mol':'M'}</span></td></tr>`).join(''):'<tr class="empty"><td colspan="3">Type a balanced equation above.</td></tr>';
+  inc.forEach((x,i)=>$('#exa'+i).addEventListener('input',e=>{exVals[mode+':'+x.key]=e.target.value;exRead()}));
+  const ks=$('#exKs'),old=ks.value;ks.innerHTML=inc.map(x=>`<option value="${x.key}">${x.f}</option>`).join('');if(inc.some(x=>x.key===old))ks.value=old;else if(inc.length)ks.value=inc.filter(x=>x.side>0).concat(inc)[0].key}
+ $$('.exu').forEach(e=>e.textContent=exG==='mol'?'mol':'M');$('#exKu').textContent=exG==='mol'?'mol':'M';
+ const all=P&&!P.err?P.sp:[],sp=$('#exSp'),os=sp.value;const sk=all.map(x=>x.key).join(',');if(sp.dataset.k!==sk){sp.dataset.k=sk;sp.innerHTML=all.map(x=>`<option value="${x.key}">${x.f}${x.st}</option>`).join('');}
+ if(exSp&&all.some(x=>x.key===exSp)){sp.value=exSp;exSp=null}else if(all.some(x=>x.key===os))sp.value=os}
+function exShow(){$$('[data-exf]').forEach(g=>g.hidden=!g.dataset.exf.split(' ').includes(exK));$('#exVwrap').hidden=exG!=='mol';$('#exKnown').hidden=!(exK==='k'&&exS==='ice');
+ $$('[data-exk]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.exk===exK));$$('[data-exg]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.exg===exG));$$('[data-exs]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.exs===exS));
+ const c=$('#exCh').value;$('#exSpWrap').hidden=!(c==='add'||c==='rem')}
+$$('[data-exk]').forEach(b=>b.onclick=()=>{exK=b.dataset.exk;exShow();exRead()});
+$$('[data-exg]').forEach(b=>b.onclick=()=>{exG=b.dataset.exg;exShow();exRead()});
+$$('[data-exs]').forEach(b=>b.onclick=()=>{exS=b.dataset.exs;exShow();exRead()});
+['exEq','exK','exT','exV','exKv'].forEach(id=>$('#'+id).addEventListener('input',exRead));
+['exDH','exCh','exSp','exKs'].forEach(id=>$('#'+id).addEventListener('change',()=>{exShow();exRead()}));
+$('#exEg').onclick=()=>{const L=EXEG[exK],e=L[exEgI[exK]%L.length];exEgI[exK]++;
+ $('#exEq').value=e.eq;if(e.K)$('#exK').value=e.K;if(e.T!=null)$('#exT').value=e.T;if(e.g)exG=e.g;if(e.V)$('#exV').value=e.V;if(e.s)exS=e.s;
+ const mode=exMode();if(e.v)for(const k in e.v)exVals[mode+':'+k]=e.v[k];exLast='';
+ if(e.ks){exSyncTable(exParseEq(e.eq));$('#exKs').value=e.ks;$('#exKv').value=e.kv}
+ if(e.dh)$('#exDH').value=e.dh;if(e.ch)$('#exCh').value=e.ch;if(e.sp)exSp=e.sp;exShow();exRead()};
+
+const sN=v=>sciT(v).replace(/^-/,'−');
+const exAmt=(v,g)=>cf(v)+(g==='mol'?' mol':' M');
+function exRead(){const m=$('#exMsg'),bad=t=>{m.textContent=t;$('#exText').textContent='';$('#exQs').innerHTML='';return null},qs=a=>$('#exQs').innerHTML=a.map(q=>'<li>'+q+'</li>').join('');
+ const P=exParseEq($('#exEq').value);exSyncTable(P);$('#exEq').setAttribute('aria-invalid',P.err?'true':'false');
+ if(P.err)return bad(P.err);
+ const inc=P.inc,T=$('#exT').value.trim(),Tt=T?` at ${T}`:'',X={k:exK,P,inc,T,g:exG};
+ if(exK==='lc'){const dh=+$('#exDH').value,ch=$('#exCh').value,key=$('#exSp').value,s=P.sp.find(x=>x.key===key);
+  if((ch==='tup'||ch==='tdown')&&!dh)return bad('Choose exothermic or endothermic: temperature changes need the sign of ΔH.');
+  if((ch==='add'||ch==='rem')&&!s)return bad('Choose the substance.');
+  const what={add:`Some ${s&&s.f} is added.`,rem:`Some ${s&&s.f} is removed.`,vdown:'The volume is decreased (the pressure goes up).',vup:'The volume is increased (the pressure goes down).',tup:'The temperature is raised.',tdown:'The temperature is lowered.',cat:'A catalyst is added.',inert:'An unreactive gas (such as argon) is added at the same volume.'}[ch];
+  m.textContent='Ready. Press “Solve it in the lab”.';
+  $('#exText').innerHTML=`The system ${P.pretty}${dh?` (ΔH ${dh<0?'&lt;':'&gt;'} 0)`:''} is at equilibrium. ${what}`;
+  qs(['Which way does the equilibrium shift?','What happens to the amounts of each substance?','Does the value of Kc change?']);
+  return Object.assign(X,{dh,ch,s})}
+ const V=exNum($('#exV').value);$('#exV').setAttribute('aria-invalid',exG==='mol'&&!(V>0)?'true':'false');
+ if(exG==='mol'&&!(V>0))return bad('Type the volume in litres.');
+ const vals=inc.map((x,i)=>{const e=$('#exa'+i),v=exNum(e.value);e.setAttribute('aria-invalid',!(v>=0)?'true':'false');return v});
+ const mode=exMode(),gw=exG==='mol'?'mol':'M';
+ if(vals.some(v=>!(v>=0)))return bad(`Type an amount (${exG==='mol'?'in moles':'in mol/L'}) for every substance in Kc. Use 0 if there is none.`);
+ const c=vals.map(v=>exG==='mol'?v/V:v),given=inc.map((x,i)=>vals[i]>0?(exG==='mol'?`${cf(vals[i])} mol of ${x.f}`:`${cf(vals[i])} M ${x.f}`):`no ${x.f}`),inV=exG==='mol'?` in a ${cf(V)} L container`:'';
+ Object.assign(X,{V,vals,c});
+ const canGo=cs=>inc.filter(x=>x.side<0).every(x=>cs[inc.indexOf(x)]>0)||inc.filter(x=>x.side>0).every(x=>cs[inc.indexOf(x)]>0);
+ if(c.some(v=>v>50))return bad('Those concentrations are very large (over 50 M). Check the numbers and the volume.');
+ if(exK==='ice'||exK==='qk'){const K=exNum($('#exK').value);$('#exK').setAttribute('aria-invalid',!(K>0)?'true':'false');
+  if(!(K>0))return bad('Type Kc, a positive number (2.8e-3 or 2.8×10^-3 are fine).');
+  if(K>1e12||K<1e-12)return bad('The lab handles Kc between 10⁻¹² and 10¹².');
+  X.K=K;
+  if(exK==='ice'){if(!canGo(c))return bad('Nothing can react: you need all the reactants (or all the products) at the start.');
+   m.textContent='Ready. Press “Solve it in the lab”.';
+   $('#exText').innerHTML=`For ${P.pretty}, Kc = ${sciT(K)}${Tt}. At the start there is ${given.join(', ')}${inV}.`;
+   qs([exG==='mol'?'Find the starting concentrations.':'Write the expression for Kc.','Which way does the reaction go?','Find the equilibrium concentration of every substance.']);return X}
+  if(c.every(v=>v===0))return bad('Type the amounts present right now.');
+  m.textContent='Ready. Press “Solve it in the lab”.';
+  $('#exText').innerHTML=`For ${P.pretty}, Kc = ${sciT(K)}${Tt}. At one moment the mixture contains ${given.join(', ')}${inV}.`;
+  qs(['Calculate the reaction quotient Q.','Is the mixture at equilibrium? If not, which way will it shift?']);return X}
+ /* find Kc */
+ if(exS==='eq'){if(c.some(v=>!(v>0)))return bad('At equilibrium every substance in Kc must have an amount above 0.');
+  X.K=exQ(inc,c);m.textContent='Ready. Press “Solve it in the lab”.';
+  $('#exText').innerHTML=`For ${P.pretty}, an equilibrium mixture${Tt} contains ${given.join(', ')}${inV}.`;
+  qs(['Write the expression for Kc.','Calculate Kc.']);return X}
+ const kk=$('#exKs').value,j=inc.findIndex(x=>x.key===kk),kvRaw=exNum($('#exKv').value);$('#exKv').setAttribute('aria-invalid',!(kvRaw>=0)?'true':'false');
+ if(j<0)return bad('Choose the substance whose equilibrium amount you know.');
+ if(!(kvRaw>=0))return bad(`Type the equilibrium amount of ${inc[j].f}.`);
+ const ce=exG==='mol'?kvRaw/V:kvRaw,dx=(ce-c[j])/(inc[j].side*inc[j].n);
+ if(Math.abs(dx)<1e-12)return bad(`${inc[j].f} did not change, so nothing reacted. Check the numbers.`);
+ const E=c.map((v,i)=>v+inc[i].side*inc[i].n*dx);
+ if(E.some(v=>v<-1e-12))return bad(`That can’t happen: some substance would go below zero. Check the amount of ${inc[j].f}.`);
+ if(E.some(v=>v<=1e-12))return bad('Some substance would be used up completely, so Kc cannot be calculated. Check the numbers.');
+ X.j=j;X.kv=kvRaw;X.ce=ce;X.dx=dx;X.E=E;X.K=exQ(inc,E);
+ m.textContent='Ready. Press “Solve it in the lab”.';
+ $('#exText').innerHTML=`For ${P.pretty}, a container starts with ${given.join(', ')}${inV}. At equilibrium${Tt} there is ${exAmt(kvRaw,exG)} of ${inc[j].f}.`;
+ qs(['Use an ICE table to find the equilibrium concentration of every substance.','Calculate Kc.']);return X}
+exShow();exRead();
+
+/* ---------- algebra helpers for the "solve for x" step ---------- */
+const pMul=(a,b)=>{const r=Array(a.length+b.length-1).fill(0);a.forEach((p,i)=>b.forEach((q,j)=>r[i+j]+=p*q));return r};
+const pPow=(a,n)=>{let r=[1];for(let i=0;i<n;i++)r=pMul(r,a);return r};
+function exXterm(c0,s,p){const a=Math.abs(s),ax=(a>1?a:'')+'x';if(c0===0)return (p>1&&a>1?`(${ax})`:ax)+supN(p);return `(${cf(c0)} ${s>0?'+':'−'} ${ax})`+supN(p)}
+function exXeq(inc,c0,dir,K){const num=[],den=[];inc.forEach((x,i)=>{const t=exXterm(c0[i],dir*x.side*x.n,x.n);(x.side>0?num:den).push(t)});const wrap=a=>a.length>1?a.map(t=>t[0]==='('?t:`(${t})`):a;num.splice(0,num.length,...wrap(num));den.splice(0,den.length,...wrap(den));
+ return `${sciT(K)} = `+(num.length?num.join(''):'1')+(den.length?' / '+(den.length>1?'('+den.join('')+')':den[0]):'')}
+function exHow(inc,c0,dir,K,xs){const lin=inc.map((x,i)=>({c:c0[i],s:dir*x.side*x.n,p:x.n,side:x.side}));
+ const sq=side=>{const L=lin.filter(q=>q.side===side);if(!L.length)return null;if(L.length===1&&L[0].p===2)return {c:L[0].c,s:L[0].s};if(L.length===2&&L.every(q=>q.p===1)&&Math.abs(L[0].c-L[1].c)<1e-12&&L[0].s===L[1].s)return {c:L[0].c,s:L[0].s};return null};
+ const lt=q=>{const a=Math.abs(q.s),ax=(a>1?a:'')+'x';return q.c===0?ax:`${cf(q.c)} ${q.s>0?'+':'−'} ${ax}`};
+ const N=sq(1),D=sq(-1);
+ if(N&&D){const r=Math.sqrt(K),pr=t=>/\s/.test(t)?`(${t})`:t;return `Both sides are perfect squares, so take the square root:\n√${sciT(K)} = ${pr(lt(N))} / ${pr(lt(D))}\n${cf(r)} × ${pr(lt(D))} = ${lt(N)}\nx = ${cf(xs)} M`}
+ let num=[1],den=[1];lin.forEach(q=>{const f=pPow([q.c,q.s],q.p);if(q.side>0)num=pMul(num,f);else den=pMul(den,f)});
+ const n=Math.max(num.length,den.length),P=Array(n).fill(0);num.forEach((v,i)=>P[i]+=v);den.forEach((v,i)=>P[i]-=K*v);
+ while(P.length>1&&Math.abs(P[P.length-1])<1e-14*Math.max(1,...P.map(Math.abs)))P.pop();
+ const co=v=>(v<0?'− ':'+ ')+sciT(Math.abs(v)),deg=P.length-1;
+ if(deg===1)return `Multiply out: ${sN(P[1])}x ${co(P[0])} = 0\nx = ${cf(xs)} M`;
+ if(deg===2){const [c,b,a]=P,d=b*b-4*a*c;return `Multiply out and collect terms:\n${sN(a)}x² ${co(b)}x ${co(c)} = 0\nQuadratic formula: x = (−b ± √(b² − 4ac)) / 2a\nx = ${cf(xs)} M  (the other root makes a concentration negative)`}
+ // higher powers: try the small-x shortcut
+ let A=1,B=1,m=0;lin.forEach(q=>{let v=1,e=0;if(q.c===0){v=Math.pow(Math.abs(q.s),q.p);e=q.p}else v=Math.pow(q.c,q.p);if(q.side>0){A*=v;m+=e}else{B*=v;m-=e}});
+ if(m>0){const xa=Math.pow(K*B/A,1/m),ok=lin.every(q=>q.c===0||Math.abs(q.s)*xa/q.c<0.05);
+  if(ok)return `This gives a ${deg===3?'cubic':'higher-power'} equation. K is small, so x is tiny next to the starting amounts:\nuse (c − x) ≈ c, then  x${m>1?supN(m):''} = ${sciT(K*B/A)}\nx ≈ ${cf(xa)} M  (under 5% of the starting values, so the shortcut is fine)\nExact value from the lab: x = ${cf(xs)} M`}
+ return `This gives a ${deg===3?'cubic':'higher-power'} equation, which has no simple shortcut here.\nThe lab solves it exactly: x = ${cf(xs)} M\nCheck it by putting x back into the Kc expression.`}
+
+/* ---------- put the student's reaction into tab 2 ---------- */
+function exLab(X,K,cs){go('qk');
+ RX[5]={name:'Your reaction',K,T:X.T||'the temperature in your exercise',sp:X.inc.map((x,i)=>[x.f,x.side*x.n,cs[i]])};
+ let o=$('#rxSel option[value="5"]');if(!o){o=document.createElement('option');o.value='5';$('#rxSel').appendChild(o)}o.textContent='Your reaction: '+X.P.pretty;
+ $('#rxSel').value='5';setRx();exSetC(cs)}
+function exSetC(cs){const mx=Math.max(2,...cs.map(v=>v*1.3));const top=mx<=2?2:Math.ceil(mx*10)/10;
+ cs.forEach((v,i)=>{const e=$('#c'+i);e.max=String(top);e.step='any';e.value=String(v)});readC0();xShow=0;stopAnim();updateQK()}
+function exSetK(K){rxq.K=K;$('#rxNote').textContent=`Kc = ${sciT(K)}. Set the starting concentrations, compare Q with K, then let the reaction run.`;readC0();xShow=0;stopAnim();updateQK()}
+const go=t=>{const b=document.querySelector('.lg-nav [data-ph="lab"]');if(b&&root.getAttribute('data-phase')!=='lab')b.click();const tb=$(`.tab[data-tab="${t}"]`);if(tb&&tab!==t)tb.click()};
+const exAtEq=()=>xEq!==null&&Math.abs(xShow-xEq)<1e-9;
+
+function exSolve(){const X=exRead();if(!X||!window.Tour)return;
+ const calc=t=>'<div class="t-calc">'+t+'</div>',steps=[],inc=X.inc,P=X.P,intro='<p>'+$('#exText').innerHTML+'</p>';
+ const concStep=(vals,lab)=>({title:'Concentrations first',html:'<p>Kc uses concentrations, so divide each amount by the volume.</p>'+calc(inc.map((x,i)=>`[${x.f}]${lab} = ${cf(vals[i])} mol ÷ ${cf(X.V)} L = ${cf(vals[i]/X.V)} M`).join('\n'))});
+ const solidsNote=P.sp.some(x=>!x.inc)?`<p>${P.sp.filter(x=>!x.inc).map(x=>x.f+x.st).join(' and ')} ${P.sp.filter(x=>!x.inc).length>1?'are':'is'} left out: solids and liquids do not appear in Kc.</p>`:'';
+ const exprStep={el:()=>$('#kExpr').closest('.formula'),title:'The Kc expression',html:calc(exKexpr(inc))+'<p>Products on top, reactants underneath, each raised to its coefficient.</p>'+solidsNote};
+ const goStep=(extra)=>({el:'#goEq',title:'Let it reach equilibrium',interactive:true,html:'<p>Press <b>Let it reach equilibrium</b>. The bars move until Q = K.</p>'+(extra||''),wait:exAtEq,doIt:()=>$('#goEq').click(),done:()=>$('#iceNote').textContent.split('. Check')[0]+'.'});
+ const qkLine=(Q,K)=>{if(!isFinite(Q))return `There are no reactants yet, so Q is infinite: Q > K. The reaction goes <b>left ←</b> and makes reactants.`;
+  if(Math.abs(Math.log(Q/K))<.02)return 'Q = K: the mixture is already at equilibrium. Nothing changes.';
+  return Q<K?`Q < K: there are too few products. The forward reaction is faster, so the reaction goes <b>right →</b> and makes products.`:`Q > K: there are too many products. The reverse reaction is faster, so the reaction goes <b>left ←</b> and makes reactants.`};
+ const iceText=(c0,dir,xs,known)=>inc.map((x,i)=>{const s=dir*x.side*x.n,a=x.n>1?x.n:'',ch=(s>0?'+':'−')+a+'x',e=c0[i]===0?(s>0?a+'x':'−'+a+'x'):`${cf(c0[i])} ${s>0?'+':'−'} ${a}x`;
+  return `[${x.f}]   I ${cf(c0[i])}   C ${ch}   E ${e}`+(xs!=null?` = ${cf(c0[i]+s*xs)}`:'')}).join('\n');
+ steps.push({title:'Solve it in the lab',html:intro+{ice:'<p>We put your reaction into the lab, compare Q with K, fill in the ICE table and let it reach equilibrium.</p>',qk:'<p>We put your mixture into the lab, work out Q and compare it with K.</p>',k:X.E==null?'<p>We put the equilibrium concentrations into the Kc expression, then check the answer in the lab.</p>':'<p>We use an ICE table to find the equilibrium concentrations, put them into the Kc expression, then check it in the lab.</p>',lc:'<p>We reason it out with Le Châtelier’s principle, then make the change in the lab and watch the system respond.</p>'}[X.k]});
+
+ if(X.k==='ice'){const K=X.K,c0=X.c;
+  if(X.g==='mol')steps.push(concStep(X.vals,'₀'));
+  steps.push({el:'#sliders',title:'Your starting mixture',html:'<p>Your starting concentrations are now on the sliders, and the lab uses your Kc.</p>',onShow:()=>exLab(X,K,c0)});
+  steps.push(exprStep);
+  const Q0=exQ(inc,c0);
+  steps.push({el:'#gauge',title:'Which way? Compare Q with K',html:calc(isFinite(Q0)?exSubst(inc,c0,'Q')+' = '+sciT(Q0)+'\nK = '+sciT(K):'Q = (products) / 0 → ∞\nK = '+sciT(K))+'<p>'+qkLine(Q0,K)+'</p>',done:()=>$('#qkMsg').textContent.split(':')[0]+'.'});
+  const xe=xEqFor(X,K,c0),dir=xe>=0?1:-1,xs=Math.abs(xe);
+  steps.push({el:'#ice',title:'Set up the ICE table',html:'<p>x is how much reacts. Each change is x times the coefficient: '+(dir>0?'reactants go down, products go up.':'here it goes left, so products go down and reactants go up.')+'</p>'+calc(iceText(c0,dir,null))+(dir<0?'<p>The lab’s table always writes x for the forward direction, so its x comes out negative.</p>':'')});
+  steps.push({title:'Solve for x',html:'<p>Put the E row into the Kc expression:</p>'+calc(exXeq(inc,c0,dir,K)+'\n'+exHow(inc,c0,dir,K,xs))});
+  steps.push(goStep());
+  const E=c0.map((v,i)=>v+inc[i].side*inc[i].n*xe);
+  steps.push({el:'#ice',title:'Equilibrium concentrations',html:calc(iceText(c0,dir,xs)+'\nCheck: '+exSubst(inc,E,'Q')+' = '+sciT(exQ(inc,E))+' ≈ K')+'<p>The E row of the lab’s table shows the same numbers.</p>'});
+  steps.push({title:'Your answers',html:calc((X.g==='mol'?inc.map((x,i)=>`[${x.f}]₀ = ${cf(c0[i])} M`).join('\n')+'\n':'')+exKexpr(inc)+'\n'+(dir>0?'Q < K, so it goes right →':'Q > K, so it goes left ←')+'\n'+inc.map((x,i)=>`[${x.f}] = ${cf(E[i])} M`+(X.g==='mol'?`  (${cf(E[i]*X.V)} mol)`:'')).join('\n'))+'<p>Compare them with your own working.</p>'})}
+
+ else if(X.k==='qk'){const K=X.K,c=X.c,Q=exQ(inc,c),atEq=isFinite(Q)&&Math.abs(Math.log(Q/K))<.02;
+  if(X.g==='mol')steps.push(concStep(X.vals,''));
+  steps.push({el:'#sliders',title:'Your mixture in the lab',html:'<p>The sliders now hold the concentrations at this moment, and the lab uses your Kc.</p>',onShow:()=>exLab(X,K,c)});
+  steps.push(Object.assign({},exprStep,{title:'The Q expression',html:calc(exKexpr(inc,'Q'))+'<p>Q has the same form as Kc, but uses the concentrations right now, not at equilibrium.</p>'+solidsNote}));
+  steps.push({el:()=>$('#qSub').closest('.formula'),title:'Calculate Q',html:calc(isFinite(Q)?exSubst(inc,c,'Q')+'\nQ = '+sciT(Q):'Q = (products) / 0 → ∞')});
+  steps.push({el:'#gauge',title:'Compare Q with K',html:calc(`Q = ${sciT(Q)}\nK = ${sciT(K)}`)+'<p>'+qkLine(Q,K)+'</p>',done:()=>$('#qkMsg').textContent.split(':')[0]+'.'});
+  if(!atEq){steps.push(goStep());
+   steps.push({el:'#bars',title:'See the shift',html:'<p>The dashed lines show where each substance started; the bars show equilibrium. '+(Q<K?'The products went up and the reactants went down.':'The reactants went up and the products went down.')+'</p>'})}
+  steps.push({title:'Your answers',html:calc((X.g==='mol'?inc.map((x,i)=>`[${x.f}] = ${cf(c[i])} M`).join('\n')+'\n':'')+(isFinite(Q)?exSubst(inc,c,'Q')+' = '+sciT(Q):'Q → ∞')+'\nK = '+sciT(K)+'\n'+(atEq?'Q = K: at equilibrium, no shift':Q<K?'Q < K: not at equilibrium, shifts right → (towards products)':'Q > K: not at equilibrium, shifts left ← (towards reactants)'))+'<p>Compare them with your own working.</p>'})}
+
+ else if(X.k==='k'&&X.E==null){const c=X.c,K=X.K;
+  if(X.g==='mol')steps.push(concStep(X.vals,''));
+  steps.push(Object.assign({},exprStep,{onShow:()=>exLab(X,K,c)}));
+  steps.push({title:'Put the numbers in',html:calc(exSubst(inc,c,'Kc')+'\nKc = '+sciT(K))});
+  steps.push({el:'#qkMsg',title:'Check it in the lab',html:'<p>The lab now holds your equilibrium mixture with K = '+sciT(K)+'. Q equals K, so nothing changes.</p>',onShow:()=>exLab(X,K,c),done:()=>$('#qkMsg').textContent.split(':')[0]+'.'});
+  steps.push({title:'Your answers',html:calc((X.g==='mol'?inc.map((x,i)=>`[${x.f}] = ${cf(c[i])} M`).join('\n')+'\n':'')+exKexpr(inc)+'\n'+exSubst(inc,c,'Kc')+'\nKc = '+sciT(K))+'<p>Compare them with your own working.</p>'})}
+
+ else if(X.k==='k'){const c0=X.c,E=X.E,K=X.K,j=X.j,xj=inc[j],dir=X.dx>=0?1:-1,xs=Math.abs(X.dx),a=xj.n>1?xj.n:'';
+  if(X.g==='mol')steps.push(concStep(X.vals,'₀'));
+  steps.push({title:'Use the substance you know',html:(X.g==='mol'?calc(`[${xj.f}] at equilibrium = ${cf(X.kv)} mol ÷ ${cf(X.V)} L = ${cf(X.ce)} M`):'')+calc(`change in [${xj.f}] = ${cf(X.ce)} − ${cf(c0[j])} = ${X.ce-c0[j]>=0?'+':'−'}${cf(Math.abs(X.ce-c0[j]))} M\nthat change is ${dir*xj.side>0?'+':'−'}${a}x, so x = ${cf(xs)} M`)+'<p>'+(dir>0?'It went right: products up, reactants down.':'It went left: reactants up, products down.')+'</p>'});
+  steps.push({title:'Fill in the ICE table',html:calc(iceText(c0,dir,xs))});
+  steps.push(Object.assign({},exprStep,{onShow:()=>exLab(X,K,c0)}));
+  steps.push({title:'Calculate Kc',html:calc(exSubst(inc,E,'Kc')+'\nKc = '+sciT(K))});
+  steps.push({el:'#sliders',title:'Check it in the lab',html:'<p>The lab now has your starting mixture and your Kc = '+sciT(K)+'.</p>',onShow:()=>{stopAnim();xShow=0;updateQK()}});
+  steps.push(goStep(`<p>At equilibrium [${xj.f}] should be ${cf(X.ce)} M.</p>`));
+  steps.push({el:'#ice',title:'It matches',html:calc(inc.map((x,i)=>`[${x.f}] = ${cf(E[i])} M`).join('\n'))+'<p>The E row of the lab’s table gives the same concentrations.</p>'});
+  steps.push({title:'Your answers',html:calc(inc.map((x,i)=>`[${x.f}] = ${cf(E[i])} M`).join('\n')+'\n'+exKexpr(inc)+'\nKc = '+sciT(K))+'<p>Compare them with your own working.</p>'})}
+
+ else {const {dh,ch,s}=X,gas=P.sp.filter(x=>x.inc&&x.gas),nL=gas.filter(x=>x.side<0).reduce((t,x)=>t+x.n,0),nR=gas.filter(x=>x.side>0).reduce((t,x)=>t+x.n,0);
+  let dirn=0,why='',kch=0;
+  if(ch==='add'||ch==='rem'){if(!s.inc){why=`${s.f} is a ${s.st==='(s)'?'solid':'liquid'}. It is not in Kc, so ${ch==='add'?'adding':'removing'} some does not change Q. (As long as some is left, the position stays the same.)`}
+   else{const up=ch==='add';dirn=(up?-1:1)*s.side;why=`${up?'Adding':'Removing'} a ${s.side<0?'reactant':'product'} makes Q ${(up?(s.side>0):(s.side<0))?'bigger':'smaller'} than K. The system ${up?'uses up some of the added':'replaces some of the removed'} ${s.f}.`}}
+  else if(ch==='vdown'||ch==='vup'){if(!gas.length)why='There are no gases, so changing the volume or pressure does not shift this equilibrium.';
+   else if(nL===nR)why=`Gas moles: ${nL} on the left and ${nR} on the right. They are equal, so pressure has no effect on the position.`;
+   else{const fewer=nL<nR?-1:1;dirn=ch==='vdown'?fewer:-fewer;why=`Gas moles: ${nL} on the left, ${nR} on the right. ${ch==='vdown'?'Higher pressure favours the side with fewer gas moles':'Lower pressure favours the side with more gas moles'}: the ${dirn>0?'right':'left'}.`}}
+  else if(ch==='tup'||ch==='tdown'){const up=ch==='tup';dirn=(up?1:-1)*(dh>0?1:-1);kch=dirn;why=`The forward reaction is ${dh<0?'exothermic: treat heat as a product':'endothermic: treat heat as a reactant'}. ${up?'Adding':'Removing'} heat is like ${up?'adding':'removing'} a ${dh<0?'product':'reactant'}. Temperature is the only change that alters K: K gets ${kch>0?'bigger':'smaller'}.`}
+  else if(ch==='cat')why='A catalyst speeds up the forward and reverse reactions by the same factor. Equilibrium is reached sooner, but the position does not change.';
+  else why='The unreactive gas raises the total pressure, but the volume is the same, so the concentration of each substance does not change. Q still equals K: no shift.';
+  X.dirn=dirn;
+  const word=dirn>0?'shifts right →':dirn<0?'shifts left ←':'does not shift';
+  steps.push({title:'Think it through',html:'<p>Le Châtelier: a system at equilibrium shifts to partly undo a change.</p>'+calc(why)+'<p>So the equilibrium <b>'+word+'</b>.</p>'});
+  // build an equilibrium mixture of the student's reaction (K = 1, made-up numbers)
+  const K0=1,start=inc.map(x=>(inc.some(q=>q.side<0)?x.side<0:x.side>0)?1:0);let base=null,after=null,K1=K0;
+  const setup=()=>{X.applied=false;exLab(X,K0,start);base=concAt(xEq);exSetC(base)};
+  steps.push({el:'#bars',title:'An equilibrium mixture',html:'<p>The lab has made an equilibrium mixture of your reaction. The numbers are made up (K = 1); only the directions matter.</p>',onShow:setup,done:()=>$('#qkMsg').textContent.split(':')[0]+'.'});
+  const apply=()=>{const cs=base.slice();
+   if((ch==='add'||ch==='rem')&&s.inc){const i=inc.indexOf(inc.find(x=>x.key===s.key));cs[i]=ch==='add'?cs[i]+0.5:cs[i]/2}
+   if((ch==='vdown'||ch==='vup')&&gas.length)inc.forEach((x,i)=>{if(x.gas)cs[i]*=ch==='vdown'?2:0.5});
+   after=cs;exSetC(cs);if(kch){K1=kch>0?K0*4:K0/4;exSetK(K1)}X.applied=true};
+  const hasLab=dirn!==0;
+  steps.push({el:'#gauge',title:'Make the change',interactive:true,html:'<p>'+{add:`Add some ${s&&s.f}.`,rem:`Remove half of the ${s&&s.f}.`,vdown:'Halve the volume: every gas concentration doubles.',vup:'Double the volume: every gas concentration halves.',tup:'Raise the temperature: K changes (the lab uses K × 4; the real factor depends on ΔH and the temperatures).',tdown:'Lower the temperature: K changes (the lab uses K ÷ 4; the real factor depends on ΔH and the temperatures).',cat:'Add the catalyst: the concentrations and K stay the same.',inert:'Add the unreactive gas: the concentrations and K stay the same.'}[ch]+'</p>',
+   wait:()=>!!X.applied,doIt:apply,done:()=>$('#qkMsg').textContent.split(':')[0]+(hasLab?'. Q is no longer equal to K.':'.')});
+  if(hasLab){steps.push(goStep());
+   const cmp={el:'#bars',title:'Compare',html:''};cmp.onShow=()=>{const E=concAt(xEq);cmp.html='<p>Dashed lines: right after the change. Bars: the new equilibrium.</p>'+calc(inc.map((x,i)=>`[${x.f}]  ${cf(after[i])} → ${cf(E[i])}  ${E[i]>after[i]+1e-9?'up':E[i]<after[i]-1e-9?'down':'same'}`).join('\n'))};steps.push(cmp)}
+  const gain=dirn?inc.filter(x=>x.side===dirn):[],col=gain.map(x=>EXCOL[x.key]?`${x.f} (${EXCOL[x.key]})`:null).filter(Boolean);
+  steps.push({title:'Your answers',html:calc(`The equilibrium ${word}.\n`+(dirn?`More ${P.sp.filter(x=>x.side===dirn).map(x=>x.f).join(' and ')} forms`+(P.sp.some(x=>x.side===-dirn)?`; some ${P.sp.filter(x=>x.side===-dirn).map(x=>x.f).join(' and ')} ${P.sp.filter(x=>x.side===-dirn).length>1?'are':'is'} used up.`:'.'):'The amounts stay the same.')+`\n${kch?'Kc changes: it gets '+(kch>0?'bigger':'smaller')+'.':'Kc stays the same (only temperature changes K).'}`+(col.length?`\nColour: more ${col.join(' and ')}.`:''))+'<p>Compare them with your own working.</p>'})}
+ setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+function xEqFor(X,K,cs){const sp=X.inc.map((x,i)=>[x.f,x.side*x.n,cs[i]]),save=[rxq,c0];rxq={K,sp};c0=cs.slice();const r=solve();rxq=save[0];c0=save[1];return r}
+$('#exSolve').onclick=exSolve;
+
 function drawAll(){if(!C.ink)readColors();if(tab==='box'){drawBox();drawGraph()}if(tab==='qk')updateQK()}
 addEventListener('resize',drawAll);
 readColors();restart();setRx();nextQ();themeLabel();
 requestAnimationFrame(loop);
 </script>
+<script src="tour.js" defer></script>
 <script src="lab-guide.js" defer></script>
 </body></html>
