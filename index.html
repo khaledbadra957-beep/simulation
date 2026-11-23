@@ -493,12 +493,13 @@ var GROUPS = [
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function norm(t) { return (t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9½₀-₉]+/g, ' ').trim(); }
   function stem(f) { return f.replace(/\.html$/, ''); }
+  function subj(L) { return L.s === 'phys' ? 'Physics' : L.g === '7' ? 'Science' : 'Chemistry'; }   // Grade 7 chemistry is taught as Science
   function gradeText(g) { var a = g.split(' '); return a.length > 1 ? 'G' + a[0] + '–' + a[a.length - 1] : 'G' + a[0]; }
   var gname = {}; GROUPS.forEach(function (x) { gname[x[0]] = x[1]; });
   LABS.forEach(function (L) { L._text = ' ' + norm([L.t, L.k, gname[L.tp], L.s === 'phys' ? 'physics' : 'chemistry science', (L.cam || L.co) ? 'camera hands on hand' : '', L.m || ''].join(' ')) + ' '; });
 
   function card(L, showModule, i) {
-    var meta = '<span class="sub">' + (L.s === 'phys' ? 'Physics' : 'Chemistry') + '</span><span>' + gradeText(L.g) + '</span>' + (showModule && L.m ? '<span>' + esc(L.m) + '</span>' : '');
+    var meta = '<span class="sub">' + subj(L) + '</span><span>' + gradeText(L.g) + '</span>' + (showModule && L.m ? '<span>' + esc(L.m) + '</span>' : '');
     return '<li class="card ' + L.s + '" style="--i:' + Math.min(i || 0, 16) + '">' +
       (L.co ? '<span class="badge">' + HAND + 'Camera lab</span>' : '') +
       '<button type="button" class="share" data-share="' + L.f + '" aria-label="Share ' + esc(L.t) + ': QR code and link">' + SHARE + '</button>' +
@@ -512,7 +513,7 @@ var GROUPS = [
   document.getElementById('newest').href = nf;
   document.getElementById('nImg').src = 'thumbs/' + stem(nf) + '-card.jpg';
   document.getElementById('nTitle').textContent = nw.t;
-  document.getElementById('nMeta').textContent = (nw.s === 'phys' ? 'Physics' : 'Chemistry') + ' · ' + gradeText(nw.g).replace('G', 'Grade ') + (nw.co ? ' · Camera lab' : '');
+  document.getElementById('nMeta').textContent = subj(nw) + ' · ' + gradeText(nw.g).replace('G', 'Grade ') + (nw.co ? ' · Camera lab' : '');
 
   try {
     var u = new URLSearchParams(location.search);

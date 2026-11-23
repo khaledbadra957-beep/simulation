@@ -24,6 +24,7 @@
 .seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
 .seg button{border:0;border-right:1.5px solid var(--line);background:var(--stage);padding:5px 10px;font-weight:700;color:var(--muted)}
 .seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.seg.g2{display:grid;grid-template-columns:1fr 1fr}.seg.g2 button{border-right:0;border-bottom:1.5px solid var(--line)}.seg.g2 button:nth-child(odd){border-right:1.5px solid var(--line)}.seg.g2 button:nth-last-child(-n+2){border-bottom:0}
 .ctl{display:flex;flex-direction:column;gap:10px}
 .sl{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;font-size:.92rem}
 .sl input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--accent)}.sl output{font-family:var(--data)}
@@ -71,7 +72,7 @@ table.data th{font-weight:600;color:var(--muted)}table.data th:first-child,table
     </dl>
    </div>
    <div class="card ctl">
-    <div><h3>Metal plate</h3><div class="seg" id="metal"><button type="button" data-m="na" aria-pressed="true">Sodium</button><button type="button" data-m="ca" aria-pressed="false">Calcium</button><button type="button" data-m="zn" aria-pressed="false">Zinc</button><button type="button" data-m="x" aria-pressed="false">Mystery</button></div></div>
+    <div><h3>Metal plate</h3><div class="seg g2" id="metal"><button type="button" data-m="na" aria-pressed="true">Sodium</button><button type="button" data-m="ca" aria-pressed="false">Calcium</button><button type="button" data-m="zn" aria-pressed="false">Zinc</button><button type="button" data-m="x" aria-pressed="false">Mystery</button></div></div>
     <label class="sl"><span>Brightness</span><output id="oB">60 %</output><input type="range" id="sB" min="0" max="100" step="1" value="60"></label>
     <label class="sl"><span>Voltage on the collector</span><output id="oV">0.00 V</output><input type="range" id="sV" min="-3.5" max="2" step="0.01" value="0"></label>
     <div class="row"><button class="btn" id="vDn" type="button" aria-label="Voltage down by 0.01 volt">−0.01 V</button><button class="btn" id="vUp" type="button" aria-label="Voltage up by 0.01 volt">+0.01 V</button><button class="btn primary" id="rec" type="button">Record stopping voltage</button></div>
@@ -87,7 +88,7 @@ table.data th{font-weight:600;color:var(--muted)}table.data th:first-child,table
  </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="vendor/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
 <script src="parts.js"></script>

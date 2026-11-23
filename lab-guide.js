@@ -604,7 +604,7 @@
     LAB.startTour = runTour;
     var tj = document.createElement('script'); tj.src = 'tour.js'; tj.onload = function () {
       // offer the tour once, after the first screen opens
-      var tryOffer = function () { if (document.querySelector('.lg-home') || !tourBtn) return false; Tour.offer({ key: 'lab:' + stem, near: tourBtn, title: 'New to this lab?', text: 'A 30-second tour shows what each part does.', start: runTour }); return true; };
+      var tryOffer = function () { if (document.querySelector('.lg-home') || !tourBtn) return false; Tour.offer({ key: 'lab:' + stem, near: tourBtn, corner: true, title: 'New to this lab?', text: 'A 30-second tour shows what each part does.', start: runTour }); return true; };
       if (!tryOffer()) { var iv = setInterval(function () { if (tryOffer()) clearInterval(iv); }, 800); setTimeout(function () { clearInterval(iv); }, 120000); }
     }; document.head.appendChild(tj);
     window.addEventListener('hashchange', function () { var h = (location.hash || '').slice(1); if (ids.indexOf(h) >= 0 && root.getAttribute('data-screen') !== h) setScreen(h, false); });

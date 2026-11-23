@@ -148,9 +148,11 @@
   var T, R, scene, cam, world, th = .25, ph = 1.3, dist = 14, anim = null, electrons = [], tween = null;
   function init() {
     if (S.ready) return true;
-    if (!window.THREE) { host.innerHTML = '<p class="note" style="padding:16px">The 3D model needs an internet connection the first time (it loads three.js). Check the connection and reload.</p>'; return false; }
+    var no3d = function () { host.innerHTML = '<p class="note" style="padding:16px;margin:0"><b>The 3D model can\u2019t show here.</b> 3D can\u2019t run on this device or browser. Turn on <i>hardware acceleration</i> in the browser settings (Edge or Chrome: Settings \u2192 System), update the browser, or try another device. The drawing in the molecule builder shows the same molecule.</p>'; return false; };
+    if (!window.THREE) return no3d();
     T = window.THREE;
-    R = new T.WebGLRenderer({ antialias: true, alpha: true }); R.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    try { R = new T.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { return no3d(); }
+    R.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     host.appendChild(R.domElement); R.domElement.style.display = 'block'; R.domElement.style.touchAction = 'none';
     scene = new T.Scene(); cam = new T.PerspectiveCamera(40, 1, .1, 200);
     scene.add(new T.HemisphereLight(0xffffff, 0x445566, .8)); var dl = new T.DirectionalLight(0xffffff, .8); dl.position.set(5, 10, 8); scene.add(dl);

@@ -153,6 +153,9 @@
     doc.body.appendChild(offerEl); doc.body.appendChild(beaconEl);
     function pos() { if (!offerEl) return; var r = near.getBoundingClientRect(), W = innerWidth, w = offerEl.offsetWidth, h = offerEl.offsetHeight;
       beaconEl.style.left = (r.right - 9) + 'px'; beaconEl.style.top = (r.top - 5) + 'px';
+      if (opts.corner) {   // labs: bottom-left corner, above the bottom bar, so it never covers the lab's own buttons
+        var bar = doc.querySelector('.lg-nav'), bh = bar && bar.getClientRects().length ? bar.getBoundingClientRect().height : 0;
+        offerEl.style.left = '12px'; offerEl.style.top = Math.max(12, innerHeight - bh - h - 12) + 'px'; return; }
       var y = r.bottom + 12; if (y + h > innerHeight - 8) y = r.top - h - 12;
       offerEl.style.left = Math.max(12, Math.min(W - w - 12, r.right - w)) + 'px'; offerEl.style.top = Math.max(12, y) + 'px'; }
     pos(); addEventListener('resize', pos);

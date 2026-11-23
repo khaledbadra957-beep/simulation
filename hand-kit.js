@@ -22,7 +22,13 @@
     k.holder = function (it) { for (var q = 0; q < NH; q++) if (hands[q].held === it) return hands[q]; return null; };
 
     /* ---------- scene ---------- */
-    var renderer = new T.WebGLRenderer({ canvas: o.canvas, alpha: true, antialias: true }); renderer.setClearColor(0, 0);
+    var renderer;
+    try { renderer = new T.WebGLRenderer({ canvas: o.canvas, alpha: true, antialias: true }); }
+    catch (e) {   // no WebGL (switched off, old graphics driver, some smartboards): keep the lab working, say why the bench is empty
+      renderer = { setClearColor: function () {}, setPixelRatio: function () {}, setSize: function () {}, render: function () {}, shadowMap: {}, localClippingEnabled: false, domElement: o.canvas };
+      k.no3d = true; no3dNote(stage);
+    }
+    renderer.setClearColor(0, 0);
     renderer.localClippingEnabled = true; k.renderer = renderer; renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
     var scene = k.scene = new T.Scene(), cam = k.cam = new T.PerspectiveCamera(40, 16 / 9, .1, 100); cam.position.set(0, 3.6, 11.5); cam.lookAt(0, 2.9, 0);
     var hemi = new T.HemisphereLight(0xffffff, 0x556677, .5); scene.add(hemi);
@@ -559,6 +565,19 @@
     if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { k.theme(); });
     return k;
   }
+  function no3dNote(host) {
+    if (!host || host.querySelector('.hk-no3d')) return;
+    var d = document.createElement('div'); d.className = 'hk-no3d'; d.setAttribute('role', 'note');
+    d.innerHTML = '<b>3D can\u2019t run on this device or browser</b><span>So the bench picture is hidden. The steps, readings and buttons still work.</span><span>To see the bench: turn on <i>hardware acceleration</i> in the browser settings (Edge or Chrome: Settings \u2192 System), update the browser, or open the lab on another device.</span>';
+    var intro = host.querySelector('.intro');
+    if (intro) { host.insertBefore(d, intro); var m = document.createElement('p'); m.className = 'hk-no3d-mini'; m.textContent = '3D can\u2019t run on this device, so the bench picture will not show. The steps and readings still work.'; intro.appendChild(m); }
+    else host.appendChild(d);
+  }
+  if (!window.THREE) document.addEventListener('DOMContentLoaded', function () {   // the 3D library itself did not load
+    no3dNote(document.querySelector('.hk-stage, .stage, [id$="stage"]'));
+    Array.prototype.forEach.call(document.querySelectorAll('button'), function (b) { if (/^(dark|light) mode$/i.test(b.textContent.trim())) themeButton(b); });
+    Array.prototype.forEach.call(document.querySelectorAll('#startMouse, #startCam'), function (b) { b.onclick = function () { var i = b.closest('.intro'); if (i) i.hidden = true; }; });
+  });
   /* page shell shared by the hands-on labs: theme button that uses the same saved choice as the 2-D galvanic lab */
   function themeButton(btn, kit) {
     try { var t = localStorage.getItem('gal-theme'); if (t) root.setAttribute('data-theme', t); } catch (e) { }

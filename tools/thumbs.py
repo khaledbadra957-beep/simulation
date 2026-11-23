@@ -58,6 +58,7 @@ async def main(only):
             pg = await ctx.new_page()
             if route: await pg.route('**/*', route)
             await pg.goto(BASE + lab + ('.html#lab' if stage else '.html#intro')); await pg.wait_for_timeout(2600)
+            await pg.add_style_tag(content='.tour-offer,.xl-note{display:none!important}')   # never photograph the "New to this lab?" offer
             if stage:
                 screens = await pg.evaluate("(window.LAB && LAB.screens || []).map(s => s.id)")
                 for sid in screens:
