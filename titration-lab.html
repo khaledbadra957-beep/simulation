@@ -182,7 +182,8 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 .rlres.empty{font-family:var(--body);font-size:1rem;font-weight:400;color:var(--muted)}
 footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
-</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css">
+</style><script src="lab-viz.js"></script><script src="parts.js"></script>
+<script src="bench-setup.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
 
 <div class="wrap">
@@ -652,23 +653,26 @@ $('#cSol').onclick=()=>{const r=tt.rx,ve=Veq();const el=$('#cSolTxt');el.hidden=
  el.textContent=r.type==='rx'?`${r.rule}\nTrue V_E = ${fx(ve,2)} mL (your concordant trials should agree)\nC(Fe²⁺) = 5 × C(MnO₄⁻) × V_E / Vₐ = 5 × ${r.Cb} × ${fx(ve,2)} / ${r.Va} = ${(5*r.Cb*ve/r.Va).toPrecision(3)} mol/L`
  :`${r.rule}\nTrue V_E = ${fx(ve,2)} mL (your concordant trials should agree)\nCₐ = ${r.z===2?'C_b × V_E / (2 × Vₐ)':'C_b × V_E / Vₐ'} = ${r.Cb} × ${fx(ve,2)} / ${r.z===2?'(2 × '+r.Va+')':r.Va} = ${(r.Cb*ve/(r.z*r.Va)).toPrecision(3)} mol/L`};
 const TG={};
+const SU=id=>!window.__su||window.__su.has(id);
 function drawTit(){if(tab!=='tit')return;const c=$('#tcv');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const base=h-24;const r=tt.rx;LabViz.bench(x,w,h,base);
- // stand
- LabViz.stand(x,w*.16+3,20,base,w*.3,91,w*.42);
+ const SUa=!!(window.__su&&window.__su.active),SUd=SUa&&SU('flask')&&SU('fill')&&SU('burette')&&SU('stirbar');
+ // stand (Set it up: only the pieces already placed are drawn)
+ if(SU('clamp'))LabViz.stand(x,w*.16+3,20,base,w*.3,91,w*.42);else if(SU('stand'))LabViz.stand(x,w*.16+3,20,base,w*.3);
  // burette
- const bx=w*.42,top=40,len=base-200,bw=16;const level=top+len*((tt.init+tt.Vb)/50);
+ const bx=w*.42,top=40,len=base-200,bw=16;const fa=window.__su?window.__su.age('fill'):Infinity,ff=fa<0?0:Math.min(1,fa/900);const level=top+len*((tt.init+tt.Vb)/50)+(1-ff)*len*(1-(tt.init+tt.Vb)/50);
  const tcol=r.type==='rx'?'rgba(140,30,150,.85)':'rgba(190,215,240,.55)';
- LabViz.glass(x,x=>{x.beginPath();x.rect(bx-bw/2,top,bw,len)},{left:bx-bw/2,right:bx+bw/2,top,bottom:top+len,liquidY:level,liquid:tcol,shadow:false});x.strokeStyle=C.ink;x.lineWidth=1;for(let v=0;v<=50;v+=1){const y=top+len*v/50;const L=v%5===0?8:4;x.beginPath();x.moveTo(bx+bw/2-L,y);x.lineTo(bx+bw/2,y);x.stroke();if(v%10===0)txt(x,String(v),bx+bw/2+4,y+4,C.muted,10)}
+ if(SU('burette')){LabViz.glass(x,x=>{x.beginPath();x.rect(bx-bw/2,top,bw,len)},{left:bx-bw/2,right:bx+bw/2,top,bottom:top+len,liquidY:level,liquid:tcol,shadow:false});x.strokeStyle=C.ink;x.lineWidth=1;for(let v=0;v<=50;v+=1){const y=top+len*v/50;const L=v%5===0?8:4;x.beginPath();x.moveTo(bx+bw/2-L,y);x.lineTo(bx+bw/2,y);x.stroke();if(v%10===0)txt(x,String(v),bx+bw/2+4,y+4,C.muted,10)}}
  // stopcock + tip
- {const sy=top+len;LabViz.glass(x,x=>{x.beginPath();x.moveTo(bx-3.5,sy);x.lineTo(bx-3.5,sy+26);x.lineTo(bx-1.2,sy+40);x.lineTo(bx+1.2,sy+40);x.lineTo(bx+3.5,sy+26);x.lineTo(bx+3.5,sy);x.closePath()},{left:bx-3.5,right:bx+3.5,top:sy,bottom:sy+40,liquidY:sy,liquid:tcol,shadow:false,base:false});
+ {const sy=top+len;if(SU('burette')){LabViz.glass(x,x=>{x.beginPath();x.moveTo(bx-3.5,sy);x.lineTo(bx-3.5,sy+26);x.lineTo(bx-1.2,sy+40);x.lineTo(bx+1.2,sy+40);x.lineTo(bx+3.5,sy+26);x.lineTo(bx+3.5,sy);x.closePath()},{left:bx-3.5,right:bx+3.5,top:sy,bottom:sy+40,liquidY:SU('fill')&&ff>=1?sy:sy+40,liquid:tcol,shadow:false,base:false});
   const bg=x.createLinearGradient(0,sy+6,0,sy+18);bg.addColorStop(0,'#FFFFFF');bg.addColorStop(1,'#C9D2D8');x.fillStyle=bg;LabViz.rr(x,bx-10,sy+6,20,12,4);x.fill();x.strokeStyle='rgba(0,0,0,.3)';x.lineWidth=1;x.stroke();
-  x.save();x.translate(bx+16,sy+12);if(tt.flow){x.fillStyle='#E9F1F6';LabViz.rr(x,-4,-15,8,30,3);x.fill();x.strokeStyle='rgba(0,0,0,.35)';x.stroke()}else{x.fillStyle='#E9F1F6';LabViz.rr(x,-3,-4,26,8,3);x.fill();x.strokeStyle='rgba(0,0,0,.35)';x.stroke()}x.restore();
-  x.fillStyle='#2C3236';LabViz.rr(x,bx-15,84,30,14,4);x.fill();x.fillStyle='#C9A34A';x.beginPath();x.arc(bx+19,91,3.5,0,7);x.fill()}
+  x.save();x.translate(bx+16,sy+12);if(tt.flow){x.fillStyle='#E9F1F6';LabViz.rr(x,-4,-15,8,30,3);x.fill();x.strokeStyle='rgba(0,0,0,.35)';x.stroke()}else{x.fillStyle='#E9F1F6';LabViz.rr(x,-3,-4,26,8,3);x.fill();x.strokeStyle='rgba(0,0,0,.35)';x.stroke()}x.restore()}
+  if(SU('clamp')){x.fillStyle='#2C3236';LabViz.rr(x,bx-15,84,30,14,4);x.fill();x.fillStyle='#C9A34A';x.beginPath();x.arc(bx+19,91,3.5,0,7);x.fill()}}
  // flask on white tile
- const s=56,fxp=bx,stW=150,fbase=base-Math.max(22,stW*.26);LabViz.stirrer(x,fxp,fbase,stW,true);
+ const s=56,fxp=bx,stW=150,fbase=base-Math.max(22,stW*.26);if(SU('stirrer'))LabViz.stirrer(x,fxp,fbase,stW,SU('stirbar'));
  Object.assign(TG,{w,h,bx,top,len,bw,level,base,rodX:w*.16+3,baseW:w*.3,fxp,fbase,s,stW,meter:null,probe:null});
- const col=flaskRGBA();const fl=(r.Va+tt.Vb)/120;const sol=col[3]<0.05?'rgba(200,225,245,.35)':`rgba(${col[0]},${col[1]},${col[2]},${col[3]})`;
- erlen(x,fxp,fbase,s,Math.min(.9,fl),sol,'');const surfY=fbase-(fbase-(fbase-s*1.6)-s*.45)*Math.min(.9,fl);LabViz.stirBar(x,fxp,fbase-7,s*.26,performance.now()/140);
+ const col=flaskRGBA();const fl=(r.Va+tt.Vb)/120;const sol=col[3]<0.05||!SU('indicator')?'rgba(200,225,245,.35)':`rgba(${col[0]},${col[1]},${col[2]},${col[3]})`;
+ if(SU('flask'))erlen(x,fxp,fbase,s,Math.min(.9,fl),sol,'');const surfY=fbase-(fbase-(fbase-s*1.6)-s*.45)*Math.min(.9,fl);if(SU('stirbar'))LabViz.stirBar(x,fxp,fbase-7,s*.26,performance.now()/140);
+ if(SUa&&!SUd){drawTG();return}
  for(const rp of (tt.rip=tt.rip||[])){rp.t+=1/60;const u=rp.t/.6;x.strokeStyle=`rgba(255,255,255,${.7*(1-u)})`;x.lineWidth=1.5;x.beginPath();x.ellipse(fxp,surfY,4+u*s*.5,1.5+u*3,0,0,7);x.stroke()}tt.rip=tt.rip.filter(q=>q.t<.6);
  // flashes where drops land
  for(const f of tt.flashes){f.t+=1/60;const a=Math.max(0,1-f.t/f.life);if(a<=0)continue;let fc;if(r.type==='rx')fc=`rgba(190,30,160,${.8*a})`;else{const ind=IND.find(i=>i.id===$('#indSel').value);const cc=ind.col(Math.min(13,pHof(tt.Vb)+3));fc=`rgba(${cc[0]},${cc[1]},${cc[2]},${Math.min(.9,(cc[3]||.6)+.2)*a})`}
@@ -860,6 +864,34 @@ if(window.LabParts){const titParts=()=>{const g=TG;if(!g.w)return [];const sy=g.
   {id:'probe',name:'pH probe (glass electrode)',what:'Dips into the solution and senses its pH. Rinse it with distilled water before and after use.',hint:'The thin rod dipping into the flask.',q:'Which part dips into the solution to measure its pH?',x:p0[0]-16,y:p0[1]+12,boxes:[[Math.min(p0[0],p1[0])-6,p0[1]-14,Math.max(p0[0],p1[0])+6,p1[1]]]})}
  return L};
  window.__lp=LabParts.attach({key:'titration',wrap:$('#tcv').parentElement,stage:$('#tcv'),bar:$('#titParts'),parts:titParts,max:6})}
+
+/* ---------- "Set it up yourself" on the titration bench (bench-setup.js) ---------- */
+if(window.BenchSetup){const I=d=>'<svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';
+ const IC={stand:I('<path d="M9 3v20M4 23h16"/><path d="M4 23v1.5h16V23"/>'),clamp:I('<path d="M3 14h14"/><rect x="2" y="11" width="4" height="6" rx="1"/><path d="M17 10h6v8h-6z"/><path d="M20 10v8"/>'),
+  burette:I('<rect x="11" y="2" width="6" height="18" rx="1"/><path d="M14 20v3M12 21.5h4M14 23l0 2.5M11 6h3M11 10h3M11 14h3"/>'),bottle:I('<path d="M11 3h6v4l3 3v14H8V10l3-3z"/><path d="M8 15h12"/>'),
+  stirrer:I('<rect x="3" y="12" width="22" height="9" rx="2"/><path d="M6 12h16M7 17h3"/><circle cx="20" cy="17" r="1.5"/>'),flask:I('<path d="M11 3h6M12 3v7L5 23h18l-7-13V3"/><path d="M7.5 18h13"/>'),
+  stirbar:I('<rect x="6" y="12" width="16" height="5" rx="2.5"/>'),dropper:I('<path d="M12 3h4v3h-4zM12 6h4l-.5 4h-3zM13 10h2v9l-1 3-1-3z"/><path d="M14 25.5v.5"/>'),
+  beaker:I('<path d="M6 4h16M7 4v18a2 2 0 002 2h10a2 2 0 002-2V4"/><path d="M7 14h14"/>'),cyl:I('<path d="M10 3h8M11 3v19h6V3M8 25h12M11 8h3M11 12h3M11 16h3"/>')};
+ const nm=()=>tt.rx.type==='rx'?'KMnO₄':tt.rx.base,indName=()=>{const i=IND.find(i=>i.id===$('#indSel').value);return i?i.name.replace(/\s*\(.*\)/,''):'Indicator'};
+ const suParts=()=>{const g=TG;if(!g.w)return [];const sy=g.top+g.len,L=[
+  {id:'stand',name:'Retort stand',icon:IC.stand,spot:[g.rodX-g.baseW*.2-4,26,g.rodX+26,g.base+2],why:'Its heavy base keeps everything steady. The clamp is fixed to its rod.',hint:'It stands on the left of the bench.'},
+  {id:'clamp',name:'Burette clamp',icon:IC.clamp,needs:['stand'],spot:[g.rodX-14,76,g.bx+20,106],early:'The clamp is fixed to the rod of the stand.',why:'It holds the burette upright, so the scale is vertical and reads true.',hint:'It reaches across from the rod, near the top.'},
+  {id:'burette',name:'Burette',icon:IC.burette,needs:['clamp'],spot:[g.bx-16,g.top-4,g.bx+16,sy+44],early:'Something has to hold the burette upright.',why:'Rinse it first with a little of the titrant, so water left inside does not dilute it. Then clamp it vertically.',hint:'The tall tube goes in the clamp.'},
+  {id:'fill',name:nm()+' solution ('+tt.rx.Cb.toFixed(tt.rx.Cb<0.1?3:2)+' M)',icon:IC.bottle,needs:['burette'],spot:[g.bx-28,g.top-34,g.bx+28,g.top+g.len*.55],early:'There is nothing to pour it into yet.',why:'Fill to just above 0 with a funnel, then take the funnel out. Run a little out so the tip has no air bubble, and read the start volume at the bottom of the meniscus.',hint:'This is the titrant. Pour it into the top of the burette.'},
+  {id:'stirrer',name:'Magnetic stirrer',icon:IC.stirrer,spot:[g.fxp-g.stW/2,g.fbase-2,g.fxp+g.stW/2,g.base+2],why:'Its white top makes the colour change easy to see, and its spinning magnet mixes every drop. (Without one, use a white tile and swirl by hand.)',hint:'It goes on the bench, right under the burette tip.'},
+  {id:'flask',name:'Conical flask of '+tt.rx.acid+' ('+tt.rx.Va+' mL)',icon:IC.flask,needs:['stirrer','fill'],spot:[g.fxp-g.s-4,g.fbase-g.s*1.6-6,g.fxp+g.s+4,g.fbase],early:'Fill the burette first, with the flask out of the way, so no titrant drips into it. The flask stands on the stirrer.',why:'It holds an exact volume, measured with a pipette, of the solution you are analysing. Its sloping sides let you swirl without splashing.',hint:'It stands on the stirrer, under the burette tip.'},
+  {id:'stirbar',name:'Stir bar',icon:IC.stirbar,needs:['flask'],outline:false,spot:[g.fxp-g.s-4,g.fbase-g.s*1.6-6,g.fxp+g.s+4,g.fbase],early:'It goes inside the flask.',why:'Slide it in gently. It spins and mixes each drop in at once.',hint:'Drop it into the conical flask.'}];
+  if(tt.rx.type==='ab')L.push({id:'indicator',name:indName()+' indicator',icon:IC.dropper,needs:['flask'],outline:false,spot:[g.fxp-g.s-4,g.fbase-g.s*1.6-6,g.fxp+g.s+4,g.fbase],early:'It goes into the solution in the flask.',why:'Only 2–3 drops. An indicator is a weak acid itself, so adding more would change your result.',hint:'Add a few drops to the conical flask.'});
+  return L};
+ const suExtras=()=>{const X=[{id:'beaker',name:'Beaker',icon:IC.beaker,why:'It splashes when you swirl it. The sloping sides of a conical flask keep the liquid in.'},
+  {id:'cyl',name:'Measuring cylinder',icon:IC.cyl,why:'It only reads to about ±0.5 mL and has no tap. A burette reads to ±0.05 mL and lets you add one drop at a time.'}];
+  if(tt.rx.type==='rx')X.push({id:'indx',name:'Phenolphthalein indicator',icon:IC.dropper,why:'Purple MnO₄⁻ loses its colour as it reacts, so the first pink that stays shows the end point by itself.'});return X};
+ const ctl=()=>$$('#p-tit [data-flow],#oneDrop,#refill,#recBtn,#titParts button:not(.su-btn),#rxSel,#indSel');
+ window.__suP=suParts;window.__su=BenchSetup.attach({key:'titration',wrap:$('#tcv').parentElement,stage:$('#tcv'),bar:$('#titParts'),title:'Set up the titration',parts:suParts,extras:suExtras,
+  watch:['No air bubble in the burette tip, or your first reading is wrong.','Read the burette at eye level, at the bottom of the meniscus.','Swirl or stir all the time, and slow down to single drops near the end point.'],
+  onOpen(){setFlow(0);if(window.__lp)window.__lp.close();ctl().forEach(e=>{e.dataset.suOff=e.disabled?'1':'';e.disabled=true})},
+  onClose(){ctl().forEach(e=>{e.disabled=e.dataset.suOff==='1';delete e.dataset.suOff});$('#indSel').disabled=tt.rx.type==='rx';refillT()}});
+ $$('.tab').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab!=='tit'&&window.__su.active)window.__su.close()}))}
 
 /* ---------- parts + "Find the part" on the dilution and preparation benches (parts.js) ---------- */
 if(window.LabParts){const wrapC=id=>{const c=$(id),w=document.createElement('div');c.parentNode.insertBefore(w,c);w.appendChild(c);return w};
