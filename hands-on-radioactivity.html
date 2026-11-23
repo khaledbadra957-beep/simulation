@@ -24,6 +24,7 @@
 .seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
 .seg button{border:0;border-right:1.5px solid var(--line);background:var(--stage);padding:5px 10px;font-weight:700;color:var(--muted)}
 .seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.seg.g2{display:grid;grid-template-columns:1fr 1fr}.seg.g2 button{border-right:0;border-bottom:1.5px solid var(--line)}.seg.g2 button:nth-child(odd){border-right:1.5px solid var(--line)}.seg.g2 button:nth-last-child(-n+2){border-bottom:0}
 .ctl{display:flex;flex-direction:column;gap:10px}
 .tw{max-height:230px;overflow:auto;margin-top:8px}
 table.data{width:100%;border-collapse:collapse;font-size:.8125rem}table.data th,table.data td{padding:3px 4px;text-align:right;border-bottom:1px solid var(--line);font-family:var(--data);font-variant-numeric:tabular-nums;white-space:nowrap}table.data th{font-weight:600;color:var(--muted);position:sticky;top:0;background:var(--card,var(--bg))}table.data td:first-child,table.data th:first-child{text-align:left;font-family:var(--body)}
@@ -68,9 +69,9 @@ details summary{cursor:pointer;font-weight:700}details select{padding:4px 6px;bo
    <div class="card"><h3>Lab steps</h3><ol class="steps" id="steps"></ol></div>
    <div class="card ctl">
     <div><h3>Scaler</h3><div class="row"><button class="btn primary" id="hStart" type="button">Start</button><button class="btn" id="hReset" type="button">Reset</button></div></div>
-    <div><h3>Count for</h3><div class="seg" id="msel"><button type="button" data-m="10">10 s</button><button type="button" data-m="60">60 s</button><button type="button" data-m="log">Logger, every 10 s</button><button type="button" data-m="inf">Until stopped</button></div></div>
+    <div><h3>Count for</h3><div class="seg g2" id="msel"><button type="button" data-m="10">10 s</button><button type="button" data-m="60">60 s</button><button type="button" data-m="log">Logger, every 10 s</button><button type="button" data-m="inf">Until stopped</button></div></div>
     <div><h3>Time speed</h3><div class="seg" id="ssel"><button type="button" data-s="1">×1</button><button type="button" data-s="2">×2</button><button type="button" data-s="5">×5</button><button type="button" data-s="10">×10</button></div></div>
-    <dl class="read"><dt>Count rate now (about)</dt><dd id="rR">–</dd><dt>Source distance d</dt><dd id="rD">–</dd><dt>Absorber</dt><dd id="rA">none</dd><dt>Background</dt><dd id="rB">not measured yet</dd></dl>
+    <dl class="read"><dt>Count rate now (about)</dt><dd id="rR">–</dd><dt>Source distance d</dt><dd id="rD">–</dd><dt>Absorber</dt><dd id="rA">none</dd><dt>Background</dt><dd id="rB">not yet</dd></dl>
    </div>
    <div class="card"><h3>Counts</h3><p class="small" style="margin:0">Corrected count rate = count rate − background.</p><div class="tw"><table class="data" id="runs"></table></div></div>
    <div class="card"><h3>Half-life graph</h3>
@@ -101,7 +102,7 @@ details summary{cursor:pointer;font-weight:700}details select{padding:4px 6px;bo
  </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="vendor/three.min.js"></script>
 <script src="hand-model.js"></script>
 <script src="hand-kit.js"></script>
 <script src="parts.js"></script>

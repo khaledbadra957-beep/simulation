@@ -81,7 +81,7 @@ def card_html(stem, inf, title):
     mod = f'<div class="mod">{html.escape(inf["m"])}</div>' if inf.get('m') else ''
     return f"""<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"><style>{CSS}</style></head>
 <body style="--c:{c};--fs:{fs}px"><div class="band"></div>
-<div class="txt"><span class="chip">{grades(inf['g'])} · {SUBJ[inf['s']]}</span>{mod}<h1>{html.escape(title)}</h1><p class="how">{how}</p>{BRAND}</div>
+<div class="txt"><span class="chip">{grades(inf['g'])} · {'Science' if inf['g'] == '7' else SUBJ[inf['s']]}</span>{mod}<h1>{html.escape(title)}</h1><p class="how">{how}</p>{BRAND}</div>
 <div class="pic"><img src="{data_uri(f'thumbs/{stem}-card.jpg')}"></div></body></html>"""
 
 def home_html(picks):
