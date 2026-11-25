@@ -257,6 +257,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
       <div class="chk">
        <label for="cEnv"><input type="checkbox" id="cEnv" checked>Full swing</label>
        <label for="cLab"><input type="checkbox" id="cLab" checked>Nodes and antinodes</label>
+       <label for="cTrav"><input type="checkbox" id="cTrav">The two travelling waves</label>
        <label for="cTheory"><input type="checkbox" id="cTheory" checked>Predicted curve</label>
       </div>
      </div>
@@ -300,7 +301,7 @@ ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
 var N = 240, F_MIN = 1, F_MAX = 60, L_MAX = 1.5, Y_MAX = 11;
 var DELTA = { light: 0.1, medium: 0.2, heavy: 0.45 };
 var S = { f: 20, L: 1.2, v: 24, damp: 'medium', slow: 15, playing: true,
-          env: true, labels: true, theory: true, sweeping: false };
+          env: true, labels: true, theory: true, sweeping: false, trav: false };
 
 function $(id){ return document.getElementById(id); }
 function clamp(x, a, b){ return x < a ? a : (x > b ? b : x); }
@@ -309,6 +310,8 @@ function ordinal(n){ var s = ['th','st','nd','rd'], v = n % 100; return n + (s[(
 function sub(n){ return String(n).replace(/\d/g, function(d){ return '₀₁₂₃₄₅₆₇₈₉'.charAt(+d); }); }
 
 var y = new Float64Array(N + 1), yOld = new Float64Array(N + 1), yNew = new Float64Array(N + 1);
+// the same string split into the wave going out (Rw) and the wave coming back (Lw): y = Rw + Lw
+var Rw = new Float64Array(N + 1), Lw = new Float64Array(N + 1), Rn = new Float64Array(N + 1), Ln = new Float64Array(N + 1);
 var envAcc = new Float64Array(N + 1), envTarget = new Float64Array(N + 1), envShow = new Float64Array(N + 1);
 var phase = 0, halfIdx = 0, measured = 0, accMax = 0, stepAcc = 0;
 var trail = [], sweep = { rate: 0, scale: 1 };
@@ -359,6 +362,13 @@ function step(){
   yNew[0] = Math.sin(phase);
   yNew[N] = 0;
   var t = yOld; yOld = y; y = yNew; yNew = t;
+  // one grid step per time step, so each travelling part just moves one point along (d'Alembert)
+  var g = Math.sqrt(c1 * c2);
+  for (i = 1; i <= N; i++) Rn[i] = g * Rw[i - 1];
+  for (i = 0; i < N; i++) Ln[i] = g * Lw[i + 1];
+  Rn[0] = y[0] - Ln[0]; Ln[N] = -Rn[N];          // the driver sends out what it sets; the fixed end sends back the wave upside down
+  for (i = 0; i <= N; i++){ var res = (y[i] - Rn[i] - Ln[i]) / 2; Rn[i] += res; Ln[i] += res; }   // keep y = Rw + Lw exactly (damping)
+  t = Rw; Rw = Rn; Rn = t; t = Lw; Lw = Ln; Ln = t;
   for (i = 0; i <= N; i++){
     a = y[i] < 0 ? -y[i] : y[i];
     if (a > envAcc[i]) envAcc[i] = a;
@@ -369,7 +379,7 @@ function step(){
 }
 
 function stillString(){
-  y.fill(0); yOld.fill(0); yNew.fill(0);
+  y.fill(0); yOld.fill(0); yNew.fill(0); Rw.fill(0); Lw.fill(0); Rn.fill(0); Ln.fill(0);
   envAcc.fill(0); envTarget.fill(0); envShow.fill(0);
   phase = 0; halfIdx = 0; measured = 0; accMax = 0; stepAcc = 0;
 }
@@ -504,6 +514,20 @@ function drawStage(st, tg){
   c.fillStyle = S.f > 0 ? '#47E07A' : '#3C4A44'; c.beginPath(); c.arc(x0 - 38, cy - bh - 1, 2.4, 0, 6.2832); c.fill();
   c.fillStyle = T.muted; c.textAlign = 'center';
   c.fillText('driver', x0 - 27, cy + bh + 24);
+
+  // the two travelling waves behind the string
+  if (S.trav && !S.sweeping){
+    var dk = document.documentElement.getAttribute('data-theme') === 'dark' || (!document.documentElement.getAttribute('data-theme') && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+    var colOut = dk ? '#6FB7FF' : '#1F6FC2', colBack = dk ? '#FF8F7A' : '#C8452E';
+    c.lineWidth = 2; c.setLineDash([7, 5]);
+    [[Rw, colOut], [Lw, colBack]].forEach(function(pr){ var A = pr[0]; c.beginPath(); for (var k = 0; k <= N; k++){ var sx = x0 + k / N * span, sy = cy - A[k] * Apx; if (k) c.lineTo(sx, sy); else c.moveTo(sx, sy); } c.strokeStyle = pr[1]; c.stroke(); });
+    c.setLineDash([]);
+    c.font = '600 12px ' + SANS; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    var lx = x0 + 6, ly = yr - 46;   // bottom-left, under the swing and above the ruler (the top has the resonance badge)
+    c.fillStyle = colOut; c.fillText('- - wave going out \u2192', lx, ly);
+    c.fillStyle = colBack; c.fillText('- - wave coming back \u2190', lx, ly + 16);
+    c.fillStyle = T.ink; c.fillText(narrow ? (st.state === 'on' ? 'Solid = both added: they cancel at nodes' : 'Solid = both added: out of step') : st.state === 'on' ? 'Solid line = the two added. They cancel at every node and add up at every antinode.' : 'Solid line = the two added. Off resonance they do not keep in step, so the swing stays small.', lx, ly + 32);
+  }
 
   // the string
   c.lineJoin = 'round'; c.lineCap = 'round';
@@ -677,6 +701,7 @@ seg('dampSeg', 'damp', String);
 seg('slowSeg', 'slow', Number);
 $('cEnv').addEventListener('change', function(e){ S.env = e.target.checked; });
 $('cLab').addEventListener('change', function(e){ S.labels = e.target.checked; });
+$('cTrav').addEventListener('change', function(e){ S.trav = e.target.checked; });
 $('cTheory').addEventListener('change', function(e){ S.theory = e.target.checked; });
 ui.play.addEventListener('click', function(){ S.playing = !S.playing; });
 $('still').addEventListener('click', function(){ stillString(); S.playing = true; });

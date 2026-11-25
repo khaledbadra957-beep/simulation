@@ -42,6 +42,13 @@
 .blist{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:.9rem}
 .blist li{display:flex;justify-content:space-between;gap:8px}.blist b{font-family:var(--data)}
 .blist .ok{color:var(--ok)}.blist .warn{color:#B36B00}.blist .bad{color:var(--bad)}.blist .off{color:var(--muted)}
+/* Circuit check (mistake checker) */
+#ck{display:flex;flex-direction:column;gap:8px}.ck-none{margin:0;color:var(--muted);font-size:.92rem}.ck-ok{margin:0;font-weight:700;color:var(--ok)}
+.ck-i{border-left:4px solid var(--line);padding:6px 8px 6px 10px;border-radius:6px;background:var(--bg);font-size:.92rem;line-height:1.4}
+.ck-i b{display:block;font-size:.98rem}.ck-i p{margin:2px 0 0}.ck-i .fx{margin-top:4px}.ck-i .fx::before{content:'Fix: ';font-weight:700}
+.ck-i .tag{display:inline-block;font:700 .7rem/1.6 var(--data);letter-spacing:.06em;text-transform:uppercase;padding:0 6px;border-radius:5px;margin-right:6px;vertical-align:2px;color:#fff}
+.ck-i.bad{border-left-color:var(--bad)}.ck-i.bad .tag{background:var(--bad)}.ck-i.warn{border-left-color:#C77700}.ck-i.warn .tag{background:#C77700}.ck-i.info{border-left-color:var(--accent)}.ck-i.info .tag{background:var(--accent)}
+:root[data-theme="dark"] .ck-i .tag{color:#0B1418}
 </style>
 <link rel="stylesheet" href="site.css">
 </head><body>
@@ -72,6 +79,7 @@
   </div>
   <aside>
    <div class="card"><div class="status" id="status">Choose how you want to play.</div></div>
+   <div class="card" id="ckCard"><h3>Circuit check</h3><div id="ck" aria-live="polite"><p class="ck-none">Build a circuit and close the switch: mistakes are explained here as you go.</p></div></div>
    <div class="card"><h3>What happened</h3><p class="say" id="say"></p></div>
    <div class="card"><h3 id="taskH">Lab steps</h3><p class="target" id="target" hidden></p><ol class="steps" id="steps"></ol><div class="row" style="margin-top:8px"><button class="btn primary" id="next" type="button" hidden>Next target</button></div></div>
    <div class="card"><h3>Measurements</h3>
@@ -178,11 +186,12 @@ const probes=[0xC62828,0x16191C].map((c,i)=>K.addItem('probe'+i,P.probe(c),{kind
 const nearPeg=(p,r)=>{let b=-1,bd=r;PEG.forEach((q,i)=>{const d=Math.hypot(q.x-p.x,q.y-p.y);if(d<bd){bd=d;b=i}});return b};
 function place(it,e){const u=it.userData,old=e.part,f=u.from;u.from=null;
  if(old&&old!==it){unplace(old,false);if(f&&f!==e&&!f.part){old.userData.from=null;place(old,f)}else{old.userData.scale=.62;K.home(old)}}   // a part that came from another gap swaps places with the one it lands on
- e.part=it;u.edge=e;u.placed=true;u.scale=1;u.goal.set(e.mid.x,e.mid.y,0);changed()}
-function unplace(it,goHome){const u=it.userData;if(u.edge){u.edge.part=null;u.edge=null}u.placed=false;if(goHome){u.scale=.62;K.home(it)}changed()}
-function changed(){S.meas={};S.hold=0}
+ e.part=it;u.edge=e;u.placed=true;u.scale=1;u.goal.set(e.mid.x,e.mid.y,0);edited();changed()}
+function unplace(it,goHome){const u=it.userData;if(u.edge){u.edge.part=null;u.edge=null;edited()}u.placed=false;if(goHome){u.scale=.62;K.home(it)}changed()}
+function changed(){S.meas={};S.hold=0;CK.dirty=true}
+function edited(){if(S.closed&&!CK.quiet)CK.live=performance.now()}
 function setSwitch(on){S.closed=on;knife.set(on);changed();newCurve()}
-function starter(){caps.forEach(c=>c.userData.vc=0);bulbs.forEach(b=>rateBulb(b,S.bulbV));cress.forEach(c=>setOwnR(c,S.rNew));S.hist=[];S.cycles=[];S.tauG=null;parts.forEach(it=>{if(it.userData.edge)unplace(it,true);else{it.userData.scale=.62;K.home(it)}});probes.forEach(p=>{p.userData.peg=-1;p.userData.placed=false;K.home(p)});['b0','b1','b2'].forEach((id,i)=>place(wires[i],FREE.find(e=>e.id===id)));setSwitch(false);S.short=false;S.ammEdge=null}
+function starter(){CK.quiet=true;setTimeout(()=>{CK.quiet=false;CK.live=0},0);caps.forEach(c=>c.userData.vc=0);bulbs.forEach(b=>rateBulb(b,S.bulbV));cress.forEach(c=>setOwnR(c,S.rNew));S.hist=[];S.cycles=[];S.tauG=null;parts.forEach(it=>{if(it.userData.edge)unplace(it,true);else{it.userData.scale=.62;K.home(it)}});probes.forEach(p=>{p.userData.peg=-1;p.userData.placed=false;K.home(p)});['b0','b1','b2'].forEach((id,i)=>place(wires[i],FREE.find(e=>e.id===id)));setSwitch(false);S.short=false;S.ammEdge=null}
 
 function onGrab(it,h){const u=it.userData;
  if(u.kind==='switch'){S.tripped=false;setSwitch(!S.closed);return}
@@ -348,7 +357,7 @@ function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now
  probes.forEach(q=>{if(!K.holder(q))return;const i=nearPeg(q.position,.42);q.userData.peg=i;if(i>=0)q.position.set(PEG[i].x,PEG[i].y,.14)});    // a probe held on a terminal reads at once: hold one in each hand
  const pr=probes[0].userData.peg,pb=probes[1].userData.peg,both=pr>=0&&pb>=0,vr=both?S.V[pr]-S.V[pb]:0;if(S.mm==='V')volt.show(both?fx(vr,2):'-.--','V',!both);
  if(both&&!S.short&&S.mm==='V'){const e=FREE.find(q=>(q.a===pr&&q.b===pb)||(q.a===pb&&q.b===pr)),bk=e&&e.part&&e.part.userData.type==='bulb'&&Math.abs(e.I)>.01?e.id:Math.abs(Math.abs(vr)-BAT.U)<.02*S.emf&&S.Ib>.01&&(!e||!e.part||e.part.userData.type!=='bulb'||lit().length<2)?'bat':null;
-  if(bk&&!ohm&&S.meas[bk]==null){S.meas[bk]=Math.abs(vr);const c=TASKS[S.tab].steps.find(([k])=>!S.done[key(k)]);if(c&&c[0]==='volt'){const L=lit(),left=L.filter(q=>S.meas[q.id]==null).length;say(V2(Math.abs(vr))+' across '+(bk==='bat'?'the battery':'this bulb')+'. '+(left?'Now the '+(left>1?'other bulbs':'other bulb')+'.':S.tab===0&&S.meas.bat==null?'Now the battery: put the probes on its two terminals.':''))}}}
+  if(bk&&S.mm!=='R'&&S.meas[bk]==null){S.meas[bk]=Math.abs(vr);const c=TASKS[S.tab].steps.find(([k])=>!S.done[key(k)]);if(c&&c[0]==='volt'){const L=lit(),left=L.filter(q=>S.meas[q.id]==null).length;say(V2(Math.abs(vr))+' across '+(bk==='bat'?'the battery':'this bulb')+'. '+(left?'Now the '+(left>1?'other bulbs':'other bulb')+'.':S.tab===0&&S.meas.bat==null?'Now the battery: put the probes on its two terminals.':''))}}}
  const ohm=S.mm==='R',rp=both&&ohm?resBetween(pr,pb,'open',S.closed):0;
  if(ohm)volt.show(both?(isFinite(rp)?fx(Math.min(999.9,rp),rp<10?2:1):'OL'):'-.--','Ω',!both);
  $('rB').textContent=S.emf+' V';$('rI').textContent=S.short?'short circuit':A2(S.Ib<.0005?0:S.Ib);$('rA').textContent=amm.userData.edge?A2(ammI()):'not in the circuit';
@@ -356,6 +365,7 @@ function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now
  S.req=resBetween(0,4,'open',true);$('rEq').textContent=fmtR(S.req);
  caps.forEach(c=>{const u=c.userData;u.part.charge(u.vc/9)});
  capTrack(dt);
+ CK.t+=dt;if(CK.t>.25||CK.dirty){CK.t=0;CK.dirty=false;try{runCheck(both,vr,ohm)}catch(err){console.warn(err)}}
  ALL.forEach(e=>{e.ph=(e.ph+Math.min(2.6,Math.abs(e.I)*1.7+(Math.abs(e.I)>.004?.25:0))*dt)%1});
  // voltmeter leads follow the probes
  const kq=probes.map(p=>p.position.x.toFixed(2)+p.position.y.toFixed(2)+p.position.z.toFixed(2)).join()+volt.g.position.x.toFixed(2);if(kq!==S.cab){S.cab=kq;volt.g.updateMatrixWorld(true);probes.forEach((p,i)=>{p.updateMatrixWorld(true);const a=p.localToWorld(p.tail.clone()),b=volt.post(1-i);cab[i].set([a,V(a.x-.05,Math.max(.12,a.y-.7),a.z+.25),V(b.x+(a.x-b.x)*.3,.07,b.z+.6),V(b.x,.09,b.z+.3),b])})}
@@ -365,8 +375,56 @@ function bulbState(u){if(u.blown)return ['blown','bad'];const r=u.ratio||0;if(r<
 function bulbList(){const on=bulbs.filter(b=>b.userData.edge);const k=on.map(b=>{const u=b.userData,st=bulbState(u);return u.Vr+'|'+st[0]+'|'+(u.edge?fx(Math.abs(u.edge.U),1):'')}).join();if(k===bulbList.k)return;bulbList.k=k;
  $('bList').innerHTML=on.length?on.map((b,i)=>{const u=b.userData,st=bulbState(u);return `<li><span>${i+1}. <b>${vTxt(u.Vr)}</b> bulb, gets ${fx(Math.abs(u.edge.U),1)} V</span><span class="${st[1]}">${st[0]}</span></li>`}).join(''):''}
 
+/* ---------- Circuit check: finds common wiring mistakes, says why they are wrong and how to fix them ----------
+   (Robotics Lab idea: a bench that explains its warnings.) Runs 4 times a second; it only solves the 12-terminal board. */
+const CK={t:0,dirty:true,live:0,quiet:false,key:'',list:[]};
+const LOADS=new Set(['bulb','res','rheo']);
+const partName=it=>{const u=it.userData;return u.type==='bulb'?'the '+vTxt(u.Vr)+' bulb':u.type==='rheo'?'the rheostat':u.type==='res'?'the '+u.name+' resistor':u.type==='amm'?'the ammeter':u.type==='cap'?'the capacitor':'a wire'};
+function lowPath(a,b,skip){if(a===b)return 0;const M=mat(NP);FREE.forEach(e=>{const it=e.part;if(!it||skip.includes(it))return;const t=it.userData.type;if(t==='wire'||t==='amm')M.add(e.a,e.b,1/RW)});M.J[a]+=1;M.J[b]-=1;const v=gauss(M.G,M.J,NP,b);return v[a]-v[b]}
+function anyPath(a,b){const M=mat(NP);FREE.forEach(e=>{const it=e.part;if(!it)return;const u=it.userData;if(u.type==='bulb'&&u.blown)return;M.add(e.a,e.b,u.type==='cap'?1:1/Rof(it))});M.J[a]+=1;M.J[b]-=1;const v=gauss(M.G,M.J,NP,b),r=v[a]-v[b];return r<1e6}
+function runCheck(both,vr,ohm){const L=[],placed=FREE.filter(e=>e.part);
+ if(!placed.length){render([]);return}
+ // short circuit: a path from the switch side (1) to the battery's − terminal (4) through wires and ammeters only
+ const rS=lowPath(1,4,[]);
+ if(rS<.05){const viaA=amm.userData.edge&&lowPath(1,4,[amm])>=.05;
+  L.push({lv:S.closed||S.short||S.tripped?'bad':'warn',tag:S.closed||S.short||S.tripped?'Mistake':'Careful',t:S.closed||S.short||S.tripped?'Short circuit':'This would be a short circuit',
+   w:viaA?'The ammeter makes a path from + to − with almost no resistance. An ammeter has almost none, so it must never go straight across the battery.':'There is a path from + to − made only of wires, with no bulb or resistor in it. A huge current would flow, the wires get hot and the battery is damaged.',
+   f:viaA?'Put the ammeter in the loop, next to a bulb, so the current also has to pass through the bulb.':'Make every path from + to − pass through at least one bulb or resistor.',at:viaA?[amm.userData.edge]:[]})}
+ // a part (bulb, resistor, rheostat) bypassed by wires or by the ammeter
+ FREE.forEach(e=>{const it=e.part;if(!it||!LOADS.has(it.userData.type)||rS<.05)return;
+  if(lowPath(e.a,e.b,[it])<.05){const byA=amm.userData.edge&&lowPath(e.a,e.b,[it,amm])>=.05;
+   L.push(byA?{lv:'bad',tag:'Mistake',t:'Ammeter connected in parallel',w:'The ammeter is across '+partName(it)+'. An ammeter has almost no resistance, so the current goes through the ammeter instead of '+partName(it)+', and the reading is not the current you wanted.',f:'Take the ammeter out and put it in the loop, in place of a wire, so the current has to pass through it. (Across a part is where the voltmeter goes.)',at:[amm.userData.edge,e]}
+    :{lv:'warn',tag:'Careful',t:partName(it).replace(/^the /,'').replace(/^./,c=>c.toUpperCase())+' is bypassed',w:'A wire joins its two ends, so the current takes the easy path through the wire and goes round '+partName(it)+'. It does nothing in this circuit.',f:'Remove the wire that runs alongside it, unless you meant to switch it out.',at:[e]})}});
+ // no complete loop
+ if(S.closed&&!S.short&&rS>=.05&&S.Ib<.001){
+  const blown=bulbs.filter(b=>b.userData.edge&&b.userData.blown),capOnly=!blown.length&&anyPath(1,4);
+  if(blown.length)L.push({lv:'bad',tag:'Mistake',t:'Burned-out bulb',w:'The filament of '+partName(blown[0])+' has melted, so it is a break in the circuit and no current can flow.',f:'Put the burned-out bulb back in the tray (you get a new one), and give it no more than its rated voltage.',at:[blown[0].userData.edge]});
+  else if(capOnly)L.push({lv:'info',tag:'Note',t:'No steady current',w:'The only path goes through a capacitor. Once it is charged, no more current flows: a capacitor blocks a steady current.',f:'That is expected here. To light a bulb, give the current a path that does not go through the capacitor.',at:[]});
+  else{const deg=new Array(NP).fill(0);[[0,4],[0,1]].concat(placed.filter(e=>!(e.part.userData.type==='bulb'&&e.part.userData.blown)).map(e=>[e.a,e.b])).forEach(([a,b])=>{deg[a]++;deg[b]++});
+   const loose=deg.map((d,i)=>d===1&&i!==0&&i!==4?i:-1).filter(i=>i>=0);
+   L.push({lv:'bad',tag:'Mistake',t:'The loop is not complete',w:'Current only flows round a closed loop from the + terminal back to the − terminal. There is a gap, so nothing in the circuit works.',f:loose.length?'Follow the path from the switch. It stops at the terminal'+(loose.length>1?'s':'')+' marked in red: join '+(loose.length>1?'them':'it')+' up with a wire or a part.':'Follow the path from the switch all the way back to the battery’s − terminal and fill the gap.',pegs:loose})}}
+ // bulbs given too much voltage
+ bulbs.forEach(b=>{const u=b.userData;if(!u.edge||u.blown||S.short||(u.ratio||0)<=1.15)return;
+  L.push({lv:'warn',tag:'Careful',t:'Too much voltage for '+partName(b),w:'It gets '+V2(Math.abs(u.edge.U))+' but is made for '+vTxt(u.Vr)+', so it glows too brightly and will burn out.',f:'Use a bulb rated for a higher voltage, add a resistor in series, or choose a smaller battery.',at:[u.edge]})});
+ // multimeter
+ if(both&&ohm&&S.closed&&S.Ib>.01)L.push({lv:'warn',tag:'Careful',t:'Ohmmeter on a live circuit',w:'A real ohmmeter sends its own small current, so it gives a wrong reading (and can be damaged) if the circuit is switched on. This one simply ignores the battery.',f:'Open the switch, or take the part out of the circuit, before you measure resistance.',at:[]});
+ if(both&&!ohm&&vr<-.05)L.push({lv:'info',tag:'Tip',t:'Negative voltmeter reading',w:'The red probe is on the side with the lower voltage, so the meter shows a minus sign.',f:'Swap the probes: red on the side nearer the battery’s +, black on the side nearer the −.',at:[]});
+ // changed the circuit while it was switched on
+ if(CK.live&&performance.now()-CK.live<9000&&S.closed)L.push({lv:'info',tag:'Lab habit',t:'Switch off before you change the circuit',w:'You changed the circuit while the switch was closed. In a real lab, a loose wire touching the wrong terminal can cause a short circuit or a shock.',f:'Open the switch, make your change, then close it again to test.',at:[]});
+ render(L)}
+function render(L){CK.list=L;const k=L.map(i=>i.t+'|'+i.w+'|'+(i.pegs||[]).join(',')).join('#')+(FREE.some(e=>e.part)?'1':'0')+S.closed;if(k===CK.key)return;CK.key=k;
+ const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+ $('ck').innerHTML=L.length?L.map(i=>`<div class="ck-i ${i.lv}"><b><span class="tag">${i.tag}</span>${esc(i.t)}</b><p>${esc(i.w)}</p><p class="fx">${esc(i.f)}</p></div>`).join('')
+  :FREE.some(e=>e.part)?(S.closed?'<p class="ck-ok">✓ No wiring mistakes found.</p>':'<p class="ck-none">No mistakes so far. Close the switch to test the circuit.</p>'):'<p class="ck-none">Build a circuit and close the switch: mistakes are explained here as you go.</p>'}
+function drawIssues(g,sc,bad,amber){if(!CK.list.length)return;const a=.55+.45*Math.sin(performance.now()/180),pad=K.W*.022;g.save();g.lineWidth=Math.max(2.5,K.W*.004);g.setLineDash([8,5]);
+ CK.list.forEach(i=>{g.strokeStyle=i.lv==='bad'?bad:i.lv==='warn'?amber:'transparent';if(i.lv==='info')return;g.globalAlpha=a;
+  (i.at||[]).forEach(e=>{if(!e)return;const p=sc(tmp.set(PEG[e.a].x,PEG[e.a].y,.3)),q=sc(V(PEG[e.b].x,PEG[e.b].y,.3)),cx=(p[0]+q[0])/2,cy=(p[1]+q[1])/2,len=Math.hypot(q[0]-p[0],q[1]-p[1])*.62;
+   g.save();g.translate(cx,cy);g.rotate(Math.atan2(q[1]-p[1],q[0]-p[0]));g.beginPath();g.roundRect?g.roundRect(-len/2-pad,-pad*1.3,len+2*pad,pad*2.6,pad):g.rect(-len/2-pad,-pad*1.3,len+2*pad,pad*2.6);g.stroke();g.restore()});
+  (i.pegs||[]).forEach(n=>{const p=sc(tmp.set(PEG[n].x,PEG[n].y,.2));g.beginPath();g.arc(p[0],p[1],pad*1.1,0,6.3);g.stroke()})});
+ g.restore()}
+
 /* ---------- heads-up layer ---------- */
-function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00',blue=dk?'#7FB2FF':'#2F6FD0',bad=dk?'#FF8A7A':'#C0392B',el=$('showEl').checked,sc=v=>K.toScreen(v);
+function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00',blue=dk?'#7FB2FF':'#2F6FD0',bad=dk?'#FF8A7A':'#C0392B',el=$('showEl').checked,sc=v=>K.toScreen(v);drawIssues(g,sc,bad,amber);
  // moving charge on every part that carries a current
  if(!S.short)ALL.forEach(e=>{if(Math.abs(e.I)<.004)return;const fwd=(e.I>0)!==el,a=PEG[fwd?e.a:e.b],b=PEG[fwd?e.b:e.a],n=5;g.fillStyle=el?blue:amber;g.strokeStyle='rgba(0,0,0,.45)';g.lineWidth=1;
   for(let i=0;i<n;i++){const u=(i+e.ph)/n,p=sc(tmp.set(a.x+(b.x-a.x)*u,a.y+(b.y-a.y)*u,.5)),r=K.W*.0045+1.5;g.beginPath();g.arc(p[0],p[1],r,0,6.3);g.fill();g.stroke()}});
