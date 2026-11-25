@@ -337,6 +337,12 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
     <h2>v = f λ</h2>
     <div class="formula"><span class="live" id="sLive"></span><span class="note mono" id="slowNote"></span></div>
    </section>
+   <section class="group">
+    <h2>Add a second sound</h2>
+    <div class="seg" role="group" aria-label="Second sound" id="s2seg"><button type="button" data-s2="off" aria-pressed="true">Off</button><button type="button" data-s2="beats" aria-pressed="false">Beats</button><button type="button" data-s2="harm" aria-pressed="false">2nd harmonic</button></div>
+    <div class="field" id="s2dfF" hidden><div class="field-head"><label for="s2df">f₂ = f₁ +</label><output class="val" id="os2df"></output></div><input id="s2df" type="range" min="1" max="8" step="1" value="4"></div>
+    <div class="formula" id="s2Box" hidden><span class="live" id="s2Live"></span><span class="note" id="s2Note"></span></div>
+   </section>
   </aside>
  </section>
 
@@ -620,31 +626,65 @@ function drawRace(){const {x,w,h}=fit(c2);x.clearRect(0,0,w,h);const ink=css('--
   x.fillStyle=done?stage:ink;x.font=`600 14px ${css('--data')}`;x.textAlign='center';x.fillText(done?`arrived · ${fx(t)} s`:`t = ${fx(Math.max(0,t))} s`,w-right-100,mid-h*0.17-1)})}
 
 /* ================= TAB 3: SOUND ================= */
-const SD={f:340,v:340,t:0,view:'both'};const c3=$('#c3');const SLOW=400;
+const SD={f:340,v:340,t:0,view:'both',two:'off',df:4};const c3=$('#c3');const SLOW=400;
 function readSound(){SD.f=+$('#sf').value;$('#osf').textContent=SD.f+' Hz';const lam=SD.v/SD.f;
- $('#sLive').textContent=`${SD.v} m/s = ${SD.f} Hz × ${fx(lam)} m`;$('#slowNote').textContent=`slow motion: 1 s on screen = 1/${SLOW} s real`;if(osc)osc.frequency.setTargetAtTime(SD.f,actx.currentTime,.02)}
+ $('#sLive').textContent=`${SD.v} m/s = ${SD.f} Hz × ${fx(lam)} m`;$('#slowNote').textContent=`slow motion: 1 s on screen = 1/${SLOW} s real`;if(osc)osc.frequency.setTargetAtTime(SD.f,actx.currentTime,.02);if(osc2)osc2.frequency.setTargetAtTime(f2(),actx.currentTime,.02);readTwo()}
+const f2=()=>SD.two==='harm'?2*SD.f:SD.f+SD.df;
+/* Second sound: Beats (f₂ = f₁ + 1…8 Hz, heard as loud–soft; book 14.2 Fig 19) or the 2nd harmonic (f₂ = 2f₁, timbre) */
+function readTwo(){const on=SD.two!=='off';$('#s2Box').hidden=!on;$('#s2dfF').hidden=SD.two!=='beats';$('#os2df').textContent=SD.df+' Hz';
+ if(SD.two==='beats'){$('#s2Live').textContent=`f_beat = |${f2()} − ${SD.f}| = ${SD.df} Hz`;$('#s2Note').textContent=`f_beat = |f₂ − f₁|: ${SD.df} loud–soft beat${SD.df>1?'s':''} every second. Both sounds still travel at ${SD.v} m/s.`}
+ else if(SD.two==='harm'){$('#s2Live').textContent=`f₂ = 2 × ${SD.f} = ${f2()} Hz`;$('#s2Note').textContent=`f₂ : f₁ = 2 : 1. Same pitch, richer sound: this is timbre. Both waves travel at ${SD.v} m/s, so λ₂ = λ₁ ÷ 2.`}}
+$$('[data-s2]').forEach(b=>b.onclick=()=>{const was=!!osc;if(was)stopTone();SD.two=b.dataset.s2;$$('[data-s2]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+ if(SD.two!=='off'&&SD.view!=='both')$('[data-sv="both"]').click();readSound();if(was)$('#tone').click()});
+$('#s2df').addEventListener('input',e=>{SD.df=+e.target.value;readSound()});
 $('#sf').addEventListener('input',readSound);
 $$('[data-med]').forEach(b=>b.onclick=()=>{SD.v=+b.dataset.med;$$('[data-med]').forEach(x=>x.setAttribute('aria-pressed',x===b));readSound()});
 $$('[data-sv]').forEach(b=>b.onclick=()=>{SD.view=b.dataset.sv;$$('[data-sv]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
-let actx=null,osc=null,gain=null;
-function stopTone(){if(osc){try{gain.gain.setTargetAtTime(0,actx.currentTime,.03);osc.stop(actx.currentTime+.15)}catch(e){}osc=null;$('#tone').textContent='▶ Play tone'}}
+let actx=null,osc=null,gain=null,osc2=null,t0a=0;
+function stopTone(){if(osc){try{gain.gain.setTargetAtTime(0,actx.currentTime,.03);osc.stop(actx.currentTime+.15);if(osc2)osc2.stop(actx.currentTime+.15)}catch(e){}osc=null;osc2=null;$('#tone').textContent='▶ Play tone'}}
 $('#tone').onclick=()=>{if(osc){stopTone();return}try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();osc=actx.createOscillator();gain=actx.createGain();osc.type='sine';osc.frequency.value=SD.f;gain.gain.value=0;
- osc.connect(gain).connect(actx.destination);osc.start();gain.gain.setTargetAtTime(.08,actx.currentTime,.03);$('#tone').textContent='■ Stop tone'}catch(e){$('#tone').textContent='Sound not available'}};
+ osc.connect(gain).connect(actx.destination);
+ if(SD.two!=='off'){osc2=actx.createOscillator();osc2.type='sine';osc2.frequency.value=f2();const g2=actx.createGain();g2.gain.value=SD.two==='harm'?.5:1;osc2.connect(g2).connect(gain)}
+ const st=actx.currentTime+.02;osc.start(st);if(osc2)osc2.start(st);t0a=st;gain.gain.setTargetAtTime(SD.two==='off'?.08:.05,actx.currentTime,.03);$('#tone').textContent='■ Stop tone'}catch(e){$('#tone').textContent='Sound not available'}};
 function drawSound(){const {x,w,h}=fit(c3);x.clearRect(0,0,w,h);const ink=css('--ink'),mut=css('--muted'),acc=css('--accent'),rose=css('--rose'),grid=css('--grid'),steel=css('--steel');
  const span=4,left=80,right=20,px=(w-left-right)/span,lam=SD.v/SD.f,fv=SD.f/SLOW,both=SD.view==='both';
  const top=18,bot=both?h*0.56:h-40,rows=both?9:13,cols=Math.round(span/0.07);const S0=Math.min(13,lam*px/(TAU)*0.75);
- const ph=TAU*fv*SD.t;
+ const ph=TAU*fv*SD.t,two=SD.two,F2=f2(),lam2=SD.v/F2,ph2=TAU*F2/SLOW*SD.t;
+ const disp=xe=>two==='off'?Math.sin(ph-TAU*xe/lam):two==='harm'?(Math.sin(ph-TAU*xe/lam)+.5*Math.sin(ph2-TAU*xe/lam2))/1.3:(Math.sin(ph-TAU*xe/lam)+Math.sin(ph2-TAU*xe/lam2))/2;
  // speaker
- const cone=S0*Math.sin(ph);x.fillStyle=ink;rr(x,14,top+(bot-top)/2-40,30,80,6);x.fill();x.fillStyle=steel;x.beginPath();x.moveTo(44,top+(bot-top)/2-30);x.lineTo(60+cone,top+4);x.lineTo(60+cone,bot-4);x.lineTo(44,top+(bot-top)/2+30);x.closePath();x.fill();
+ const cone=S0*disp(0);x.fillStyle=ink;rr(x,14,top+(bot-top)/2-40,30,80,6);x.fill();x.fillStyle=steel;x.beginPath();x.moveTo(44,top+(bot-top)/2-30);x.lineTo(60+cone,top+4);x.lineTo(60+cone,bot-4);x.lineTo(44,top+(bot-top)/2+30);x.closePath();x.fill();
  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const xe=(c+.5+((r*37)%10)/20-.25)*span/cols;const y=top+8+r*(bot-top-16)/(rows-1)+(((c*53+r*17)%7)-3);
-  const xx=left+xe*px+S0*Math.sin(ph-TAU*xe/lam);const watch=r===Math.floor(rows/2)&&c===Math.round(cols*0.3);x.fillStyle=watch?rose:acc;x.globalAlpha=watch?1:.85;x.beginPath();x.arc(xx,y,watch?6.5:3.3,0,TAU);x.fill()}
+  const xx=left+xe*px+S0*disp(xe);const watch=r===Math.floor(rows/2)&&c===Math.round(cols*0.3);x.fillStyle=watch?rose:acc;x.globalAlpha=watch?1:.85;x.beginPath();x.arc(xx,y,watch?6.5:3.3,0,TAU);x.fill()}
  x.globalAlpha=1;
  // metre scale
- const sy=both?h-24:h-20;x.strokeStyle=mut;x.lineWidth=1.2;x.beginPath();x.moveTo(left,sy);x.lineTo(left+span*px,sy);x.stroke();
- x.fillStyle=mut;x.font=`500 11px ${css('--data')}`;x.textAlign='center';for(let k=0;k<=span*2;k++){const xx=left+k/2*px;x.beginPath();x.moveTo(xx,sy-5);x.lineTo(xx,sy+(k%2?3:6));x.stroke();if(k%2===0)x.fillText(k/2+' m',xx,sy+17)}
- if(both){const gt=bot+34,gh=sy-gt-16,gm=gt+gh/2;x.strokeStyle=grid;x.lineWidth=1;x.beginPath();x.moveTo(left,gm);x.lineTo(left+span*px,gm);x.stroke();
+ const sy=both?h-24:h-20,beats=both&&two==='beats',gw=span*px;x.strokeStyle=mut;x.lineWidth=1.2;x.beginPath();x.moveTo(left,sy);x.lineTo(left+gw,sy);x.stroke();
+ x.fillStyle=mut;x.font=`500 11px ${css('--data')}`;x.textAlign='center';
+ if(beats){for(let k=0;k<=8;k++){const xx=left+k/8*gw;x.beginPath();x.moveTo(xx,sy-5);x.lineTo(xx,sy+(k%2?3:6));x.stroke();if(k%2===0)x.fillText(fx(k/8,2).replace(/0+$/,'').replace(/\.$/,'')+' s',xx,sy+17)}}
+ else for(let k=0;k<=span*2;k++){const xx=left+k/2*px;x.beginPath();x.moveTo(xx,sy-5);x.lineTo(xx,sy+(k%2?3:6));x.stroke();if(k%2===0)x.fillText(k/2+' m',xx,sy+17)}
+ if(beats){const gt=bot+34,gh=sy-gt-16,gm=gt+gh/2,A=gh*0.42,df=SD.df;
+  // pressure at the ear over 1 s of REAL time: the two tones add, so the loudness rises and falls |f₂ − f₁| times a second
+  x.strokeStyle=grid;x.lineWidth=1;x.beginPath();x.moveTo(left,gm);x.lineTo(left+gw,gm);x.stroke();
+  x.fillStyle=mut;x.font=`700 11px ${css('--body')}`;x.textAlign='right';x.fillText('pressure',left-8,gm-6);x.fillText('at your ear',left-8,gm+8);x.font=`500 10px ${css('--body')}`;x.fillText('(real time)',left-8,gm+22);
+  const env=t=>Math.abs(Math.cos(Math.PI*df*t)),N=400;
+  x.beginPath();for(let k=0;k<=N;k++){const t=k/N;x.lineTo(left+t*gw,gm-env(t)*A)}for(let k=N;k>=0;k--){const t=k/N;x.lineTo(left+t*gw,gm+env(t)*A)}x.closePath();
+  x.fillStyle=acc;x.globalAlpha=.22;x.fill();x.globalAlpha=1;
+  // inside the band: the fast vibration, drawn as fine vertical strokes (the real 340 Hz wave is too dense to draw one by one)
+  x.strokeStyle=acc;x.lineWidth=1;x.globalAlpha=.55;x.beginPath();for(let xp=0;xp<=gw;xp+=3){const t=xp/gw,e=env(t)*A;x.moveTo(left+xp,gm-e);x.lineTo(left+xp,gm+e)}x.stroke();x.globalAlpha=1;
+  x.strokeStyle=acc;x.lineWidth=2.4;for(const sg of[-1,1]){x.beginPath();for(let k=0;k<=N;k++){const t=k/N;const yy=gm+sg*env(t)*A;k?x.lineTo(left+t*gw,yy):x.moveTo(left+t*gw,yy)}x.stroke()}
+  // one beat marked
+  const tb=1/df,yb=gm+A+9;if(tb*gw>40){arrowH(x,left,yb,left+tb*gw,yb,rose,2);x.fillStyle=rose;x.font=`700 12px ${css('--body')}`;const lb=`1 beat = 1/${df} s`;if(tb<.6){x.textAlign='left';x.fillText(lb,left+tb*gw+6,yb+4)}else{x.textAlign='center';x.fillText(lb,left+tb*gw/2,yb-5)}}
+  // cursor: now (follows the tone when it is playing)
+  const tn=(osc&&actx?Math.max(0,actx.currentTime-t0a):SD.t)%1,xc=left+tn*gw,e=env(tn);
+  x.strokeStyle=rose;x.lineWidth=1.5;x.setLineDash([4,4]);x.beginPath();x.moveTo(xc,gt);x.lineTo(xc,gt+gh);x.stroke();x.setLineDash([]);
+  x.fillStyle=rose;x.beginPath();x.arc(xc,gm-e*A,5,0,TAU);x.fill();
+  x.font=`700 13px ${css('--body')}`;x.textAlign=tn>.85?'right':'left';x.fillText(e>.7?'loud':e<.3?'soft':'',xc+(tn>.85?-8:8),gm-e*A-6)}
+ else if(both){const gt=bot+34,gh=sy-gt-16,gm=gt+gh/2;x.strokeStyle=grid;x.lineWidth=1;x.beginPath();x.moveTo(left,gm);x.lineTo(left+span*px,gm);x.stroke();
   x.fillStyle=mut;x.font=`700 11px ${css('--body')}`;x.textAlign='right';x.fillText('pressure',left-8,gm+4);
-  x.strokeStyle=acc;x.lineWidth=2.4;x.beginPath();for(let k=0;k<=400;k++){const xe=k/400*span;const pv=Math.cos(ph-TAU*xe/lam);const yy=gm-pv*gh*0.42;k?x.lineTo(left+xe*px,yy):x.moveTo(left+xe*px,yy)}x.stroke()}
+  if(two==='harm'){const y1=xe=>Math.cos(ph-TAU*xe/lam),y2=xe=>.5*Math.cos(ph2-TAU*xe/lam2),sc=gh*0.42/1.5;
+   const line=(fn,col,lw,dash)=>{x.strokeStyle=col;x.lineWidth=lw;x.setLineDash(dash);x.beginPath();for(let k=0;k<=400;k++){const xe=k/400*span;const yy=gm-fn(xe)*sc;k?x.lineTo(left+xe*px,yy):x.moveTo(left+xe*px,yy)}x.stroke();x.setLineDash([])};
+   line(y1,steel,1.5,[5,4]);line(y2,rose,1.5,[2,3]);line(xe=>y1(xe)+y2(xe),acc,2.6,[]);
+   x.font=`700 11px ${css('--body')}`;x.textAlign='right';x.fillStyle=steel;x.fillText('- - f₁',left-8,gm+18);x.fillStyle=rose;x.fillText('··· f₂',left-8,gm+30);x.fillStyle=acc;x.fillText('— total',left-8,gm+42)}
+  else{x.strokeStyle=acc;x.lineWidth=2.4;x.beginPath();for(let k=0;k<=400;k++){const xe=k/400*span;const pv=Math.cos(ph-TAU*xe/lam);const yy=gm-pv*gh*0.42;k?x.lineTo(left+xe*px,yy):x.moveTo(left+xe*px,yy)}x.stroke()}}
  if($('#sLam').checked){const base=(fv*SD.t)%1;const xs=[];for(let n=-1;n<20;n++){const xe=lam*(base-n);if(xe>=0&&xe<=span)xs.push(xe)}xs.sort((a,b)=>a-b);
   if(xs.length>=2){const y=top+2,x1=left+xs[0]*px,x2=left+xs[1]*px;arrowH(x,x1,both?bot+8:bot+10,x2,both?bot+8:bot+10,rose,2.5);x.fillStyle=rose;x.font=`700 13px ${css('--body')}`;x.textAlign='center';x.fillText(`λ = ${fx(lam)} m`,(x1+x2)/2,both?bot+28:bot+30)}
   else{x.fillStyle=rose;x.font=`700 13px ${css('--body')}`;x.textAlign='left';x.fillText(`λ = ${fx(lam)} m (longer than this view)`,left,bot+12)}}
@@ -744,7 +784,7 @@ function exSolve(){const E=exRead();if(!E||!window.Tour)return;
    {title:'Your answers',html:calc('v = '+fx(v,1)+' m/s\nλ = '+fx(lam)+' m\nT = '+fx(per)+' s')+'<p>Compare them with your own working.</p>'}]}
  else{const v=E.v,f=E.fa,lam=v/f,per=1/f,med=v===340?'Air':'Water';
   steps=[
-   {title:'Solve it in the lab',html:'<p>'+$('#exText').textContent+'</p><p>We set up the same sound, then find each answer and look at it in the lab.</p>',onShow:()=>go('sound')},
+   {title:'Solve it in the lab',html:'<p>'+$('#exText').textContent+'</p><p>We set up the same sound, then find each answer and look at it in the lab.</p>',onShow:()=>{go('sound');if(SD.two!=='off')$('[data-s2="off"]').click()}},
    {el:()=>$('[data-med]').parentElement,title:'Choose the medium',html:'<p>Choose <b>'+med+'</b>.</p>',wait:()=>SD.v===v,doIt:()=>$('[data-med="'+v+'"]').click(),done:'Sound travels at '+v+' m/s in '+med.toLowerCase()+'.',auto:900},
    {el:()=>$('#sf').closest('.field'),title:'Set the frequency',html:'<p>Drag <b>Frequency</b> to <b>'+f+' Hz</b>.</p>',wait:()=>SD.f===f,doIt:()=>setR('sf',f),done:'f = '+f+' Hz.',auto:900},
    {el:()=>$('#sLam').closest('label'),title:'1 · The wavelength',html:calc('v = f × λ  →  λ = v ÷ f = '+v+' ÷ '+f+'\nλ = '+fx(lam)+' m')+'<p>Tick <b>Mark λ</b>: the lab marks one wavelength between two compressions.</p>',
