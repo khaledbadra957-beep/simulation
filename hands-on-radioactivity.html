@@ -28,7 +28,7 @@
 .ctl{display:flex;flex-direction:column;gap:10px}
 .tw{max-height:230px;overflow:auto;margin-top:8px}
 table.data{width:100%;border-collapse:collapse;font-size:.8125rem}table.data th,table.data td{padding:3px 4px;text-align:right;border-bottom:1px solid var(--line);font-family:var(--data);font-variant-numeric:tabular-nums;white-space:nowrap}table.data th{font-weight:600;color:var(--muted);position:sticky;top:0;background:var(--card,var(--bg))}table.data td:first-child,table.data th:first-child{text-align:left;font-family:var(--body)}
-#graph{width:100%;height:220px;display:block;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+#graph,#pd{width:100%;height:220px;display:block;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}#pd{height:200px}
 .ans{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .quiz p{margin:.2rem 0 .5rem}.quiz .ans button.right{background:var(--ok);color:#fff;border-color:var(--ok)}.quiz .ans button.wrong{opacity:.55;text-decoration:line-through}
 .inl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.inl input{width:6.5em;padding:5px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);font:inherit;font-family:var(--data)}
@@ -79,6 +79,14 @@ details summary{cursor:pointer;font-weight:700}details select{padding:4px 6px;bo
     <div class="inl"><label class="ck"><input type="checkbox" id="lnG"> ln(counts)</label><label class="ck"><input type="checkbox" id="fitG"> Best-fit curve</label></div>
     <div class="inl"><label for="tHalf">My half-life:</label><input id="tHalf" type="number" min="1" step="1" inputmode="decimal"><span>s</span><button class="btn" id="tCheck" type="button">Check</button></div>
     <p class="small" id="hlNote" style="margin:6px 0 0"></p>
+    <details id="pdBox" style="margin-top:10px"><summary>Parent and daughter nuclei</summary>
+     <p class="small" style="margin:6px 0">Each decay turns a parent nucleus into a daughter nucleus, so the daughters grow as the parents fall.</p>
+     <canvas id="pd" aria-label="Parent nuclei falling and daughter nuclei rising, against time in half-lives"></canvas>
+     <div class="inl"><label for="pdT">Time:</label><input id="pdT" type="range" min="0" max="4" step="0.1" value="1" style="flex:1;width:auto"><span id="pdTv" style="font-family:var(--data);min-width:6.5em">1.0 half-life</span></div>
+     <p class="small" id="pdOut" style="margin:6px 0 0"></p>
+     <p class="small" id="pdModel" style="margin:4px 0 0" hidden>Dots: the 100 model Pa-234m nuclei since you shook the generator. With only 100, they wander around the curves, because each decay happens at random.</p>
+     <p class="small" style="margin:4px 0 0">Exam tip: read the number of half-lives from the ratio. Parent : daughter = 1 : 1 → 1 half-life, 1 : 3 → 2, 1 : 7 → 3.</p>
+    </details>
    </div>
    <div class="card ctl">
     <label class="ck"><input type="checkbox" id="tracks" checked> Show the radiation reaching the tube</label>
@@ -353,7 +361,7 @@ function onDrop(it){const u=it.userData;if(u.btn)return;S.changed=S.on;
 
 /* ---------- shaking a generator ---------- */
 $('shake').onclick=()=>{const g=gens.find(q=>K.holder(q))||mounted()&&mounted().userData.gen&&mounted()||gens[0];shaken(g);say('Shaken: the protactinium moves into the clear top layer. Now the top layer gets weaker as the protactinium decays.')};
-function shaken(g){const u=g.userData;u.mixv=1;if(!u.ext){u.ext=true;u.pOrg=Math.min(1,u.pOrg+.92*u.pAq);u.pAq*=.08;u.grid=Array.from({length:100},(_,i)=>i<Math.round(100*u.pOrg)?1:0).sort(()=>Math.random()-.5)}}
+function shaken(g){const u=g.userData;u.mixv=1;if(!u.ext){u.ext=true;u.pOrg=Math.min(1,u.pOrg+.92*u.pAq);u.pAq*=.08;u.grid=Array.from({length:100},(_,i)=>i<Math.round(100*u.pOrg)?1:0).sort(()=>Math.random()-.5);u.t0=S.time;u.n0=u.grid.reduce((a,b)=>a+b,0);u.hist=[[0,u.n0]];u.lastH=S.time}}
 
 /* ---------- every frame ---------- */
 function frame(dt0,now){const rdt=Math.min(.1,Math.max(.004,(now-(frame.last||now))/1000||dt0));frame.last=now;const dt=rdt*S.speed;S.time+=dt;
@@ -374,7 +382,8 @@ function frame(dt0,now){const rdt=Math.min(.1,Math.max(.004,(now-(frame.last||no
   else{u.sh=null;u.shk=0}
   if(u.mixv>0&&!(hd&&u.shk>0)){u.mixv=Math.max(0,u.mixv-dt/9);if(u.mixv<.25)u.ext=false}
   u.pOrg*=Math.exp(-lam*dt);u.pAq=1-(1-u.pAq)*Math.exp(-lam*dt);
-  if(u.grid){const q=1-Math.exp(-lam*dt);for(let i=0;i<100;i++)if(u.grid[i]&&Math.random()<q)u.grid[i]=0}
+  if(u.grid){const q=1-Math.exp(-lam*dt);for(let i=0;i<100;i++)if(u.grid[i]&&Math.random()<q)u.grid[i]=0;
+   if(u.hist&&S.time-u.lastH>=2&&S.time-u.t0<=4.2*GEN[u.gen].th){u.lastH=S.time;u.hist.push([S.time-u.t0,u.grid.reduce((a,b)=>a+b,0)])}}
   g.mix.material.opacity=.85*u.mixv;g.rotation.z=hd&&u.shk>0?Math.sin(now/40)*.12:g.rotation.z*.8});
  // counts: random, at the average rate the sources give
  const ps=parts(),R=BKG+ps.reduce((s,q)=>s+q.rate,0),n=pois(R*dt);
@@ -427,6 +436,34 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00'
   g.fillStyle=dk?'rgba(15,27,32,.8)':'rgba(255,255,255,.88)';g.fillRect(8,y0-4,bw,W0+38);
   for(let i=0;i<100;i++){g.fillStyle=gr[i]?(dk?'#F2B84B':'#E08A00'):(dk?'rgba(200,220,230,.22)':'rgba(40,80,100,.2)');g.beginPath();g.arc(x0+(i%10+.5)*cs,y0+(Math.floor(i/10)+.5)*cs,cs*.36,0,7);g.fill()}
   g.fillStyle=ink;g.textAlign='center';g.fillText(left+' of 100 left',cx,y0+W0+13);g.fillText('model Pa-234m nuclei',cx,y0+W0+27)}}
+
+/* ---------- parent and daughter nuclei (time in half-lives) ---------- */
+function drawPD(){const c=$('pd');if(!c||!$('pdBox').open)return;const w=c.clientWidth||300,h=c.clientHeight||200,dpr=Math.min(2,window.devicePixelRatio||1);
+ if(c.width!==Math.round(w*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+ const dk=K.isDark(),ink=dk?'#C9D6DB':'#24414F',grid=dk?'rgba(200,220,230,.12)':'rgba(40,80,100,.12)',par=dk?'#F2B84B':'#C77700',dau=dk?'#7FB2FF':'#2F6FD0';
+ const X0=40,Y0=h-28,X1=w-10,Y1=22,X=t=>X0+(X1-X0)*t/4,Y=p=>Y0-(Y0-Y1)*p/100,T=+$('pdT').value;
+ g.font='600 11px '+P.MONO;g.lineWidth=1;g.strokeStyle=grid;g.fillStyle=ink;g.textAlign='center';
+ for(let t=0;t<=4;t++){g.beginPath();g.moveTo(X(t),Y1);g.lineTo(X(t),Y0);g.stroke();g.fillText(String(t),X(t),Y0+14)}
+ g.textAlign='right';for(const p of [0,25,50,75,100]){g.beginPath();g.moveTo(X0,Y(p));g.lineTo(X1,Y(p));g.stroke();g.fillText(p+'%',X0-4,Y(p)+4)}
+ g.textAlign='center';g.fillText('time (half-lives)',(X0+X1)/2,h-2);
+ // ratio labels at 1, 2, 3 half-lives
+ [[1,'1 : 1'],[2,'1 : 3'],[3,'1 : 7']].forEach(([t,r])=>{g.setLineDash([4,4]);g.strokeStyle=ink;g.globalAlpha=.45;g.beginPath();g.moveTo(X(t),Y1);g.lineTo(X(t),Y0);g.stroke();g.setLineDash([]);g.globalAlpha=1;g.fillStyle=ink;g.fillText(r,X(t),Y1-6)});
+ const curve=(f,col)=>{g.beginPath();for(let i=0;i<=200;i++){const t=4*i/200,x=X(t),y=Y(f(t));i?g.lineTo(x,y):g.moveTo(x,y)}g.strokeStyle=col;g.lineWidth=2.5;g.stroke()};
+ curve(t=>100*Math.pow(.5,t),par);curve(t=>100-100*Math.pow(.5,t),dau);
+ g.fillStyle=ink;g.beginPath();g.arc(X(1),Y(50),4,0,7);g.fill();
+ // the 100 model nuclei of the Pa-234m generator, if it has been shaken (Generator X stays hidden: that half-life is for you to find)
+ const pa=gens.find(q=>q.userData.gen==='pa').userData;let model=false;
+ if(pa.hist&&pa.hist.length>1&&pa.n0){model=true;const th=GEN.pa.th;pa.hist.forEach(([t,n])=>{const x=X(Math.min(4,t/th)),pp=100*n/pa.n0;g.fillStyle=par;g.beginPath();g.arc(x,Y(pp),2.4,0,7);g.fill();g.strokeStyle=dau;g.lineWidth=1.2;g.beginPath();g.arc(x,Y(100-pp),2.4,0,7);g.stroke()})}
+ // the time slider
+ g.strokeStyle=ink;g.lineWidth=1.5;g.beginPath();g.moveTo(X(T),Y1);g.lineTo(X(T),Y0);g.stroke();
+ const pP=100*Math.pow(.5,T),pD=100-pP;g.fillStyle=par;g.beginPath();g.arc(X(T),Y(pP),4.5,0,7);g.fill();g.fillStyle=dau;g.beginPath();g.arc(X(T),Y(pD),4.5,0,7);g.fill();
+ g.textAlign='left';g.font='700 11px "Atkinson Hyperlegible",system-ui,sans-serif';g.fillStyle=par;g.fillText('parent',X0+6,Y(96));g.fillStyle=dau;g.fillText('daughter',X0+6,Y(8));
+ $('pdModel').hidden=!model;
+ const k=Math.pow(2,T)-1,rt=Math.abs(T-Math.round(T))<.05?String(Math.round(k)):k.toFixed(k<10?1:0);
+ $('pdTv').textContent=T.toFixed(1)+(T===1?' half-life':' half-lives');
+ $('pdOut').innerHTML=T<.05?'At the start every nucleus is a parent: no daughters yet.':'Parent <b style="color:'+par+'">'+pP.toFixed(pP<10?1:0)+'%</b>, daughter <b style="color:'+dau+'">'+pD.toFixed(pD>90?1:0)+'%</b> → parent : daughter = <b>1 : '+rt+'</b>'}
+$('pdT').addEventListener('input',drawPD);$('pdBox').addEventListener('toggle',drawPD);
+setInterval(()=>{if($('pdBox').open)drawPD()},700);
 
 /* ---------- check yourself ---------- */
 const QZ=[['A count rate falls to background when a sheet of paper is put in front of the source. The source gives out…',['alpha','beta','gamma'],0,'Alpha particles are stopped by paper, or by a few centimetres of air.'],
