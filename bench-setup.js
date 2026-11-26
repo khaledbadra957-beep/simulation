@@ -62,7 +62,8 @@
 
     var S = null;   // state while open
     function best() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }
-    function saveBest(t) { try { localStorage.setItem(KEY, JSON.stringify({ t: t })); } catch (e) {} }
+    function saveBest(t) { try { localStorage.setItem(KEY, JSON.stringify({ t: t })); } catch (e) {}
+      try { var f = (location.pathname.split('/').pop() || 'index.html'), k = 'best:' + f, r = JSON.parse(localStorage.getItem(k) || '{}') || {}; if (!r.su || t < r.su) r.su = t; localStorage.setItem(k, JSON.stringify(r)); } catch (e) {} }
     function P() { return o.parts() || []; }
     function X() { return o.extras ? o.extras() || [] : []; }
     function find(id) { return P().filter(function (p) { return p.id === id; })[0] || X().filter(function (p) { return p.id === id; })[0]; }

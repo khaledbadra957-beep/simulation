@@ -88,6 +88,8 @@ h1{margin:0;font:800 clamp(40px,5.4vw,72px)/.96 var(--display);letter-spacing:-.
 .card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px}
 .card h3{margin:0;font:800 18px/1.2 var(--display);letter-spacing:-.005em}
 .card .meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;font-size:14px;color:var(--muted)}
+.card .meta .best{flex-basis:100%;font-size:12.5px;font-weight:700;color:#B36B00}
+[data-theme="dark"] .card .meta .best{color:#F2B84B}@media (prefers-color-scheme:dark){html:not([data-theme="light"]) .card .meta .best{color:#F2B84B}}
 .card .meta .sub::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:1px}
 .card.phys{--c:var(--phys)} .card.chem{--c:var(--chem)}
 .card .badge{position:absolute;top:10px;left:10px;z-index:0;display:inline-flex;align-items:center;gap:5px;font:700 12.5px/1 var(--sans);padding:6px 9px 6px 7px;border-radius:999px;background:rgba(19,35,43,.82);color:#fff}
@@ -498,8 +500,12 @@ var GROUPS = [
   var gname = {}; GROUPS.forEach(function (x) { gname[x[0]] = x[1]; });
   LABS.forEach(function (L) { L._text = ' ' + norm([L.t, L.k, gname[L.tp], L.s === 'phys' ? 'physics' : 'chemistry science', (L.cam || L.co) ? 'camera hands on hand' : '', L.m || ''].join(' ')) + ' '; });
 
+  // best results saved on this device by the labs (parts.js "Find the part", bench-setup.js "Set it up" challenge)
+  function bestChip(f) { try { var r = JSON.parse(localStorage.getItem('best:' + f) || 'null'); if (!r) return ''; var out = [];
+    if (r.fp) out.push('Find the part ' + r.fp.s + '/' + r.fp.n); if (r.su) { var s = Math.round(r.su / 1000); out.push('Set up ' + Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2)); }
+    return out.length ? '<span class="best" title="Your best on this device">★ ' + out.join(' · ') + '</span>' : ''; } catch (e) { return ''; } }
   function card(L, showModule, i) {
-    var meta = '<span class="sub">' + subj(L) + '</span><span>' + gradeText(L.g) + '</span>' + (showModule && L.m ? '<span>' + esc(L.m) + '</span>' : '');
+    var meta = '<span class="sub">' + subj(L) + '</span><span>' + gradeText(L.g) + '</span>' + (showModule && L.m ? '<span>' + esc(L.m) + '</span>' : '') + bestChip(L.f);
     return '<li class="card ' + L.s + '" style="--i:' + Math.min(i || 0, 16) + '">' +
       (L.co ? '<span class="badge">' + HAND + 'Camera lab</span>' : '') +
       '<button type="button" class="share" data-share="' + L.f + '" aria-label="Share ' + esc(L.t) + ': QR code and link">' + SHARE + '</button>' +
