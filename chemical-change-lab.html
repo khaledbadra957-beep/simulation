@@ -105,6 +105,10 @@ table.t td.n{font-family:var(--data);font-weight:600}
 .banner{border-radius:12px;padding:10px 14px;font-weight:700;text-align:center;border:1.5px solid var(--line)}
 .banner.good{border-color:var(--ok);color:var(--ok)}
 .banner.warn{border-color:var(--warn);color:var(--warn)}
+.mol4{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mol4 span{border:1.5px solid var(--line);border-radius:999px;padding:4px 10px;font-size:.9rem;font-weight:600;line-height:1.3}
+.mol4 span small{font-weight:500;color:var(--muted)}
+.mol4 .ok{border-color:var(--ok);color:var(--ok)} .mol4 .no{border-color:var(--warn);color:var(--warn)}
 .timeline{display:flex;gap:6px;flex-wrap:wrap}
 .timeline .pick{flex:1}
 input[type=range]{width:100%;accent-color:var(--accent)}
@@ -223,6 +227,7 @@ footer{color:var(--muted);font-size:.85rem}
     <section class="group"><div class="gh"><h2>Equation</h2><span class="val" id="score4">0 / 7 balanced</span></div><div class="picks" id="balPicks"></div></section>
     <section class="group"><div class="banner" id="ban4"></div>
       <div class="scroll"><table class="t"><thead><tr><th>Atom</th><th>Left</th><th>Right</th><th></th></tr></thead><tbody id="count4"></tbody></table></div>
+      <div class="mol4" id="mol4" aria-live="polite"></div>
       <p class="fb" id="fb4" hidden></p></section>
   </aside>
 </section>
@@ -570,6 +575,10 @@ function render4(){const e=EQ4[i4],sp=sp4();let h='';
   $$('#eq4 .sub').forEach(b=>b.onclick=()=>{const fb=$('#fb4');fb.hidden=false;fb.className='fb bad';fb.innerHTML=`<b>Subscripts are locked.</b> Changing a subscript changes the substance itself. ${names4[b.dataset.f]||'It would no longer be '+sub(b.dataset.f)+'.'} Change the coefficient in front instead.`});
   const[cL,cR]=counts4();const els=Object.keys(cL);let ok=els.every(k=>cL[k]===cR[k]);
   $('#count4').innerHTML=els.map(k=>`<tr><td>${AT[k].name} (${k})</td><td class="n">${cL[k]}</td><td class="n">${cR[k]||0}</td><td class="${cL[k]===cR[k]?'ok':'no'}">${cL[k]===cR[k]?'✓':'✗'}</td></tr>`).join('');
+  // molecules can change in a reaction, atoms never do (common mistake: "the number of molecules must stay the same")
+  {const e=EQ4[i4],nL=e.L.length,mL=co4.slice(0,nL).reduce((a,b)=>a+b,0),mR=co4.slice(nL).reduce((a,b)=>a+b,0),aL=els.reduce((a,k)=>a+cL[k],0),aR=els.reduce((a,k)=>a+(cR[k]||0),0);
+   $('#mol4').innerHTML=`<span>Molecules: ${mL} → ${mR} <small>${ok?(mL===mR?'(the same here, but this can change)':'(this can change)'):''}</small></span>`+
+    (ok?`<span class="ok">Atoms: ${aL} = ${aR} ✓ <small>(always the same)</small></span>`:`<span class="no">Atoms: ${aL} → ${aR} <small>(must be the same)</small></span>`)}
   const g=co4.reduce((a,b)=>gcd(a,b));const ban=$('#ban4');
   if(ok&&g===1){ban.className='banner good';ban.textContent='Balanced! Same atoms on both sides, so mass is conserved.';done4[i4]=1;picks4()}
   else if(ok){ban.className='banner warn';ban.textContent=`Balanced, but every number can be divided by ${g}. Use the smallest whole numbers.`}
