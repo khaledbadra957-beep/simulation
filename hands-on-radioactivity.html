@@ -23,7 +23,8 @@
 .read dt{color:var(--muted)}.read dd{margin:0;font-family:var(--data);text-align:right;font-variant-numeric:tabular-nums}
 .seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
 .seg button{border:0;border-right:1.5px solid var(--line);background:var(--stage);padding:5px 10px;font-weight:700;color:var(--muted)}
-.seg button:last-child{border-right:0}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.seg button:last-child{border-right:0}
+#magSel{display:grid;grid-template-columns:repeat(3,1fr);width:100%}#magSel button{font-weight:700;padding:6px 4px}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .seg.g2{display:grid;grid-template-columns:1fr 1fr}.seg.g2 button{border-right:0;border-bottom:1.5px solid var(--line)}.seg.g2 button:nth-child(odd){border-right:1.5px solid var(--line)}.seg.g2 button:nth-last-child(-n+2){border-bottom:0}
 .ctl{display:flex;flex-direction:column;gap:10px}
 .tw{max-height:230px;overflow:auto;margin-top:8px}
@@ -94,6 +95,11 @@ details summary{cursor:pointer;font-weight:700}details select{padding:4px 6px;bo
     <label class="ck"><input type="checkbox" id="snd" checked> Clicks (sound)</label>
     <div class="row"><button class="btn" id="shake" type="button">Shake the generator for me</button></div>
    </div>
+   <div class="card" id="magCard"><h3>Magnet across the gap</h3>
+    <div class="seg" id="magSel" role="group" aria-label="Magnetic field"><button type="button" data-mag="0" aria-pressed="true">Off</button><button type="button" data-mag="1" aria-pressed="false" aria-label="Field out of the screen">⊙ Out</button><button type="button" data-mag="-1" aria-pressed="false" aria-label="Field into the screen">⊗ In</button></div>
+    <canvas id="magCv" style="width:100%;height:150px;display:block;margin-top:10px;border-radius:8px" hidden aria-label="Zoomed view of the gap between the source and the tube"></canvas>
+    <p class="small" id="magNote" style="margin-top:8px">A strong magnet between the source and the tube. Count with it off and on, at the same distance, and compare.</p>
+   </div>
    <div class="card quiz" id="quiz"><h3>Check yourself</h3><div id="qz"></div></div>
    <div class="card">
     <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
@@ -137,7 +143,10 @@ const enc=(ty,th)=>'R'+((th*4+ty)*37+11).toString(36).toUpperCase();
 function dec(s){if(!s||s[0].toUpperCase()!=='R')return null;const n=parseInt(s.slice(1),36);if(!isFinite(n)||(n-11)%37)return null;const m=(n-11)/37,ty=m%4,th=(m-ty)/4;return th>=20&&th<=200?{ty,th}:null}
 const MYS=dec(new URLSearchParams(location.search).get('x'))||{ty:Math.floor(Math.random()*4),th:Math.round(40+Math.random()*100),rnd:true};
 const GEN={pa:{name:'Pa-234m generator',th:72,A:120},gx:{name:'Generator X',th:MYS.th,A:110}};
-const S={done:{},runs:[],bkg:null,speed:1,mode:'10',on:false,el:0,n:0,fin:false,rate:0,rec:{},told:{},logs:[],log:null,time:0,streaks:[],xTry:0,hlTry:{}};
+const MAG_MIN=3;                               // the magnet's poles need a gap of at least 3 cm between holder and window
+// fraction that still reaches the window with the magnet on: β⁻ curls away (r ≈ 1–2 cm), α²⁺ is ~7000× heavier so r ≈ metres (hardly bends), γ has no charge
+const MAGF={a:.97,b:.06,g:1};
+const S={mag:0,done:{},runs:[],bkg:null,speed:1,mode:'10',on:false,el:0,n:0,fin:false,rate:0,rec:{},told:{},logs:[],log:null,time:0,streaks:[],xTry:0,hlTry:{}};
 
 function pois(m){if(m<=0)return 0;if(m<30){const L=Math.exp(-m);let k=0,p=1;do{k++;p*=Math.random()}while(p>L);return k-1}let u=0;for(let i=0;i<12;i++)u+=Math.random();return Math.max(0,Math.round(m+Math.sqrt(m)*(u-6)))}
 
@@ -244,11 +253,48 @@ const inBox=it=>it.userData.src&&!it.userData.mount&&!K.holder(it)&&it.userData.
 function emitPoint(it){return it.userData.gen?V(it.position.x+BR,it.position.y,it.position.z):V(it.position.x+(it.userData.face?CAP:0),it.position.y,it.position.z)}
 function parts(){const out=[],ab=slotted();
  for(const it of [...srcs,...gens]){const u=it.userData;if(inBox(it))continue;const p=emitPoint(it),dx=(G.TX-p.x)*CM,dy=(p.y-TY)*CM,dz=p.z*CM,r=Math.hypot(Math.max(0,dx),dy,dz),geo=1/((r+D0)*(r+D0));
-  const facing=dx>-.5?1:.03,through=ab&&p.x<G.TX-.2&&Math.abs(p.y-TY)<.45&&Math.abs(p.z)<.5;
+  const facing=dx>-.5?1:.03,beam=p.x<G.TX-.2&&Math.abs(p.y-TY)<.45&&Math.abs(p.z)<.5,through=ab&&beam,inB=beam&&magOn();
   const em=u.gen?[{t:'b',A:GEN[u.gen].A*u.pOrg}]:u.em;          // the tube looks at the top layer only
-  for(const e of em){const air=e.t==='a'?1/(1+Math.exp((r-RANGE_A)/.25)):e.t==='b'?Math.exp(-r/150):1,f=through?ABS[ab.userData.abs][e.t]:1,raw=e.A*geo*facing;
-   out.push({it,t:e.t,rate:raw*air*f,emit:raw,air,f,r,p})}}
+  for(const e of em){const air=e.t==='a'?1/(1+Math.exp((r-RANGE_A)/.25)):e.t==='b'?Math.exp(-r/150):1,f=through?ABS[ab.userData.abs][e.t]:1,raw=e.A*geo*facing,mf=inB?MAGF[e.t]:1;
+   out.push({it,t:e.t,rate:raw*air*f*mf,emit:raw,air,f,r,p,mag:inB&&e.t!=='g'})}}
  return out}
+/* zoomed view of the gap, in the magnet card: the source on the left, the tube window on the right, d cm apart */
+const MZ={parts:[],last:0,spawn:0};
+function magDraw(now){const c=$('magCv');if(!c)return;const show=S.mag!==0;c.hidden=!show;if(!show){MZ.parts=[];return}
+ const w=c.clientWidth||300,h=c.clientHeight||150,dpr=Math.min(2,window.devicePixelRatio||1);if(c.width!==Math.round(w*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
+ const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);const dk=K.isDark(),ink=dk?'#C9D6DB':'#24414F',mut=dk?'#94A7AE':'#52646C',pur=dk?'#C9A0F0':'#7B3FB0';
+ g.fillStyle=dk?'#0F1B20':'#F4F7F8';g.fillRect(0,0,w,h);const m=mounted(),fits=magOn(),d=dist(),X0=34,X1=w-30,cy=h/2-6,cmPx=(X1-X0)/Math.max(d,1);
+ g.font='600 11px '+P.MONO;g.textAlign='left';g.fillStyle=mut;g.fillText('inside the gap (zoomed in)',8,14);
+ if(!m||!fits){g.textAlign='center';g.fillStyle=ink;g.fillText(!m?'Put a source in the holder':'Slide the holder back to '+MAG_MIN+' cm or more',w/2,h/2);MZ.parts=[];return}
+ // field
+ g.fillStyle=pur;g.globalAlpha=.1;g.fillRect(X0+6,22,X1-X0-12,h-50);g.globalAlpha=.7;g.strokeStyle=pur;g.lineWidth=1.2;
+ for(let x=X0+22;x<X1-10;x+=26)for(let y=34;y<h-30;y+=24){g.beginPath();g.arc(x,y,5,0,7);g.stroke();if(S.mag>0){g.fillStyle=pur;g.beginPath();g.arc(x,y,1.5,0,7);g.fill()}else{g.beginPath();g.moveTo(x-3,y-3);g.lineTo(x+3,y+3);g.moveTo(x+3,y-3);g.lineTo(x-3,y+3);g.stroke()}}
+ g.globalAlpha=1;
+ // source and tube window
+ const em=m.userData.gen?[{t:'b'}]:m.userData.em;g.fillStyle=dk?'#8A979D':'#6B7A82';g.fillRect(8,cy-12,X0-10,24);g.fillStyle=ink;g.font='700 10px '+P.MONO;g.textAlign='center';g.fillText(lab(m.userData.id).replace(' gen.',''),X0-12,cy+26);
+ g.fillStyle=dk?'#B79A6A':'#8A6A3A';g.fillRect(X1,cy-14,6,28);g.fillStyle=dk?'#6F7C82':'#9AA5AC';g.fillRect(X1+6,cy-18,w-X1-6,36);g.fillStyle=ink;g.fillText('tube',X1+12,cy+30);
+ // particles: α²⁺ r ≈ metres (hardly bends), β⁻ r ≈ 1.2 cm the other way, γ straight
+ const dt=Math.min(.05,(now-(MZ.last||now))/1000);MZ.last=now;MZ.spawn+=dt;
+ while(MZ.spawn>.07){MZ.spawn-=.07;const e=em[Math.floor(Math.random()*em.length)];MZ.parts.push({t:e.t,s:0,y0:(Math.random()-.5)*8})}
+ const sp=230,Rb=1.2*cmPx,Ra=400*cmPx,myst=m.userData.id==='x';   // Source X: no colours or names, the paths are the clue
+ const pos=(q,s)=>{const sg=(q.t==='b'?-1:1)*S.mag,R=q.t==='b'?Rb:Ra;if(q.t==='g')return [X0+s,cy+q.y0];const ph=s/R;return [X0+R*Math.sin(ph),cy+q.y0+sg*R*(1-Math.cos(ph)),ph]};   // screen y grows downward: β⁻ with B out goes up
+ MZ.parts=MZ.parts.filter(q=>{q.s+=sp*dt;const [x,y,ph]=pos(q,q.s);
+  if(q.t==='a'&&q.s>RANGE_A*cmPx)return false;if(x>X1||y<4||y>h-4||ph>2.4)return false;
+  g.strokeStyle=myst?(dk?'#D7DEE1':'#3B4A52'):q.t==='a'?(dk?'#FF8A7A':'#D0402F'):q.t==='b'?(dk?'#7FB2FF':'#2F6FD0'):(dk?'#B7E36B':'#5E9E1E');g.globalAlpha=.45;g.lineWidth=q.t==='a'?3:1.6;g.beginPath();
+  for(let k=0;k<=6;k++){const pp=pos(q,Math.max(0,q.s-30+k*5));k?g.lineTo(pp[0],pp[1]):g.moveTo(pp[0],pp[1])}g.stroke();g.globalAlpha=1;
+  g.fillStyle=myst?(dk?'#D7DEE1':'#3B4A52'):q.t==='a'?(dk?'#FF8A7A':'#D0402F'):q.t==='b'?(dk?'#7FB2FF':'#2F6FD0'):(dk?'#B7E36B':'#5E9E1E');g.beginPath();g.arc(x,y,myst?3:q.t==='a'?4:2.6,0,7);g.fill();return true});
+ // legend
+ g.font='700 11px '+P.MONO;g.textAlign='left';let lx=8;const ly=h-8;
+ if(myst){g.fillStyle=ink;g.fillText('Source X: which way do the paths go?',lx,ly)}
+ else for(const [t,txt,col] of [['a','α²⁺',dk?'#FF8A7A':'#D0402F'],['b','β⁻',dk?'#7FB2FF':'#2F6FD0'],['g','γ',dk?'#B7E36B':'#5E9E1E']]){if(!em.some(e=>e.t===t))continue;g.fillStyle=col;g.beginPath();g.arc(lx+4,ly-4,4,0,7);g.fill();g.fillText(txt,lx+11,ly);lx+=46}
+ if(!myst||w>330){g.fillStyle=mut;g.textAlign='right';g.fillText('d = '+fx(d,1)+' cm',w-8,ly)}}
+function magOn(){return S.mag!==0&&dist()>=MAG_MIN-1e-6}
+function setMag(v){S.mag=v;S.changed=S.on||S.changed;document.querySelectorAll('#magSel button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.mag===v));magNote()}
+function magNote(){const n=$('magNote');if(!S.mag){n.textContent='A strong magnet between the source and the tube. Count with it off and on, at the same distance, and compare.';return}
+ if(!magOn()){n.innerHTML='<b>The magnet does not fit:</b> slide the holder back to at least '+MAG_MIN+' cm from the window.';return}
+ const up=S.mag>0?'up':'down',dn=S.mag>0?'down':'up';
+ n.innerHTML=`Field ${S.mag>0?'out of':'into'} the screen. <b>β⁻</b> (light, negative) curls ${up} and misses the tube, so its count drops. <b>α²⁺</b> bends ${dn}, the other way, but only a little: it is about 7000 times heavier. <b>γ</b> has no charge and goes straight on. r = mv / (|q|B).`}
+document.querySelectorAll('#magSel button').forEach(b=>b.onclick=()=>setMag(+b.dataset.mag));
 const totalRate=()=>BKG+parts().reduce((s,q)=>s+q.rate,0);
 
 /* ---------- the scaler ---------- */
@@ -259,7 +305,7 @@ function setMode(m){if(S.on)stopCount(true);S.mode=m;document.querySelectorAll('
 function setSpeed(s){S.speed=s;document.querySelectorAll('#ssel button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.s===s))}
 /* what is set up for a count; 'others' lists anything else out that adds more than 9 counts a minute */
 function setup(){const m=mounted(),ab=slotted(),by={};for(const q of parts())if(q.it!==m)by[q.it.userData.id]=(by[q.it.userData.id]||0)+q.rate;
- return {src:m?m.userData.id:null,abs:ab?ab.userData.abs:null,d:m?dist():null,others:Object.keys(by).filter(k=>by[k]>.15)}}
+ return {src:m?m.userData.id:null,abs:ab?ab.userData.abs:null,d:m?dist():null,mag:magOn()?S.mag:0,others:Object.keys(by).filter(k=>by[k]>.15)}}
 function startCount(){ensureAudio();if(S.on){stopCount();return}S.on=true;S.el=0;S.n=0;S.fin=false;S.cfg=setup();S.ivN=0;S.changed=false;
  if(S.mode==='log'){const m=mounted();S.log={gen:m&&m.userData.gen?m.userData.gen:null,src:S.cfg.src,d:S.cfg.d,pts:[],p0:m&&m.userData.gen?m.userData.pOrg:0};S.logs.push(S.log);drawGraph();
   if(!S.log.gen)say('The logger is running, but there is no generator in the holder. For the half-life, put a freshly shaken generator in the holder first.');
@@ -271,7 +317,7 @@ function startCount(){ensureAudio();if(S.on){stopCount();return}S.on=true;S.el=0
 function stopCount(quiet){if(!S.on)return;S.on=false;$('hStart').textContent='Start';const c=S.cfg;
  if(S.mode==='log'){S.log=null;check();return}
  if(S.el<5-1e-6){if(!quiet)say('Stopped after only '+fx(S.el,1)+' s: too short to keep. Count for at least 10 s.');return}
- const run={src:c.src,abs:c.abs,d:c.d,t:S.el,n:S.n,cpm:S.n/S.el*60,others:c.others,changed:S.changed};S.runs.push(run);S.changed=false;table();if(!quiet)check(run)}
+ const run={src:c.src,abs:c.abs,d:c.d,mag:c.mag,t:S.el,n:S.n,cpm:S.n/S.el*60,others:c.others,changed:S.changed};S.runs.push(run);S.changed=false;table();if(!quiet)check(run)}
 function resetCount(){if(S.on){S.on=false;$('hStart').textContent='Start';if(S.mode==='log')S.log=null}S.el=0;S.n=0;S.fin=false;press(btns[1])}
 function press(b){b.cap.position.z=-.06;setTimeout(()=>b.cap.position.z=0,140)}
 $('hStart').onclick=startCount;$('hReset').onclick=resetCount;
@@ -294,12 +340,18 @@ function tick(k,text){S.done[k]=true;say(text);steps();if(!cur())setStatus('All 
 
 const lab=id=>id?({am:'Am-241',sr:'Sr-90',co:'Co-60',x:'Source X',pa:'Pa-234m gen.',gx:'Generator X'})[id]:'none',absName=a=>a?ABS[a].name:'none';
 const corr=cpm=>S.bkg==null?null:cpm-S.bkg;
-function table(){const rows=S.runs.slice(-14).reverse();$('runs').innerHTML=rows.length?'<tr><th>Source</th><th>Absorber</th><th>d (cm)</th><th>t (s)</th><th>Counts</th><th>Rate (/min)</th><th>Corrected</th></tr>'+rows.map(r=>`<tr><td>${r.src?lab(r.src):'(background)'}</td><td>${r.abs?{paper:'paper',al:'Al',pb:'Pb'}[r.abs]:'–'}</td><td>${r.d==null?'–':fx(r.d,1)}</td><td>${fx(r.t,0)}</td><td>${r.n}</td><td>${Math.round(r.cpm)}</td><td>${r.src&&S.bkg!=null?Math.round(r.cpm-S.bkg):'–'}</td></tr>`).join(''):'<tr><td class="small">No counts yet. Press START on the scaler.</td></tr>'}
+function table(){const rows=S.runs.slice(-14).reverse();$('runs').innerHTML=rows.length?'<tr><th>Source</th><th>Absorber</th><th>d (cm)</th><th>t (s)</th><th>Counts</th><th>Rate (/min)</th><th>Corrected</th></tr>'+rows.map(r=>`<tr><td>${r.src?lab(r.src):'(background)'}</td><td>${r.abs?{paper:'paper',al:'Al',pb:'Pb'}[r.abs]:'–'}${r.mag?' + magnet':''}</td><td>${r.d==null?'–':fx(r.d,1)}</td><td>${fx(r.t,0)}</td><td>${r.n}</td><td>${Math.round(r.cpm)}</td><td>${r.src&&S.bkg!=null?Math.round(r.cpm-S.bkg):'–'}</td></tr>`).join(''):'<tr><td class="small">No counts yet. Press START on the scaler.</td></tr>'}
 const near=(a,b,t)=>Math.abs(a-b)<=t;
 function check(run){const c=cur();
  if(!run){checkLog();return}
  if(run.others.length&&run.src!==null||run.others.length&&c==='bkg'){say('Counted '+run.n+' in '+fx(run.t,0)+' s, but '+run.others.map(lab).join(' and ')+(run.others.length>1?' are':' is')+' out of the lead box and adds counts. Put sources back in the box when you are not using them, then count again.');return}
  if(run.changed){say('Counted '+run.n+' in '+fx(run.t,0)+' s, but something was moved during the count. Keep everything still while the scaler counts.');return}
+ const crm=r=>Math.round(r.cpm-(S.bkg==null?25:S.bkg));
+ if(run.src&&(run.mag||S.runs.some(o=>o!==run&&o.mag&&o.src===run.src&&o.abs===run.abs&&Math.abs(o.d-run.d)<.6))){
+  const other=[...S.runs].reverse().find(o=>o!==run&&o.src===run.src&&o.abs===run.abs&&!!o.mag!==!!run.mag&&Math.abs(o.d-run.d)<.6),on=run.mag?run:other,off=run.mag?other:run;
+  if(!on||!off){say(lab(run.src)+(run.mag?' with the magnet':' without the magnet')+': '+crm(run)+' /min corrected. Now count again '+(run.mag?'with the magnet off':'with the magnet on')+', at the same distance, and compare.'+(run.mag?' (Counts with the magnet are not used for the lab steps.)':''));return}
+  const a=crm(off),b=crm(on),k=a>0?b/a:1;
+  say(lab(run.src)+' at '+fx(run.d,1)+' cm: '+a+' /min without the magnet, '+b+' /min with it (corrected). '+(a<15?'The counts are too small to compare: move the source closer (but not under '+MAG_MIN+' cm).':k<.35?'The magnet bends most of it away, so it is charged and light: beta particles.':k<.8?'Part of it is bent away and part goes straight on: a charged part (beta) and an uncharged part (gamma).':'The magnet makes no real difference: gamma rays have no charge'+(run.src==='am'?'. (Alpha particles are charged, but they are so heavy that a magnet hardly bends them, and at '+MAG_MIN+' cm most have already stopped in the air.)':'.')));return}
  if(c==='bkg'){if(run.src){say('Counted '+run.n+' in '+fx(run.t,0)+' s with '+lab(run.src)+' in the holder. For the background, put every source back in the lead box first.');return}
   if(run.t<59.5){say(run.n+' counts in '+fx(run.t,0)+' s. The background is small and random, so count for a full 60 s to get a fair average.');return}
   S.bkg=run.cpm;$('rB').textContent=Math.round(S.bkg)+' counts/min';table();
@@ -397,6 +449,8 @@ function frame(dt0,now){const rdt=Math.min(.1,Math.max(.004,(now-(frame.last||no
   if(S.mode==='log'&&S.log){S.ivN+=nn;const k=Math.floor(S.el/10+1e-9);while(S.log.pts.length<k){S.log.pts.push({t:(S.log.pts.length+1)*10,n:S.ivN});S.ivN=0;drawGraph()}}
   if(S.el>=lim-1e-9){S.el=lim;S.fin=true;stopCount()}}
  lcdN.show(String(S.n),'');lcdT.show(fx(S.el,S.el<100?1:0),'s');
+ {const mo=magOn();if(mo!==G.magWas){G.magWas=mo;magNote()}}
+ magDraw(now);
  // the side panel
  $('rR').textContent=Math.round(S.rate*60)+' counts/min';const m=mounted();$('rD').textContent=m?fx(dist(),1)+' cm ('+lab(m.userData.id)+')':fx(dist(),1)+' cm (holder empty)';$('rA').textContent=slotted()?ABS[slotted().userData.abs].name:'none';
  // reminders
@@ -418,8 +472,27 @@ function drawGraph(){const c=$('graph'),w=c.clientWidth||300,h=c.clientHeight||2
 
 /* ---------- heads-up layer ---------- */
 function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00',sc=v=>K.toScreen(v),now=performance.now(),wide=K.W>520;
+ // magnetic field across the gap, drawn as in the book: ⊙ out of the screen, ⊗ into it
+ const fx1=cartX()+.06,fx2=G.TX-SLX-.1;
+ if(magOn()&&fx2-fx1>.15){const P0=sc(V(fx1,TY+.55,0)),P1=sc(V(fx2,TY-.55,0)),x0=Math.min(P0[0],P1[0]),y0=Math.min(P0[1],P1[1]),w=Math.abs(P1[0]-P0[0]),h=Math.abs(P1[1]-P0[1]),pur=dk?'#C9A0F0':'#7B3FB0';
+  g.save();g.fillStyle=pur;g.globalAlpha=.1;g.fillRect(x0,y0,w,h);g.globalAlpha=.75;g.strokeStyle=pur;g.lineWidth=1.5;g.setLineDash([5,4]);g.strokeRect(x0,y0,w,h);g.setLineDash([]);
+  const cs=Math.max(18,Math.min(30,h/3)),nx=Math.max(1,Math.floor(w/cs)),ny=Math.max(1,Math.floor(h/cs)),r=Math.min(6,cs*.24);g.lineWidth=1.4;
+  for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){const cx=x0+(i+.5)*w/nx,cy=y0+(j+.5)*h/ny;if(Math.abs(cy-(y0+h/2))<r*1.2&&ny>2)continue;g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();
+   if(S.mag>0){g.beginPath();g.arc(cx,cy,1.6,0,7);g.fill()}else{const d=r*.62;g.beginPath();g.moveTo(cx-d,cy-d);g.lineTo(cx+d,cy+d);g.moveTo(cx+d,cy-d);g.lineTo(cx-d,cy+d);g.stroke()}}
+  g.restore()}
+ else if(S.mag!==0&&mounted())K.tag('magnet needs d ≥ '+MAG_MIN+' cm',V(cartX()+.3,TY-.75,.3),amber,0,true);
+ // a path in the field: straight to the field, then a circle of radius R (world units) bending up (sg = +1) or down (sg = −1)
+ const fieldPath=(a,xEnd,R,sg,turn)=>{const pts=[[a.x,TY]],e=Math.max(a.x,fx1);pts.push([e,TY]);const phiMax=turn!=null?turn:Math.min(PI/2,Math.asin(clamp((xEnd-e)/R,0,1)));
+  for(let i=1;i<=16;i++){const ph=phiMax*i/16;pts.push([e+R*Math.sin(ph),TY+sg*R*(1-Math.cos(ph))])}return pts.map(([x,y])=>sc(V(x,y,0)))};
+ const subPath=(pp,t0,t1)=>{let L=0;const cum=[0];for(let i=1;i<pp.length;i++){L+=Math.hypot(pp[i][0]-pp[i-1][0],pp[i][1]-pp[i-1][1]);cum.push(L)}const a=t0*L,b=t1*L,out=[];
+  const at=d=>{let i=1;while(i<pp.length-1&&cum[i]<d)i++;const f=(d-cum[i-1])/((cum[i]-cum[i-1])||1);return [pp[i-1][0]+(pp[i][0]-pp[i-1][0])*f,pp[i-1][1]+(pp[i][1]-pp[i-1][1])*f]};
+  out.push(at(a));for(let i=1;i<pp.length-1;i++)if(cum[i]>a&&cum[i]<b)out.push(pp[i]);out.push(at(b));return out};
  // radiation on its way to the tube
  for(const s of S.streaks){const q=s.q,u=(now-s.t)/180;if(u>1.4)continue;const a=emitPoint(q.it),ab=slotted();let ex=G.TX;
+  if(q.mag&&q.t!=='g'&&magOn()){const t0=clamp(u-.35,0,1),t1=clamp(u,0,1);if(t1<=t0)continue;const neg=q.t==='b',sg=(neg?1:-1)*S.mag;let pp;
+   if(q.t==='b')pp=s.hit?fieldPath(a,G.TX,6,sg):fieldPath(a,0,.32,sg,1.9);           // β⁻: tight curl away; the few that get through barely bend
+   else{let xe=G.TX;if(!s.hit){if(q.air<.5)xe=Math.min(G.TX,a.x+RANGE_A/CM*(.85+Math.random()*.1));else if(ab)xe=G.TX-SLX}pp=fieldPath(a,xe,14,sg)}   // α²⁺: r ≈ metres, hardly bends
+   const sp=subPath(pp,t0,t1);g.lineCap='round';g.strokeStyle=q.t==='a'?(dk?'#FF8A7A':'#D0402F'):(dk?'#7FB2FF':'#2F6FD0');g.lineWidth=q.t==='a'?4:2;g.beginPath();sp.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();continue}
   if(!s.hit){if(q.t==='a'&&q.air<.5)ex=Math.min(G.TX,a.x+RANGE_A/CM*(.85+Math.random()*.1));else if(ab)ex=G.TX-SLX;else continue}
   const A=sc(a),B=sc(V(ex,TY+(s.hit?0:0),0)),t0=clamp(u-.35,0,1),t1=clamp(u,0,1);if(t1<=t0)continue;
   const P0=[A[0]+(B[0]-A[0])*t0,A[1]+(B[1]-A[1])*t0],P1=[A[0]+(B[0]-A[0])*t1,A[1]+(B[1]-A[1])*t1];

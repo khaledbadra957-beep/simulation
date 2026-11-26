@@ -129,6 +129,7 @@ input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
 .ans input{width:8em}
 .status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
 .status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.ind-chk{font-size:.92rem;line-height:1.35} .ind-chk.warn{border-color:var(--brass,#B8862B);color:var(--brass,#B8862B)} .ind-chk small{display:block;font-weight:500;color:var(--muted);margin-top:2px}
 .tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
 table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
 th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
@@ -303,6 +304,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
      <label><input type="checkbox" id="cMeter" checked> pH meter</label>
      <label><input type="checkbox" id="cEq"> Show the equivalence point</label>
     </div>
+    <p class="status ind-chk" id="indChk" role="status" hidden></p>
     <div class="card"><dl class="readouts">
      <div><dt>Burette reading now</dt><dd id="rBur">–</dd></div>
      <div><dt id="rMeterLab">pH</dt><dd id="rPH">–</dd></div>
@@ -725,9 +727,26 @@ function drawTG(){const c=$('#tg');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);con
  x.strokeStyle=C.accent;x.lineWidth=2.5;x.beginPath();tt.hist.forEach(([v,y],i)=>i?x.lineTo(X(v),Y(y)):x.moveTo(X(v),Y(y)));x.stroke();
  tt.gf={X,Y,L,Rm,T,B,w,h,Vmax,ymax,isRx};const lastP=tt.hist[tt.hist.length-1];if(tt.hist.length>1)LabViz.tracer(x,X(lastP[0]),Y(lastP[1]),C.accent);
  if($('#cEq').checked){const ve=Veq();x.setLineDash([5,4]);x.strokeStyle=C.rose;x.beginPath();x.moveTo(X(ve),T);x.lineTo(X(ve),h-B);x.stroke();x.setLineDash([]);txt(x,`equivalence: ${fx(ve,2)} mL${isRx?'':', pH '+fx(pHof(ve),1)}`,X(ve)+4,T+24,C.rose,11);
-  if(r.Ka){const vh=ve/2;x.fillStyle=C.rose;x.beginPath();x.arc(X(vh),Y(pHof(vh)),4,0,7);x.fill();txt(x,`½V_E: pH = pKa = ${fx(-Math.log10(r.Ka),2)}`,X(vh)+6,Y(pHof(vh))+16,C.rose,10)}}
+  if(r.Ka){const vh=ve/2;x.fillStyle=C.rose;x.beginPath();x.arc(X(vh),Y(pHof(vh)),4,0,7);x.fill();txt(x,`½V_E: pH = pKa = ${fx(-Math.log10(r.Ka),2)}`,X(vh)+6,Y(pHof(vh))+16,C.rose,10);txt(x,`50% HA : 50% A⁻`,X(vh)+6,Y(pHof(vh))+29,C.rose,10)}}
+ const vEnd=indCheck(isRx);if(vEnd!=null&&vEnd<=Vmax){const rg=IRG[$('#indSel').value],pe=(rg[0]+rg[1])/2,ex=X(vEnd),ey=Y(pe);
+  x.fillStyle=C.brass;x.strokeStyle=C.stage||"#fff";x.lineWidth=2;x.beginPath();x.arc(ex,ey,5,0,7);x.fill();x.stroke();if(ex-8>L+60)txt(x,'end point',ex-8,ey-8,C.brass,10,'right');else txt(x,'end point',ex+6,ey+30,C.brass,10,'left')}
  LabViz.drawReadout(x,c);
  $('#rBur').textContent=fx(tt.init+tt.Vb,2)+' mL';$('#rPH').textContent=isRx?fx(Math.max(0,tt.Ca*r.Va-5*r.Cb*tt.Vb),3)+' mmol':($('#cMeter').checked?fx(pHof(tt.Vb),2):'(meter off)')}
+/* Is the indicator suitable? Shown once the student has gone past the equivalence point.
+   End point = where the pH reaches the middle of the indicator's colour range; the colour change spreads over the whole range. */
+const IRG={php:[8.2,10],btb:[6,7.6],mo:[3.1,4.4]};let ICK={key:'',v:null};
+function Vat(p){let lo=0,hi=Veq()*3+5;for(let i=0;i<50;i++){const m=(lo+hi)/2;if(pHof(m)<p)lo=m;else hi=m}return (lo+hi)/2}
+function indCheck(isRx){const el=$('#indChk'),id=$('#indSel').value,r=tt.rx;
+ if(isRx||id==='none'||!IRG[id]||tt.Vb<Veq()){el.hidden=true;return null}
+ const key=[r.id,r.Ka,r.Va,r.Cb,tt.Ca,id].join('|');if(ICK.key!==key){const rg=IRG[id],ve=Veq(),vm=Vat((rg[0]+rg[1])/2),wd=Vat(rg[1])-Vat(rg[0]);ICK={key,v:{ve,vm,wd,err:vm-ve}}}
+ const {ve,vm,wd,err}=ICK.v,name=IND.find(i=>i.id===id).name.replace(/\s*\(.*\)/,''),ae=Math.abs(err),sg=err<0?'early':'late';
+ const lvl=ae<=0.05&&wd<=0.1?'ok':ae<=0.1&&wd<=0.4?'warn':'bad';
+ const head=lvl==='ok'?`✓ ${name} is a good choice`:lvl==='warn'?`⚠ ${name} works, but it is not the best choice`:`✗ ${name} is not suitable here`;
+ const why=lvl==='ok'?`Its colour range sits on the steep jump, so it changes at ${fx(vm,2)} mL. V_E = ${fx(ve,2)} mL, error ${ae<0.005?'less than 0.01':fx(ae,2)} mL.`
+  :lvl==='warn'?`It changes about ${fx(ae,2)} mL ${sg} (1–2 drops), and the colour change spreads over ${fx(wd,1)} mL.`
+  :`Its colour range is ${err<0?'below':'above'} the steep jump, so it changes gradually over ${fx(wd,1)} mL, about ${fx(ae,ae<1?2:1)} mL too ${sg} (V_E = ${fx(ve,2)} mL).`;
+ const html=`${head}<small>${why}</small>`;if(el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html}el.className='status ind-chk '+lvl;el.hidden=false;
+ return vm}
 LabViz.readout($('#tg'),(px,py)=>{const g=tt.gf;if(!g||tt.hist.length<2)return null;const v=(px-g.L)/(g.w-g.L-g.Rm)*g.Vmax;const H=tt.hist;if(v<0||v>H[H.length-1][0])return null;
  let k=1;while(k<H.length-1&&H[k][0]<v)k++;const [v0,y0]=H[k-1],[v1,y1]=H[k];const y=v1===v0?y1:y0+(y1-y0)*(v-v0)/(v1-v0);
  return {x:g.X(v),y:g.Y(y),top:g.T,bottom:g.h-g.B,col:C.rose,text:`V = ${fx(v,2)} mL|${g.isRx?'n(Fe²⁺) = '+fx(y,3)+' mmol':'pH = '+fx(y,2)}`}},()=>drawTG());
