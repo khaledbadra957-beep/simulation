@@ -13,6 +13,9 @@
    A part can instead give el: a CSS selector (inside wrap) or a function returning element(s) of an SVG/HTML drawing;
    its boxes are then measured, and the marker goes on side pos: 'l' | 'r' | 't' | 'b' | 'c' (plus dx, dy).
    api.refresh() re-reads the positions (call after the drawing changes size). */
+/* best results per page, read by the homepage cards: localStorage 'best:<page>' = {fp:{s,n}, su:seconds} */
+function siteBest(edit) { try { var f = (location.pathname.split('/').pop() || 'index.html'), k = 'best:' + f, r = JSON.parse(localStorage.getItem(k) || '{}') || {}; edit(r); localStorage.setItem(k, JSON.stringify(r)); } catch (e) { } }
+window.siteBest = siteBest;
 (function () {
   'use strict';
   var CSS = '.lp-layer{position:absolute;inset:0;pointer-events:none;z-index:3}' +
@@ -111,7 +114,8 @@
       q('[data-x]').onclick = close;
     }
     function next() { Q.i++; Q.tries = 0; Q.hinted = false; Q.show = null; Q.fb = null; showHi(null);
-      if (Q.i >= Q.qs.length) { Q.done = true; var b = best(); if (!b || Q.score / Q.qs.length > b.s / b.n) { try { localStorage.setItem(KEY, JSON.stringify({ s: Q.score, n: Q.qs.length })); } catch (e) { } } }
+      if (Q.i >= Q.qs.length) { Q.done = true; var b = best(); if (!b || Q.score / Q.qs.length > b.s / b.n) { try { localStorage.setItem(KEY, JSON.stringify({ s: Q.score, n: Q.qs.length })); } catch (e) { } }
+        siteBest(function (r) { if (!r.fp || Q.score / Q.qs.length > r.fp.s / r.fp.n) r.fp = { s: Q.score, n: Q.qs.length }; }); }
       renderQuiz(); }
     function hit(x, y) { var best_ = null, bd = 1e9; P.forEach(function (p) { p.boxes.forEach(function (b) { var pad = 6; if (x >= b[0] - pad && x <= b[2] + pad && y >= b[1] - pad && y <= b[3] + pad) { var a = (b[2] - b[0]) * (b[3] - b[1]); if (a < bd) { bd = a; best_ = p; } } }); }); return best_; }
     [catcher, layer].forEach(function (x) { x.addEventListener('pointerdown', function (e) { e.stopPropagation(); }); });   // keep clicks away from labs that grab on pointerdown

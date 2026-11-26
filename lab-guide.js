@@ -65,7 +65,7 @@
       words: [['Microstate', 'one exact arrangement of the particles'], ['Ω', 'number of microstates for what we observe'], ['Entropy S', 'S = k ln Ω: grows with the number of arrangements'], ['ΔS', 'change in entropy'], ['Spontaneous', 'happens without continuous outside help'], ['ΔG = ΔH − TΔS', 'decides spontaneity']],
       goals: ['Predict the sign of ΔS from changes of state, dissolving and moles of gas.', 'Use ΔG = ΔH − TΔS to decide when a change is spontaneous.'],
       flow: [['3 min', 'Predict', 'A messy room vs a tidy room: which has more arrangements?'], ['6 min', 'Explore', 'Students try every change and record the sign of ΔS.'], ['3 min', 'Explain', 'Sort the changes into ΔS > 0 and ΔS < 0 on the board.'], ['3 min', 'Apply', 'Temperature slider: find the temperature where ice melts.']],
-      mis: [['Entropy is “disorder” you can see.', 'Count arrangements of particles and energy, not messiness.'], ['Spontaneous means fast.', 'Spontaneity says nothing about the rate.']],
+      mis: [['Entropy is “disorder” you can see.', 'Count arrangements of particles and energy, not messiness.'], ['Spontaneous means fast.', 'Spontaneity says nothing about the rate.'], ['A reaction with ΔS < 0 can never happen.', 'It can if ΔH is negative enough and T is low enough: ΔG = ΔH − TΔS is still negative.']],
       qs: ['Why is it almost impossible for all the air in the room to gather in one corner?', 'Why does dissolving salt usually increase entropy?', 'Why does water freeze below 0 °C even though ΔS < 0?']
     },
     'equilibrium-table-lab.html': {
@@ -112,7 +112,7 @@
       words: [['Synthesis', 'A + B → AB'], ['Decomposition', 'AB → A + B'], ['Single replacement', 'A + BC → AC + B'], ['Double replacement', 'AB + CD → AD + CB']],
       goals: ['Classify a reaction from its general pattern.', 'Predict the products of the five reaction types.', 'Count atoms to check conservation.'],
       flow: [['2 min', 'Predict', 'Show five equations; students guess the type of each.'], ['7 min', 'Explore', 'Build every reaction in pairs.'], ['3 min', 'Explain', 'Write the five general patterns on the board.'], ['3 min', 'Apply', 'Classify five new equations.']],
-      mis: [['Every reaction with oxygen is combustion.', 'Combustion of a fuel gives CO₂ and H₂O.'], ['Single and double replacement are the same.', 'Count how many swaps happen.']],
+      mis: [['Every reaction with oxygen is combustion.', 'Combustion of a fuel gives CO₂ and H₂O.'], ['Single and double replacement are the same.', 'Count how many swaps happen.'], ['A synthesis always joins two elements.', 'Compounds can combine too, e.g. CaO + H₂O → Ca(OH)₂: still one product.'], ['Decomposition always gives elements.', 'It can give compounds, e.g. CaCO₃ → CaO + CO₂.']],
       qs: ['Why do metals only replace less reactive metals?', 'Is rusting synthesis or combustion?']
     },
     'galvanic-cell-lab.html': {
@@ -143,7 +143,7 @@
       words: [['Ellipse', 'an oval with two foci'], ['Eccentricity', 'how stretched the ellipse is'], ['Periapsis / apoapsis', 'closest / furthest point'], ['Period T', 'time for one orbit']],
       goals: ['Describe an elliptical orbit and the position of the Sun.', 'Explain why a planet moves faster near periapsis.', 'Use T² ∝ a³ to compare orbits.'],
       flow: [['3 min', 'Predict', 'Retrograde Mars puzzle.'], ['5 min', 'Explore', 'First and second law tabs.'], ['4 min', 'Explain', 'Equal areas → speed changes.'], ['3 min', 'Apply', 'Third law with Jupiter’s moons.']],
-      mis: [['Orbits are circles.', 'Eccentricity slider shows real ellipses.'], ['Seasons come from distance to the Sun.', 'Earth’s orbit is almost circular.']],
+      mis: [['Orbits are circles.', 'Eccentricity slider shows real ellipses.'], ['Seasons come from distance to the Sun.', 'Earth’s orbit is almost circular.'], ['A planet moves at the same speed all the way round.', 'It is fastest near the Sun (perihelion): equal areas in equal times.'], ['The Sun is at the centre of the orbit.', 'The Sun is at one focus; the centre of the ellipse is empty.']],
       qs: ['Why does a comet speed up near the Sun?', 'A planet twice as far: how much longer is its year?']
     },
     'kinetics-lab.html': {
@@ -177,7 +177,7 @@
       words: [['Resonance hybrid', 'the real structure: an average of the Kekulé structures'], ['Delocalised', 'π electrons spread over the whole ring'], ['Parent chain', 'the longest carbon chain'], ['Substituent', 'a branch or group on the chain'], ['Functional group', 'the reactive part, e.g. –OH, –COOH'], ['Isomers', 'same formula, different structure']],
       goals: ['Name and draw alkanes, alkenes, alkynes, rings and compounds with functional groups.', 'Recognise structural and functional isomers.', 'Use lab tests to identify a family.'],
       flow: [['2 min', 'Predict', 'Show two structures with the same formula. Same compound?'], ['6 min', 'Explore', 'Build & name in pairs.'], ['4 min', 'Explain', 'Isomer hunt on the board.'], ['3 min', 'Apply', 'Mystery compounds.']],
-      mis: [['The longest chain is the one drawn straight.', 'The builder counts bends too.'], ['Numbering always starts from the left.', 'Lowest locants decide the direction.']],
+      mis: [['The longest chain is the one drawn straight.', 'The builder counts bends too.'], ['Numbering always starts from the left.', 'Lowest locants decide the direction.'], ['Branches are listed in the order of their numbers.', 'They go in alphabetical order (ethyl before methyl); di-, tri- are not counted.']],
       qs: ['Why do butane and 2-methylpropane boil at different temperatures?', 'Which test separates an aldehyde from a ketone?']
     },
     'pulse-at-a-boundary.html': {
@@ -192,7 +192,7 @@
       words: [['Incident', 'the pulse that arrives'], ['Reflected', 'the pulse that comes back'], ['Transmitted', 'the pulse that passes into the second medium'], ['Inverted', 'flipped upside down']],
       goals: ['Predict whether the reflected pulse is inverted.', 'Compare speeds and widths of transmitted pulses.', 'Explain energy sharing at a boundary.'],
       flow: [['2 min', 'Predict', 'Pulse into a heavier rope: upright or flipped?'], ['6 min', 'Explore', 'All four set-ups.'], ['4 min', 'Explain', 'Fill a table: reflected/transmitted, upright/inverted.'], ['3 min', 'Apply', 'Light → water: where does light reflect?']],
-      mis: [['All of the pulse reflects.', 'Most boundaries share the energy.'], ['The transmitted pulse is inverted.', 'Only the reflected pulse can invert.']],
+      mis: [['All of the pulse reflects.', 'Most boundaries share the energy.'], ['The transmitted pulse is inverted.', 'Only the reflected pulse can invert.'], ['The reflected pulse is always upside down.', 'Only at a fixed end or going into a heavier string; at a free end or a lighter string it stays upright.'], ['The pulse keeps its speed in the second string.', 'Its speed depends on the new string: slower in a heavier string, faster in a lighter one.']],
       qs: ['Why is the transmitted pulse narrower in a slower medium?', 'What would a perfectly matched boundary look like?']
     },
     'reaction-rates-lab.html': {
@@ -208,7 +208,7 @@
       words: [['Activation energy Ea', 'minimum energy for a successful collision'], ['Rate', '−Δ[A] ÷ Δt'], ['Catalyst', 'lowers Ea, not used up'], ['Rate law', 'rate = k[A]^m[B]^n']],
       goals: ['Explain rate using collision theory.', 'Explain why a small temperature rise has a big effect (energy distribution).', 'Describe the effect of surface area and catalysts.', 'Find orders and k by the method of initial rates.'],
       flow: [['2 min', 'Predict', 'Why do we keep milk in the fridge?'], ['6 min', 'Explore', 'Collision box: four kept runs.'], ['4 min', 'Explain', 'Energy view: shaded area beyond Ea.'], ['3 min', 'Apply', 'Rate law tab, one reaction.']],
-      mis: [['Higher temperature only makes more collisions.', 'The share that react rises far more.'], ['A catalyst gives particles more energy.', 'It lowers Ea; the curve does not change.']],
+      mis: [['Higher temperature only makes more collisions.', 'The share that react rises far more.'], ['A catalyst gives particles more energy.', 'It lowers Ea; the curve does not change.'], ['Doubling a concentration always doubles the rate.', 'Only if the reaction is first order in it: zero order, no change; second order, 4 times.']],
       qs: ['Why does powdered sugar burn faster than a sugar cube?', 'Why does the rate fall as the reaction goes on?']
     },
     'resonance-on-a-string.html': {
@@ -223,7 +223,7 @@
       words: [['Resonance', 'large amplitude at a natural frequency'], ['Node', 'a point that does not move'], ['Antinode', 'a point of maximum swing'], ['Harmonic', 'fₙ = n f₁']],
       goals: ['Identify resonant frequencies and harmonics.', 'Relate nodes and antinodes to wavelength.', 'Use fₙ = n v ÷ 2L.'],
       flow: [['2 min', 'Predict', 'Pushing a swing: when do small pushes make big swings?'], ['6 min', 'Explore', 'Sweep and find the peaks.'], ['4 min', 'Explain', 'Draw harmonics 1–3 and count λ/2.'], ['3 min', 'Apply', 'Guitar string: shorten L, what happens to the pitch?']],
-      mis: [['Any frequency makes a standing wave.', 'Only the peaks of the curve do.'], ['Nodes are where the string is fixed only.', 'Higher harmonics have nodes in the middle too.']],
+      mis: [['Any frequency makes a standing wave.', 'Only the peaks of the curve do.'], ['Nodes are where the string is fixed only.', 'Higher harmonics have nodes in the middle too.'], ['A stronger driver changes the resonant frequencies.', 'They depend on the length, tension and mass of the string (fₙ = n v / 2L), not on the amplitude.']],
       qs: ['Why does pressing a guitar string raise the pitch?', 'Why can soldiers break a bridge by marching in step?']
     },
     'titration-lab.html': {
@@ -257,7 +257,7 @@
       words: [['Torque τ', 'turning effect, N·m'], ['Lever arm', 'perpendicular distance from pivot to the force line'], ['Pivot', 'the axis of rotation'], ['Equilibrium', 'clockwise τ = counter-clockwise τ']],
       goals: ['Calculate τ = F r sin θ.', 'Explain the lever arm.', 'Apply balanced torques to a seesaw.'],
       flow: [['2 min', 'Predict', 'Why are door handles far from the hinges?'], ['5 min', 'Explore', 'Door tab presets.'], ['5 min', 'Explain', 'Seesaw: m₁r₁ = m₂r₂.'], ['3 min', 'Apply', 'Challenge tab.']],
-      mis: [['A bigger force always gives a bigger torque.', 'Not if r is tiny or θ = 0.'], ['Torque and force are the same.', 'Torque also depends on where and how you push.']],
+      mis: [['A bigger force always gives a bigger torque.', 'Not if r is tiny or θ = 0.'], ['Torque and force are the same.', 'Torque also depends on where and how you push.'], ['A seesaw balances when both sides have the same mass.', 'It balances when the torques are equal: m₁ r₁ = m₂ r₂, so a lighter child sits further out.']],
       qs: ['Why are spanners long?', 'Where would you push to open a door with the least force?']
     },
     'wave-speed-lab.html': {
@@ -272,7 +272,7 @@
       words: [['Wavelength λ', 'length of one full wave'], ['Frequency f', 'waves per second, Hz'], ['Wave speed v', 'v = f λ'], ['Tension', 'how tightly the string is pulled']],
       goals: ['Measure λ and T and calculate v = f λ.', 'Show that v depends on the medium, not on f or amplitude.', 'Explain why λ changes when f changes.'],
       flow: [['2 min', 'Predict', 'Does shaking faster make the wave travel faster? Vote.'], ['6 min', 'Explore', 'String lab measurements.'], ['4 min', 'Explain', 'Pulse race results table.'], ['3 min', 'Apply', 'Sound tab and Challenge.']],
-      mis: [['Higher frequency means faster wave.', 'Same string, same speed; λ gets shorter.'], ['Bigger pulses travel faster.', 'The race shows a tie.']],
+      mis: [['Higher frequency means faster wave.', 'Same string, same speed; λ gets shorter.'], ['Bigger pulses travel faster.', 'The race shows a tie.'], ['The wave carries the string along with it.', 'Each bead only moves up and down; the energy moves along the string.']],
       qs: ['Why do all notes from a band reach you at the same time?', 'How could you make a wave travel faster on a rope?']
     }
   };
@@ -331,6 +331,8 @@
     '.lg-flow .t{font:600 13px ui-monospace,monospace;opacity:.75;grid-row:span 2}' +
     '.lg-mis{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}' +
     '.lg-mis small{display:block;opacity:.75}' +
+    '.lg-watch{list-style:none;padding-left:0}.lg-watch li{border-left:4px solid #D98A00;padding:4px 0 4px 10px}.lg-watch li b{color:#B36B00;font-size:.82em;letter-spacing:.04em;text-transform:uppercase;display:block}' +
+    '[data-theme="dark"] .lg-watch li b,.dark .lg-watch li b{color:#F2B84B}@media (prefers-color-scheme:dark){html:not([data-theme="light"]) .lg-watch li b{color:#F2B84B}}' +
     '.lg-ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:5px}' +
     '.lg-pres{align-self:flex-start;border:1.5px solid #0A6A88;background:none;color:inherit;border-radius:9px;padding:8px 12px;font:700 14px var(--body,system-ui);cursor:pointer}' +
     'html.lg-present{font-size:125%}html.lg-present body{font-size:1.15em}html.lg-present .lede,html.lg-present footer{display:none!important}' +
@@ -374,6 +376,7 @@
     return '<p class="lg-big">' + esc(G.big) + '</p>' +
       '<h3>Try this</h3><span class="lg-prog" id="lgProg">' + n + ' of ' + G.tryThis.length + ' done</span>' +
       '<ul class="lg-list">' + G.tryThis.map(function (t, i) { return '<li><label><input type="checkbox" data-i="' + i + '"' + (done[i] ? ' checked' : '') + '><span>' + esc(t) + '</span></label></li>'; }).join('') + '</ul>' +
+      '<h3>Watch out: common mistakes</h3><ul class="lg-mis lg-watch">' + G.mis.map(function (m) { return '<li><b>Not true</b>“' + esc(m[0]) + '”<small>' + esc(m[1]) + '</small></li>'; }).join('') + '</ul>' +
       '<h3>Words to know</h3><div class="lg-words">' + G.words.map(function (w) { return '<span><b>' + esc(w[0]) + '</b>: ' + esc(w[1]) + '</span>'; }).join('') + '</div>' +
       '<h3>Questions to try</h3><ol class="lg-qs">' + G.qs.slice(0, 3).map(function (q, i) { return '<li>' + esc(q) + (A[i] ? '<span class="a" hidden>' + esc(A[i]) + '</span>' : '') + '</li>'; }).join('') + '</ol>' +
       '<div class="lg-row">' + (A.length ? '<button type="button" class="lg-act" data-reveal>Reveal answers</button>' : '') + '<button type="button" class="lg-act pri" data-print="0">Print worksheet</button></div>';
@@ -399,7 +402,8 @@
         (key ? '<p class="big"><b>Big idea:</b> ' + esc(G.big) + '</p>' : '<div class="who"><span>Name</span><span>Class</span><span>Date</span></div>') +
         '<h2>1 · Try this in the lab</h2><ul style="list-style:none;padding-left:0">' + G.tryThis.map(function (t) { return '<li><span class="tick"></span>' + esc(t) + (key ? '' : lines(1)) + '</li>'; }).join('') + '</ul>' +
         '<h2>2 · Questions</h2><ol>' + G.qs.map(function (q, i) { return '<li>' + esc(q) + (key ? (A[i] ? '<span class="ans">' + esc(A[i]) + '</span>' : '') : lines(3)) + '</li>'; }).join('') + '</ol>' +
-        '<h2>3 · Words to know</h2><div class="words">' + G.words.map(function (w) { return '<div><b>' + esc(w[0]) + '</b>: ' + esc(w[1]) + '</div>'; }).join('') + '</div>' +
+        (G.mis && G.mis.length ? '<h2>3 · Spot the mistake</h2><p>Each sentence below is <b>wrong</b>. Explain why, using what you saw in the lab.</p><ol>' + G.mis.map(function (m) { return '<li>“' + esc(m[0]) + '”' + (key ? '<span class="ans">' + esc(m[1]) + '</span>' : lines(2)) + '</li>'; }).join('') + '</ol>' : '') +
+        '<h2>' + (G.mis && G.mis.length ? '4' : '3') + ' · Words to know</h2><div class="words">' + G.words.map(function (w) { return '<div><b>' + esc(w[0]) + '</b>: ' + esc(w[1]) + '</div>'; }).join('') + '</div>' +
         '<div class="foot">' + qr + '<span>Open the lab: ' + esc(url) + '<br>Science Simulations · Mr Khaled</span></div>';
       var el = document.querySelector('.lg-print'); if (!el) { el = document.createElement('div'); el.className = 'lg-print'; document.body.appendChild(el); }
       el.innerHTML = html;
