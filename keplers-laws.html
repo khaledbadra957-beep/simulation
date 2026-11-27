@@ -684,6 +684,17 @@ function drawBase(s, extra){
     c.setLineDash([3, 3]); c.strokeStyle = '#BBBBBB'; c.lineWidth = 2; c.beginPath(); c.arc(tx, ty, 12, 0, TAU); c.stroke(); c.setLineDash([]);
     label(c, 'V', tx, ty + 1, { a: 'center', c: '#DDDDDD', w: '700', s: 13 });
   }
+  // gravity and velocity together: the angle between them says whether gravity is speeding the planet up or slowing it down
+  if ($('oGrav').checked && $('oVel').checked){
+    var rr = Math.hypot(p.x, p.y), vv = Math.hypot(p.vx, p.vy);
+    if (rr > 0 && vv > 0){
+      var fxs = -p.x / rr, fys = p.y / rr, vxs = p.vx / vv, vys = -p.vy / vv, cs = Math.max(-1, Math.min(1, fxs * vxs + fys * vys)), phi = Math.acos(cs) * 180 / Math.PI;
+      var a1 = Math.atan2(vys, vxs), a2 = Math.atan2(fys, fxs), d = a2 - a1; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU;
+      c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 1.5; c.beginPath(); c.arc(px, py, 24, a1, a1 + d, d < 0); c.stroke();
+      var st = Math.abs(phi - 90) < 2 ? 'steady speed (gravity ⊥ v)' : phi < 90 ? 'speeding up (gravity pulls forward)' : 'slowing down (gravity pulls back)';
+      label(c, 'φ = ' + Math.round(phi) + '° between gravity and velocity: ' + st, (c.canvas.clientWidth || 800) / 2, 26, { a: 'center', c: phi < 88 ? '#8CFF8C' : phi > 92 ? '#FFB36B' : C.text, w: '700', s: 13 });
+    }
+  }
   if (s === st1) K1 = { V: V, p: p, px: px, py: py, tv: $('oVel').checked ? [px + p.vx * KV(V), py - p.vy * KV(V)] : null };
   if ($('oSpeed').checked) label(c, '|v| = ' + (Math.hypot(p.vx, p.vy) * AUYR).toFixed(2) + ' km/s', px, py - 26, { a: 'center', c: C.text, w: '700', s: 14 });
   if (preview && preview.bad) label(c, preview.bad, V.cx, V.cy - V.half - 8 < 30 ? 30 : V.cy - V.half - 8, { a: 'center', c: C.bad, w: '700', s: 14 });

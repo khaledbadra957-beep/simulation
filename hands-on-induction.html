@@ -86,6 +86,7 @@ table.data{width:100%;border-collapse:collapse;font-size:.86rem}table.data th,ta
     <div><h3>Coil</h3><div class="seg" id="turns"><button type="button" data-n="10" aria-pressed="false">10 turns</button><button type="button" data-n="20" aria-pressed="true">20 turns</button><button type="button" data-n="40" aria-pressed="false">40 turns</button><button type="button" data-n="x" aria-pressed="false">Mystery coil</button></div>
      <label class="row" style="margin-top:8px;font-size:.95rem" for="nTurns">Or choose any number of turns: <input id="nTurns" type="number" min="5" max="100" step="1" value="20" inputmode="numeric" style="width:5.5em;font:inherit;padding:4px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)"></label></div>
     <div class="row"><button class="btn" id="flip" type="button">Turn the magnet round</button><button class="btn" id="reset" type="button">Start again</button></div>
+    <div><h3>Circuit</h3><div class="seg" id="circ"><button type="button" data-c="closed" aria-pressed="true">Closed: meter connected</button><button type="button" data-c="open" aria-pressed="false">Open: one lead unplugged</button></div></div>
     <label class="ck"><input type="checkbox" id="showField" checked> Show the magnet's field lines</label>
     <label class="ck"><input type="checkbox" id="showCam" checked> Show my camera behind the bench</label>
    </div>
@@ -109,6 +110,7 @@ if(!window.THREE){setStatus('The 3-D engine could not load. Check the internet c
 const T=THREE,V=(x,y,z)=>new T.Vector3(x,y,z||0),fx=(v,d)=>v.toFixed(d),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 /* ---------- the apparatus: real numbers ---------- */
+var OPENC=false;                                           // circuit open: one lead unplugged (EMF but no current)
 const M=0.05;                                             // metres per bench unit
 const COIL={x:.5,y:2.6,len:2.6,a:.5,N:20};                // bench units: a 13 cm coil, 5 cm across
 const MAG={len:2.2,pole:1.0,phi0:1.0e-4};                 // an 11 cm magnet; 0.10 mWb leaves its N pole
@@ -141,7 +143,10 @@ scene.add(track);const prop=P.stand(TRK.y-.03,{fw:.9,fd:.9});scene.add(prop);
 function layTrack(a,b){TRK.L=a;TRK.R=b;track.position.set(a,TRK.y,0);track.scale.x=b-a;prop.position.set(b-.7,0,-.05);const cm=(b-a)*M*100;track.userData.tex.repeat.set(cm/50,1)}
 const galv=P.galvanometer({full:FULL,majors:5,steps:5});galv.g.scale.setScalar(1.3);
 const lead=[P.cable(0x16191C,.042),P.cable(0xC62828,.042)];
-function leads(){coil.g.updateMatrixWorld(true);for(let i=0;i<2;i++){const a=coil.g.localToWorld(coil.posts[i].clone()),b=galv.post(i),m=P.hang(a,b,1.9,i?.5:.75);m.unshift(a.clone().add(V(0,.02,.05)));m.push(b.clone().add(V(0,0,.04)));lead[i].set(m)}}
+function leads(){coil.g.updateMatrixWorld(true);for(let i=0;i<2;i++){const a=coil.g.localToWorld(coil.posts[i].clone());let b=galv.post(i);const off=i===1&&OPENC;if(off)b=V(b.x-.9,.08,b.z+.5);const m=P.hang(a,b,off?.6:1.9,i?.5:.75);m.unshift(a.clone().add(V(0,.02,.05)));m.push(b.clone().add(V(0,0,.04)));lead[i].set(m)}}
+function setCirc(open){OPENC=open;document.querySelectorAll('#circ button').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.c==='open')===open));leads();
+ say(open?'One lead is unplugged, so the circuit is open. Push the magnet in now: the EMF graph still moves, but no current flows, the needle stays at zero, and the coil does not push back on the magnet.':'The lead is back in: the circuit is closed, so the EMF can drive a current round it.')}
+document.querySelectorAll('#circ button').forEach(b=>b.onclick=()=>setCirc(b.dataset.c==='open'));
 
 /* ---------- things to pick up ---------- */
 const mag=K.addItem('mag',P.barMagnet(MAG.len,.36),{name:'bar magnet',r:1.25,liftZ:0,snap:.25,firm:true});
@@ -198,7 +203,7 @@ function onGrab(it){if(it===token){flip();return}
 function onDrop(it){if(it!==mag)return;if(S.bore){mag.userData.placed=true;mag.userData.goal.copy(mag.position)}else{mag.userData.placed=false;K.home(mag)}}
 
 /* ---------- what counts as a push or a pull ---------- */
-function event(type){const pk=S.pk,dir=Math.abs(pk.I)<5?0:Math.sign(pk.I),pole=S.s>0?'N':'S',d={type,pole,I:pk.I,E:pk.E,v:(X2-X1)*M/Math.max(.02,Math.abs(S.t2-S.t1)),N:COIL.N,dir};S.pk={I:0,E:0,v:0};
+function event(type){if(OPENC){S.pk={I:0,E:0,v:0};if(!S.told.openEv){S.told.openEv=1;say('The circuit is open, so there was no current and no kick, even though the EMF graph moved. Plug the lead back in (Circuit: Closed) to carry on with the steps.')}return}const pk=S.pk,dir=Math.abs(pk.I)<5?0:Math.sign(pk.I),pole=S.s>0?'N':'S',d={type,pole,I:pk.I,E:pk.E,v:(X2-X1)*M/Math.max(.02,Math.abs(S.t2-S.t1)),N:COIL.N,dir};S.pk={I:0,E:0,v:0};
  const aI=fx(Math.abs(d.I),0)+' µA',aE=fx(Math.abs(d.E),1)+' mV';$('rPk').textContent=dir?(dir<0?'← ':'')+aI+(dir>0?' →':''):'none';
  if(S.ch){if(S.ch.state==='test')judge(d);return}
  const c=cur(),what=pole+' pole '+(type==='in'?'in':'out')+': the needle kicked to the '+side(dir)+', '+aI+' ('+aE+').';
@@ -261,7 +266,7 @@ function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now
  else if(L.on&&S.time-L.t1>.35){L.on=false;const span=L.t1-L.t0,full=(L.x0<mag.userData.home.x+.6&&x>STOP-.06)?1:(L.x0>STOP-.06&&x<mag.userData.home.x+.6)?-1:0;
   if(S.my&&full&&span>.05){S.mys.pushes.push({dt:span,avg:L.sum/span,dir:full});if(S.mys.pushes.length>6)S.mys.pushes.shift();mystTable();say('Push recorded: Δt = '+fx(span,2)+' s, average EMF = '+fx(Math.abs(L.sum/span)*1e3,2)+' mV.'+(S.mys.pushes.length===1?' Now work out N, or push again and compare.':''))}
   else if(S.my&&!full&&span>.05&&!S.told.full){S.told.full=1;say('For the mystery coil, start with the magnet on its rest and push it all the way in to the stop, in one go. Then the flux through each turn changes by the ΔΦ given.')}}
- const a=Math.min(1,dt/.03);S.emf+=(e-S.emf)*a;S.v+=((hd?S.mv*M:vx)-S.v)*a;S.I=S.emf/RG*1e6;
+ const a=Math.min(1,dt/.03);S.emf+=(e-S.emf)*a;S.v+=((hd?S.mv*M:vx)-S.v)*a;S.I=OPENC?0:S.emf/RG*1e6;
  // the needle: a damped pointer, so a quick kick swings out and comes back as on a real meter
  const tgt=clamp(S.I/FULL,-1.15,1.15),n=Math.ceil(dt/.006),h=dt/n;for(let i=0;i<n;i++){S.om+=(NW*NW*(tgt-S.th)-2*1.0*NW*S.om)*h;S.th+=S.om*h}galv.set(S.th);
  const G=S.gh;if(Math.abs(tgt)>Math.abs(G.a)||(Math.sign(tgt)!==Math.sign(G.a)&&Math.abs(tgt)>.08&&S.time-G.t>.3)){G.a=tgt;G.t=S.time}   // the orange pointer marks the true peak of the kick
@@ -276,7 +281,7 @@ function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now
   if(S.still>1.3){if(cur()==='still')tick('still','The needle is back at zero. The magnet\'s field still passes through the coil, but it is not changing: no change in flux, no EMF, no current. Now pull the magnet out.');
    else if(S.ch&&S.ch.state==='test'&&QS[S.ch.i].type==='still'&&!hd)judge({type:'still',pole:S.s>0?'N':'S',dir:0})}}else S.still=0;
  // readouts and graph
- $('rPhi').textContent=S.my?'hidden for the mystery coil':fx(lam*1e3,2)+' mWb';$('rV').textContent=fx(Math.abs(S.v),2)+' m/s';$('rE').textContent=(S.emf*1e3<=-.05?'−':'')+fx(Math.abs(S.emf*1e3),1)+' mV';$('rI').textContent=(S.I<=-.5?'−':'')+Math.round(Math.abs(S.I))+' µA';
+ $('rPhi').textContent=S.my?'hidden for the mystery coil':fx(lam*1e3,2)+' mWb';$('rV').textContent=fx(Math.abs(S.v),2)+' m/s';$('rE').textContent=(S.emf*1e3<=-.05?'−':'')+fx(Math.abs(S.emf*1e3),1)+' mV';$('rI').textContent=OPENC?'0 µA (circuit open)':(S.I<=-.5?'−':'')+Math.round(Math.abs(S.I))+' µA';
  HIST.push([S.time,lam,S.emf]);while(HIST.length&&S.time-HIST[0][0]>6.2)HIST.shift();if((frame.n=(frame.n||0)+1)%2===0)graph()}
 
 let eMax=.002;
@@ -291,6 +296,8 @@ function graph(){const c=$('graph'),dpr=Math.min(2,window.devicePixelRatio||1),w
 /* ---------- heads-up layer ---------- */
 function hudDraw(g){const ink=K.ink(),dk=K.isDark(),x=mag.position.x,y=mag.position.y,se=Math.cos(mag.rotation.y),amber=dk?'#E0A63A':'#A86A00',RED=dk?'#FF8A7A':'#C0392B',BLUE=dk?'#7FB2FF':'#2F6FD0';
  const sc=(px,py)=>K.toScreen(V(px,py,0));
+ // open circuit: the EMF is still there, but with no current the coil gets no poles and does not push back (closed: drawn below)
+ if(OPENC&&Math.abs(S.emf)>4e-4)K.tag('open circuit: EMF but no current, so no poles and no force',V(COIL.x,COIL.y+1.75,0),amber,0,true);
  // the magnet's field lines, from the N pole round to the S pole
  if($('showField').checked&&Math.abs(se)>.25){const xN=x+se*MAG.pole,xS=x-se*MAG.pole;g.lineWidth=1.3;g.strokeStyle=g.fillStyle=dk?'rgba(148,190,205,.5)':'rgba(40,90,110,.4)';
   for(let k=0;k<10;k++){const a0=(k+.5)/10*2*Math.PI;let px=xN+Math.cos(a0)*.24,py=y+Math.sin(a0)*.24,p=sc(px,py),q=p;g.beginPath();g.moveTo(p[0],p[1]);

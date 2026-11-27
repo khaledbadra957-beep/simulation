@@ -72,6 +72,8 @@ table.data th{font-weight:600;color:var(--muted)}table.data th:first-child,table
      <dt>Light</dt><dd id="rL">lamp off</dd><dt>Frequency f = c ÷ λ</dt><dd id="rF">–</dd><dt>Photon energy hf</dt><dd id="rE">–</dd><dt>Voltage, collector</dt><dd id="rV">–</dd><dt>Photocurrent</dt><dd id="rI">–</dd>
     </dl>
    </div>
+   <div class="card"><h3>Energy of one photon (eV)</h3><canvas id="eb" style="width:100%;height:190px;display:block" aria-label="Energy bars: photon energy hf, work function plus maximum kinetic energy, and the energy the voltage takes away"></canvas>
+    <p class="small" id="ebNote" style="margin-top:6px"></p></div>
    <div class="card ctl">
     <div><h3>Metal plate</h3><div class="seg g2" id="metal"><button type="button" data-m="na" aria-pressed="true">Sodium</button><button type="button" data-m="ca" aria-pressed="false">Calcium</button><button type="button" data-m="zn" aria-pressed="false">Zinc</button><button type="button" data-m="x" aria-pressed="false">Mystery</button></div></div>
     <label class="sl"><span>Brightness</span><output id="oB">60 %</output><input type="range" id="sB" min="0" max="100" step="1" value="60"></label>
@@ -115,6 +117,7 @@ const ISAT=2.0;                                                       // nA of p
 function current(f,W,bright,v){const ke=f?f.E-W:0;if(!f||ke<=0||bright<=0)return 0;return ISAT*bright*clamp((v+ke)/(ke+.4),0,1)}
 
 const TX=-.9,TY=1.75,NOSE=V(1.05,4.75),S={metal:'na',filt:null,bright:60,V:0,I:0,done:{},data:{na:[],ca:[],zn:[],x:[]},time:0,acc:0,t:{},bmin:null,bmax:null,solved:false};
+const G_EB={t:0};
 const K=HandKit.create({stage:$('stage'),canvas:$('gl'),hud:$('hud'),video:$('video'),intro:$('intro'),startCam:$('startCam'),startMouse:$('startMouse'),showCam:$('showCam'),status:setStatus,
  layout(k){const lx=-k.halfW+.85,mx=Math.min(k.halfW-1.45,4.7);rack.position.x=lx+.95;
   FILT.forEach((f,i)=>{const u=slides[f.id].userData;u.home.set(lx+(i%3)*.95,i<3?4.75:3.6,0);if(S.filt===f.id)u.goal.copy(SLOT)});
@@ -216,7 +219,30 @@ function graph(){const c=$('graph'),dpr=Math.min(2,window.devicePixelRatio||1),w
 $('reset').onclick=()=>{Object.assign(S,{metal:'na',filt:null,done:{},data:{na:[],ca:[],zn:[],x:[]},t:{},bmin:null,bmax:null,solved:false});newMystery();K.takeOff();for(const id in slides){slides[id].userData.placed=false;K.home(slides[id])}setV(0);setB(60);setMetal('na');steps();say('Safety first: the lamp gives out ultraviolet light. Put on the goggles.')};
 
 /* ---------- every frame ---------- */
-function frame(dt0,now){const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now))/1000||dt0));frame.last=now;S.time+=dt;const f=filt(),m=metal(),on=lit(),ke=f?f.E-m.W:0;
+/* energy bars: hf = W + KE(max); a retarding voltage takes e|V| from each electron, so the current stops when e|V| ≥ KE(max) */
+function drawEB(){const c=$('eb');if(!c)return;const w=c.clientWidth||300,h=c.clientHeight||190,dpr=Math.min(2,window.devicePixelRatio||1);if(c.width!==Math.round(w*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr)}
+ const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);const dk=K.isDark(),ink=dk?'#C9D6DB':'#24414F',mut=dk?'#94A7AE':'#52646C',grid=dk?'rgba(200,220,230,.13)':'rgba(40,80,100,.13)';
+ const f=filt(),m=metal(),on=lit(),myst=S.metal==='x',W=m.W,E=f?f.E:0,ke=Math.max(0,E-W),ret=S.V<0?-S.V:0;
+ const top=Math.max(5,Math.ceil(Math.max(E,W,ret)+.3)),X0=30,Y0=h-26,Y1=10,sy=v=>Y0-(Y0-Y1)*v/top,bw=Math.min(64,(w-X0-20)/3-14);
+ g.font='600 10px '+P.MONO;g.textAlign='right';g.fillStyle=mut;g.strokeStyle=grid;g.lineWidth=1;
+ for(let v=0;v<=top;v++){g.beginPath();g.moveTo(X0,sy(v));g.lineTo(w-6,sy(v));g.stroke();g.fillText(String(v),X0-5,sy(v)+3)}
+ const col=(i)=>X0+12+i*((w-X0-18)/3),bar=(i,v0,v1,fill,txt,txtCol)=>{const x=col(i),y0=sy(v0),y1=sy(v1);g.fillStyle=fill;g.fillRect(x,y1,bw,y0-y1);if(txt&&y0-y1>13){g.fillStyle=txtCol||'#fff';g.textAlign='center';g.font='700 11px '+P.MONO;g.fillText(txt,x+bw/2,(y0+y1)/2+4)}};
+ const lab=(i,t)=>{g.fillStyle=ink;g.textAlign='center';g.font='700 11px '+P.MONO;g.fillText(t,col(i)+bw/2,h-9)};
+ lab(0,'photon hf');lab(1,'W + KE');lab(2,'e|V| (brake)');
+ if(!f||!on){g.fillStyle=mut;g.textAlign='center';g.font='600 12px '+P.MONO;g.fillText(!f?'Put a filter in the lamp':'Turn the lamp on',w/2,h/2-10);$('ebNote').textContent='';return}
+ const vio=dk?'#B48CFF':'#7B4FD0',wc=dk?'#7C8B92':'#8A979D',kc=dk?'#6FB7FF':'#2F6FD0',ac=dk?'#F2B84B':'#C77D00';
+ bar(0,0,E,vio,fx(E,2),dk?'#13232B':'#fff');
+ if(myst){bar(1,0,E,wc,'?')}   // no split for the mystery metal: the bar heights would give W away
+ else{bar(1,0,Math.min(W,top),wc,'W '+fx(W,2));if(ke>0)bar(1,W,E,kc,fx(ke,2),dk?'#13232B':'#fff')}
+ if(ret>0)bar(2,0,ret,ac,fx(ret,2),dk?'#13232B':'#fff');else{g.fillStyle=mut;g.textAlign='center';g.font='600 10px '+P.MONO;g.fillText('0 (V ≥ 0)',col(2)+bw/2,sy(0)-6)}
+ // dashed line at hf across the first two bars
+ g.setLineDash([4,3]);g.strokeStyle=vio;g.lineWidth=1.3;g.beginPath();g.moveTo(col(0),sy(E));g.lineTo(col(1)+bw,sy(E));g.stroke();
+ if(ke>0&&!myst){g.strokeStyle=kc;g.beginPath();g.moveTo(col(1)+bw,sy(ke));g.lineTo(col(2)+bw,sy(ke));g.stroke()}g.setLineDash([]);
+ $('ebNote').textContent=E<=W?(myst?'hf is less than this metal\'s work function: no electrons come out, however bright the light.':'hf = '+fx(E,2)+' eV is less than W = '+fx(W,2)+' eV: no electrons come out, however bright the light.')
+  :ret>=ke-.005?'e|V| ≥ KE(max): even the fastest electrons are stopped, so the current is zero. At the stopping voltage, eV(stop) = KE(max) = hf − W.'
+  :ret>0?'The voltage takes '+fx(ret,2)+' eV from each electron. Some still reach the collector. Make the voltage more negative until the current just stops.'
+  :myst?'hf = W + KE(max). Find KE(max) from the stopping voltage, then W = hf − eV(stop).':'hf = W + KE(max): '+fx(E,2)+' = '+fx(W,2)+' + '+fx(ke,2)+' eV. Brightness changes the number of electrons, not these bars.'}
+function frame(dt0,now){if(now-(G_EB.t||0)>200){G_EB.t=now;drawEB()}const dt=Math.min(.1,Math.max(.004,(now-(frame.last||now))/1000||dt0));frame.last=now;S.time+=dt;const f=filt(),m=metal(),on=lit(),ke=f?f.E-m.W:0;
  // knobs: a slow hand makes a fine adjustment, a quick hand a coarse one
  for(const it of [vk,bk]){const h=K.holder(it),u=it.userData;if(!h){u.lx=null;continue}const xw=h.world.x,dx=u.lx==null?0:xw-u.lx;u.lx=xw;if(!dx)continue;const q=clamp(Math.abs(dx)/dt/4,0,1);
   if(u.dial==='V'){u.acc=(u.acc||0)+dx*(.3+1.9*q);if(Math.abs(u.acc)>=.01){const st=Math.trunc(u.acc*100)/100;u.acc-=st;setV(S.V+st)}}else{u.acc=(u.acc||0)+dx*(30+90*q);if(Math.abs(u.acc)>=1){const st=Math.trunc(u.acc);u.acc-=st;setB(S.bright+st)}}}
