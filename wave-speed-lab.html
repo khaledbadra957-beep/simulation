@@ -228,6 +228,9 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
     <div class="field" id="fFreq"><div class="field-head"><label for="f1">Frequency</label><output class="val" id="of1"></output></div><input id="f1" type="range" min="0.25" max="3" step="0.25" value="1"></div>
     <div class="field" id="fPw" hidden><div class="field-head"><label for="pw1">Pulse width</label><output class="val" id="opw1"></output></div><input id="pw1" type="range" min="0.25" max="1" step="0.05" value="0.5"></div>
     <div class="field"><div class="field-head"><label for="ten1">Tension</label><output class="val" id="oten1"></output></div><input id="ten1" type="range" min="0" max="4" step="1" value="2"></div>
+    <div class="field"><span class="flabel">Rope</span><div class="seg" role="group" aria-label="Rope" id="rope1"><button type="button" data-rope="thin" aria-pressed="false">Thin</button><button type="button" data-rope="med" aria-pressed="true">Medium</button><button type="button" data-rope="thick" aria-pressed="false">Thick</button></div></div>
+    <div class="field"><span class="flabel">Join a second rope at 4 m</span><div class="seg" role="group" aria-label="Second rope" id="rope2"><button type="button" data-rope2="" aria-pressed="true">None</button><button type="button" data-rope2="thin" aria-pressed="false">Thin</button><button type="button" data-rope2="med" aria-pressed="false">Medium</button><button type="button" data-rope2="thick" aria-pressed="false">Thick</button></div>
+     <p class="note" id="ropeNote" style="margin-top:4px"></p></div>
     <div class="field" data-adv><div class="field-head"><label for="damp1">Damping</label><output class="val" id="odamp1"></output></div><input id="damp1" type="range" min="0" max="100" step="5" value="0"></div>
    </section>
    <section class="group" data-adv>
@@ -295,19 +298,21 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
      <div class="field"><div class="field-head"><label for="rBa">B · amplitude</label><output class="val" id="orBa"></output></div><input id="rBa" type="range" min="10" max="40" step="5" value="20"></div>
      <div class="field"><div class="field-head"><label for="rBw" id="rBwL">B · pulse width</label><output class="val" id="orBw"></output></div><input id="rBw" type="range" min="0.25" max="1" step="0.25" value="0.5"></div>
     </div>
+    <div class="field"><span class="flabel">A · rope</span><div class="seg" role="group" aria-label="Rope A"><button type="button" data-rrA="thin" aria-pressed="false">Thin</button><button type="button" data-rrA="med" aria-pressed="true">Medium</button><button type="button" data-rrA="thick" aria-pressed="false">Thick</button></div></div>
+    <div class="field"><span class="flabel">B · rope</span><div class="seg" role="group" aria-label="Rope B"><button type="button" data-rrB="thin" aria-pressed="false">Thin</button><button type="button" data-rrB="med" aria-pressed="true">Medium</button><button type="button" data-rrB="thick" aria-pressed="false">Thick</button></div></div>
     <div class="chk"><label><input type="checkbox" id="rSame" checked>Same tension</label></div>
     <div class="field"><div class="field-head"><label for="rTa" id="rTaL">Tension (both)</label><output class="val" id="orTa"></output></div><input id="rTa" type="range" min="0" max="4" step="1" value="2"></div>
     <div class="field lane-b" id="rTbF" hidden><div class="field-head"><label for="rTb">B · tension</label><output class="val" id="orTb"></output></div><input id="rTb" type="range" min="0" max="4" step="1" value="2"></div>
    </section>
    <section class="group">
     <details><summary>Try these</summary>
-     <div class="tries"><button class="btn small" type="button" data-x="big">A twice as big</button><button class="btn small" type="button" data-x="quick">A quicker flick</button><button class="btn small" type="button" data-x="tight">A tighter</button><button class="btn small" type="button" data-x="fast">A shakes 2× faster</button></div>
+     <div class="tries"><button class="btn small" type="button" data-x="big">A twice as big</button><button class="btn small" type="button" data-x="quick">A quicker flick</button><button class="btn small" type="button" data-x="tight">A tighter</button><button class="btn small" type="button" data-x="thick">A thick rope, B thin</button><button class="btn small" type="button" data-x="fast">A shakes 2× faster</button></div>
     </details>
    </section>
    <section class="group">
     <details><summary>Results table</summary>
      <div class="measure">
-      <div class="tablewrap"><table><thead><tr><th>Run</th><th>String</th><th>Amp.</th><th id="rColW">Width / f</th><th>Tension</th><th>Time</th><th>v = 8.0 m ÷ t</th></tr></thead><tbody id="rBody"><tr class="empty"><td colspan="7">Send the pulses to fill the table.</td></tr></tbody></table></div>
+      <div class="tablewrap"><table><thead><tr><th>Run</th><th>String</th><th>Amp.</th><th id="rColW">Width / f</th><th>Tension · rope</th><th>Time</th><th>v = 8.0 m ÷ t</th></tr></thead><tbody id="rBody"><tr class="empty"><td colspan="7">Send the pulses to fill the table.</td></tr></tbody></table></div>
       <button class="btn small" id="rClr" type="button">Clear table</button>
      </div>
     </details>
@@ -392,6 +397,8 @@ const fx=(x,d=2)=>Number(x).toFixed(d);
 const TAU=Math.PI*2, MU=2.5, LEN=8;
 const TENS=[10,22.5,40,62.5,90];           // N  → v = 2, 3, 4, 5, 6 m/s
 const speedOf=T=>Math.sqrt(T/MU);
+const ROPES={thin:{mu:.625,name:'thin rope',w:1.8},med:{mu:2.5,name:'medium rope',w:3.2},thick:{mu:10,name:'thick rope',w:5.6}};   // 4× the mass per metre → half the speed
+const ropeOf=mu=>Object.values(ROPES).find(r=>Math.abs(r.mu-mu)<1e-9)||ROPES.med;
 const tLabel=i=>`${TENS[i]} N`;
 
 /* ---------- theme, tabs, full screen ---------- */
@@ -423,16 +430,22 @@ function arrowH(x,x1,y1,x2,y2,col,w=2.5){x.strokeStyle=col;x.fillStyle=col;x.lin
 
 /* ---------- string engine (exact travelling waves: courant number 1) ---------- */
 class Str{
- constructor(n=160){this.n=n;this.y=new Float64Array(n+1);this.p=new Float64Array(n+1);this.q=new Float64Array(n+1);this.ti=2;this.end='none';this.mode='osc';
+ constructor(n=160){this.n=n;this.y=new Float64Array(n+1);this.p=new Float64Array(n+1);this.q=new Float64Array(n+1);this.r2=new Float64Array(n+1).fill(1);this.mu=MU;this.mu2=null;this.rk='';this.ti=2;this.end='none';this.mode='osc';
   this.amp=.2;this.f=1;this.pw=.5;this.damp=0;this.t=0;this.acc=0;this.pulseAt=null;this.hand=0;this.handT=0;this.steps=0;this.arrived=null;this.watch=null}
- get v(){return speedOf(TENS[this.ti])} get dt(){return LEN/this.n/this.v}
+ get v(){return Math.sqrt(TENS[this.ti]/this.mu)}                           // speed on the first (driven) rope
+ get v2(){return this.mu2?Math.sqrt(TENS[this.ti]/this.mu2):this.v}           // speed on the second rope, if one is joined at the middle
+ get vmax(){return Math.max(this.v,this.v2)} get dt(){return LEN/this.n/this.vmax}
+ /* r² = (v_i Δt / Δx)² at each bead. One rope: r = 1 everywhere, which is exact. Two ropes: Δt is set by the faster rope,
+    and the slower one has r < 1. Same tension, so at the knot the wave is partly reflected and partly carried on. */
+ ropes(){const k=this.mu+'|'+this.mu2+'|'+this.ti;if(k===this.rk)return;this.rk=k;const n=this.n,j=n>>1,vm=this.vmax;
+  for(let i=0;i<=n;i++){const mu=!this.mu2||i<j?this.mu:i>j?this.mu2:(this.mu+this.mu2)/2;this.r2[i]=TENS[this.ti]/mu/(vm*vm)}}
  reset(){this.y.fill(0);this.p.fill(0);this.t=0;this.acc=0;this.pulseAt=null;this.steps=0;this.arrived=null;this.hand=0;this.handT=0}
  drive(t){if(this.mode==='osc')return this.amp*Math.sin(TAU*this.f*t);
   if(this.mode==='pulse'){if(this.pulseAt===null)return 0;const s=t-this.pulseAt;return s>=0&&s<=this.pw?this.amp*Math.sin(Math.PI*s/this.pw):0}
   this.hand+= (this.handT-this.hand)*.35;return this.hand}
- step(){const n=this.n,y=this.y,p=this.p,q=this.q,dt=this.dt,b=this.damp*1.2*dt/2;this.t+=dt;this.steps++;
-  q[0]=this.drive(this.t);for(let i=1;i<n;i++)q[i]=(y[i+1]+y[i-1]-(1-b)*p[i])/(1+b);
-  q[n]=this.end==='fixed'?0:this.end==='loose'?q[n-1]:y[n-1];
+ step(){this.ropes();const n=this.n,y=this.y,p=this.p,q=this.q,r2=this.r2,dt=this.dt,b=this.damp*1.2*dt/2;this.t+=dt;this.steps++;
+  q[0]=this.drive(this.t);for(let i=1;i<n;i++)q[i]=(2*y[i]-(1-b)*p[i]+r2[i]*(y[i+1]-2*y[i]+y[i-1]))/(1+b);
+  const rn=Math.sqrt(r2[n]);q[n]=this.end==='fixed'?0:this.end==='loose'?q[n-1]:y[n-1]+(rn-1)/(rn+1)*(q[n-1]-y[n]);   // no end: the wave leaves (exact when r = 1)
   this.p=y;this.y=q;this.q=p;
   if(this.arrived===null&&this.pulseAt!==null&&Math.abs(this.y[n-1])>1e-7)this.arrived=this.t-this.pulseAt}
  advance(sec){this.acc+=sec;let k=0;const dt=this.dt;while(this.acc>=dt&&k<600){this.step();this.acc-=dt;k++}if(k>=600)this.acc=0}
@@ -442,6 +455,9 @@ class Str{
 
 /* ================= TAB 1 ================= */
 const S=new Str();S.end='none';
+function setRope(mu,mu2){S.mu=mu;S.mu2=mu2;$$('[data-rope]').forEach(b=>b.setAttribute('aria-pressed',String(ROPES[b.dataset.rope].mu===mu)));$$('[data-rope2]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.rope2?ROPES[b.dataset.rope2].mu===mu2:!mu2)));
+ S.reset();if(typeof L1!=='undefined')L1.hist=[];readLab()}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-rope],[data-rope2]');if(!b)return;if(b.dataset.rope!=null)setRope(ROPES[b.dataset.rope].mu,S.mu2);else setRope(S.mu,b.dataset.rope2?ROPES[b.dataset.rope2].mu:null)});
 const L1={run:true,speed:1,ruler:{x:0,y:0},vr:{x:.8,y:0},ref:null,watch:56,hist:[],sw:{on:false,t:0,auto:true}};
 const c1=$('#c1'),g1=$('#g1');
 let geo1=null;
@@ -450,7 +466,8 @@ function readLab(){
  S.amp=+$('#amp1').value/100;S.f=+$('#f1').value;S.pw=+$('#pw1').value;S.ti=+$('#ten1').value;S.damp=+$('#damp1').value/100;
  $('#oamp1').textContent=$('#amp1').value+' cm';$('#of1').textContent=fx(S.f)+' Hz';$('#opw1').textContent=fx(S.pw)+' s';
  $('#oten1').textContent=tLabel(S.ti);$('#odamp1').textContent=$('#damp1').value+'%';
- const v=S.v,lam=v/S.f;
+ const v=S.v,lam=v/S.f,r1=ropeOf(S.mu),r2=S.mu2?ropeOf(S.mu2):null,T=TENS[S.ti];
+ $('#ropeNote').textContent=`${r1.name[0].toUpperCase()+r1.name.slice(1)}: μ = ${S.mu} kg/m, v = √(${T} ÷ ${S.mu}) = ${fx(v,1)} m/s.`+(r2?` Then the ${r2.name}: v₂ = ${fx(S.v2,1)} m/s`+(S.mode==='osc'?`, the same f, so λ₂ = ${fx(S.v2/S.f)} m.`:'.')+(S.v2<v-1e-9?' Heavier rope: the reflected part is upside down.':S.v2>v+1e-9?' Lighter rope: the reflected part stays upright.':' Same rope: nothing reflects.'):'');
  $('#rv').textContent=fx(v,1)+' m/s';
  if(S.mode==='pulse'){$('#rlamK').textContent='Pulse length';$('#rlam').textContent=fx(v*S.pw)+' m';$('#rperK').textContent='Time to cross 8.0 m';$('#rper').textContent=fx(LEN/v)+' s';$('#rfl').textContent='—'}
  else{$('#rlamK').textContent='Wavelength λ';$('#rlam').textContent=fx(lam)+' m';$('#rperK').textContent='Period T = 1 / f';$('#rper').textContent=fx(1/S.f)+' s';$('#rfl').textContent=`${fx(S.f)} × ${fx(lam)} = ${fx(v,1)} m/s`}
@@ -543,8 +560,15 @@ function drawLab(){
   x.fillStyle=mut;x.font=`700 12px ${css('--body')}`;x.fillText('drag me',G.left-18,G.mid+128)}
  // string + beads
  const strP=()=>{x.beginPath();for(let i=0;i<=S.n;i++){const bx=G.left+i/S.n*LEN*G.px,by=G.mid-S.at(i)*100*G.ys;i?x.lineTo(bx,by):x.moveTo(bx,by)}};x.lineJoin='round';
- strP();x.strokeStyle='rgba(0,0,0,.25)';x.lineWidth=5;x.stroke();strP();x.strokeStyle=acc;x.lineWidth=3.2;x.stroke();x.save();x.translate(0,-1);strP();x.strokeStyle='rgba(255,255,255,.45)';x.lineWidth=1;x.stroke();x.restore();
- for(let i=0;i<=S.n;i+=2){const bx=G.left+i/S.n*LEN*G.px,by=G.mid-S.at(i)*100*G.ys;const tag=i%20===0;LabViz.ball(x,bx,by,tag?5.8:4.4,tag?amber:acc)}
+ {const j=S.n>>1,segs=S.mu2?[[0,j,ropeOf(S.mu)],[j,S.n,ropeOf(S.mu2)]]:[[0,S.n,ropeOf(S.mu)]];
+  const part=(a,b)=>{x.beginPath();for(let i=a;i<=b;i++){const bx=G.left+i/S.n*LEN*G.px,by=G.mid-S.at(i)*100*G.ys;i>a?x.lineTo(bx,by):x.moveTo(bx,by)}};
+  for(const [a,b,r] of segs){part(a,b);x.strokeStyle='rgba(0,0,0,.25)';x.lineWidth=r.w+1.8;x.stroke();part(a,b);x.strokeStyle=acc;x.lineWidth=r.w;x.stroke();x.save();x.translate(0,-1);part(a,b);x.strokeStyle='rgba(255,255,255,.45)';x.lineWidth=1;x.stroke();x.restore()}
+  if(S.mu2){const kx=G.left+j/S.n*LEN*G.px;
+   x.font=`700 12px ${css('--body')}`;x.fillStyle=mut;x.textAlign='center';x.fillText('knot',kx,G.mid-0.42*100*G.ys-6);
+   x.fillText(ropeOf(S.mu).name+' · v = '+fx(S.v,1)+' m/s',G.left+LEN*G.px*.25,G.mid+0.42*100*G.ys+16);x.fillText(ropeOf(S.mu2).name+' · v = '+fx(S.v2,1)+' m/s',G.left+LEN*G.px*.75,G.mid+0.42*100*G.ys+16)}}
+ {const j=S.n>>1,rad=i=>{const mu=S.mu2&&i>j?S.mu2:S.mu;return mu<1?3.1:mu>5?5.6:4.4};
+  for(let i=0;i<=S.n;i+=2){const bx=G.left+i/S.n*LEN*G.px,by=G.mid-S.at(i)*100*G.ys;const tag=i%20===0;LabViz.ball(x,bx,by,tag?rad(i)+1.4:rad(i),tag?amber:acc)}
+  if(S.mu2){const kx=G.left+j/S.n*LEN*G.px,ky=G.mid-S.at(j)*100*G.ys;x.fillStyle=css('--ink');x.beginPath();x.arc(kx,ky,7.5,0,TAU);x.fill();x.strokeStyle=amber;x.lineWidth=2.5;x.stroke()}}
  const wx=G.left+L1.watch/S.n*LEN*G.px,wy=G.mid-S.at(L1.watch)*100*G.ys;
  x.strokeStyle=rose;x.setLineDash([3,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(wx,G.mid-0.42*100*G.ys);x.lineTo(wx,G.mid+0.42*100*G.ys);x.stroke();x.setLineDash([]);
  x.fillStyle=rose;x.beginPath();x.arc(wx,wy,8,0,TAU);x.fill();x.strokeStyle=stage;x.lineWidth=2;x.stroke();
@@ -595,9 +619,12 @@ function raceReset(){readRace();RA.reset();RB.reset();R.state='idle';R.res=null;
 ['rAa','rAw','rBa','rBw','rTa','rTb'].forEach(id=>$('#'+id).addEventListener('input',()=>{if(R.state!=='running')raceReset()}));
 $('#rSame').onchange=()=>{if(!$('#rSame').checked)$('#rTb').value=$('#rTa').value;raceReset()};
 $$('#pred button').forEach(b=>b.onclick=()=>{if(R.state==='running')return;R.pred=b.dataset.p;$$('#pred button').forEach(x=>x.setAttribute('aria-pressed',x===b));if(R.state==='done')raceReset();else{$('#rMsg').className='status';$('#rMsg').textContent='Ready. Send both!'}});
+function setRaceRope(lane,k){const s=lane==='A'?RA:RB;s.mu=ROPES[k].mu;$$('[data-rr'+lane+']').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute('data-rr'+lane)===k)));if(R.state!=='running')raceReset()}
+$$('[data-rrA]').forEach(b=>b.onclick=()=>setRaceRope('A',b.getAttribute('data-rrA')));$$('[data-rrB]').forEach(b=>b.onclick=()=>setRaceRope('B',b.getAttribute('data-rrB')));
 $$('[data-rspeed]').forEach(b=>b.onclick=()=>{R.speed=+b.dataset.rspeed;$$('[data-rspeed]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
 $$('[data-x]').forEach(b=>b.onclick=()=>{const k=b.dataset.x;if(k==='fast'){setRaceMode('osc');$('#rAw').value=2;$('#rBw').value=1}else{if(R.mode!=='pulse')setRaceMode('pulse');$('#rAw').value=k==='quick'?.25:.5;$('#rBw').value=.5}
  $('#rAa').value=k==='big'?40:20;$('#rBa').value=20;$('#rSame').checked=k!=='tight';$('#rTa').value=k==='tight'?4:2;$('#rTb').value=2;
+ setRaceRope('A',k==='thick'?'thick':'med');setRaceRope('B',k==='thick'?'thin':'med');
  R.pred=null;$$('#pred button').forEach(x=>x.setAttribute('aria-pressed','false'));raceReset()});
 $('#rGo').onclick=()=>{if(!R.pred){$('#rMsg').className='status bad';$('#rMsg').textContent='Make a prediction first! Scientists predict before they test.';return}
  readRace();RA.reset();RB.reset();RA.pulse();RB.pulse();if(R.mode==='osc'){RA.pulseAt=RB.pulseAt=0}R.state='running';$('#rGo').disabled=true;$('#rMsg').className='status';$('#rMsg').textContent='Racing…'};
@@ -606,20 +633,20 @@ $('#rClr').onclick=()=>{R.run=0;$('#rBody').innerHTML='<tr class="empty"><td col
 function raceFinish(){R.state='done';$('#rGo').disabled=false;const a=RA.arrived,b=RB.arrived;const d=a-b;const out=Math.abs(d)<.02?'S':d<0?'A':'B';const right=out===R.pred;
  const name={A:'String A arrived first',B:'String B arrived first',S:'Both arrived at the same time'}[out];let why;
  if(out==='S'){why=RA.amp!==RB.amp?' A bigger amplitude made a TALLER pulse, not a faster one.':(R.mode==='pulse'&&RA.pw!==RB.pw)?' A quicker flick made a SHORTER pulse, not a faster one.':(R.mode==='osc'&&RA.f!==RB.f)?' Shaking faster made SHORTER waves, not faster ones.':' Same string, same speed.'}
- else why=` The tighter string carries waves faster. The medium sets the speed.`;
+ else why=RA.mu!==RB.mu&&RA.ti===RB.ti?` The lighter rope carries waves faster: 4 times the mass per metre gives half the speed (v = √(T/μ)). The medium sets the speed.`:` The tighter string carries waves faster. The medium sets the speed.`;
  $('#rMsg').className='status '+(right?'ok':'bad');$('#rMsg').textContent=`${right?'Your prediction was right! ':'Not what you predicted. '}${name} (A ${fx(a)} s, B ${fx(b)} s).${why}`;
  R.run++;if(R.run===1)$('#rBody').innerHTML='';
- const row=(n,s,col)=>`<tr><td>${R.run}</td><td style="color:${col};font-weight:700">${n}</td><td>${Math.round(s.amp*100)} cm</td><td>${R.mode==='pulse'?fx(s.pw)+' s':fx(s.f)+' Hz'}</td><td>${tLabel(s.ti)}</td><td>${fx(s.arrived)} s</td><td class="hl">${fx(LEN/s.arrived,1)} m/s</td></tr>`;
+ const row=(n,s,col)=>`<tr><td>${R.run}</td><td style="color:${col};font-weight:700">${n}</td><td>${Math.round(s.amp*100)} cm</td><td>${R.mode==='pulse'?fx(s.pw)+' s':fx(s.f)+' Hz'}</td><td>${tLabel(s.ti)} · ${ropeOf(s.mu).name.replace(' rope','')}</td><td>${fx(s.arrived)} s</td><td class="hl">${fx(LEN/s.arrived,1)} m/s</td></tr>`;
  $('#rBody').insertAdjacentHTML('afterbegin',row('A',RA,css('--accent'))+row('B',RB,css('--amber')))}
 function drawRace(){const {x,w,h}=fit(c2);x.clearRect(0,0,w,h);const ink=css('--ink'),mut=css('--muted'),grid=css('--grid'),stage=css('--stage');
  const left=70,right=40,px=(w-left-right)/LEN,ys=Math.min(1.9,h*0.16/40);
  [[RA,css('--accent'),'A',h*0.28],[RB,css('--amber'),'B',h*0.72]].forEach(([s,col,n,mid])=>{
   x.fillStyle=col;x.font=`800 18px ${css('--display')}`;x.textAlign='left';x.fillText('String '+n,12,mid-h*0.17);
-  x.fillStyle=mut;x.font=`500 12px ${css('--data')}`;x.fillText(`A ${Math.round(s.amp*100)} cm · ${R.mode==='pulse'?'width '+fx(s.pw)+' s':'f '+fx(s.f)+' Hz'} · T ${tLabel(s.ti)}`,110,mid-h*0.17);
+  x.fillStyle=mut;x.font=`500 12px ${css('--data')}`;x.fillText(`A ${Math.round(s.amp*100)} cm · ${R.mode==='pulse'?'width '+fx(s.pw)+' s':'f '+fx(s.f)+' Hz'} · T ${tLabel(s.ti)} · ${ropeOf(s.mu).name}`,110,mid-h*0.17);
   x.setLineDash([4,6]);x.strokeStyle=mut;x.lineWidth=1;x.beginPath();x.moveTo(left,mid);x.lineTo(left+LEN*px,mid);x.stroke();x.setLineDash([]);
   for(let m=0;m<=LEN;m++){const xx=left+m*px;x.strokeStyle=mut;x.beginPath();x.moveTo(xx,mid+h*0.15);x.lineTo(xx,mid+h*0.15+6);x.stroke();x.fillStyle=mut;x.font=`500 11px ${css('--data')}`;x.textAlign='center';x.fillText(m+' m',xx,mid+h*0.15+18)}
   for(let k=0;k<8;k++){x.fillStyle=k%2?ink:grid;x.fillRect(left+LEN*px+2,mid-h*0.13+k*h*0.26/8,10,h*0.26/8)}
-  x.strokeStyle=col;x.lineWidth=3;x.beginPath();for(let i=0;i<=s.n;i++){const bx=left+i/s.n*LEN*px,by=mid-s.at(i)*100*ys;i?x.lineTo(bx,by):x.moveTo(bx,by)}x.stroke();
+  x.strokeStyle=col;x.lineWidth=ropeOf(s.mu).w;x.beginPath();for(let i=0;i<=s.n;i++){const bx=left+i/s.n*LEN*px,by=mid-s.at(i)*100*ys;i?x.lineTo(bx,by):x.moveTo(bx,by)}x.stroke();
   x.fillStyle=ink;x.beginPath();x.arc(left-14,mid-s.at(0)*100*ys,9,0,TAU);x.fill();
   const t=R.state==='idle'?0:(s.arrived!==null?s.arrived:s.t-(s.pulseAt||0));const done=s.arrived!==null;
   x.fillStyle=done?col:stage;x.strokeStyle=col;x.lineWidth=2;rr(x,w-right-190,mid-h*0.17-20,180,28,8);x.fill();x.stroke();
@@ -747,6 +774,7 @@ if(window.LabParts){window.__lp=LabParts.attach({key:'wave-speed',wrap:c1.parent
  return L}})}
 
 readLab();readRace();readSound();newQ();requestAnimationFrame(loop);
+window.__ws={S,RA,RB,ROPES,setRope};   // test hook
 window.__wsl={S,RA,RB,R,L1,SD};
 
 /* ================= Exercise: your numbers, solved in the lab (tour.js) ================= */
@@ -771,7 +799,7 @@ function exSolve(){const E=exRead();if(!E||!window.Tour)return;
  const calc=t=>'<div class="t-calc">'+t+'</div>';let steps;
  if(E.k==='str'){const T=TENS[E.ti],v=speedOf(T),f=E.f,lam=v/f,per=1/f;
   steps=[
-   {title:'Solve it in the lab',html:'<p>'+$('#exText').textContent+'</p><p>We set up the same string, then find each answer and check it with the lab.</p>',onShow:()=>{go('lab');if(!L1.run)$('#play1').click()}},
+   {title:'Solve it in the lab',html:'<p>'+$('#exText').textContent+'</p><p>We set up the same string, then find each answer and check it with the lab.</p>',onShow:()=>{go('lab');if(S.mu!==MU||S.mu2)setRope(MU,null);if(!L1.run)$('#play1').click()}},
    {el:()=>$('[data-mode="osc"]').parentElement,title:'Shake it steadily',html:'<p>Choose <b>Oscillate</b>: the hand moves the end up and down at a steady frequency.</p>',wait:()=>S.mode==='osc',doIt:()=>$('[data-mode="osc"]').click(),done:'The end now oscillates.',auto:900},
    {el:()=>$('#ten1').closest('.field'),title:'Set the tension',html:'<p>Drag <b>Tension</b> to <b>'+T+' N</b>.</p>',wait:()=>S.ti===E.ti,doIt:()=>setR('ten1',E.ti),done:'Tension = '+T+' N.',auto:900},
    {el:()=>$('#f1').closest('.field'),title:'Set the frequency',html:'<p>Drag <b>Frequency</b> to <b>'+fx(f)+' Hz</b>.</p>',wait:()=>Math.abs(S.f-f)<1e-9,doIt:()=>setR('f1',f),done:'f = '+fx(f)+' Hz.',auto:900},
