@@ -9,6 +9,7 @@
                      why: 'shown when placed', hint: 'where it goes' }],
      extras: () => [{ id, name, icon, why }],      // things that are not needed: each explains why
      watch: ['…', '…'],                             // "Watch for" lines on the finished card
+     doneTitle, goLabel,                            // text of the finished card and its button (default: titration)
      onOpen, onClose, onChange, onDone              // hooks for the lab
    });
    su.active · su.has(id) (true when closed) · su.age(id) ms since placed (Infinity when closed) · su.open() · su.close() */
@@ -109,11 +110,11 @@
       if (S.done) {
         var t = S.t1 - S.t0, rec = S.challenge && !S.helped && (!B || t < B.t);
         if (rec) saveBest(t);
-        panel.innerHTML = '<div class="su-done"><h4>Set up and ready to titrate</h4>' +
+        panel.innerHTML = '<div class="su-done"><h4>' + esc(o.doneTitle || 'Set up and ready to titrate') + '</h4>' +
           '<p class="su-k">Time ' + clock(t) + ' · Mistakes ' + S.miss + (S.helped ? ' · Placed for you ' + S.helped : '') + (S.challenge ? ' · Challenge mode' : '') + '</p>' +
           (rec ? '<p class="su-fb ok"><b>New best time: ' + clock(t) + '</b></p>' : (B ? '<p class="su-k">Best challenge time on this device: ' + clock(B.t) + '</p>' : '')) +
           (o.watch && o.watch.length ? '<p style="margin:8px 0 0"><b>Watch for</b></p><ul>' + o.watch.map(function (w) { return '<li>' + w + '</li>'; }).join('') + '</ul>' : '') +
-          '</div><div class="su-row"><button class="btn" data-a="go" type="button">Start titrating</button><button class="btn small" data-a="again" type="button">Set it up again</button>' +
+          '</div><div class="su-row"><button class="btn" data-a="go" type="button">' + esc(o.goLabel || 'Start titrating') + '</button><button class="btn small" data-a="again" type="button">Set it up again</button>' +
           (S.challenge ? '' : '<button class="btn small" data-a="chal" type="button">Try challenge mode</button>') + '</div>';
         return;
       }

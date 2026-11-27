@@ -187,7 +187,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
 .stage-ui .exgrid input[aria-invalid="true"]{border-color:var(--bad,#C0392B)}
 .stage-ui .exq p{margin:0}.stage-ui .exq ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
 @media (max-width:860px),(max-height:560px){.stage-ui .scene{aspect-ratio:1000/600}.stage-ui .hint3{display:none}}
-</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css">
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><script src="bench-setup.js"></script><link rel="stylesheet" href="site.css">
 </head><body>
 
 <header class="topbar">
@@ -435,6 +435,7 @@ $('#mL').value=2;$('#mR').value=6;
    CELL MODEL
    ========================================================= */
 const VOL=0.1,M0=10,F=96485,RINT=1.5,RES={volt:1e9,bulb:5,motor:8},TS=1500; // TS: lab seconds per real second at 1×
+const SU=id=>!window.__su||window.__su.has(id);   // "Set it up yourself": draw only what the student has placed
 const cell={L:null,R:null,cL:1,cR:1,closed:false,bridge:true,dev:'bulb',spd:1,xi:0,t:0,I:0,E:0,answered:false,dead:''};
 function setup(){cell.L=M[+$('#mL').value];cell.R=M[+$('#mR').value];cell.t=0;cell.dead='';cell.deadK=false;cell.closed=false;cell.block=0;cell.hist=[];cell.hacc=0;cell.needle=0;$('#swBtn').textContent='Close the switch';
  cell.c={L:Math.pow(10,+$('#sCL').value),R:Math.pow(10,+$('#sCR').value)};cell.mass={L:M0,R:M0};
@@ -730,33 +731,34 @@ function drawCell(){const c=$('#cv');const {x,w,h}=fit(c);const s=Math.min(w/VW,
   LabViz.ball(x,px,py,r,col);x.strokeStyle='rgba(0,0,0,.28)';x.lineWidth=1;x.beginPath();x.arc(px,py,r,0,7);x.stroke();
   if(sc>.75){x.fillStyle='#10202A';x.font=`700 ${Math.round((type==='cat'?12:11)*Math.min(1.1,sc))}px "IBM Plex Mono",monospace`;x.textAlign='center';x.textBaseline='middle';x.fillText(txt,px,py+.5);x.textBaseline='alphabetic'}};
  backdrop(x);
- for(const side of ['L','R']){const m=side==='L'?cell.L:cell.R;beakerBack(x,side);liquid(x,side,m,cc[side],t,flow)}
+ for(const side of ['L','R']){if(!SU('bk'+side))continue;const m=side==='L'?cell.L:cell.R;beakerBack(x,side);liquid(x,side,m,cc[side],t,flow)}
  // salt bridge
- if(cell.bridge||bDrag<0){x.save();x.translate(0,bDrag);if(bDrag<-60)x.globalAlpha=.85;saltBridge(x,lab,font,ion);x.restore()}
- if(!cell.bridge&&bDrag===0){x.setLineDash([10,8]);x.strokeStyle=C.muted;x.lineWidth=2;x.beginPath();x.moveTo(BR.L-21,BR.bot);x.lineTo(BR.L-21,BR.top+BRR);x.arcTo(BR.L-21,BR.top-21,BR.L+BRR,BR.top-21,BRR+21);x.lineTo(BR.R-BRR,BR.top-21);x.arcTo(BR.R+21,BR.top-21,BR.R+21,BR.top+BRR,BRR+21);x.lineTo(BR.R+21,BR.bot);x.stroke();x.setLineDash([]);
+ if(SU('bridge')&&(cell.bridge||bDrag<0)){x.save();x.translate(0,bDrag);if(bDrag<-60)x.globalAlpha=.85;saltBridge(x,lab,font,ion);x.restore()}
+ if(SU('bridge')&&!cell.bridge&&bDrag===0){x.setLineDash([10,8]);x.strokeStyle=C.muted;x.lineWidth=2;x.beginPath();x.moveTo(BR.L-21,BR.bot);x.lineTo(BR.L-21,BR.top+BRR);x.arcTo(BR.L-21,BR.top-21,BR.L+BRR,BR.top-21,BRR+21);x.lineTo(BR.R-BRR,BR.top-21);x.arcTo(BR.R+21,BR.top-21,BR.R+21,BR.top+BRR,BRR+21);x.lineTo(BR.R+21,BR.bot);x.stroke();x.setLineDash([]);
   x.textAlign='center';x.font=font(15);tag(x,'salt bridge removed',500,BR.top+62,C.bad);x.font=font(13,500);tag(x,SMALL?'tap to put back':'tap here to put it back',500,BR.top+84,C.muted)}
- else if(lab&&!SMALL&&bDrag===0&&cell.bridge&&!cell.closed){x.font=font(12,500);x.textAlign='center';tag(x,'drag up to remove',500,BR.top+106,C.muted)}
+ else if(SU('bridge')&&lab&&!SMALL&&bDrag===0&&cell.bridge&&!cell.closed){x.font=font(12,500);x.textAlign='center';tag(x,'drag up to remove',500,BR.top+106,C.muted)}
  // ions, far ones smaller and paler
- if($('#cIons').checked)for(const side of ['L','R']){const m=side==='L'?cell.L:cell.R;const arr=P[side];arr.forEach(p=>{if(p.z===undefined)p.z=Math.random()});
+ if($('#cIons').checked)for(const side of ['L','R']){if(!SU('bk'+side))continue;const m=side==='L'?cell.L:cell.R;const arr=P[side];arr.forEach(p=>{if(p.z===undefined)p.z=Math.random()});
   [...arr].sort((a,b)=>a.z-b.z).forEach(p=>{let al=.62+.38*p.z,sc=.8+.3*p.z;if(p.state==='bridge')al*=Math.max(0,Math.min(1,p.life));if(p.state==='out'){const u=Math.min(1,p.life*1.6);al*=u;sc*=.6+.4*u}if(p.state==='in'){const d=Math.abs(p.x-EX[side]);sc*=Math.max(.5,Math.min(1,d/40))}x.globalAlpha=al;ion(p.x,p.y,p.type,m,sc)});x.globalAlpha=1}
  // reaction flashes at the electrode surfaces
  FX=FX.filter(f=>(f.t+=1/60)<.7);for(const f of FX){const u=f.t/.7,r=6+u*18;const g=x.createRadialGradient(f.x,f.y,0,f.x,f.y,r);g.addColorStop(0,f.kind==='in'?`rgba(255,190,120,${.85*(1-u)})`:`rgba(220,245,255,${.85*(1-u)})`);g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.beginPath();x.arc(f.x,f.y,r,0,7);x.fill()}
  // electrodes
- const WW={};for(const side of ['L','R']){const m=side==='L'?cell.L:cell.R;const isA=!cell.noCell&&side===cell.an;WW[side]=electrode(x,side,m,isA,cell.mass[side])}
- for(const side of ['L','R']){const m=side==='L'?cell.L:cell.R;beakerFront(x,side,m,cc[side])}
+ const WW={};for(const side of ['L','R']){if(!SU('el'+side))continue;const m=side==='L'?cell.L:cell.R;const isA=!cell.noCell&&side===cell.an;WW[side]=electrode(x,side,m,isA,cell.mass[side])}
+ for(const side of ['L','R']){if(!SU('bk'+side))continue;const m=side==='L'?cell.L:cell.R;beakerFront(x,side,m,cc[side])}
+ if(SU('wires')){
  // cables, clips, switch, meter, bulb or motor
  const segs=cables(),red='#C8302C',blk='#1E2327',colOf=sd=>(sd===cell.an)?blk:red;
  for(const sg of segs)cable(x,sg.pts,colOf(sg.side));
  for(const side of ['L','R'])gator(x,EX[side],ETOP,colOf(side));
- knifeSwitch(x,font,lab);meterDraw(x,font);if(cell.dev!=='volt')bulbDraw(x);
+ knifeSwitch(x,font,lab);meterDraw(x,font);if(cell.dev!=='volt')bulbDraw(x);}
  // electrons glowing inside the wires
- if(show&&$('#cE').checked){const pts=circuit(),n=26;for(let i=0;i<n;i++){const f0=((i/n)+(flow?tElec*.8:0))%1;
+ if(SU('wires')&&show&&$('#cE').checked){const pts=circuit(),n=26;for(let i=0;i<n;i++){const f0=((i/n)+(flow?tElec*.8:0))%1;
    for(let tr=2;tr>=0;tr--){const f=(f0-tr*.004+1)%1;const [px,py]=along(pts,f);if(hiddenAt(px,py))continue;
     if(tr){x.fillStyle=`rgba(255,226,90,${flow?.22/tr:0})`;x.beginPath();x.arc(px,py,5-tr,0,7);x.fill();continue}
     const g=x.createRadialGradient(px,py,0,px,py,10);g.addColorStop(0,'rgba(255,240,150,.85)');g.addColorStop(1,'rgba(255,220,80,0)');x.fillStyle=g;x.beginPath();x.arc(px,py,10,0,7);x.fill();
     x.fillStyle=C.elec;x.beginPath();x.arc(px,py,5.5,0,7);x.fill();x.fillStyle='#10202A';x.font='700 9px "IBM Plex Mono",monospace';x.textAlign='center';x.textBaseline='middle';x.fillText('−',px,py+.5);x.textBaseline='alphabetic'}}
   if(lab){const dir=cell.an==='L'?1:-1;x.font=font(14,700);x.textAlign='center';tag(x,dir>0?'e⁻ →':'← e⁻',dir>0?236:764,30,C.elec)}}
- if(show&&$('#cI').checked){const dir=cell.an==='L'?-1:1,y=30,xc=dir<0?764:236,xa=xc-dir*45,xb=xc+dir*45;x.strokeStyle=C.rose;x.fillStyle=C.rose;x.lineWidth=3;
+ if(SU('wires')&&show&&$('#cI').checked){const dir=cell.an==='L'?-1:1,y=30,xc=dir<0?764:236,xa=xc-dir*45,xb=xc+dir*45;x.strokeStyle=C.rose;x.fillStyle=C.rose;x.lineWidth=3;
   x.beginPath();x.moveTo(xa,y+22);x.lineTo(xb,y+22);x.stroke();x.beginPath();x.moveTo(xb,y+22);x.lineTo(xb-dir*12,y+15);x.lineTo(xb-dir*12,y+29);x.closePath();x.fill();x.font=font(13,700);x.textAlign='center';x.fillText('I',xc,y+16)}
  // labels
  if(lab)for(const side of ['L','R']){const m=side==='L'?cell.L:cell.R,isA=!cell.noCell&&side===cell.an,cx=EX[side];
@@ -1071,6 +1073,29 @@ if(window.LabParts){window.__lp=LabParts.attach({key:'galvanic',wrap:$('#cv').pa
  L.push({id:'switch',name:'Switch',what:'Closes the circuit. Nothing happens until it is closed: then electrons flow from the anode to the cathode through the wire.',hint:'On the wire at the top left.',q:'What do you close to start the current?',x:X(SW.x-70),y:Y(SW.y+5),boxes:[B(SW.x-56,SW.y-30,SW.x+56,SW.y+18)]});
  if(cell.dev!=='volt')L.push({id:'load',name:cell.dev==='bulb'?'Bulb':'Motor',what:'Uses the energy of the electrons flowing through the circuit. The bigger the current, the brighter (or faster) it goes.',hint:'At the top right.',q:'What uses the electrical energy?',x:X(BLB.x+62),y:Y(BLB.y-40),boxes:[B(BLB.x-50,BLB.y-100,BLB.x+50,BLB.y+18)]});
  return L}})}
+
+/* ---------- "Set it up yourself" on the cell bench (bench-setup.js) ---------- */
+if(window.BenchSetup){const I=d=>'<svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';
+ const IC={beaker:I('<path d="M6 4h16M7 4v18a2 2 0 002 2h10a2 2 0 002-2V4"/><path d="M7 13h14"/>'),strip:I('<rect x="11" y="2" width="6" height="22" rx="1"/><path d="M11 15h6"/>'),
+  bridge:I('<path d="M5 25V11a9 9 0 0118 0v14"/><path d="M9 25V11a5 5 0 0110 0v14"/>'),wires:I('<rect x="9" y="3" width="10" height="8" rx="1.5"/><path d="M12 9l2-3M9 7H4v17M19 7h5v17"/>'),
+  wire:I('<path d="M4 20c4-12 16-12 20 0"/>'),sugar:I('<path d="M8 4h12l-2 20H10z"/><path d="M11 10h6M11 15h6"/>'),water:I('<path d="M14 3c4 6 7 10 7 14a7 7 0 01-14 0c0-4 3-8 7-14z"/>')};
+ const cap=t=>t[0].toUpperCase()+t.slice(1);
+ const suParts=()=>{if(!cell.L||!CVT)return [];const {s,ox,oy}=CVT,X=v=>ox+v*s,Y=v=>oy+v*s,B=(a,b,c,d)=>[X(a),Y(b),X(c),Y(d)],L=[];
+  for(const side of ['L','R']){const m=cell[side],[x0,x1]=BK[side],where=side==='L'?'left':'right';
+   L.push({id:'bk'+side,name:'Beaker of '+m.salt+' solution',icon:IC.beaker,spot:B(x0-6,RIM-16,x1+6,BOT+6),why:'This half-cell needs '+m.name+' ions, so the '+m.name+' strip will stand in '+m.salt+'.',hint:'It goes on the '+where+' of the bench.'})}
+  for(const side of ['L','R']){const m=cell[side],cx=EX[side];
+   L.push({id:'el'+side,name:cap(m.name)+' strip',icon:IC.strip,needs:['bk'+side],spot:B(cx-28,ETOP-10,cx+28,EBOT+4),early:'It stands in a solution of its own ions, '+m.salt+', so that beaker comes first.',why:cap(m.name)+' in '+m.salt+': each half-cell is a metal in a solution of its own ions. Rub the strip with sandpaper first so its surface can react.',hint:'It dips into the '+m.salt+' solution.'})}
+  L.push({id:'bridge',name:'Salt bridge (KNO₃)',icon:IC.bridge,needs:['bkL','bkR'],spot:B(BR.L-26,BR.top-28,BR.R+26,BR.top+64),early:'Its two ends dip into the two solutions, so both beakers must be in place.',why:'A U-tube of KNO₃ gel (or filter paper soaked in it). Its ions move into the beakers and keep each solution neutral, so the current can keep flowing.',hint:'It joins the two beakers.'});
+  L.push({id:'wires',name:cell.dev==='volt'?'Leads, switch and voltmeter':'Leads, switch, meter and '+(cell.dev==='bulb'?'bulb':'motor'),icon:IC.wires,needs:['elL','elR'],spot:B(EX.L-30,MT.y-MT.h/2-12,EX.R+30,ETOP+8),early:'The leads clip onto the two metal strips, so both strips must be in place.',why:'Keep the switch open while you connect. The black (COM) lead goes to the anode (−), the red lead to the cathode (+). Electrons travel through these wires, never through the solutions.',hint:'They clip onto the tops of the two strips.'});
+  return L};
+ const suExtras=()=>[{id:'wire',name:'Copper wire (as a bridge)',icon:IC.wire,why:'A wire carries electrons, not ions. It cannot keep the two solutions neutral, so the current would stop at once.'},
+  {id:'sugar',name:'Sugar solution (for the bridge)',icon:IC.sugar,why:'Sugar does not form ions in water, so it cannot carry charge between the beakers.'},
+  {id:'water',name:'Distilled water (for the beakers)',icon:IC.water,why:'Pure water has almost no ions, so it hardly conducts, and each metal needs a solution of its own ions.'}];
+ const ctl=()=>$$('#swBtn,#swBtn2,#bridgeBtn,#resetBtn,#mL,#mR,#sCL,#sCR,[data-dev]');
+ window.__suP=suParts;window.__su=BenchSetup.attach({key:'galvanic',float:false,wrap:$('#cv').parentElement,stage:$('#cv'),bar:$('#p-cell .transport'),title:'Set up the galvanic cell',doneTitle:'The cell is set up',goLabel:'Start the cell',parts:suParts,extras:suExtras,
+  watch:['Each metal stands in a solution of its own ions.','The salt bridge must dip into both solutions.','Close the switch only when everything is connected, and read the voltmeter straight away.'],
+  onOpen(){if(cell.closed)$('#swBtn').click();if(!cell.bridge){cell.bridge=true;syncBridge()}if(window.__lp)window.__lp.close();ctl().forEach(e=>{e.dataset.suOff=e.disabled?'1':'';e.disabled=true});drawAll()},
+  onClose(){ctl().forEach(e=>{e.disabled=e.dataset.suOff==='1';delete e.dataset.suOff});drawAll()},onChange(){drawAll()}})}
 
 readColors();setup();readouts();$('#ordNew').onclick();nextQ();themeLabel();
 requestAnimationFrame(loop);
