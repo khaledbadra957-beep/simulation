@@ -71,6 +71,7 @@ table.data{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:8px}t
     <div><h3>Test charge</h3><div class="seg" id="qsel"><button type="button" data-q="1" aria-pressed="true">+1 nC</button><button type="button" data-q="2" aria-pressed="false">+2 nC</button></div></div>
     <label class="ck"><input type="checkbox" id="lines1" checked> Show field lines</label>
     <label class="ck"><input type="checkbox" id="vec1"> Show field arrows everywhere</label>
+    <label class="ck"><input type="checkbox" id="sup1"> Show the force from each sphere, added tip to tail</label>
    </div>
    <div class="card ctl" id="ctl2" hidden>
     <div><h3>Electrodes</h3><div class="seg" id="esel"><button type="button" data-e="plates" aria-pressed="true">Parallel plates</button><button type="button" data-e="points" aria-pressed="false">Two points</button></div></div>
@@ -151,6 +152,7 @@ const tipPos=()=>V(sensor.position.x,sensor.position.y+TIP*sensor.scale.y,0);
 
 /* the field of the spheres in the holders (N/C), at a point on the panel */
 function field(x,y){let ex=0,ey=0;for(const s of spheres){const u=s.userData;if(u.slot==null)continue;const p=SLOT[u.slot],dx=(x-p.x)*U,dy=(y-p.y)*U,r=Math.max(.018,Math.hypot(dx,dy)),e=KC*u.charge/(r*r*r);ex+=e*dx;ey+=e*dy}return [ex,ey]}
+function fieldOf(s,x,y){const u=s.userData,p=SLOT[u.slot],dx=(x-p.x)*U,dy=(y-p.y)*U,r=Math.max(.018,Math.hypot(dx,dy)),e=KC*u.charge/(r*r*r);return [e*dx,e*dy]}
 const onPanel=p=>p.x>PAN.x0&&p.x<PAN.x1&&p.y>PAN.y0&&p.y<PAN.y1;
 function placed(){return spheres.filter(s=>s.userData.slot!=null)}
 
@@ -287,7 +289,17 @@ function hudDraw(g){const ink=K.ink(),dk=K.isDark(),amber=dk?'#F2B84B':'#B36B00'
     arrow(g,p[0]-ex/E*L/2,p[1]+ey/E*L/2,p[0]+ex/E*L/2,p[1]-ey/E*L/2,dk?'rgba(224,166,58,.55)':'rgba(179,107,0,.5)',2)}}
   spheres.forEach(s=>{const u=s.userData;if(!K.holder(s)&&(K.W>520||u.slot!=null))K.tag(u.name,V(s.position.x,s.position.y+.58,.4),u.charge>0?RED:BLUE,0,true)});
   // the force on the test charge
-  const r=S.last1;if(r&&ps.length&&onPanel(r.t)){const p=sc(r.t.x,r.t.y,.3);if(r.F>1e-9){const L=clamp(14+Math.sqrt(r.F*1e6)*9,16,90);arrow(g,p[0],p[1],p[0]+r.ex/r.E*L,p[1]-r.ey/r.E*L,amber,4)}
+  const r=S.last1;if(r&&ps.length&&onPanel(r.t)){const p=sc(r.t.x,r.t.y,.3);
+   // superposition: the force from each sphere (same scale, in µN), the second drawn from the tip of the first, and the total
+   const sup=$('sup1').checked&&ps.length>=2;
+   if(sup){const fs=ps.map(sp=>{const [ex,ey]=fieldOf(sp,r.t.x,r.t.y);return {sp,fx:ex*S.q*1e-3,fy:ey*S.q*1e-3}}),mx=Math.max(...fs.map(f=>Math.hypot(f.fx,f.fy)),1e-9),k=Math.min(90/mx,40);   // µN → px
+    let tx=p[0],ty=p[1];fs.forEach((f,i)=>{const col=f.sp.userData.charge>0?RED:BLUE,x1=p[0]+f.fx*k,y1=p[1]-f.fy*k;arrow(g,p[0],p[1],x1,y1,col,2.5);
+     g.font='700 12px "IBM Plex Mono",monospace';g.fillStyle=col;g.textAlign='center';g.fillText('F'+'₁₂₃'[i],x1+(f.fx>=0?10:-10),y1-(f.fy>=0?8:-14));
+     if(i>0){g.setLineDash([5,4]);arrow(g,tx,ty,tx+f.fx*k,ty-f.fy*k,col,2);g.setLineDash([])}
+     tx+=f.fx*k;ty-=f.fy*k});
+    if(Math.hypot(tx-p[0],ty-p[1])>3)arrow(g,p[0],p[1],tx,ty,amber,4);else{g.fillStyle=amber;g.beginPath();g.arc(p[0],p[1],5,0,7);g.fill()}
+   }
+   if(!sup&&r.F>1e-9){const L=clamp(14+Math.sqrt(r.F*1e6)*9,16,90);arrow(g,p[0],p[1],p[0]+r.ex/r.E*L,p[1]-r.ey/r.E*L,amber,4)}
    K.tag('F = '+fx(r.F*1e6,1)+' µN'+(r.dx!=null?' · '+fx(r.near,1)+' cm':''),V(r.t.x,r.t.y+.55,.3),amber,0,true);ring(p,S.hold/.9)}
   if(!K.holder(sensor)&&!sensor.userData.placed&&K.W>520)K.tag('force sensor',V(sensor.position.x,sensor.position.y-.55,.3),ink,0,true);
   SLOT.forEach((p,i)=>{if(!slotted(i))K.tag(i?'holder':'holder (0 cm)',V(p.x,p.y-.55,.3),null)})}

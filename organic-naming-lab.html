@@ -97,6 +97,7 @@ p{margin:0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .card h3{font-family:var(--mono);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .caption{font-size:.87rem;color:var(--muted)}
+.h2msg{margin:6px 0;padding:8px 12px;border-left:4px solid var(--accent);background:var(--surface,transparent);border-radius:6px;font-size:.95rem}.h2msg span{display:block;color:var(--muted);font-size:.87rem;margin-top:2px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .flabel{font-weight:700;font-size:.9rem}
 select,input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:.35em .5em;min-width:0}
@@ -952,10 +953,10 @@ function Builder(host, opt){
   host.innerHTML = '<div class="row" style="margin-bottom:8px">' + ringUI +
     '<span class="row chainctl"><span class="flabel">Carbons in the row</span><button class="btn icon" data-act="minus" aria-label="Remove a carbon">−</button><output>' + this.st.n + '</output><button class="btn icon" data-act="plus" aria-label="Add a carbon">+</button></span>' +
     '<span class="row ringctl"><label class="flabel" for="' + this.id + '-ring">Ring</label><select id="' + this.id + '-ring" data-ring="1">' + RINGOPTS.map(function(o){ return '<option value="' + o[0] + '">' + o[1] + '</option>'; }).join('') + '</select></span>' +
-    '<button class="btn small" data-act="clear">Clear groups and bonds</button>' +
+    '<button class="btn small" data-act="clear">Clear groups and bonds</button>' + (this.opt.h2 ? '<button class="btn small" data-act="h2" title="Hydrogenation: add H₂ across one multiple bond">+ H₂</button>' : '') +
     '<button class="btn small fsbtn" data-act="fs" aria-pressed="false"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8V3h5M12 3h5v5M17 12v5h-5M8 17H3v-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Full screen</span></button></div>' +
     '<div class="molwrap"><svg class="mol" role="group" aria-label="Molecule. Carbons and bonds are buttons."></svg></div>' +
-    '<p class="caption bhelp explain" style="margin:6px 0"></p><div class="editor"></div>';
+    '<p class="caption bhelp explain" style="margin:6px 0"></p>' + (this.opt.h2 ? '<p class="h2msg" hidden></p>' : '') + '<div class="editor"></div>';
   this.host = host; this.svg = host.querySelector('svg.mol'); this.ed = host.querySelector('.editor'); this.out = host.querySelector('output'); this.rsel = host.querySelector('[data-ring]'); this.help = host.querySelector('.bhelp');
   host.addEventListener('click', function(e){
     var a = e.target.closest('[data-act]'); if (a){ self.act(a.getAttribute('data-act')); return; }
@@ -985,6 +986,7 @@ Builder.prototype.set = function(st){ this.st = clone(st); this.sel = Math.min(t
 Builder.prototype.act = function(a){
   var st = this.st;
   if (a === 'fs'){ toggleFS(this.host); return; }
+  if (a === 'h2'){ this.hydrogenate(); return; }
   if (a === 'mode-chain' || a === 'mode-ring'){
     var want = a === 'mode-ring'; if (!!st.ring === want) return;
     this.saved[st.ring ? 'ring' : 'chain'] = clone(st); this.st = clone(this.saved[want ? 'ring' : 'chain']); this.sel = 0; this.changed(); return;
@@ -999,6 +1001,18 @@ Builder.prototype.act = function(a){
   this.sel = Math.min(this.sel, this.st.n - 1);
   this.changed();
 };
+/* + H₂ (hydrogenation, an addition reaction): one step at a time, alkyne → alkene → alkane */
+Builder.prototype.hydrogenate = function(){
+  var st = this.st, msg = this.host.querySelector('.h2msg'), show = !this.opt.highlight || this.opt.highlight(), i = st.bonds.indexOf(3), say = function(h){ msg.hidden = false; msg.innerHTML = h; };
+  if (st.ring && st.arom){ say('Benzene does not add H₂ like an alkene: its ring of shared electrons is very stable.'); return; }
+  if (i < 0) i = st.bonds.indexOf(2);
+  if (i < 0){ say('<b>Already saturated.</b> Only single C–C bonds, so H₂ cannot add any more. Tap a bond to make it double or triple first.'); return; }
+  var before = clone(st), fb = formula(toGraph(before)).text, nb = show ? nameMolecule(before).iupac : '';
+  st.bonds[i]--; if (!stateValid(st)){ st.bonds[i]++; say('H₂ cannot add here.'); return; }
+  var fa = formula(toGraph(st)).text, na = show ? nameMolecule(st).iupac : '', cat = st.bonds[i] === 2 ? 'Lindlar catalyst: stops at the alkene' : 'Ni or Pt catalyst';
+  say('<b>' + (show ? esc(nb) + ' + H₂ → ' + esc(na) : fb + ' + H₂ → ' + fa) + '</b><span>' + (show ? fb + ' + H₂ → ' + fa + ' · ' : '') + (st.bonds[i] === 2 ? 'triple → double bond' : 'double → single bond') + ' (' + cat + '). An addition reaction: the two H atoms add to the two carbons of the multiple bond.</span>');
+  this._h2keep = true; this.changed(); this._h2keep = false;
+};
 Builder.prototype.cycleBond = function(i, keepFocus){
   var st = this.st, cur = st.bonds[i];
   if (st.ring){
@@ -1012,7 +1026,7 @@ Builder.prototype.cycleBond = function(i, keepFocus){
   }
   this.changed(keepFocus ? '[data-bond="' + i + '"]' : null);
 };
-Builder.prototype.changed = function(focusSel){ this.render(focusSel === true ? null : focusSel); if (this.opt.onChange) this.opt.onChange(this.st); };
+Builder.prototype.changed = function(focusSel){ var hm = this.host.querySelector('.h2msg'); if (hm && !this._h2keep) hm.hidden = true; this.render(focusSel === true ? null : focusSel); if (this.opt.onChange) this.opt.onChange(this.st); };
 Builder.prototype.render = function(focusSel){
   var st = this.st, self = this, ring = !!st.ring;
   this.out.textContent = st.n;
@@ -1141,7 +1155,7 @@ var PRESET_LABEL = { alk: 'Alkanes and haloalkanes', ene: 'Alkenes and alkynes',
 
 /* =========== TAB 1: build & name =========== */
 var bState = BANK[39].st;
-var build = new Builder($('bBuilder'), { state: bState, highlight: function(){ return !$('bGuess').checked || bSolved; }, onChange: function(){ bSolved = false; updateBuild(); } });
+var build = new Builder($('bBuilder'), { h2: true, state: bState, highlight: function(){ return !$('bGuess').checked || bSolved; }, onChange: function(){ bSolved = false; updateBuild(); } });
 var bSolved = false;
 (function(){
   var html = '<option value="">Choose an example…</option>';
