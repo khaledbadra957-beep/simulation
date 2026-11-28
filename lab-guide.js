@@ -162,6 +162,15 @@
       mis: [['t½ is half of the time the experiment lasted.', 'It is defined by half of n(I₂)max.'], ['The rate stays constant.', 'Tangent slopes fall over time.'], ['The reaction ends when the table ends.', 'Compare with n(I₂)max (step 2).']],
       qs: ['Why does the curve flatten?', 'How would doubling V(H₂O₂) change n(I₂)max?', 'Why is the sample put in ice water?']
     },
+    'states-of-matter-lab.html': {
+      big: "Particles in every state of matter are always moving. Adding energy makes them move faster (temperature rises) or breaks the forces between them (a phase change, temperature stays the same). Stronger intermolecular forces mean higher melting and boiling points.",
+      tryThis: ["Heat the ice. Why does the temperature stop rising at 0 °C and at 100 °C?", "Which plateau is longer, melting or boiling? What does that tell you about the forces?", "Double the mass. What happens to the length of each part of the curve?", "Forces: compare CH₄, NH₃ and H₂O. They have almost the same mass, so why are their boiling points so different?", "Halogens: why does the boiling point rise from F₂ to I₂?", "Phase diagram: take water at 1 atm from −20 °C to 120 °C. Then try it at 0.3 kPa.", "Carbon dioxide: why does dry ice not melt at 1 atm?"],
+      words: [["Kinetic-molecular theory", "particles are always moving; temperature measures their average kinetic energy"], ["Intermolecular forces", "attractions between molecules: dispersion, dipole–dipole, hydrogen bonds"], ["Hydrogen bond", "strong dipole attraction between H on N, O or F and a lone pair on N, O or F"], ["Vapor pressure", "pressure of the vapor above a liquid in a closed container"], ["Boiling point", "temperature at which vapor pressure equals the outside pressure"], ["Sublimation", "solid → gas without melting"], ["Triple point", "the only T and P where solid, liquid and gas exist together"], ["Critical point", "above it, liquid and gas cannot be told apart"]],
+      goals: ["Explain the states of matter with the kinetic-molecular theory.", "Rank substances by the strength of their intermolecular forces and predict boiling points.", "Read and explain a heating curve and calculate the energy for each part.", "Read phase diagrams of water and carbon dioxide."],
+      flow: [["2 min", "Predict", "Ice at −20 °C is heated steadily. Sketch the temperature against time."], ["6 min", "Explore", "Heating curve: run it, then explain the two flat parts."], ["5 min", "Explain", "Forces: rank the three sets by boiling point."], ["4 min", "Apply", "Phase diagram paths, then the Exercise tab."]],
+      mis: [["When ice melts its temperature rises.", "It stays at 0 °C until all of it has melted: the energy breaks forces."], ["Boiling breaks the bonds inside water molecules.", "Boiling separates molecules; the O–H bonds stay."], ["Bubbles in boiling water are air.", "They are water vapor."], ["Heavier molecules always boil higher.", "Water (18 g/mol) boils far higher than CH₄ (16 g/mol) because of hydrogen bonds."]],
+      qs: ["Why does the temperature stay at 100 °C while water boils?", "Why does H₂O boil at 100 °C but CH₄ at −161.5 °C?", "Why does dry ice sublime instead of melting at 1 atm?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -327,6 +336,7 @@
     'galvanic-cell-lab.html': ['Without the bridge, ions cannot move to keep each beaker neutral. Charge builds up, the circuit is open, and the electrons stop flowing.', 'The blue Cu²⁺ ions are reduced to copper metal on the cathode, so there are fewer of them in the solution.', 'The two metals furthest apart on the E° scale, because E°cell = E°cathode − E°anode. For example Zn and Ag: 0.80 − (−0.76) = 1.56 V.'],
     'keplers-laws.html': ['Equal areas in equal times: near the Sun the line to the Sun is short, so the comet must move faster to sweep the same area.', 'T² ∝ a³, so T ∝ a^1.5: 2^1.5 ≈ 2.8 times longer.'],
     'gas-laws-lab.html': ['Halving the volume halves the space, so the particles hit the walls twice as often: the pressure doubles.', 'Volume and pressure are proportional to the kelvin temperature; at 0 K they would be zero. Celsius has the wrong zero.', 'HCl (36.46 g/mol) is heavier than NH₃ (17.03 g/mol), so it moves more slowly and the gases meet nearer the HCl end.'],
+    'states-of-matter-lab.html': ["The energy goes into breaking the attractions between the molecules (into potential energy), not into making them move faster, so the temperature stays the same until all the water is vapor.", "Water molecules form hydrogen bonds with each other; methane molecules only have weak dispersion forces, so much less energy is needed to separate them.", "The triple point of CO₂ is at 5.11 atm. Below that pressure liquid CO₂ cannot exist, so the solid turns straight into gas."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -497,6 +507,7 @@
   var CFG = {
     'wave-speed-lab.html': { hide: ['[data-mode="manual"]', '.seg:has([data-end])', '#step1', '.seg:has([data-speed])', 'label:has(#tVRuler)', 'label:has(#tRef)', 'label:has(#tGraph)', 'label:has(#tVals)', '[data-n]', '.field:has(#damp1)'] },
     'gas-laws-lab.html': { hide: ['#clrBtn'], start: '#recBtn' },
+    'states-of-matter-lab.html': {"hide": ["#hReset"], "start": "#hGo"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -682,6 +693,7 @@
     'galvanic-cell-lab.html': { intro: '[data-tab="cell"]', game: '[data-tab="chal"]' },
     'keplers-laws.html': { intro: '#t-retro', game: null, ex: '#t-ex' },
     'gas-laws-lab.html': { intro: '[data-tab="law"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
+    'states-of-matter-lab.html': {"intro": "[data-tab=\"heat\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },

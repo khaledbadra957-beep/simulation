@@ -21,13 +21,14 @@ def cover(png, w, h):
 PREP = {
   'esterification-lab': "document.querySelector('[data-tab=eq]').click()",
   'gas-laws-lab': "(()=>{if(tab==='law'&&!g.pts.length){setLaw('boyle');[2.5,1.25,0.8,4].forEach(v=>{setV(v);record()});setV(1.6)}if(tab==='graham'&&!gh.done){gh.t=99;gh.done=true;gUI();drawTube()}})()",
+  'states-of-matter-lab': "(()=>{if(tab==='heat'&&H.q<1){H.q=qTot()*0.55;H.run=false;hUI()}if(tab==='phase'){setPT(373,30)}})()",
   'electrons-lab': "(()=>{if(tab==='cfg'&&cf.z!==26){setZ(26);setMode('show')}if(tab==='trend'){tr.b=17;drawTrend()}if(tab==='light'&&!lt.lines.length){lt.lines=[3,4,5,6].map(n=>({nm:lam(n,2),lab:n+'→2'}));lt.e.n=2;showPhoton(lam(4,2));drawLight();drawSpec()}})()",
   'five-types-of-chemical-reactions': "document.querySelector('[data-tab=pat]').click()",
   'galvanic-cell-lab': "(()=>{const b=document.getElementById('swBtn');if(/Close/.test(b.textContent))b.click()})()",
   'pulse-at-a-boundary': "(()=>{const s=document.getElementById('scrub');document.getElementById('play').click();s.value=330;s.dispatchEvent(new Event('input'))})()",
 }
 # which screen makes the homepage card of a stage-layout lab (default: 'lab', else the first screen)
-CARD = {'organic-naming-lab': 'build', 'chemical-change-lab': 'signs'}
+CARD = {'states-of-matter-lab': 'phase', 'organic-naming-lab': 'build', 'chemical-change-lab': 'signs'}
 
 async def shot_screen(pg):
     """The visible screen's scene; for a solo (scrolling) screen, the part of it in view."""
