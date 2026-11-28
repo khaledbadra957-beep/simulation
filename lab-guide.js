@@ -207,6 +207,15 @@
       mis: [["Lone pairs do not affect the shape.", "They push the bonds closer together: 109.5° → 107° → 104.5°."], ["Molecules with polar bonds are always polar.", "In CO₂ and CCl₄ the bond dipoles cancel because the shape is symmetric."], ["Every atom always has exactly eight electrons.", "H has two; B in BF₃ has six; P in PCl₅ and S in SF₆ have more than eight."], ["A double bond is two sigma bonds.", "One sigma bond and one pi bond."]],
       qs: ["Why does CO₂ have two double bonds?", "Why is the bond angle in water smaller than in methane?", "Why is CCl₄ nonpolar although each C–Cl bond is polar?"]
     },
+    'mole-lab.html': {
+      big: "A mole is 6.02 × 10²³ particles, and its mass in grams is the molar mass. Moles connect mass to particles, and the coefficients of a balanced equation give the mole ratios between reactants and products.",
+      tryThis: ["Weigh 1 mol of carbon, of water and of sucrose. Why are the masses different?", "How many atoms are in 10 g of helium? In 10 g of gold?", "Hydrate: heat the crucible, weigh it, heat again. Why do we heat until the mass stops changing?", "Find x for CuSO₄·xH₂O from your masses.", "Stoichiometry: mix 3 mol N₂ with 3 mol H₂. Which runs out first?", "Change the amounts so there is no excess. What ratio do you need?", "Type an actual yield and work out the percent yield."],
+      words: [["Mole", "6.02 × 10²³ representative particles"], ["Avogadro’s number", "6.02 × 10²³"], ["Molar mass", "mass of 1 mol, in g/mol"], ["Empirical formula", "simplest whole-number ratio of atoms"], ["Hydrate", "compound with water in its crystals, e.g. CuSO₄·5H₂O"], ["Mole ratio", "ratio of coefficients in a balanced equation"], ["Limiting reactant", "the reactant that runs out first"], ["Percent yield", "actual yield ÷ theoretical yield × 100"]],
+      goals: ["Convert between mass, moles and particles of elements and compounds.", "Calculate percent composition and find empirical and molecular formulas.", "Find the formula of a hydrate from heating data.", "Use mole ratios to find masses, the limiting reactant, theoretical yield and percent yield."],
+      flow: [["2 min", "Predict", "Which has more atoms: 10 g of helium or 10 g of gold?"], ["6 min", "Explore", "Mole map: three substances, three conversions."], ["5 min", "Explain", "Hydrate: heat to constant mass and find x."], ["5 min", "Apply", "Stoichiometry: limiting reactant, then the Exercise tab."]],
+      mis: [["One mole of any substance has the same mass.", "Same number of particles, different masses: the molar mass changes."], ["The reactant with the smaller mass is limiting.", "Compare moles using the mole ratio, not grams."], ["Percent yield can be over 100 %.", "Above 100 % means the product was wet or impure."], ["Water in a hydrate is not part of its mass.", "It is: heating drives it off and the mass drops."]],
+      qs: ["Why do 1 mol of carbon and 1 mol of gold have different masses?", "How do you know which reactant is limiting?", "Why must a hydrate be heated until its mass stays the same?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -377,6 +386,7 @@
     'acids-bases-ph-lab.html': ["HCl ionises completely, so [H⁺] = 0.10 M; acetic acid ionises only about 1 %, so [H⁺] is much smaller.", "[H⁺] = 1.0 × 10⁻³ M, so [OH⁻] = Kw ÷ [H⁺] = 1.0 × 10⁻¹¹ M (pOH = 11.00).", "NH₄⁺ is the conjugate acid of the weak base NH₃; it gives H⁺ to water: NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺."],
     'ionic-compounds-lab.html': ["Each Al loses 3 electrons (Al³⁺) and each S gains 2 (S²⁻). 2 × (+3) = +6 and 3 × (−2) = −6, so the charges cancel.", "Mg²⁺ and O²⁻ have twice the charges of Na⁺ and Cl⁻ and are smaller, so they attract much more strongly.", "In a metal the cations slide past each other in the sea of electrons; in an ionic crystal the shift brings like charges next to each other and they repel, so it splits."],
     'molecule-shapes-lab.html': ["CO₂ has 16 valence electrons. With single bonds the carbon would have only 4 electrons, so each oxygen shares a second pair: O=C=O gives every atom an octet.", "Water has two lone pairs on oxygen; lone pairs repel more than bonding pairs and squeeze the H–O–H angle to 104.5°.", "The four polar bonds point to the corners of a tetrahedron, so their dipoles cancel and there is no positive or negative end."],
+    'mole-lab.html': ["Both have 6.02 × 10²³ atoms, but each gold atom is much heavier (197 g/mol against 12.01 g/mol).", "Change each reactant’s mass to moles, divide by its coefficient (or use the mole ratio): the reactant that can make less product is limiting.", "Only then has all the water been driven off; otherwise the anhydrous mass is too high and x comes out too small."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -552,6 +562,7 @@
     'acids-bases-ph-lab.html': {"hide": [], "start": "#pC"},
     'ionic-compounds-lab.html': {"hide": [], "start": "#iGo"},
     'molecule-shapes-lab.html': {"hide": [], "start": "#lNext"},
+    'mole-lab.html': {"hide": [], "start": "#mSub"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -742,6 +753,7 @@
     'acids-bases-ph-lab.html': {"intro": "[data-tab=\"ph\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'ionic-compounds-lab.html': {"intro": "[data-tab=\"ion\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'molecule-shapes-lab.html': {"intro": "[data-tab=\"lewis\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'mole-lab.html': {"intro": "[data-tab=\"mole\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
