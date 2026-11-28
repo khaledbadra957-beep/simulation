@@ -1,0 +1,550 @@
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Solutions</title>
+<meta name="description" content="Dissolve salts in 100 g of water and read the solubility curves, make a supersaturated solution and drop in a seed crystal, lower the freezing point and raise the boiling point with sugar and salts, and shine a torch through a solution, a colloid and a suspension. Exercise solver and challenge.">
+<!-- og -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mr Khaled · Science Simulations">
+<meta property="og:title" content="Solutions · Mr Khaled">
+<meta property="og:description" content="Dissolve salts in 100 g of water and read the solubility curves, make a supersaturated solution and drop in a seed crystal, lower the freezing point and raise the boiling point with sugar and salts, and shine a torch through a solution, a colloid and a suspension. Exercise solver and challenge.">
+<meta property="og:url" content="https://khaledbadra957-beep.github.io/simulation/solutions-lab.html">
+<meta property="og:image" content="https://khaledbadra957-beep.github.io/simulation/og/solutions-lab.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Solutions: a picture of the lab">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- /og -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench layout as the other labs. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --a:#2F6FD0; --b:#D88A1C; --prod:#1E8A55; --rose:#C2185B;
+  --brass:#B8913A; --brass-soft:rgba(233,196,106,.45);
+  --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
+#beaker{height:clamp(300px,34vw,340px)}
+.mkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:.85rem;color:var(--muted)}.mkey i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+#kg{height:260px}
+#eg{height:250px;cursor:crosshair}
+.pred{display:flex;gap:6px;flex-wrap:wrap}
+.pred button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700}
+.pred button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pred button:hover{border-color:var(--accent)}
+.ans select{max-width:100%}
+
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%;align-self:flex-start}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.ans input{width:8em}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8125rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+tr.pick td{background:var(--brass-soft)}
+tbody tr{cursor:pointer}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body);cursor:default}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0;font-size:.92rem}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.15rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+.runs{display:flex;flex-wrap:wrap;gap:6px}
+.runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas.stage{border:0;border-radius:0}
+.stage-ui .sc-read{position:absolute;top:12px;right:12px;z-index:2;width:250px;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+@media (max-width:1100px){.stage-ui .sc-read{width:200px}}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{top:auto;bottom:8px;right:8px;width:170px;padding:6px 8px}.stage-ui .sc-read .readouts{gap:2px 8px}.stage-ui .sc-read dt{font-size:11.5px}.stage-ui .sc-read dd{font-size:12.5px}.stage-ui .sc-read div[style]{display:none}}
+.stage-ui .panel input[type=range]{height:22px}
+.stage-ui .panel .field{gap:0}
+.stage-ui .sc-read dd{white-space:nowrap;font-size:.92rem}
+.stage-ui .sc-read{width:290px}
+.stage-ui .sc-read div[style] dd{white-space:normal;font-size:.85rem}
+.stage-ui #runs:empty{display:none}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{display:none}}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui #beaker,.stage-ui #kg{height:auto}
+.stage-ui .play > .extra.tall{height:clamp(170px,32vh,290px)}
+.stage-ui .sc-eq{position:absolute;top:12px;left:14px;z-index:2;font-weight:600;font-size:15px;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+.stage-ui .scene .mkey{position:absolute;left:14px;bottom:10px;z-index:2;font-size:12.5px;background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 10px;border-radius:8px}
+.stage-ui .seg{width:100%;align-self:stretch}
+.stage-ui .transport .seg{width:auto}
+.stage-ui .gh .seg{width:auto}
+.stage-ui .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stage-ui .small{font-size:13px}
+.stage-ui .btn.small{min-height:34px;font-size:13.5px;padding:0 10px}
+.stage-ui .pred{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stage-ui .status{font-size:13.5px;padding:7px 10px}
+.stage-ui .readouts{gap:6px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .sol{font-size:12.5px;padding:8px 10px}
+.stage-ui .morein{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .flabel{font-size:14px}
+.stage-ui .solo-in > .benchhead{margin-top:4px}
+.stage-ui #eg{height:260px;border:1px solid var(--line);border-radius:10px}
+.stage-ui .solo-in{padding:8px 4px 20px}
+.stage-ui .solo-in .card{background:var(--surface)}
+.stage-ui #exSolve svg{flex:none}
+.stage-ui details.own summary{cursor:pointer;font-weight:700;list-style:none}.stage-ui details.own summary::-webkit-details-marker{display:none}.stage-ui details.own summary::before{content:"+ ";font-family:var(--data)}.stage-ui details.own[open] summary::before{content:"− "}
+.stage-ui .ownf{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 18px;margin:10px 0}
+.stage-ui .ownf label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.stage-ui .ownf label.ck{flex-direction:row;align-items:center;gap:8px;align-self:end;min-height:38px}
+.stage-ui .ownf span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .ownf input[type=number],.stage-ui .ownf select{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .ownf input[aria-invalid="true"]{border-color:var(--bad)}
+@media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.tall{height:220px}.stage-ui .scene .mkey{display:none}.stage-ui .sc-eq{font-size:12.5px;top:8px;left:8px}}
+
+
+/* ---------- this lab ---------- */
+:root{--fill:#0A6A88;--hot:#D9534F;--cold:#3D7BE0;--solid:#3D7BE0;--liq:#0A8A7A;--gas:#C2571A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}}
+:root[data-theme="dark"]{--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}
+.rule{font-size:.9rem;line-height:1.35;margin:0;padding:7px 10px;border-radius:9px;background:var(--surface);border:1.5px solid var(--line)}
+.rule.ok{border-color:var(--ok)}.rule.ok b{color:var(--ok)}.rule.bad{border-color:var(--bad)}
+.stage-ui .play > .extra.mid{height:clamp(150px,27vh,250px)}
+.eqn{font:600 1.1rem var(--data);margin:2px 0 4px}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px 14px}
+.exgrid label{display:flex;flex-direction:column;gap:3px;font-size:.88rem;color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.exgrid input[aria-invalid]{border-color:var(--bad)}
+.panel select{font:600 14px var(--data);padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);width:100%}
+.key{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;color:var(--muted);margin:4px 0 0}.key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}.btnrow .btn{padding:6px 10px}
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css"></head><body>
+
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Solutions</h1>
+ <span class="tb-tag">Chemistry · G11</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button id="fsBtn" type="button" hidden></button><button id="themeBtn" type="button" hidden></button>
+<div class="tabs" role="tablist" hidden>
+ <button class="tab" role="tab" aria-selected="true" data-tab="sol" aria-controls="p-sol">Solubility</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="coll" aria-controls="p-coll">Freezing & boiling</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="mix" aria-controls="p-mix">Mixtures</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Exercise</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">Challenge</button>
+</div>
+<main class="screens">
+ <section class="screen" id="p-sol" data-screens="intro sol" role="tabpanel">
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="sc" aria-label="A beaker with 100 g of water on a hot plate. Undissolved crystals sit at the bottom."></canvas></div>
+   <div class="extra mid"><canvas class="stage" id="sg" aria-label="Solubility curves: grams of solute per 100 g of water against temperature"></canvas></div>
+   <div class="transport" id="sBar">
+    <div class="btnrow"><button class="btn primary" id="sAdd1" type="button">+1 g</button><button class="btn primary" id="sAdd5" type="button">+5 g</button><button class="btn primary" id="sAdd20" type="button">+20 g</button></div>
+    <button class="btn" id="sSeed" type="button">Drop a seed crystal</button><button class="btn" id="sPour" type="button">Pour off the crystals</button><button class="btn" id="sReset" type="button">Empty</button>
+    <span class="grow"></span>
+   </div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Dissolve a solid in 100 g of water</h2>
+    <div class="field"><label class="flabel" for="sSalt">Solute</label><select id="sSalt"></select></div>
+    <div class="field"><div class="field-head"><label for="sT">Temperature</label><output id="sTo"></output></div><input id="sT" type="range" min="0" max="100" step="1" value="20"></div>
+    <p class="rule" id="sMsg"></p>
+   </section>
+   <section class="group"><h2>Readings</h2><dl class="readouts">
+    <div><dt>Added</dt><dd id="sA">–</dd></div><div><dt>Dissolved</dt><dd id="sD">–</dd></div>
+    <div><dt>Undissolved</dt><dd id="sU">–</dd></div><div><dt>Solubility at this T</dt><dd id="sS">–</dd></div></dl></section>
+  </aside>
+ </section>
+
+ <section class="screen" id="p-coll" data-screens="coll" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="cc" aria-label="Solvent particles with dissolved solute particles, and two scales showing the freezing point and boiling point moving"></canvas></div>
+   <div class="transport"><div class="seg" role="group" aria-label="Solute" id="cSol"><button type="button" data-cs="0" aria-pressed="true">Sugar (i = 1)</button><button type="button" data-cs="1" aria-pressed="false">NaCl (i = 2)</button><button type="button" data-cs="2" aria-pressed="false">CaCl₂ (i = 3)</button></div><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Colligative properties</h2>
+    <div class="field"><label class="flabel" for="cSv">Solvent</label><select id="cSv"></select></div>
+    <div class="field"><div class="field-head"><label for="cM">Molality of solute</label><output id="cMo"></output></div><input id="cM" type="range" min="0" max="3" step="0.05" value="1"></div>
+    <p class="eqn">ΔT<sub>f</sub> = i·K<sub>f</sub>·m &nbsp; ΔT<sub>b</sub> = i·K<sub>b</sub>·m</p>
+   </section>
+   <section class="group"><h2>Results</h2><dl class="readouts">
+    <div><dt>Particle molality i·m</dt><dd id="cPm">–</dd></div><div><dt>K<sub>f</sub> / K<sub>b</sub></dt><dd id="cK">–</dd></div>
+    <div><dt>Freezing point</dt><dd id="cF">–</dd></div><div><dt>Boiling point</dt><dd id="cB">–</dd></div></dl>
+    <p class="rule" id="cMsg"></p></section>
+  </aside>
+ </section>
+
+ <section class="screen" id="p-mix" data-screens="mix" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="mc" aria-label="Three beakers: a solution, a colloid and a suspension, with a torch beam passing through them"></canvas></div>
+   <div class="transport"><button class="btn primary" id="mTorch" type="button">Torch on</button><button class="btn" id="mWait" type="button">Wait (let them stand)</button><button class="btn" id="mFilt" type="button">Filter them</button><button class="btn" id="mReset" type="button">Shake again</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Solution, colloid or suspension?</h2>
+    <p class="note">The difference is the size of the particles that are spread through the water.</p>
+    <p class="rule" id="mMsg"></p></section>
+   <section class="group" data-adv><h2>Particle size</h2><div class="note" id="mTbl"></div></section>
+  </aside>
+ </section>
+ <section class="screen solo" id="p-ex" data-screens="ex" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button>
+   <button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+  <div class="card"><div class="field"><span class="flabel">Kind of exercise</span>
+   <div class="seg" role="group" aria-label="Kind of exercise" id="exKSeg" style="width:auto;flex-wrap:wrap"><button type="button" data-exk="conc" aria-pressed="true">Concentration</button><button type="button" data-exk="solub" aria-pressed="false">Solubility curve</button><button type="button" data-exk="henry" aria-pressed="false">Henry's law</button><button type="button" data-exk="coll" aria-pressed="false">Freezing & boiling</button></div></div>
+   <div class="exgrid" id="exF"></div><p class="note" id="exMsg"></p><p id="exText" class="q" style="font-size:1rem"></p></div>
+ </div></section>
+ <section class="screen solo" id="p-chal" data-screens="chal" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
+  <p class="q" id="qText"></p><div class="opts" id="qOpts"></div><p class="status" id="qStatus" aria-live="polite" hidden></p>
+  <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
+ </div></section>
+</main>
+<p class="vh">Solubility data from Inspire Chemistry Module 13 Table 4 (KNO₃ standard values). Kf and Kb from Tables 5 and 6.</p>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'sol', simple: true }, { id: 'sol', name: 'Solubility', tab: 'sol' }, { id: 'coll', name: 'Freezing & boiling', tab: 'coll' }, { id: 'mix', name: 'Mixtures', tab: 'mix' }, { id: 'ex', name: 'Exercise', tab: 'ex' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ], tour: [ { el: '#sAdd5', title: 'Add the solid', text: 'Add solid until some stays at the bottom: the solution is saturated.' }, { el: '#sg', title: 'The solubility curve', text: 'The point shows how much you added. On the curve: saturated. Below: unsaturated.' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fx=(x,d=2)=>Number(x).toFixed(d);
+const sup=e=>String(e).split('').map(ch=>ch==='-'?'⁻':ch==='+'?'⁺':'⁰¹²³⁴⁵⁶⁷⁸⁹'[+ch]).join('');
+const sci=(v,d=2)=>{if(!isFinite(v))return '–';if(v===0)return '0';const e=Math.floor(Math.log10(Math.abs(v)));const m=v/Math.pow(10,e);return `${m.toFixed(d)} × 10${sup(e)}`};
+/* number input: 4.86e-7, 4.86×10^-7, 4.86x10-7, commas */
+function num(s){if(s==null)return NaN;s=String(s).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/[()]/g,'').replace(/\s/g,'');s=s.replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return s===''?NaN:Number(s)}
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+let C={};
+function readColors(){const s=getComputedStyle(root);['stage','surface','ink','muted','line','grid','accent','brass','rose','ok','bad','a','b','prod','fill','hot','cold','solid','liq','gas'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+new MutationObserver(()=>themeLabel()).observe(root,{attributes:true,attributeFilter:['data-theme']});
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='sol';
+const TABS=["sol", "coll", "mix", "ex", "chal"];
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));TABS.forEach(t=>$('#p-'+t).hidden=t!==tab);drawAll()});
+$('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen?.()}catch(e){}$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)};
+document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)});
+function segPick(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===btn))}
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function txt(x,s,a,b,col,size=12,align='left',base='alphabetic',wt=500,fam='"IBM Plex Mono",monospace'){x.fillStyle=col;x.font=`${wt} ${size}px ${fam}`;x.textAlign=align;x.textBaseline=base;x.fillText(s,a,b)}
+const go=id=>{const b=document.querySelector('.lg-nav [data-ph="'+id+'"]');if(b&&root.getAttribute('data-screen')!==id)b.click();else{const t=LAB.screens.find(s=>s.id===id);if(t){const tb=document.querySelector('.tab[data-tab="'+t.tab+'"]');if(tb&&tab!==t.tab)tb.click()}}};
+
+
+/* ---------- shared: challenge ---------- */
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const sf=(v,n=3)=>{if(!isFinite(v))return '–';const a=Math.abs(v);if(a>=1e5||(a<1e-3&&a>0))return sci(v,n-1);if(a>=1000)return Math.round(v).toLocaleString('en-US');return v.toPrecision(n)};
+const uniq=(right,wr,unit,f=sf)=>{const s=[right,...wr].map(x=>f(x)+unit),o=[];s.forEach(x=>{if(!o.includes(x))o.push(x)});let k=1;while(o.length<4){const x=f(right*(1+.37*k++))+unit;if(!o.includes(x))o.push(x)}return o.slice(0,4)};
+const calc=t=>'<div class="t-calc">'+t+'</div>';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function rrect(X,x,y,w,h,r){r=Math.min(r,w/2,h/2);X.beginPath();X.moveTo(x+r,y);X.arcTo(x+w,y,x+w,y+h,r);X.arcTo(x+w,y+h,x,y+h,r);X.arcTo(x,y+h,x,y,r);X.arcTo(x,y,x+w,y,r);X.closePath()}
+const hex=s=>{s=(s||'#888').trim().replace('#','');if(s.length===3)s=s.split('').map(c=>c+c).join('');const n=parseInt(s,16);return [n>>16&255,n>>8&255,n&255]};
+const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*clamp(t,0,1))).join(',')})`};
+const alpha=(c,a)=>{const A=hex(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const mns=v=>String(v).replace(/-/g,'−');
+let score=0,tries=0,answered=false,lastG=-1;
+function nextQ(){let g_;do{g_=rint(0,GEN.length-1)}while(g_===lastG&&GEN.length>1);lastG=g_;const q=GEN[g_]();answered=false;
+ $('#qText').textContent=q[0];$('#qStatus').hidden=true;const opts=shuffle(q[1].map((t,k)=>({t,k})));
+ $('#qOpts').innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;b.onclick=()=>{if(answered)return;answered=true;tries++;
+  const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
+  const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
+$('#qNext').onclick=nextQ;
+function tourGo(steps){if(!window.Tour)return;setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+
+/* =========================================================
+   SOLUBILITY
+   ========================================================= */
+const SALTS=[['KCl','potassium chloride',[28.0,34.2,45.8,56.3],74.55],['NaCl','sodium chloride',[35.7,35.9,37.1,39.2],58.44],['KNO₃','potassium nitrate',[13.3,31.6,110,246],101.10],['AgNO₃','silver nitrate',[122,216,440,733],169.87],['C₁₂H₂₂O₁₁','sucrose (sugar)',[179.2,203.9,287.3,487.2],342.30],['Ca(OH)₂','calcium hydroxide',[0.189,0.173,0.121,0.076],74.09]];
+const TX=[0,20,60,100];
+function solub(i,T){const y=SALTS[i][2],n=4,x=TX,d=[],m=[];for(let k=0;k<n-1;k++)d.push((y[k+1]-y[k])/(x[k+1]-x[k]));m[0]=d[0];m[n-1]=d[n-2];for(let k=1;k<n-1;k++)m[k]=d[k-1]*d[k]<=0?0:(d[k-1]+d[k])/2;
+ for(let k=0;k<n-1;k++){if(d[k]===0){m[k]=m[k+1]=0;continue}const a=m[k]/d[k],b=m[k+1]/d[k],s=a*a+b*b;if(s>9){const t=3/Math.sqrt(s);m[k]=t*a*d[k];m[k+1]=t*b*d[k]}}
+ T=clamp(T,0,100);let k=T<=20?0:T<=60?1:2;const h=x[k+1]-x[k],t=(T-x[k])/h,t2=t*t,t3=t2*t;return (2*t3-3*t2+1)*y[k]+(t3-2*t2+t)*h*m[k]+(-2*t3+3*t2)*y[k+1]+(t3-t2)*h*m[k+1]}
+const S={salt:0,T:20,add:0,D:0,super:false};
+const smax=i=>Math.max(...SALTS[i][2]);
+function sMix(prevT){const s=solub(S.salt,S.T),U=S.add-S.D;
+ if(S.D>s){if(U>1e-6){S.D=s;S.super=false}else S.super=true}
+ else{S.D=Math.min(S.add,s);S.super=false}}
+function sAdd(g){const unit=smax(S.salt)<1?0.01:1;S.add+=g*(smax(S.salt)<1?0.01:1);if(S.super&&S.add-S.D>1e-9){S.D=solub(S.salt,S.T)}sMix();sUI()}
+const gfmt=v=>v<1?fx(v,3):v<100?fx(v,1):fx(v,0);
+function sUI(){const s=solub(S.salt,S.T),U=Math.max(0,S.add-S.D),sm=smax(S.salt)<1;
+ $('#sTo').textContent=S.T+' °C';$('#sA').textContent=gfmt(S.add)+' g';$('#sD').textContent=gfmt(S.D)+' g';$('#sU').textContent=gfmt(U)+' g';$('#sS').textContent=gfmt(s)+' g / 100 g';
+ const m=$('#sMsg');let st;if(S.super){st='supersaturated';m.className='rule bad';m.innerHTML=`<b>Supersaturated:</b> ${gfmt(S.D)} g is dissolved but only ${gfmt(s)} g should be at ${S.T} °C. It is unstable. Drop in a seed crystal.`}
+ else if(U>1e-6){st='saturated';m.className='rule ok';m.innerHTML=`<b>Saturated:</b> the water holds ${gfmt(s)} g, the most it can at ${S.T} °C. The extra ${gfmt(U)} g stays as crystals. Crystals dissolve and form at the same rate (dynamic equilibrium).`}
+ else if(S.add>0){st='unsaturated';m.className='rule';m.innerHTML=`<b>Unsaturated:</b> ${gfmt(S.add)} g has dissolved. It can hold ${gfmt(s-S.add)} g more at ${S.T} °C.`}
+ else{m.className='rule';m.innerHTML=`Add ${SALTS[S.salt][1]} with the buttons below.`}
+ $('#sAdd1').textContent=sm?'+0.01 g':'+1 g';$('#sAdd5').textContent=sm?'+0.05 g':'+5 g';$('#sAdd20').textContent=sm?'+0.2 g':'+20 g';$('#sSeed').disabled=!S.super;$('#sPour').disabled=!(U>1e-6);drawSG()}
+$('#sSalt').innerHTML=SALTS.map((s,i)=>`<option value="${i}">${s[0]}, ${s[1]}</option>`).join('');
+$('#sSalt').onchange=e=>{S.salt=+e.target.value;S.add=0;S.D=0;S.super=false;sUI()};
+$('#sT').addEventListener('input',e=>{S.T=+e.target.value;sMix();sUI()});
+$('#sAdd1').onclick=()=>sAdd(1);$('#sAdd5').onclick=()=>sAdd(5);$('#sAdd20').onclick=()=>sAdd(20);
+$('#sSeed').onclick=()=>{const s=solub(S.salt,S.T);S.add+=smax(S.salt)<1?0.002:0.2;S.D=s;S.super=false;S.flash=performance.now();sUI()};
+$('#sPour').onclick=()=>{S.add=S.D;sUI()};
+$('#sReset').onclick=()=>{S.add=0;S.D=0;S.super=false;sUI()};
+let SG=null;const ions=[];for(let i=0;i<90;i++)ions.push([Math.random(),Math.random(),Math.random()*6.3,Math.random()<.5]);
+function drawSC(){const c=$('#sc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);
+ const bh=Math.min(h-70,320),bw=Math.min(bh*1.05,w*.5),bx=(w-bw)/2-30,by=h-bh-46,lv=by+bh*.22;SG={bx,by,bw,bh};
+ const s=solub(S.salt,S.T),U=Math.max(0,S.add-S.D),f=clamp(S.D/Math.max(1,smax(S.salt)),0,1),sm=smax(S.salt)<1;
+ X.fillStyle=alpha(C.fill,.10+.25*f);X.fillRect(bx,lv,bw,by+bh-lv);
+ const n=Math.round(clamp(S.D/(sm?0.2:smax(S.salt))*90,0,90)),t=performance.now()/800;
+ for(let i=0;i<n;i++){const [u,v,p,pl]=ions[i],x=bx+8+((u*(bw-16)+Math.sin(t+p)*14)%(bw-16)+(bw-16))%(bw-16),y=lv+8+((v*(by+bh-lv-30)+Math.cos(t*.8+p)*10)%(by+bh-lv-30)+(by+bh-lv-30))%(by+bh-lv-30);X.fillStyle=pl?C.accent:C.rose;X.beginPath();X.arc(x,y,3,0,7);X.fill()}
+ const nc=Math.round(clamp(U/(sm?0.006:0.6),0,176)),fl=S.flash&&performance.now()-S.flash<900;X.fillStyle=fl?C.brass:C.ink;
+ for(let i=0;i<nc;i++){const row=Math.floor(i/22),col=i%22,x=bx+bw/2+(col-10.5)*(bw-20)/22*Math.min(1,.4+row*.15)+((i*37)%7-3),y=by+bh-7-row*6;X.globalAlpha=.75;X.fillRect(x-3,y-3,6,6)}X.globalAlpha=1;
+ if(S.super){txt(X,'supersaturated: unstable',bx+bw/2,lv+22,C.bad,13,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+ X.strokeStyle=C.ink;X.lineWidth=3;X.beginPath();X.moveTo(bx-6,by);X.lineTo(bx,by+4);X.lineTo(bx,by+bh);X.lineTo(bx+bw,by+bh);X.lineTo(bx+bw,by+4);X.lineTo(bx+bw+6,by);X.stroke();
+ X.strokeStyle=alpha(C.fill,.7);X.lineWidth=2;X.beginPath();X.moveTo(bx,lv);X.lineTo(bx+bw,lv);X.stroke();txt(X,'100 g water',bx+bw-6,lv-6,C.muted,11,'right');
+ X.fillStyle=mix(C.cold,C.hot,S.T/100);rrect(X,bx-14,by+bh+6,bw+28,12,5);X.fill();txt(X,'hot plate',bx+bw/2,by+bh+34,C.muted,11,'center','alphabetic',600,'"IBM Plex Sans",sans-serif');
+ const tx=bx+bw+50,t0=by,t1=by+bh-6,fr=T=>t1-T/100*(t1-t0-14);X.fillStyle=C.surface;X.strokeStyle=C.ink;X.lineWidth=1.5;rrect(X,tx-5,t0,10,t1-t0,5);X.fill();X.stroke();X.fillStyle=mix(C.cold,C.hot,S.T/100);X.beginPath();X.arc(tx,t1+4,10,0,7);X.fill();X.stroke();X.fillRect(tx-3,fr(S.T),6,t1-fr(S.T)+4);
+ for(let T=0;T<=100;T+=20){txt(X,String(T),tx-12,fr(T)+4,C.muted,10,'right')}txt(X,S.T+' °C',tx+16,fr(S.T)+5,C.ink,13,'left','alphabetic',700);
+ txt(X,SALTS[S.salt][0],bx+bw/2,by-10,C.ink,15,'center','alphabetic',700)}
+function drawSG(){const c=$('#sg');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const sm=smax(S.salt)<1;
+ const ym=sm?0.2:S.salt===3?800:S.salt===4?500:S.salt===2?250:80,L=52,R=110,T=26,B=30,pw=w-L-R,ph=h-T-B,sx=t=>L+t/100*pw,sy=v=>T+ph-v/ym*ph;
+ const st=(x=>{const e=Math.pow(10,Math.floor(Math.log10(x))),f=x/e;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e})(ym/5);for(let v=0;v<=ym+1e-9;v+=st){X.strokeStyle=C.grid;X.lineWidth=1;X.beginPath();X.moveTo(L,sy(v));X.lineTo(L+pw,sy(v));X.stroke();txt(X,sm?fx(v,2):String(+v.toFixed(2)),L-6,sy(v)+4,C.muted,11,'right')}
+ for(let t=0;t<=100;t+=20){X.strokeStyle=C.grid;X.beginPath();X.moveTo(sx(t),T);X.lineTo(sx(t),T+ph);X.stroke();txt(X,String(t),sx(t),T+ph+15,C.muted,11,'center')}
+ X.strokeStyle=C.ink;X.lineWidth=1.5;X.beginPath();X.moveTo(L,T);X.lineTo(L,T+ph);X.lineTo(L+pw,T+ph);X.stroke();txt(X,'g per 100 g water',6,T-12,C.ink,11.5,'left','alphabetic',600);txt(X,'T (°C)',L+pw,T+ph+28,C.ink,11.5,'right','alphabetic',600);
+ X.save();X.beginPath();X.rect(L,T,pw,ph);X.clip();
+ SALTS.forEach((s,i)=>{if((smax(i)<1)!==sm)return;const me=i===S.salt;X.strokeStyle=me?C.accent:alpha(C.muted,.5);X.lineWidth=me?3:1.5;X.beginPath();for(let t=0;t<=100;t+=2){const y=sy(solub(i,t));t?X.lineTo(sx(t),y):X.moveTo(sx(t),y)}X.stroke();
+  const ye=sy(solub(i,100));if(ye>T-4)txt(X,'',0,0,C.ink)});
+ if(!sm){X.fillStyle=alpha(C.accent,.07);X.beginPath();X.moveTo(sx(0),sy(0));for(let t=0;t<=100;t+=2)X.lineTo(sx(t),sy(solub(S.salt,t)));X.lineTo(sx(100),sy(0));X.closePath();X.fill()}
+ X.restore();
+ SALTS.forEach((s,i)=>{if((smax(i)<1)!==sm)return;const v=solub(i,100),me=i===S.salt;if(v<=ym)txt(X,s[0],L+pw+6,clamp(sy(v),T+6,T+ph)+4,me?C.accent:C.muted,11.5,'left','alphabetic',me?700:500);else if(me){let t=0;while(t<100&&solub(i,t)<ym)t+=1;txt(X,s[0],sx(t)+4,T+12,me?C.accent:C.muted,11.5,'left','alphabetic',me?700:500)}});
+ txt(X,'unsaturated (below the curve)',sx(70),sy(sm?0.03:ym*.08),C.muted,11,'center','alphabetic',600,'"IBM Plex Sans",sans-serif');
+ const x=sx(S.T),y=sy(Math.min(S.add,ym*1.02));X.strokeStyle=S.super?C.bad:C.ink;X.lineWidth=2.5;X.beginPath();X.arc(x,y,7,0,7);X.stroke();if(S.add>S.D+1e-6){X.setLineDash([3,3]);X.beginPath();X.moveTo(x,y);X.lineTo(x,sy(S.D));X.stroke();X.setLineDash([])}
+ X.fillStyle=C.accent;X.beginPath();X.arc(x,sy(S.D),4.5,0,7);X.fill()}
+
+/* =========================================================
+   FREEZING POINT DEPRESSION / BOILING POINT ELEVATION
+   ========================================================= */
+const SV=[['water',0,100,1.86,0.512],['benzene',5.5,80.1,5.12,2.53],['carbon tetrachloride',-23.0,76.7,29.8,5.03],['ethanol',-114.1,78.5,1.99,1.22],['chloroform',-63.5,61.2,4.68,3.63]];
+const CS=[['sugar (sucrose)',1],['NaCl',2],['CaCl₂',3]];const CO={sv:0,cs:0,m:1};
+$('#cSv').innerHTML=SV.map((s,i)=>`<option value="${i}">${s[0]} (f.p. ${mns(s[1])} °C, b.p. ${s[2]} °C)</option>`).join('');
+$('#cSv').onchange=e=>{CO.sv=+e.target.value;cUI()};$('#cM').addEventListener('input',e=>{CO.m=+e.target.value;cUI()});
+$$('[data-cs]').forEach(b=>b.onclick=()=>{CO.cs=+b.dataset.cs;segPick(b);cUI()});
+function cUI(){const s=SV[CO.sv],i=CS[CO.cs][1],pm=i*CO.m,dF=s[3]*pm,dB=s[4]*pm;$('#cMo').textContent=fx(CO.m,2)+' m';$('#cPm').textContent=fx(pm,2)+' m';$('#cK').textContent=`${s[3]} / ${s[4]} °C/m`;
+ $('#cF').textContent=`${mns(fx(s[1]-dF,2))} °C (−${fx(dF,2)})`;$('#cB').textContent=`${fx(s[2]+dB,2)} °C (+${fx(dB,2)})`;
+ $('#cMsg').innerHTML=CO.m===0?'Pure solvent. Add some solute.':`Each ${CS[CO.cs][0]} unit gives <b>${i} particle${i>1?'s':''}</b>${i===2?' (Na⁺ and Cl⁻)':i===3?' (Ca²⁺ and 2 Cl⁻)':' (sugar does not form ions)'}. The dissolved particles get in the way of the solvent: it must be colder to freeze and hotter to boil.`;drawCC()}
+const cp=[];for(let i=0;i<140;i++)cp.push([Math.random(),Math.random(),Math.random()*6.3]);
+function drawCC(){const c=$('#cc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const s=SV[CO.sv],i=CS[CO.cs][1],pm=i*CO.m,wide=w>640;
+ const bw=wide?Math.min(w*.42,(h-60)*1.1):w-40,bh=wide?h-70:Math.max(30,h-58-104-50-30),bx=20,by=30,t=performance.now()/900;
+ X.fillStyle=C.surface;X.fillRect(bx,by,bw,bh);X.strokeStyle=C.ink;X.lineWidth=3;X.strokeRect(bx,by,bw,bh);
+ const nSolv=110,nSol=Math.round(CO.m*7)*i;for(let k=0;k<nSolv;k++){const [u,v,p]=cp[k%140],x=bx+8+((u*(bw-16)+Math.sin(t+p)*8)%(bw-16)+(bw-16))%(bw-16),y=by+8+((v*(bh-16)+Math.cos(t+p)*8)%(bh-16)+(bh-16))%(bh-16);X.fillStyle=alpha(C.fill,.55);X.beginPath();X.arc(x,y,4,0,7);X.fill()}
+ for(let k=0;k<nSol;k++){const [u,v,p]=cp[(k*7+3)%140],x=bx+10+((u*(bw-20)*0.97+Math.cos(t*.7+p)*10+k*13)%(bw-20)+(bw-20))%(bw-20),y=by+10+((v*(bh-20)+Math.sin(t*.7+p)*10+k*7)%(bh-20)+(bh-20))%(bh-20);
+  const pos=i===1?0:k%i===0?1:2;X.fillStyle=pos===0?C.brass:pos===1?C.rose:C.solid;X.beginPath();X.arc(x,y,i===1?7:5.5,0,7);X.fill()}
+ txt(X,`${s[0]} + ${CS[CO.cs][0]}`,bx+bw/2,by-10,C.ink,13,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');
+ const scale=(x0,y0,ww,lab,T0,T1,col,dir)=>{const d=Math.max(Math.abs(T1-T0),0.01),span=Math.max(3,s[3]*9*1.1),lo=dir<0?T0-span:T0-span*.12,hi=dir<0?T0+span*.12:T0+span*0.0+span,sxx=T=>x0+(T-lo)/(hi-lo)*ww;
+  txt(X,lab,x0,y0-34,C.ink,15,'left','alphabetic',700,'"IBM Plex Sans",sans-serif');X.strokeStyle=C.muted;X.lineWidth=2;X.beginPath();X.moveTo(x0,y0);X.lineTo(x0+ww,y0);X.stroke();
+  X.fillStyle=C.muted;X.beginPath();X.arc(sxx(T0),y0,6,0,7);X.fill();txt(X,`pure ${mns(fx(T0,1))} °C`,sxx(T0),y0+22,C.muted,11.5,'center','alphabetic',600);
+  X.fillStyle=col;X.beginPath();X.arc(sxx(T1),y0,7,0,7);X.fill();txt(X,`${mns(fx(T1,2))} °C`,sxx(T1),y0-12,col,16,'center','alphabetic',700);
+  if(d>0.01){X.strokeStyle=col;X.lineWidth=3;X.beginPath();X.moveTo(sxx(T0),y0+34);X.lineTo(sxx(T1),y0+34);X.stroke();txt(X,`Δ = ${fx(d,2)} °C`,(sxx(T0)+sxx(T1))/2,y0+50,col,12,'center','alphabetic',700)}};
+ const span0=Math.max(3,s[3]*9*1.1);
+ const x0=wide?bx+bw+50:30,ww=wide?w-x0-30:w-60,yb=wide?by+bh*.62+40:h-58,ya=wide?by+90:yb-104;
+ scale(x0,ya,ww,'Freezing point',s[1],s[1]-s[3]*pm,C.solid,-1);
+ const spanB=Math.max(3,s[4]*9*1.1);const sb=(x0_,y0,ww_)=>{const T0=s[2],T1=s[2]+s[4]*pm,lo=T0-spanB*.12,hi=T0+spanB,sxx=T=>x0_+(T-lo)/(hi-lo)*ww_;
+  txt(X,'Boiling point',x0_,y0-34,C.ink,15,'left','alphabetic',700,'"IBM Plex Sans",sans-serif');X.strokeStyle=C.muted;X.lineWidth=2;X.beginPath();X.moveTo(x0_,y0);X.lineTo(x0_+ww_,y0);X.stroke();
+  X.fillStyle=C.muted;X.beginPath();X.arc(sxx(T0),y0,6,0,7);X.fill();txt(X,`pure ${fx(T0,1)} °C`,sxx(T0),y0+22,C.muted,11.5,'center','alphabetic',600);
+  X.fillStyle=C.hot;X.beginPath();X.arc(sxx(T1),y0,7,0,7);X.fill();txt(X,`${fx(T1,2)} °C`,sxx(T1),y0-12,C.hot,16,'center','alphabetic',700);
+  if(T1-T0>0.01){X.strokeStyle=C.hot;X.lineWidth=3;X.beginPath();X.moveTo(sxx(T0),y0+34);X.lineTo(sxx(T1),y0+34);X.stroke();txt(X,`Δ = ${fx(T1-T0,2)} °C`,(sxx(T0)+sxx(T1))/2,y0+50,C.hot,12,'center','alphabetic',700)}};
+ sb(x0,yb,ww);
+ if(wide){const ky=by+bh-6;X.fillStyle=alpha(C.fill,.55);X.beginPath();X.arc(x0+6,ky,4,0,7);X.fill();txt(X,'solvent',x0+16,ky+4,C.muted,11);if(i===1){X.fillStyle=C.brass;X.beginPath();X.arc(x0+86,ky,6,0,7);X.fill();txt(X,'sugar molecule',x0+96,ky+4,C.muted,11)}else{X.fillStyle=C.rose;X.beginPath();X.arc(x0+86,ky,5,0,7);X.fill();txt(X,i===2?'Na⁺':'Ca²⁺',x0+96,ky+4,C.muted,11);X.fillStyle=C.solid;X.beginPath();X.arc(x0+146,ky,5,0,7);X.fill();txt(X,'Cl⁻',x0+156,ky+4,C.muted,11)}}}
+
+/* =========================================================
+   MIXTURES: Tyndall effect, settling, filtering
+   ========================================================= */
+const M={torch:false,settle:0,filt:false,anim:null};
+const MX=[['Solution','salt water','ions and small molecules, < 1 nm',0,0],['Colloid','diluted milk','1–1000 nm',1,0],['Suspension','muddy water','> 1000 nm',2,1]];
+function mUI(){$('#mTorch').textContent=M.torch?'Torch off':'Torch on';const s=M.settle>.95,f=M.filt;
+ $('#mMsg').innerHTML=(M.torch?'<b>Torch on:</b> the beam shows in the colloid and the suspension because their particles scatter light (the Tyndall effect). The solution’s particles are too small, so the beam is invisible in it. ':'Turn on the torch and look at the beam. ')+(s?'<b>After standing:</b> only the suspension settles; the colloid’s particles stay spread out (Brownian motion). ':'')+(f?'<b>Filtering:</b> the filter paper catches the suspension’s particles. Colloid and solution particles pass through.':'');
+ $('#mTbl').innerHTML=MX.map(m=>`<div><b>${m[0]}</b> (${m[1]}): ${m[2]}</div>`).join('');drawMC()}
+$('#mTorch').onclick=()=>{M.torch=!M.torch;mUI()};$('#mWait').onclick=()=>{M.anim='settle'};$('#mFilt').onclick=()=>{M.filt=true;mUI()};$('#mReset').onclick=()=>{M.settle=0;M.filt=false;M.anim=null;mUI()};
+const mp=[];for(let i=0;i<120;i++)mp.push([Math.random(),Math.random(),Math.random()*6.3]);
+function drawMC(){const c=$('#mc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const t=performance.now()/700;
+ const n=3,gap=w*.04,bw=Math.min((w-60-gap*2)/3*.8,170),bh=Math.min(h*.6,300),tot=bw*3+gap*2+70,ox=Math.max(10,(w-tot)/2)+70,by=h*.18,lv=by+bh*.15;
+ const beamY=lv+(by+bh-lv)*.45;
+ if(M.torch){X.fillStyle=C.ink;rrect(X,ox-70,beamY-12,48,24,5);X.fill();X.fillStyle=C.brass;X.fillRect(ox-24,beamY-9,6,18)}
+ else{X.fillStyle=C.muted;rrect(X,ox-70,beamY-12,48,24,5);X.fill()}txt(X,'torch',ox-46,beamY+30,C.muted,11,'center','alphabetic',600,'"IBM Plex Sans",sans-serif');
+ MX.forEach((m,k)=>{const x=ox+k*(bw+gap),filtered=M.filt&&k===2,set=k===2?M.settle:0;
+  X.fillStyle=k===0?alpha(C.fill,.10):k===1?'rgba(235,235,225,.75)':filtered?alpha(C.fill,.10):`rgba(150,110,60,${.55*(1-set*.85)})`;X.fillRect(x,lv,bw,by+bh-lv);
+  if(k===1){X.fillStyle=isDark()?'rgba(250,250,240,.25)':'rgba(255,255,255,.4)';X.fillRect(x,lv,bw,by+bh-lv)}
+  if(k===2&&!filtered){X.fillStyle='rgb(120,85,45)';X.fillRect(x,by+bh-set*22,bw,set*22);for(let i=0;i<Math.round(60*(1-set));i++){const [u,v,p]=mp[i];X.fillStyle='rgb(110,80,40)';X.beginPath();X.arc(x+4+u*(bw-8)+Math.sin(t+p)*2,lv+4+v*(by+bh-lv-8)*(1-set*.6)+set*(by+bh-lv)*.55,3,0,7);X.fill()}}
+  if(k===1){for(let i=0;i<70;i++){const [u,v,p]=mp[i];X.fillStyle=isDark()?'rgba(255,255,255,.65)':'rgba(170,165,150,.8)';X.beginPath();X.arc(x+4+u*(bw-8)+Math.sin(t*1.7+p)*3,lv+4+v*(by+bh-lv-8)+Math.cos(t*1.9+p)*3,1.6,0,7);X.fill()}}
+  if(M.torch){const vis=k===0?0:k===1?.55:filtered?0:.45*(1-set*.7);X.fillStyle=`rgba(255,210,80,${vis})`;X.beginPath();X.moveTo(x,beamY-8-k*1.5);X.lineTo(x+bw,beamY-9-k*1.5-2);X.lineTo(x+bw,beamY+9+k*1.5+2);X.lineTo(x,beamY+8+k*1.5);X.closePath();X.fill()}
+  X.strokeStyle=C.ink;X.lineWidth=3;X.beginPath();X.moveTo(x,by);X.lineTo(x,by+bh);X.lineTo(x+bw,by+bh);X.lineTo(x+bw,by);X.stroke();
+  txt(X,m[0],x+bw/2,by-28,C.ink,15,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');txt(X,filtered?m[1]+' (filtered)':m[1],x+bw/2,by-10,C.muted,12,'center','alphabetic',500,'"IBM Plex Sans",sans-serif');
+  if(M.filt){txt(X,k===2?'particles caught':'passes through',x+bw/2,by+bh+22,k===2?C.bad:C.ok,12,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}});
+ if(M.torch){X.fillStyle='rgba(255,210,80,.12)';X.fillRect(ox-18,beamY-8,(bw+gap)*3,16)}}
+
+/* =========================================================
+   EXERCISE
+   ========================================================= */
+const SOL=[['NaCl',58.44],['glucose, C₆H₁₂O₆',180.16],['sucrose, C₁₂H₂₂O₁₁',342.30],['KCl',74.55],['CaCl₂',110.98],['NaOH',40.00],['KNO₃',101.10]];
+const EXEG=[{k:'conc',v:{type:'pm',sol:'0',ms:'3.6',mv:'100.0'},s:'An aquarium holds 3.6 g of NaCl dissolved in 100.0 g of water. What is the percent by mass of NaCl?'},
+ {k:'conc',v:{type:'M',sol:'1',ms:'5.10',mv:'100.5'},s:'An IV solution contains 5.10 g of glucose (C₆H₁₂O₆) in 100.5 mL of solution. What is its molarity?'},
+ {k:'conc',v:{type:'dil',M1:'2.00',M2:'0.300',V2:'0.50'},s:'How many litres of 2.00 M CaCl₂ stock solution do you need to make 0.50 L of 0.300 M CaCl₂?'},
+ {k:'conc',v:{type:'m',sol:'0',ms:'4.5',mv:'100.0'},s:'4.5 g of NaCl is dissolved in 100.0 g of water. What is the molality?'},
+ {k:'henry',v:{S1:'0.85',P1:'4.0',P2:'1.0'},s:'A gas has a solubility of 0.85 g/L at 4.0 atm. What is its solubility at 1.0 atm at the same temperature?'},
+ {k:'coll',v:{sv:'0',cs:'1',m:'0.029'},s:'A solution is 0.029 m NaCl in water. Find the boiling point elevation and the freezing point depression.'},
+ {k:'solub',v:{salt:'0',T:'60',g:'50'},s:'50 g of KCl is stirred into 100 g of water at 60 °C. Does it all dissolve? If not, how much is left?'}];
+let exk='conc';const ex={v:{},story:null};
+function exBuild(){const v=ex.v;let h='';const sel=(k,opts)=>`<select data-v="${k}">${opts.map(([val,lab])=>`<option value="${val}"${String(v[k])===String(val)?' selected':''}>${lab}</option>`).join('')}</select>`,inp=(k,l)=>`<label>${l}<input data-v="${k}" inputmode="decimal" value="${v[k]??''}"></label>`;
+ if(exk==='conc'){h=`<label>Find${sel('type',[['pm','percent by mass'],['M','molarity (M)'],['m','molality (m)'],['dil','dilution volume V₁']])}</label>`;
+  if(v.type==='dil')h+=inp('M1','Stock molarity M₁ (M)')+inp('M2','New molarity M₂ (M)')+inp('V2','New volume V₂ (L)');
+  else h+=(v.type==='pm'?'':`<label>Solute${sel('sol',SOL.map((s,i)=>[i,`${s[0]} (${s[1]} g/mol)`]))}</label>`)+inp('ms','Mass of solute (g)')+inp('mv',v.type==='M'?'Volume of solution (mL)':'Mass of water (g)')}
+ if(exk==='henry')h=inp('S1','Solubility S₁ (g/L)')+inp('P1','Pressure P₁ (atm)')+inp('P2','Pressure P₂ (atm)');
+ if(exk==='coll')h=`<label>Solvent${sel('sv',SV.map((s,i)=>[i,s[0]]))}</label><label>Solute${sel('cs',CS.map((s,i)=>[i,s[0]+' (i = '+s[1]+')']))}</label>`+inp('m','Molality (m)');
+ if(exk==='solub')h=`<label>Solute${sel('salt',SALTS.map((s,i)=>[i,s[0]+', '+s[1]]))}</label>`+inp('T','Temperature (°C)')+inp('g','Mass added to 100 g water (g)');
+ $('#exF').innerHTML=h;$$('#exF [data-v]').forEach(i=>i.addEventListener(i.tagName==='SELECT'?'change':'input',()=>{ex.v[i.dataset.v]=i.value;ex.story=null;if(i.tagName==='SELECT')exBuild();else exUpdate()}));exUpdate()}
+function exSolve(){const v=ex.v,bad=[],N=k=>{const x=num(v[k]);if(!(x>0))bad.push(k);return x};let r=null;
+ if(exk==='conc'){if(v.type==='dil'){const M1=N('M1'),M2=N('M2'),V2=N('V2');if(!bad.length&&M2>=M1)bad.push('M2');if(!bad.length)r={M1,M2,V2,X:M2*V2/M1}}
+  else{const ms=N('ms'),mv=N('mv'),Mm=SOL[+v.sol||0][1];if(!bad.length){const n=ms/Mm;r={ms,mv,Mm,n,X:v.type==='pm'?ms/(ms+mv)*100:v.type==='M'?n/(mv/1000):n/(mv/1000)}}}}
+ if(exk==='henry'){const S1=N('S1'),P1=N('P1'),P2=N('P2');if(!bad.length)r={X:S1*P2/P1}}
+ if(exk==='coll'){const m=N('m');if(!bad.length){const s=SV[+v.sv],i=CS[+v.cs][1];r={s,i,m,pm:i*m,dF:s[3]*i*m,dB:s[4]*i*m}}}
+ if(exk==='solub'){const T=num(v.T),g=N('g');if(!(T>=0&&T<=100))bad.push('T');if(!bad.length){const S_=solub(+v.salt,T);r={T,g,S:S_,left:Math.max(0,g-S_)}}}
+ $$('#exF [data-v]').forEach(i=>i.toggleAttribute('aria-invalid',bad.includes(i.dataset.v)));return r}
+function exUpdate(){const r=exSolve();if(!r){$('#exMsg').textContent='Type a positive number in each red box (temperature 0–100 °C; for a dilution M₂ must be smaller than M₁).';$('#exText').innerHTML='';return null}
+ $('#exMsg').textContent='Ready. Press “Solve it in the lab” to work through it.';if(ex.story){$('#exText').innerHTML=ex.story;return r}const v=ex.v,sn=SOL[+v.sol||0][0];
+ $('#exText').innerHTML=exk==='conc'?(v.type==='dil'?`How many litres of ${v.M1} M stock solution make ${v.V2} L of ${v.M2} M solution?`:v.type==='pm'?`${v.ms} g of solute is dissolved in ${v.mv} g of water. What is the percent by mass?`:v.type==='M'?`${v.ms} g of ${sn} is dissolved to make ${v.mv} mL of solution. What is the molarity?`:`${v.ms} g of ${sn} is dissolved in ${v.mv} g of water. What is the molality?`)
+  :exk==='henry'?`A gas dissolves ${v.S1} g/L at ${v.P1} atm. What is its solubility at ${v.P2} atm and the same temperature?`
+  :exk==='coll'?`A ${v.m} m solution of ${CS[+v.cs][0]} in ${SV[+v.sv][0]}. Find the new freezing and boiling points.`
+  :`${v.g} g of ${SALTS[+v.salt][1]} is added to 100 g of water at ${v.T} °C. Does it all dissolve?`;return r}
+function setExK(k,eg){exk=k;segPick($(`[data-exk="${k}"]`));const d=eg||EXEG.find(e=>e.k===k);ex.v={...d.v};ex.story=d.s;exBuild()}
+$$('[data-exk]').forEach(b=>b.onclick=()=>setExK(b.dataset.exk));let egi=1;$('#exEg').onclick=()=>{const e=EXEG[egi++%EXEG.length];setExK(e.k,e)};
+$('#exSolve').onclick=()=>{const r=exUpdate();if(!r){$('#exMsg').textContent='Fix the red box first.';return}tourGo(exSteps(r))};
+function exSteps(r){const v=ex.v,S=[];
+ if(exk==='conc'){if(v.type==='dil'){S.push({title:'Dilution',html:'<p>Adding water does not change the moles of solute, so moles before = moles after:</p>'+calc('M₁V₁ = M₂V₂')});S.push({title:'Rearrange and substitute',html:calc(`V₁ = M₂V₂ ÷ M₁\nV₁ = ${v.M2} M × ${v.V2} L ÷ ${v.M1} M\nV₁ = ${sf(r.X,2)} L = ${sf(r.X*1000,2)} mL`)});S.push({title:'Your answer',html:calc(`V₁ = ${sf(r.X,2)} L`)+`<p>Measure ${sf(r.X*1000,2)} mL of stock into a ${v.V2} L volumetric flask and add water to the mark.</p>`});return S}
+  if(v.type==='pm'){S.push({title:'Percent by mass',html:calc('percent by mass = mass of solute ÷ mass of solution × 100')+'<p>The solution is solute + solvent.</p>'});S.push({title:'Substitute',html:calc(`mass of solution = ${v.ms} g + ${v.mv} g = ${sf(r.ms+r.mv,4)} g\npercent = ${v.ms} ÷ ${sf(r.ms+r.mv,4)} × 100\npercent = ${sf(r.X,2)} %`)});S.push({title:'Your answer',html:calc(`${sf(r.X,2)} % by mass`)});return S}
+  const nm=SOL[+v.sol][0];S.push({title:'1 · Moles of solute',html:calc(`n = m ÷ M = ${v.ms} g ÷ ${r.Mm} g/mol = ${sf(r.n,3)} mol`)});
+  if(v.type==='M')S.push({title:'2 · Molarity',html:calc(`V = ${v.mv} mL ÷ 1000 = ${sf(r.mv/1000,4)} L\nM = n ÷ V = ${sf(r.n,3)} mol ÷ ${sf(r.mv/1000,4)} L\nM = ${sf(r.X,3)} mol/L`)+'<p>Molarity uses litres of <b>solution</b>.</p>'});
+  else S.push({title:'2 · Molality',html:calc(`mass of water = ${v.mv} g ÷ 1000 = ${sf(r.mv/1000,4)} kg\nm = n ÷ kg of solvent = ${sf(r.n,3)} ÷ ${sf(r.mv/1000,4)}\nm = ${sf(r.X,3)} mol/kg`)+'<p>Molality uses kilograms of <b>solvent</b>.</p>'});
+  S.push({title:'Your answer',html:calc(`${v.type==='M'?sf(r.X,3)+' M':sf(r.X,2)+' m'} ${nm}`)});return S}
+ if(exk==='henry')return [{title:'Henry’s law',html:'<p>At a constant temperature, the solubility of a gas is proportional to the pressure of the gas above the liquid:</p>'+calc('S₁ ÷ P₁ = S₂ ÷ P₂')},{title:'Rearrange and substitute',html:calc(`S₂ = S₁ × P₂ ÷ P₁\nS₂ = ${v.S1} g/L × ${v.P2} atm ÷ ${v.P1} atm\nS₂ = ${sf(r.X,2)} g/L`)},{title:'Your answer',html:calc(`S₂ = ${sf(r.X,2)} g/L`)+`<p>${+v.P2<+v.P1?'Lower pressure, less gas dissolves: that is why a soda fizzes when you open it.':'Higher pressure pushes more gas into the liquid.'}</p>`}];
+ if(exk==='coll'){const fits=r.m<=3;S.push({title:'Count the particles',html:`<p>${CS[+v.cs][0]} gives <b>i = ${r.i}</b> particle${r.i>1?'s':''} per unit.</p>`+calc(`particle molality = i × m = ${r.i} × ${v.m} = ${sf(r.pm,3)} m`)});
+  if(fits)S.push({el:'#cc',title:'In the lab',html:`<p>The lab shows ${r.s[0]} with ${v.m} m ${CS[+v.cs][0]}.</p>`,onShow:()=>{go('coll');CO.sv=+v.sv;CO.cs=+v.cs;CO.m=r.m;$('#cSv').value=CO.sv;$('#cM').value=CO.m;segPick($(`[data-cs="${CO.cs}"]`));cUI()}});
+  S.push({title:'Boiling point elevation',html:calc(`ΔT(b) = K(b) × i·m = ${r.s[4]} × ${sf(r.pm,3)}\nΔT(b) = ${sf(r.dB,2)} °C\nnew boiling point = ${r.s[2]} + ${sf(r.dB,2)} = ${fx(r.s[2]+r.dB,2)} °C`)});
+  S.push({title:'Freezing point depression',html:calc(`ΔT(f) = K(f) × i·m = ${r.s[3]} × ${sf(r.pm,3)}\nΔT(f) = ${sf(r.dF,2)} °C\nnew freezing point = ${mns(r.s[1])} − ${sf(r.dF,2)} = ${mns(fx(r.s[1]-r.dF,2))} °C`)});
+  S.push({title:'Your answer',html:calc(`ΔT(b) = ${sf(r.dB,2)} °C    ΔT(f) = ${sf(r.dF,2)} °C`)});return S}
+ const sname=SALTS[+v.salt][1];S.push({title:'Read the solubility curve',html:`<p>At ${v.T} °C, 100 g of water can hold <b>${gfmt(r.S)} g</b> of ${sname}.</p>`});
+ S.push({el:'#sAdd5',title:'Do it in the lab',html:`<p>The lab puts ${v.g} g of ${sname} into 100 g of water at ${v.T} °C.</p>`,onShow:()=>{go('sol');S_set(+v.salt,r.T,r.g)}});
+ S.push({title:'Your answer',html:calc(r.left>0?`${v.g} g − ${gfmt(r.S)} g = ${gfmt(r.left)} g stays undissolved\nThe solution is saturated.`:`${v.g} g < ${gfmt(r.S)} g: it all dissolves\nThe solution is unsaturated (room for ${gfmt(r.S-r.g)} g more).`)});return S}
+function S_set(i,T,g){S.salt=i;$('#sSalt').value=i;S.T=Math.round(T);$('#sT').value=S.T;S.add=g;S.D=0;S.super=false;sMix();sUI()}
+
+/* =========================================================
+   CHALLENGE
+   ========================================================= */
+const GEN=[
+ ()=>{const ms=rint(2,20),mw=pick([50,80,100,150,200]),p=ms/(ms+mw)*100;return [`${ms}.0 g of sugar is dissolved in ${mw}.0 g of water. What is the percent by mass of sugar?`,uniq(p,[ms/mw*100,mw/(ms+mw)*100,ms/(ms+mw)],' %'),0,`${ms} ÷ (${ms} + ${mw}) × 100 = ${sf(p)} %. The mass of the solution includes the solute.`]},
+ ()=>{const s=pick(SOL.slice(0,6)),n=pick([0.1,0.2,0.25,0.5]),V=pick([250,500,1000]),m=n*s[1],M=n/(V/1000);return [`${sf(m)} g of ${s[0].split(',')[0]} (${s[1]} g/mol) is dissolved to make ${V} mL of solution. What is the molarity?`,uniq(M,[n/V,m/(V/1000),n*(V/1000)],' M'),0,`n = ${sf(m)} ÷ ${s[1]} = ${n} mol; M = ${n} ÷ ${V/1000} L = ${sf(M)} M.`]},
+ ()=>{const M1=pick([1,2,3,6]),M2=pick([0.1,0.2,0.25,0.5]),V2=pick([0.25,0.5,1]),V1=M2*V2/M1;return [`What volume of ${M1}.0 M stock is needed to make ${V2} L of ${M2} M solution?`,uniq(V1,[M1*V2/M2,M1*M2*V2,V2-V1],' L'),0,`M₁V₁ = M₂V₂ → V₁ = ${M2} × ${V2} ÷ ${M1} = ${sf(V1)} L.`]},
+ ()=>{const S1=pick([0.5,0.85,1.2,2.0]),P1=pick([1,2,4]),P2=pick([2,3,5,0.5].filter(x=>x!==P1)),S2=S1*P2/P1;return [`A gas dissolves ${S1} g/L at ${P1} atm. What is its solubility at ${P2} atm (same temperature)?`,uniq(S2,[S1*P1/P2,S1,S1+P2-P1],' g/L'),0,`Henry’s law: S₂ = S₁P₂/P₁ = ${sf(S2)} g/L.`]},
+ ()=>{const k=pick([0,1,2]),m=pick([0.5,1,1.5,2]),i=CS[k][1],d=1.86*i*m;return [`What is the freezing point of a ${m} m solution of ${CS[k][0]} in water? (K(f) = 1.86 °C/m)`,uniq(-d,[-1.86*m*(i===1?2:1),-0.512*i*m,d],' °C',x=>mns(fx(x,2))),0,`ΔT(f) = i·K(f)·m = ${i} × 1.86 × ${m} = ${fx(d,2)} °C, so it freezes at ${mns(fx(-d,2))} °C.`]},
+ ()=>{const i=pick([0,1,2,3]),T=pick([20,60]),s=solub(i,T),g=Math.round(s*pick([.5,1.4])),left=g-s;return [`${g} g of ${SALTS[i][0]} is added to 100 g of water at ${T} °C (solubility ${gfmt(s)} g/100 g). The solution is…`,left>0?['saturated, with crystals left over','unsaturated','supersaturated','a colloid']:['unsaturated','saturated, with crystals left over','supersaturated','a suspension'],0,left>0?`Only ${gfmt(s)} g dissolves; ${gfmt(left)} g stays as crystals.`:`${g} g is less than ${gfmt(s)} g, so it all dissolves and more could.`]},
+ ()=>pick([
+  ['Which mixture shows the Tyndall effect?',['Milk diluted with water','Salt water','Sugar water','Air'],0,'Milk is a colloid: its particles are big enough to scatter light.'],
+  ['What happens to the solubility of a gas in water when the water is heated?',['It decreases','It increases','It stays the same','It doubles every 10 °C'],0,'Gas particles have more kinetic energy and escape the liquid.'],
+  ['Which does NOT make a solid dissolve faster?',['Using a bigger piece','Stirring','Heating','Crushing it into powder'],0,'A bigger piece has less surface area per gram, so it dissolves more slowly.'],
+  ['“Like dissolves like” means…',['polar solvents dissolve polar and ionic solutes','all solids dissolve in water','oil dissolves in water','heavy solutes dissolve in heavy solvents'],0,'Water (polar) dissolves NaCl and sugar; oil (non-polar) dissolves in hexane.'],
+  ['A seed crystal is added to a solution and a lot of crystals form at once. The solution was…',['supersaturated','unsaturated','saturated','a suspension'],0,'Only a supersaturated solution holds extra solute that can come out on the seed.'],
+  ['Which solution has the lowest freezing point?',['1 m CaCl₂','1 m NaCl','1 m sugar','pure water'],0,'CaCl₂ gives 3 particles per unit: the biggest particle molality.'],
+  ['Molality is moles of solute per…',['kilogram of solvent','litre of solution','litre of solvent','kilogram of solution'],0,'Molality (m) uses the mass of the solvent; molarity (M) uses the volume of the solution.'],
+  ['Which is a suspension?',['Muddy water','Fog','Vinegar','Brass'],0,'Mud particles are large enough to settle and be filtered. Fog is a colloid; vinegar and brass are solutions.'],
+  ['Why is salt spread on icy roads?',['It lowers the freezing point of water','It raises the boiling point of ice','It is heavier than ice','It reacts with ice to make heat'],0,'Dissolved ions lower the freezing point, so the ice melts at temperatures below 0 °C.']])];
+
+/* =========================================================
+   DRAW, ANIMATE, START
+   ========================================================= */
+function drawAll(){if(!C.ink)readColors();if(tab==='sol'){drawSC();drawSG()}if(tab==='coll')drawCC();if(tab==='mix')drawMC()}
+addEventListener('resize',drawAll);let lastF=0;
+function loop(t){const dt=Math.min(.05,(t-(lastF||t))/1000);lastF=t;if(t-(loop.p||0)>40){loop.p=t;
+ if(tab==='sol')drawSC();if(tab==='coll')drawCC();if(tab==='mix'){if(M.anim==='settle'){M.settle=Math.min(1,M.settle+dt*0.6);if(M.settle>=1){M.anim=null;mUI()}}drawMC()}}requestAnimationFrame(loop)}
+if(window.LabParts){window.__lp=LabParts.attach({key:'solutions',wrap:$('#sc').parentElement,stage:$('#sc'),bar:$('#sBar'),max:3,parts:()=>{const G=SG;if(!G)return [];return [
+ {id:'ions',name:'Dissolved particles',what:'The solute broken into ions (or molecules) and spread through the water. You cannot see them in a real solution.',hint:'The coloured dots in the water.',q:'Where is the dissolved solute?',x:G.bx+G.bw/2,y:G.by+G.bh*.5,boxes:[[G.bx,G.by+G.bh*.22,G.bx+G.bw,G.by+G.bh-16]]},
+ {id:'crys',name:'Undissolved crystals',what:'Solid that cannot dissolve because the solution is saturated.',hint:'At the bottom of the beaker.',q:'Where is the extra solid?',x:G.bx+G.bw/2,y:G.by+G.bh-8,boxes:[[G.bx,G.by+G.bh-24,G.bx+G.bw,G.by+G.bh]]},
+ {id:'hot',name:'Hot plate',what:'Changes the temperature. Most solids dissolve better when hot.',hint:'Under the beaker.',q:'What changes the temperature?',x:G.bx+G.bw/2,y:G.by+G.bh+12,boxes:[[G.bx-14,G.by+G.bh+4,G.bx+G.bw+14,G.by+G.bh+20]]}]}})}
+readColors();sUI();cUI();mUI();setExK('conc');nextQ();themeLabel();requestAnimationFrame(loop);
+
+</script>
+<script src="tour.js" defer></script>
+<script src="lab-guide.js" defer></script>
+</body></html>

@@ -171,6 +171,15 @@
       mis: [["When ice melts its temperature rises.", "It stays at 0 °C until all of it has melted: the energy breaks forces."], ["Boiling breaks the bonds inside water molecules.", "Boiling separates molecules; the O–H bonds stay."], ["Bubbles in boiling water are air.", "They are water vapor."], ["Heavier molecules always boil higher.", "Water (18 g/mol) boils far higher than CH₄ (16 g/mol) because of hydrogen bonds."]],
       qs: ["Why does the temperature stay at 100 °C while water boils?", "Why does H₂O boil at 100 °C but CH₄ at −161.5 °C?", "Why does dry ice sublime instead of melting at 1 atm?"]
     },
+    'solutions-lab.html': {
+      big: "A solution is a mixture with the solute spread as single particles. How much dissolves depends on the solute, the solvent and the temperature. Dissolved particles also change the freezing and boiling points: only their number matters, not what they are.",
+      tryThis: ["Add KCl at 20 °C until crystals stay. How many grams dissolved? Check the curve.", "Heat the saturated KCl. What happens to the crystals?", "Make a hot saturated KNO₃ solution, take out the crystals, cool it slowly, then drop in a seed crystal.", "Which solid dissolves less when heated?", "Freezing & boiling: compare 1 m sugar, 1 m NaCl and 1 m CaCl₂. Why are they different?", "Mixtures: turn on the torch. In which beakers can you see the beam?", "Wait a minute: which mixture settles? Which one can a filter separate?"],
+      words: [["Solubility", "the most solute that dissolves in a given amount of solvent at a given temperature"], ["Saturated", "holds the most solute it can; extra solid stays undissolved"], ["Supersaturated", "holds more than the solubility; a seed crystal makes the extra come out"], ["Molarity (M)", "mol of solute ÷ L of solution"], ["Molality (m)", "mol of solute ÷ kg of solvent"], ["Colligative property", "depends on the number of solute particles, not their kind"], ["Henry’s law", "S₁/P₁ = S₂/P₂ for a gas"], ["Tyndall effect", "a beam of light is scattered by colloid particles"]],
+      goals: ["Read solubility curves and decide if a solution is unsaturated, saturated or supersaturated.", "Calculate percent by mass, molarity, molality and dilutions.", "Use Henry’s law for gases.", "Calculate freezing point depression and boiling point elevation, including the number of ions.", "Tell solutions, colloids and suspensions apart."],
+      flow: [["2 min", "Predict", "Does more sugar dissolve in hot tea or in cold tea? Does more CO₂ stay in a warm or a cold soda?"], ["6 min", "Explore", "Solubility: find the saturation point of two salts at 20 °C and 60 °C."], ["5 min", "Explain", "Freezing & boiling: why does CaCl₂ melt ice better than NaCl?"], ["4 min", "Apply", "Mixtures, then the Exercise tab."]],
+      mis: [["Stirring makes more solute dissolve.", "Stirring makes it dissolve faster; the solubility stays the same."], ["All solids dissolve better when hot.", "Ca(OH)₂ dissolves less when heated, and gases always dissolve less."], ["NaCl and sugar lower the freezing point the same at the same molality.", "NaCl gives two particles (Na⁺ and Cl⁻), so twice the effect."], ["Milk is a solution.", "Milk is a colloid: it scatters a light beam."]],
+      qs: ["Why does a seed crystal make a supersaturated solution crystallise?", "Why does 1 m CaCl₂ lower the freezing point three times as much as 1 m sugar?", "Why do fish struggle in warm water?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -337,6 +346,7 @@
     'keplers-laws.html': ['Equal areas in equal times: near the Sun the line to the Sun is short, so the comet must move faster to sweep the same area.', 'T² ∝ a³, so T ∝ a^1.5: 2^1.5 ≈ 2.8 times longer.'],
     'gas-laws-lab.html': ['Halving the volume halves the space, so the particles hit the walls twice as often: the pressure doubles.', 'Volume and pressure are proportional to the kelvin temperature; at 0 K they would be zero. Celsius has the wrong zero.', 'HCl (36.46 g/mol) is heavier than NH₃ (17.03 g/mol), so it moves more slowly and the gases meet nearer the HCl end.'],
     'states-of-matter-lab.html': ["The energy goes into breaking the attractions between the molecules (into potential energy), not into making them move faster, so the temperature stays the same until all the water is vapor.", "Water molecules form hydrogen bonds with each other; methane molecules only have weak dispersion forces, so much less energy is needed to separate them.", "The triple point of CO₂ is at 5.11 atm. Below that pressure liquid CO₂ cannot exist, so the solid turns straight into gas."],
+    'solutions-lab.html': ["The solution holds more solute than it can at that temperature; the seed gives the particles a surface to build a crystal on, so the extra solute comes out until the solution is just saturated.", "Each CaCl₂ unit splits into three ions (Ca²⁺ and 2 Cl⁻), and colligative properties depend only on the number of dissolved particles.", "Gases such as oxygen dissolve less in warm water, so there is less oxygen for the fish to breathe."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -508,6 +518,7 @@
     'wave-speed-lab.html': { hide: ['[data-mode="manual"]', '.seg:has([data-end])', '#step1', '.seg:has([data-speed])', 'label:has(#tVRuler)', 'label:has(#tRef)', 'label:has(#tGraph)', 'label:has(#tVals)', '[data-n]', '.field:has(#damp1)'] },
     'gas-laws-lab.html': { hide: ['#clrBtn'], start: '#recBtn' },
     'states-of-matter-lab.html': {"hide": ["#hReset"], "start": "#hGo"},
+    'solutions-lab.html': {"hide": ["#sReset"], "start": "#sAdd5"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -694,6 +705,7 @@
     'keplers-laws.html': { intro: '#t-retro', game: null, ex: '#t-ex' },
     'gas-laws-lab.html': { intro: '[data-tab="law"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'states-of-matter-lab.html': {"intro": "[data-tab=\"heat\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'solutions-lab.html': {"intro": "[data-tab=\"sol\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
