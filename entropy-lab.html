@@ -1194,7 +1194,8 @@ table.signs td.on { background: var(--accent); color: var(--accent-ink); font-we
     return { k: "w", N: N, NL: NL };
   }
   ["exH", "exS", "exT", "exEq", "exN", "exNL"].forEach(function (id) { $("#" + id).addEventListener("input", exRead); });
-  $("#exEg").addEventListener("click", function () { if (exK === "g") { $("#exR").value = "other"; $("#exEqL").hidden = false; $("#exEq").value = "2SO₂(g) + O₂(g) → 2SO₃(g)"; $("#exH").value = -198; $("#exS").value = -188; $("#exT").value = 1200; } else { $("#exN").value = 6; $("#exNL").value = 2; } exRead(); });
+  var exEgN = 0;
+  $("#exEg").addEventListener("click", function () { if (exK === "g") { $("#exR").value = "other"; $("#exEqL").hidden = false; if (exEgN++ % 2 === 0) { $("#exEq").value = "A → B (book Example 7)"; $("#exH").value = 145; $("#exS").value = 322; $("#exT").value = 382; } else { $("#exEq").value = "2SO₂(g) + O₂(g) → 2SO₃(g)"; $("#exH").value = -198; $("#exS").value = -188; $("#exT").value = 1200; } } else { $("#exN").value = 6; $("#exNL").value = 2; } exRead(); });
   exRead();
   function exSolve() {
     var X = exRead(); if (!X || !window.Tour) return;

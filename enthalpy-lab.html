@@ -445,7 +445,9 @@ var SUBS = [
   { n: 'Water (liquid)', c: 4.184, liquid: true }, { n: 'Ethanol (liquid)', c: 2.44, liquid: true },
   { n: 'Ice (solid)', c: 2.03 }, { n: 'Aluminum', c: 0.897 }, { n: 'Granite', c: 0.803 },
   { n: 'Iron', c: 0.449 }, { n: 'Copper', c: 0.385 }, { n: 'Silver', c: 0.235 },
-  { n: 'Lead', c: 0.129 }, { n: 'Gold', c: 0.129 }
+  { n: 'Lead', c: 0.129 }, { n: 'Gold', c: 0.129 },
+  { n: 'Water (gas)', c: 2.01 }, { n: 'Concrete', c: 0.84 }, { n: 'Beryllium', c: 1.825 }, { n: 'Magnesium', c: 1.023 },
+  { n: 'Calcium', c: 0.647 }, { n: 'Strontium', c: 0.301 }, { n: 'Barium', c: 0.204 }
 ];
 $('tblC').innerHTML = '<tr><th>Substance</th><th>c (J/(g·°C))</th><th>Heat to warm 100 g by 1 °C</th></tr>' +
   SUBS.map(function(s){ return '<tr><td>' + s.n + '</td><td>' + s.c + '</td><td>' + sf(s.c * 100) + ' J</td></tr>'; }).join('');
@@ -636,6 +638,14 @@ worked('wkCal', [
       { tag: '4 · Solve for c of the metal', math: true, html: 'c = ' + fr('q', 'm × ΔT') + ' = ' + fr('1674 J', '(50.0 g)(86.0 °C)') + ' = <span class="ans">0.389 J/(g·°C)</span>' },
       { tag: '5 · Evaluate the answer', html: 'The closest table value is <b>copper</b>, 0.385 J/(g·°C). The water warmed only 4.0 °C while the metal cooled 86.0 °C, because water has a much larger specific heat.' }
     ] },
+  { title: 'Book Figure 6 · Identifying a metal', problem: 'A <b>50.0 g</b> sample of an unknown metal is heated to <b>115.0 °C</b> and placed in a calorimeter with <b>125 g</b> of water at <b>25.60 °C</b>. The final temperature is <b>29.30 °C</b>. Find the specific heat of the metal and identify it.',
+    steps: [
+      { tag: '1 · Analyze the problem', html: knownHTML(['m<sub>metal</sub> = 50.0 g, T<sub>i</sub> = 115.0 °C', 'm<sub>water</sub> = 125 g, T<sub>i</sub> = 25.60 °C', 'T<sub>f</sub> = 29.30 °C', 'c<sub>water</sub> = 4.184 J/(g·°C)'], ['c<sub>metal</sub> = ?', 'identity of the metal']) },
+      { tag: '2 · Heat gained by the water', math: true, html: 'q<sub>water</sub> = c × m × ΔT = (4.184)(125)(29.30 − 25.60)<br>= (4.184)(125)(3.70) = <span class="ans">1.94 × 10³ J</span>' },
+      { tag: '3 · Heat lost by the metal', math: true, html: 'q<sub>metal</sub> = q<sub>water</sub> = 1.94 × 10³ J<br>ΔT<sub>metal</sub> = 115.0 − 29.30 = 85.7 °C' },
+      { tag: '4 · Solve for c of the metal', math: true, html: 'c = ' + fr('q', 'm × ΔT') + ' = ' + fr('1935 J', '(50.0 g)(85.7 °C)') + ' = <span class="ans">0.452 J/(g·°C)</span>' },
+      { tag: '5 · Evaluate the answer', html: 'The closest value in Table 2 is <b>iron</b>, 0.449 J/(g·°C). Three significant figures, like the data.' }
+    ] },
   { title: 'Example 2 · Finding the final temperature', problem: 'A <b>25.0 g</b> piece of aluminum (c = 0.897 J/(g·°C)) at <b>95.0 °C</b> is placed in <b>75.0 g</b> of water at <b>22.0 °C</b>. What is the final temperature?',
     steps: [
       { tag: '1 · Analyze the problem', html: knownHTML(['m<sub>Al</sub> = 25.0 g, c<sub>Al</sub> = 0.897', 'T<sub>Al</sub> = 95.0 °C', 'm<sub>water</sub> = 75.0 g, c = 4.184', 'T<sub>water</sub> = 22.0 °C'], ['T<sub>f</sub> = ? °C']) },
@@ -661,7 +671,15 @@ var PROCS = [
   { n: 'Melting ice (fusion)', f: 'H₂O', eq: 'H₂O(s) → H₂O(l)', M: 18.02, dH: 6.01, kind: 'phase' },
   { n: 'Freezing water', f: 'H₂O', eq: 'H₂O(l) → H₂O(s)', M: 18.02, dH: -6.01, kind: 'phase' },
   { n: 'Vaporizing water', f: 'H₂O', eq: 'H₂O(l) → H₂O(g)', M: 18.02, dH: 40.7, kind: 'phase' },
-  { n: 'Condensing steam', f: 'H₂O', eq: 'H₂O(g) → H₂O(l)', M: 18.02, dH: -40.7, kind: 'phase' }
+  { n: 'Condensing steam', f: 'H₂O', eq: 'H₂O(g) → H₂O(l)', M: 18.02, dH: -40.7, kind: 'phase' },
+  { n: 'Vaporizing ethanol', f: 'C₂H₅OH', eq: 'C₂H₅OH(l) → C₂H₅OH(g)', M: 46.07, dH: 38.6, kind: 'phase' },
+  { n: 'Melting ethanol (fusion)', f: 'C₂H₅OH', eq: 'C₂H₅OH(s) → C₂H₅OH(l)', M: 46.07, dH: 4.94, kind: 'phase' },
+  { n: 'Vaporizing methanol', f: 'CH₃OH', eq: 'CH₃OH(l) → CH₃OH(g)', M: 32.04, dH: 35.2, kind: 'phase' },
+  { n: 'Melting methanol (fusion)', f: 'CH₃OH', eq: 'CH₃OH(s) → CH₃OH(l)', M: 32.04, dH: 3.22, kind: 'phase' },
+  { n: 'Vaporizing acetic acid', f: 'CH₃COOH', eq: 'CH₃COOH(l) → CH₃COOH(g)', M: 60.05, dH: 23.4, kind: 'phase' },
+  { n: 'Melting acetic acid (fusion)', f: 'CH₃COOH', eq: 'CH₃COOH(s) → CH₃COOH(l)', M: 60.05, dH: 11.7, kind: 'phase' },
+  { n: 'Vaporizing ammonia', f: 'NH₃', eq: 'NH₃(l) → NH₃(g)', M: 17.03, dH: 23.3, kind: 'phase' },
+  { n: 'Melting ammonia (fusion)', f: 'NH₃', eq: 'NH₃(s) → NH₃(l)', M: 17.03, dH: 5.66, kind: 'phase' }
 ];
 $('tProc').innerHTML = PROCS.map(function(p, i){ return '<option value="' + i + '">' + p.n + '</option>'; }).join('');
 $('tblComb').innerHTML = '<tr><th>Substance</th><th>Formula</th><th>ΔH°<sub>comb</sub></th></tr>' +
@@ -847,6 +865,15 @@ worked('wkHess', [
       { tag: '5 · Add and cancel', math: true, html: 'O₂: 2 + ½ = 5/2 on each side → cancels. CO₂: 2 and 2 → cancels. H₂O: 1 and 1 → cancels.<br>2C(s) + H₂(g) → C₂H₂(g)' },
       { tag: '6 · Add the ΔH values', math: true, html: 'ΔH = (−788) + (−286) + (+1300) = <span class="ans">+226 kJ</span>' },
       { tag: '7 · Evaluate the answer', html: 'This is the formation reaction of acetylene, and +226 kJ matches ΔH°<sub>f</sub> of C₂H₂ in the table. It is positive, so acetylene stores a lot of energy, which is why it is used in welding torches.' }
+    ] },
+  { title: 'Example 7 · Hydrogen peroxide (book Example 5)', problem: 'Find ΔH for 2H₂O₂(l) → 2H₂O(l) + O₂(g).<br>(a) 2H₂(g) + O₂(g) → 2H₂O(l) &nbsp; ΔH = −572 kJ<br>(b) H₂(g) + O₂(g) → H₂O₂(l) &nbsp; ΔH = −188 kJ',
+    steps: [
+      { tag: '1 · Analyze the problem', html: 'Target: <b>2 H₂O₂</b> on the left, <b>2 H₂O + O₂</b> on the right. H₂O₂ is only in (b), H₂O only in (a).' },
+      { tag: '2 · Reverse (b) and multiply by 2', math: true, html: '2H₂O₂(l) → 2H₂(g) + 2O₂(g) &nbsp; ΔH = −2(−188) = +376 kJ' },
+      { tag: '3 · Keep (a)', math: true, html: '2H₂(g) + O₂(g) → 2H₂O(l) &nbsp; ΔH = −572 kJ' },
+      { tag: '4 · Add and cancel', math: true, html: 'H₂: 2 and 2 → cancels. O₂: 2 on the right, 1 on the left → 1 O₂ left on the right.<br>2H₂O₂(l) → 2H₂O(l) + O₂(g)' },
+      { tag: '5 · Add the ΔH values', math: true, html: 'ΔH = (+376) + (−572) = <span class="ans">−196 kJ</span>' },
+      { tag: '6 · Evaluate the answer', html: 'Negative: the decomposition of hydrogen peroxide is exothermic, which is why it can power rocket engines. Both ΔH values were used with the right signs.' }
     ] }
 ]);
 
