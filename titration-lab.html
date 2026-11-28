@@ -677,6 +677,7 @@ const RX=[
  {id:'h2so4',name:'H₂SO₄ (flask) + NaOH (burette)',type:'ab',acid:'H₂SO₄',z:2,Ka:null,base:'NaOH',Cb:0.10,Va:10,range:[0.03,0.08],rule:'H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O.  ATSR: n(H₂SO₄)/1 = n(NaOH)/2  →  Cₐ × Vₐ = C_b × V_E / 2'},
  {id:'hcl',name:'HCl (flask) + NaOH (burette)',type:'ab',acid:'HCl',z:1,Ka:null,base:'NaOH',Cb:0.10,Va:20,range:[0.05,0.15],rule:'HCl + NaOH → NaCl + H₂O.  ATSR: n(HCl)/1 = n(NaOH)/1  →  Cₐ × Vₐ = C_b × V_E'},
  {id:'ac',name:'CH₃COOH (flask) + NaOH (burette)',type:'ab',acid:'CH₃COOH',z:1,Ka:1.8e-5,base:'NaOH',Cb:0.10,Va:20,range:[0.05,0.15],rule:'CH₃COOH + NaOH → CH₃COONa + H₂O.  ATSR: Cₐ × Vₐ = C_b × V_E   (weak acid: pH at half-equivalence = pKa)'},
+ {id:'fo',name:'HCOOH, methanoic acid (flask) + NaOH (burette)',type:'ab',acid:'HCOOH',z:1,Ka:1.8e-4,base:'NaOH',Cb:0.1000,Va:25,range:[0.05,0.15],rule:'HCOOH + NaOH → HCOONa + H₂O.  ATSR: Cₐ × Vₐ = C_b × V_E   (weak acid, Ka = 1.8 × 10⁻⁴: pH at half-equivalence = pKa = 3.74)'},
  {id:'fe',name:'Fe²⁺ (flask) + KMnO₄ (burette): redox',type:'rx',acid:'Fe²⁺',base:'MnO₄⁻',Cb:0.020,Va:20,range:[0.05,0.12],rule:'MnO₄⁻ + 8H⁺ + 5Fe²⁺ → Mn²⁺ + 4H₂O + 5Fe³⁺.  ATSR: n(MnO₄⁻)/1 = n(Fe²⁺)/5  →  C(Fe²⁺) × Vₐ = 5 × C(MnO₄⁻) × V_E'}];
 const IND=[{id:'php',name:'Phenolphthalein (8.2–10)',col:pH=>pH<8.2?[255,255,255,0]:mix([255,190,230],[220,20,140],Math.min(1,(pH-8.2)/1.8)).concat(Math.min(.85,.15+(pH-8.2)/2))},
  {id:'btb',name:'Bromothymol blue (6.0–7.6)',col:pH=>{const t=Math.max(0,Math.min(1,(pH-6)/1.6));return mix([230,200,30],[30,90,220],t).concat(.6)}},

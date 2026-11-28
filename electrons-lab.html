@@ -253,7 +253,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
    </section>
    <section class="group" id="valCard">
     <h2>Valence electrons</h2>
-    <div class="row"><svg class="lewis" id="lewis" viewBox="0 0 74 74" role="img" aria-label="Lewis dot symbol"></svg><div><p class="mono" id="valTxt" style="margin:0">–</p><p class="note" id="blkTxt">–</p></div></div>
+    <div class="row"><svg class="lewis" id="lewis" viewBox="0 0 74 74" role="img" aria-label="Electron-dot structure"></svg><div><p class="mono" id="valTxt" style="margin:0">–</p><p class="note" id="blkTxt">–</p></div></div>
    </section>
    <section class="group" data-adv>
     <details><summary>The three rules</summary><div class="morein">
@@ -273,7 +273,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
    </div>
    <div class="extra mid"><canvas class="stage" id="trg" aria-label="Graph of the property against atomic number"></canvas></div>
    <div class="transport">
-    <div class="seg" role="group" aria-label="Property" id="propSeg"><button type="button" data-prop="r" aria-pressed="true">Atomic radius</button><button type="button" data-prop="ie" aria-pressed="false">Ionization energy</button><button type="button" data-prop="en" aria-pressed="false">Electronegativity</button></div>
+    <div class="seg" role="group" aria-label="Property" id="propSeg"><button type="button" data-prop="r" aria-pressed="true">Atomic radius</button><button type="button" data-prop="ie" aria-pressed="false">Ionization energy</button><button type="button" data-prop="ion" aria-pressed="false">Ionic radius</button><button type="button" data-prop="en" aria-pressed="false">Electronegativity</button></div>
     <span class="grow"></span>
     <div class="seg" role="group" aria-label="Tapping an element"><button type="button" data-pick="a" aria-pressed="true">Select</button><button type="button" data-pick="b" aria-pressed="false">Compare with…</button></div>
    </div>
@@ -288,6 +288,11 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
     <h2>Compare</h2>
     <canvas class="stage" id="cmpc" style="height:150px;border:1px solid var(--line);border-radius:10px" aria-label="The two selected atoms drawn to scale"></canvas>
     <p class="rule" id="cmpTxt">Choose “Compare with…”, then tap a second element.</p>
+   </section>
+   <section class="group" id="sieCard" hidden>
+    <h2>Successive ionization energies</h2>
+    <canvas class="stage" id="sie" style="height:140px;border:1px solid var(--line);border-radius:10px" aria-label="Bar chart of the 1st, 2nd, 3rd … ionization energies of the selected element"></canvas>
+    <p class="rule" id="sieTxt"></p>
    </section>
    <section class="group" data-adv>
     <details open><summary>The trends</summary><div class="morein">
@@ -402,11 +407,11 @@ const go=id=>{const b=document.querySelector('.lg-nav [data-ph="'+id+'"]');if(b&
    ========================================================= */
 const EL=[null,
  ['H','Hydrogen',1,1,37,1312,2.20],['He','Helium',18,1,31,2372,null],
- ['Li','Lithium',1,2,152,520,0.98],['Be','Beryllium',2,2,112,899,1.57],['B','Boron',13,2,85,801,2.04],['C','Carbon',14,2,77,1086,2.55],['N','Nitrogen',15,2,75,1402,3.04],['O','Oxygen',16,2,73,1314,3.44],['F','Fluorine',17,2,72,1681,3.98],['Ne','Neon',18,2,71,2081,null],
- ['Na','Sodium',1,3,186,496,0.93],['Mg','Magnesium',2,3,160,738,1.31],['Al','Aluminium',13,3,143,578,1.61],['Si','Silicon',14,3,118,787,1.90],['P','Phosphorus',15,3,110,1012,2.19],['S','Sulfur',16,3,103,1000,2.58],['Cl','Chlorine',17,3,100,1251,3.16],['Ar','Argon',18,3,98,1521,null],
+ ['Li','Lithium',1,2,152,520,0.98],['Be','Beryllium',2,2,112,900,1.57],['B','Boron',13,2,85,800,2.04],['C','Carbon',14,2,77,1090,2.55],['N','Nitrogen',15,2,75,1400,3.04],['O','Oxygen',16,2,73,1310,3.44],['F','Fluorine',17,2,72,1680,3.98],['Ne','Neon',18,2,71,2080,null],
+ ['Na','Sodium',1,3,186,496,0.93],['Mg','Magnesium',2,3,160,738,1.31],['Al','Aluminum',13,3,143,578,1.61],['Si','Silicon',14,3,118,787,1.90],['P','Phosphorus',15,3,110,1012,2.19],['S','Sulfur',16,3,103,1000,2.58],['Cl','Chlorine',17,3,100,1251,3.16],['Ar','Argon',18,3,98,1521,null],
  ['K','Potassium',1,4,227,419,0.82],['Ca','Calcium',2,4,197,590,1.00],['Sc','Scandium',3,4,162,633,1.36],['Ti','Titanium',4,4,147,659,1.54],['V','Vanadium',5,4,134,651,1.63],['Cr','Chromium',6,4,128,653,1.66],['Mn','Manganese',7,4,127,717,1.55],['Fe','Iron',8,4,126,762,1.83],['Co','Cobalt',9,4,125,760,1.88],['Ni','Nickel',10,4,124,737,1.91],['Cu','Copper',11,4,128,745,1.90],['Zn','Zinc',12,4,134,906,1.65],
  ['Ga','Gallium',13,4,135,579,1.81],['Ge','Germanium',14,4,122,762,2.01],['As','Arsenic',15,4,120,947,2.18],['Se','Selenium',16,4,119,941,2.55],['Br','Bromine',17,4,114,1140,2.96],['Kr','Krypton',18,4,112,1351,null],
- ['Rb','Rubidium',1,5,248,403,0.82],['Sr','Strontium',2,5,215,550,0.95],['Y','Yttrium',3,5,180,600,1.22],['Zr','Zirconium',4,5,160,640,1.33],['Nb','Niobium',5,5,146,652,1.60],['Mo','Molybdenum',6,5,139,684,2.16],['Tc','Technetium',7,5,136,702,1.90],['Ru','Ruthenium',8,5,134,710,2.20],['Rh','Rhodium',9,5,134,720,2.28],['Pd','Palladium',10,5,137,804,2.20],['Ag','Silver',11,5,144,731,1.93],['Cd','Cadmium',12,5,151,868,1.69],
+ ['Rb','Rubidium',1,5,248,403,0.82],['Sr','Strontium',2,5,215,550,0.95],['Y','Yttrium',3,5,180,600,1.22],['Zr','Zirconium',4,5,160,640,1.33],['Nb','Niobium',5,5,146,652,1.60],['Mo','Molybdenum',6,5,139,684,2.16],['Tc','Technetium',7,5,136,702,2.10],['Ru','Ruthenium',8,5,134,710,2.20],['Rh','Rhodium',9,5,134,720,2.28],['Pd','Palladium',10,5,137,804,2.20],['Ag','Silver',11,5,144,731,1.93],['Cd','Cadmium',12,5,151,868,1.69],
  ['In','Indium',13,5,167,558,1.78],['Sn','Tin',14,5,140,709,1.96],['Sb','Antimony',15,5,140,834,2.05],['Te','Tellurium',16,5,142,869,2.10],['I','Iodine',17,5,133,1008,2.66],['Xe','Xenon',18,5,131,1170,null]];
 const ZMAX=54,ZBUILD=36;
 const sym=z=>EL[z][0],nameOf=z=>EL[z][1],grp=z=>EL[z][2],per=z=>EL[z][3];
@@ -473,13 +478,13 @@ function readCfg(){const z=cf.z,full=cf.mode==='show'||total()===z,o=cf.mode==='
  $('#cfgNoble').innerHTML=full&&z>2?'Noble-gas notation: '+nobleText(z,true,cf.mode==='show'?null:o):full?'Noble-gas notation: not needed for the first period':'';
  const v=valence(z),g=grp(z),b=blockOf(z);
  $('#valTxt').textContent=v!=null?`${v} valence electron${v>1?'s':''}`:'d block';
- $('#blkTxt').textContent=`${b} block · period ${per(z)} · group ${g}`+(v==null?'. Lewis dots are drawn for the s and p blocks only.':'');
+ $('#blkTxt').textContent=`${b} block · period ${per(z)} · group ${g}`+(v==null?'. Electron-dot structures are drawn for the s and p blocks only.':'');
  drawLewis(z,full?v:null)}
 function drawLewis(z,v){const s=$('#lewis'),ink=C.ink||'#13232B',acc=C.fill||'#0A6A88';let h=`<text x="37" y="45" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-weight="700" font-size="24" style="fill:var(--ink)">${sym(z)}</text>`;
  if(v!=null){const pos=[[37,14],[64,37],[37,62],[10,37]],off=[[ -5,0],[0,-5],[-5,0],[0,-5]];const n=[0,0,0,0];
   const order=z===2?[0,0]:[0,1,2,3,0,1,2,3];for(let i=0;i<v;i++)n[order[i]]++;
   pos.forEach(([x,y],k)=>{for(let j=0;j<n[k];j++){const dx=n[k]===2?(j?1:-1)*5:0;const px=k%2?x:x+dx,py=k%2?y+dx:y;h+=`<circle cx="${px}" cy="${py}" r="3.3" style="fill:var(--fill)"/>`}})}
- s.innerHTML=h;s.setAttribute('aria-label',v!=null?`Lewis dot symbol of ${nameOf(z)}: ${v} dots`:'No Lewis symbol yet')}
+ s.innerHTML=h;s.setAttribute('aria-label',v!=null?`Electron-dot structure of ${nameOf(z)}: ${v} dots`:'No electron-dot structure yet')}
 /* periodic table buttons, H to Kr */
 (function(){const g=$('#pt1');let h='';for(let p=1;p<=4;p++)for(let c=1;c<=18;c++){const z=EL.findIndex((e,i)=>i&&i<=ZBUILD&&e[3]===p&&e[2]===c);
   h+=z>0?`<button type="button" class="${blockOf(z)}" data-z="${z}" title="${nameOf(z)} (${z})" aria-pressed="false">${sym(z)}</button>`:'<span></span>'}g.innerHTML=h})();
@@ -534,10 +539,14 @@ $('#orb').addEventListener('click',e=>{if(!G1)return;const r=e.currentTarget.get
    ========================================================= */
 const PROPS={r:{i:4,name:'Atomic radius',unit:'pm',def:'Half the distance between the nuclei of two bonded atoms of the element.',more:'larger',less:'smaller'},
  ie:{i:5,name:'First ionization energy',unit:'kJ/mol',def:'The energy needed to remove the first electron from a gaseous atom.',more:'higher',less:'lower'},
+ ion:{i:-1,name:'Ionic radius',unit:'pm',def:'The radius of the ion the atom usually forms. Positive ions (cations) are smaller than their atoms; negative ions (anions) are larger.',more:'larger',less:'smaller'},
  en:{i:6,name:'Electronegativity',unit:'',def:'How strongly an atom attracts the electrons in a chemical bond (Pauling scale, fluorine = 3.98).',more:'higher',less:'lower'}};
 const tr={prop:'r',a:11,b:null,pick:'a'};
-const val=(z,p)=>EL[z][PROPS[p||tr.prop].i];
-const fmtV=(z,p)=>{p=p||tr.prop;const v=val(z,p);return v==null?'no value':p==='en'?fx(v,2):String(v)+' '+PROPS[p].unit};
+const ION={3:[76,1],11:[102,1],19:[138,1],37:[152,1],4:[31,2],12:[72,2],20:[100,2],38:[118,2],5:[20,3],13:[54,3],31:[62,3],49:[81,3],6:[15,4],14:[41,4],32:[53,4],50:[71,4],51:[62,5],7:[146,-3],15:[212,-3],33:[222,-3],8:[140,-2],16:[184,-2],34:[196,-2],52:[221,-2],9:[133,-1],17:[181,-1],35:[196,-1],53:[220,-1]};   // Inspire Chemistry M5 Fig 15
+const ionSym=z=>{const q=ION[z][1],n=Math.abs(q);return sym(z)+(n>1?sup(n):'')+(q>0?'⁺':'⁻')};
+const SIE={3:[520,7300,11810],4:[900,1760,14850,21010],5:[800,2430,3660,25020,32820],6:[1090,2350,4620,6220,37830,47280],7:[1400,2860,4580,7480,9440,53270,64360],8:[1310,3390,5300,7470,10980,13330,71870,84080],9:[1680,3370,6050,8410,11020,15160,17870,92040,106430],10:[2080,3950,6120,9370,12180,15240,20000,23070,115380]};   // M5 Table 5
+const val=(z,p)=>{p=p||tr.prop;if(p==='ion')return ION[z]?ION[z][0]:null;return EL[z][PROPS[p].i]};
+const fmtV=(z,p)=>{p=p||tr.prop;const v=val(z,p);return v==null?'no value':p==='en'?fx(v,2):p==='ion'?ionSym(z)+' '+v+' pm':String(v)+' '+PROPS[p].unit};
 function range(p){const vs=[];for(let z=1;z<=ZMAX;z++){const v=val(z,p);if(v!=null)vs.push(v)}return [Math.min(...vs),Math.max(...vs)]}
 function heat(t){const dk=isDark();const a=dk?[22,48,58]:[232,244,246],b=dk?[120,215,240]:[8,84,110];return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(',')})`}
 let GT=null;
@@ -547,7 +556,7 @@ function drawTrend(){const c=$('#tr');if(!c.getClientRects().length)return;const
   x.fillStyle=t==null?(isDark()?'#1E2A30':'#EEF1F1'):heat(t);x.fillRect(cx+1,cy+1,cs-2,cs-2);
   const sel=z===tr.a?C.fill:z===tr.b?C.brass:null;if(sel){x.lineWidth=3;x.strokeStyle=sel;x.strokeRect(cx+2.5,cy+2.5,cs-5,cs-5)}
   const dark=t!=null&&t>.55;const ink=dark?(isDark()?'#06222B':'#FFFFFF'):C.ink;
-  txt(x,sym(z),cx+cs/2,cy+cs*(cs>34?.4:.52),ink,Math.max(8,Math.min(15,cs*.36)),'center','middle',700);
+  txt(x,tr.prop==='ion'&&ION[z]?ionSym(z):sym(z),cx+cs/2,cy+cs*(cs>34?.4:.52),ink,Math.max(8,Math.min(15,cs*.36)),'center','middle',700);
   if(cs>34)txt(x,v==null?'–':tr.prop==='en'?fx(v,2):String(v),cx+cs/2,cy+cs*.76,ink,Math.max(8,Math.min(11,cs*.24)),'center','middle',500);
   cells.push({z,x:cx,y:cy,s:cs})}
  // legend bar
@@ -569,7 +578,18 @@ function drawTrendGraph(){const c=$('#trg');if(!c.getClientRects().length)return
   if([1,3,11,19,37].includes(z)&&!s&&tr.prop!=='en')txt(x,sym(z),X(z),Y(v)-6,C.muted,10,'center')}
  txt(x,PROPS[tr.prop].name+' against atomic number',L,T+4,C.muted,11,'left','alphabetic',700)}
 /* why A and B differ */
-function reason(a,b,p){const pr=PROPS[p],va=val(a,p),vb=val(b,p);if(va==null||vb==null)return `${nameOf(va==null?a:b)} is a noble gas: it has a full outer level and hardly forms bonds, so it has no electronegativity value.`;
+function ionReason(a,b){const va=val(a,'ion'),vb=val(b,'ion');if(va==null||vb==null)return `${nameOf(va==null?a:b)} has no ion in the book's figure (noble gases and most transition metals are left out).`;
+ const big=va>=vb?a:b,small=big===a?b:a,qa=ION[big][1],qb=ION[small][1];let why;
+ if(grp(a)===grp(b))why='Same group: the ion lower down has more energy levels, so it is bigger.';
+ else if(qa<0&&qb>0)why=`${ionSym(small)} has lost its outer electrons, so it has one energy level fewer. ${ionSym(big)} has gained electrons: they repel each other and spread out.`;
+ else if(qa>0&&qb>0)why=`Both are positive ions. ${ionSym(small)} has a bigger charge: ${Math.abs(qb)>Math.abs(qa)?'more protons pull on the same number of electrons':'its nucleus pulls the remaining electrons in harder'}.`;
+ else if(qa<0&&qb<0)why=`Both are negative ions. ${ionSym(big)} has fewer protons pulling on the electrons, so its electron cloud is bigger.`;
+ else why='Use both trends: ions get bigger down a group; across a period, positive ions shrink, then the negative ions are much bigger.';
+ return `<b>${ionSym(big)} (${val(big,'ion')} pm) is larger than ${ionSym(small)} (${val(small,'ion')} pm).</b> ${why}`}
+function atomIonText(z){if(!ION[z])return `${nameOf(z)}: no ion in the book's figure. Try a group 1, 2, 13–17 element.`;const q=ION[z][1],n=Math.abs(q);
+ return q>0?`<b>${sym(z)} ${val(z,'r')} pm → ${ionSym(z)} ${ION[z][0]} pm.</b> ${nameOf(z)} loses ${n} electron${n>1?'s':''}: its outer level is emptied, so the ion is smaller than the atom.`
+  :`<b>${sym(z)} ${val(z,'r')} pm → ${ionSym(z)} ${ION[z][0]} pm.</b> ${nameOf(z)} gains ${n} electron${n>1?'s':''}: more electron–electron repulsion, so the ion is larger than the atom.`}
+function reason(a,b,p){if(p==='ion')return ionReason(a,b);const pr=PROPS[p],va=val(a,p),vb=val(b,p);if(va==null||vb==null)return `${nameOf(va==null?a:b)} is a noble gas: it has a full outer level and hardly forms bonds, so it has no electronegativity value.`;
  const big=va>=vb?a:b,small=big===a?b:a,word=pr.more,eq=Math.abs(va-vb)<1e-9;
  if(eq)return `Both have the same value (${fmtV(a,p)}).`;
  let why;const ga=grp(a),gb=grp(b),pa=per(a),pb=per(b);
@@ -583,13 +603,24 @@ function reason(a,b,p){const pr=PROPS[p],va=val(a,p),vb=val(b,p);if(va==null||vb
  else{why=`Different period and group. Use both trends: going down makes ${p==='r'?'atoms bigger':'values lower'}, going right makes ${p==='r'?'them smaller':'them higher'}. Here the data say ${nameOf(big)} is ${word}.`}
  return `<b>${nameOf(big)} (${fmtV(big,p)}) is ${word} than ${nameOf(small).toLowerCase()} (${fmtV(small,p)}).</b> ${why}`}
 function drawCmp(){const c=$('#cmpc');if(!c.getClientRects().length)return;const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const zs=[tr.a,tr.b].filter(Boolean);
- if(tr.prop==='r'){const maxR=Math.max(...zs.map(z=>val(z,'r'))),sc=Math.min(h*.36,w/(zs.length*2.6))/maxR;zs.forEach((z,i)=>{const cx=w*(zs.length===1?.5:(i?.72:.28)),cy=h*.48,r=val(z,'r')*sc,col=i?C.brass:C.fill;
+ if(tr.prop==='ion'){const items=tr.b?[[tr.a,'ion'],[tr.b,'ion']]:[[tr.a,'r'],[tr.a,'ion']];const vs=items.map(([z,k])=>k==='ion'?(ION[z]?ION[z][0]:0):val(z,'r'));const maxR=Math.max(...vs,1),sc=Math.min(h*.36,w/5.2)/maxR;
+  items.forEach(([z,k],i)=>{const v=vs[i],cx=w*(i?.72:.28),cy=h*.48,r=Math.max(2,v*sc),col=i?C.brass:C.fill;if(!v){txt(x,'no ion',cx,cy,C.muted,12,'center','middle');return}
+   x.fillStyle=col;x.globalAlpha=.22;x.beginPath();x.arc(cx,cy,r,0,Math.PI*2);x.fill();x.globalAlpha=1;x.strokeStyle=col;x.lineWidth=2;x.stroke();txt(x,k==='ion'?ionSym(z):sym(z),cx,cy,C.ink,15,'center','middle',700);txt(x,(k==='ion'?'ion ':'atom ')+v+' pm',cx,h-8,col,12,'center','alphabetic',700)});
+  txt(x,'drawn to scale',6,14,C.muted,10.5)}
+ else if(tr.prop==='r'){const maxR=Math.max(...zs.map(z=>val(z,'r'))),sc=Math.min(h*.36,w/(zs.length*2.6))/maxR;zs.forEach((z,i)=>{const cx=w*(zs.length===1?.5:(i?.72:.28)),cy=h*.48,r=val(z,'r')*sc,col=i?C.brass:C.fill;
    x.fillStyle=col;x.globalAlpha=.22;x.beginPath();x.arc(cx,cy,r,0,Math.PI*2);x.fill();x.globalAlpha=1;x.strokeStyle=col;x.lineWidth=2;x.stroke();txt(x,sym(z),cx,cy,C.ink,15,'center','middle',700);txt(x,val(z,'r')+' pm',cx,h-8,col,12,'center','alphabetic',700)});
   txt(x,'drawn to scale',6,14,C.muted,10.5)}
  else{const [,hi]=range(tr.prop);zs.forEach((z,i)=>{const v=val(z),bw=Math.min(70,w/5),bx=w*(zs.length===1?.5:(i?.68:.32))-bw/2,bh=v==null?0:v/hi*(h-44),col=i?C.brass:C.fill;
   x.fillStyle=col;x.fillRect(bx,h-24-bh,bw,bh);txt(x,sym(z),bx+bw/2,h-8,C.ink,13,'center','alphabetic',700);txt(x,v==null?'no value':(tr.prop==='en'?fx(v,2):v),bx+bw/2,h-30-bh,col,12,'center','alphabetic',700)})}
  const A=tr.a?`${sym(tr.a)} · ${fmtV(tr.a)}`:'–',B=tr.b?`${sym(tr.b)} · ${fmtV(tr.b)}`:'–';$('#tA').textContent=A;$('#tB').textContent=B;
- $('#cmpTxt').innerHTML=tr.b?reason(tr.a,tr.b,tr.prop):`${nameOf(tr.a)}: ${fmtV(tr.a)}. Choose <b>Compare with…</b>, then tap a second element.`;$('#cmpTxt').className='rule'+(tr.b?' ok':'')}
+ $('#cmpTxt').innerHTML=tr.b?reason(tr.a,tr.b,tr.prop):tr.prop==='ion'?atomIonText(tr.a)+' Choose <b>Compare with…</b> to compare two ions.':`${nameOf(tr.a)}: ${fmtV(tr.a)}. Choose <b>Compare with…</b>, then tap a second element.`;$('#cmpTxt').className='rule'+(tr.b||tr.prop==='ion'?' ok':'');drawSIE()}
+function drawSIE(){const card=$('#sieCard');card.hidden=tr.prop!=='ie';if(card.hidden)return;const c=$('#sie'),z=tr.a,d=SIE[z];if(!c.getClientRects().length)return;const {x,w,h}=fit(c);x.clearRect(0,0,w,h);
+ if(!d){$('#sieTxt').innerHTML='Select an element from lithium to neon (period 2) to see all its ionization energies, as in the book\'s Table 5.';txt(x,'Li – Ne only',w/2,h/2,C.muted,12,'center','middle');return}
+ const v=valence(z),L=8,T=18,B=h-20,n=d.length,bw=(w-L*2)/n,lo=Math.log10(300),hi=Math.log10(130000),Y=q=>B-(Math.log10(q)-lo)/(hi-lo)*(B-T);
+ d.forEach((q,i)=>{const core=i>=v,bx=L+i*bw+2,col=core?C.rose:C.fill;x.fillStyle=col;x.fillRect(bx,Y(q),bw-4,B-Y(q));txt(x,(i+1)+'',bx+(bw-4)/2,h-6,C.muted,10,'center');
+  if(i===v)txt(x,'jump',bx+(bw-4)/2,Y(q)-5,C.rose,10.5,'center','alphabetic',700)});
+ txt(x,'kJ/mol (log scale)',6,12,C.muted,10);
+ $('#sieTxt').innerHTML=`<b>${nameOf(z)}: ${v} valence electron${v>1?'s':''}.</b> The ${v===8?'first 8 electrons come':'first '+v+(v>1?' electrons come':' electron comes')} from the outer level. Electron ${v+1} would come from the full inner level (1s²): ${d[v-1].toLocaleString('en')} → ${d[v].toLocaleString('en')} kJ/mol, about ${Math.round(d[v]/d[v-1])} times more. That is why atoms gain, lose or share electrons to reach a full outer octet (octet rule).`}
 function setProp(p){tr.prop=p;segPick($(`[data-prop="${p}"]`));$('#propH').textContent=PROPS[p].name;$('#propDef').textContent=PROPS[p].def;drawTrend()}
 $$('[data-prop]').forEach(b=>b.onclick=()=>setProp(b.dataset.prop));
 $$('[data-pick]').forEach(b=>b.onclick=()=>{tr.pick=b.dataset.pick;segPick(b)});
@@ -693,7 +724,7 @@ function exUpdate(){const t=$('#exText'),m=$('#exMsg');
  if(exk==='cfg'){const z=parseEl($('#exEl').value);$('#exEl').toggleAttribute('aria-invalid',!z);
   if(!z){m.textContent='Type an element from hydrogen (1) to krypton (36): a symbol, a name or an atomic number.';t.innerHTML='';return null}
   m.textContent='Ready. Press “Solve it in the lab” to work through it on the Configuration screen.';
-  t.innerHTML=`For <b>${nameOf(z).toLowerCase()} (Z = ${z})</b>: (a) write the electron configuration and draw the orbital diagram, (b) write the noble-gas notation, (c) give the number of valence electrons and the Lewis dot symbol, (d) name its block, period and group.`;return {z}}
+  t.innerHTML=`For <b>${nameOf(z).toLowerCase()} (Z = ${z})</b>: (a) write the electron configuration and draw the orbital diagram, (b) write the noble-gas notation, (c) give the number of valence electrons and draw the electron-dot structure, (d) name its block, period and group.`;return {z}}
  const p=exPhoton();$('#exV').toggleAttribute('aria-invalid',!p);$('#exU').textContent=EXU[$('#exQ').value];
  if(!p){m.textContent='Type a positive number, for example 486, 6.17e14 or 4.09×10^-19.';t.innerHTML='';return null}
  const known={l:`wavelength of ${fx(p.v,p.v<10?2:0)} nm`,f:`frequency of ${sci(p.v)} Hz`,e:`energy of ${sci(p.v)} J`}[p.q];
@@ -717,9 +748,9 @@ function cfgSteps(z){const o=config(z),v=valence(z),ex=!!EXC[z],nm=nameOf(z).toL
   wait:()=>cf.mode==='build'&&cf.z===z&&total()===z,doIt:()=>{if(cf.mode!=='build')setMode('build');let n;while(total()<z&&(n=nextSlot()))tryAdd(n[0],n[1],true)},done:()=>`All ${z} electrons placed: ${cfgText(aufbau(z),false)}.`}];
  if(ex)S.push({el:'[data-mode="show"]',title:'An exception',html:`<p>The rules predict ${cfgText(aufbau(z),false)}, but real ${nm} moves one 4s electron into 3d: a ${z===24?'half-filled':'filled'} d sublevel is more stable.</p><p>Switch to <b>Show me</b> to see the real atom.</p>`,wait:()=>cf.mode==='show'&&cf.z===z,doIt:()=>setMode('show'),done:'Real configuration: '+plain+'.',auto:900});
  S.push({el:()=>$('#cfgFull').closest('.group'),title:'(a) and (b) The notation',html:calc(`Configuration:  ${plain}\nNoble gas:      ${nobleText(z,false)}`)+`<p>Superscripts = electrons in each sublevel. They add up to ${z}.</p>`+(z>2?`<p>The noble-gas core [${NOBLE.find(([nz])=>nz<z)[1]}] stands for the inner electrons.</p>`:'')});
- S.push({el:'#valCard',title:'(c) Valence electrons',html:v!=null?`<p>Valence electrons are in the highest energy level (n = ${per(z)}): <b>${v}</b>.</p><p>The Lewis dot symbol shows them as dots round ${sym(z)}.</p>`:`<p>${nameOf(z)} is a transition metal (d block). Its 4s electrons are the outermost; the 3d electrons can also take part in bonding, so we do not draw a simple Lewis symbol.</p>`});
+ S.push({el:'#valCard',title:'(c) Valence electrons',html:v!=null?`<p>Valence electrons are in the highest energy level (n = ${per(z)}): <b>${v}</b>.</p><p>The electron-dot structure shows them as dots round ${sym(z)}: one on each side first, then in pairs.</p>`:`<p>${nameOf(z)} is a transition metal (d block). Its 4s electrons are the outermost; the 3d electrons can also take part in bonding, so we do not draw a simple electron-dot structure.</p>`});
  S.push({el:'#pt1',title:'(d) Block, period and group',html:`<p>The last electron went into a <b>${blockOf(z)}</b> sublevel, so ${nm} is in the <b>${blockOf(z)} block</b>.</p><p>Highest level n = ${per(z)} → <b>period ${per(z)}</b>. <b>Group ${grp(z)}</b>.</p>`,onShow:()=>{}});
- S.push({title:'Your answers',html:calc(`(a) ${plain}\n(b) ${nobleText(z,false)}\n(c) ${v!=null?v+' valence electron'+(v>1?'s':''):'d block: no simple Lewis symbol'}\n(d) ${blockOf(z)} block, period ${per(z)}, group ${grp(z)}`)+'<p>Compare them with your own working on the Exercise screen.</p>'});
+ S.push({title:'Your answers',html:calc(`(a) ${plain}\n(b) ${nobleText(z,false)}\n(c) ${v!=null?v+' valence electron'+(v>1?'s':''):'d block: no simple electron-dot structure'}\n(d) ${blockOf(z)} block, period ${per(z)}, group ${grp(z)}`)+'<p>Compare them with your own working on the Exercise screen.</p>'});
  return S}
 function phSteps(p){const nm=p.nm,m=hMatch(nm),lamS=nm>=1000?fx(nm,0)+' nm':fx(nm,1)+' nm',lamM=sci(nm*1e-9);
  const S=[{title:'Solve it in the lab',html:`<p>Light is a wave and a stream of photons. Two equations link λ, ν and E:</p>`+calc('c = λν        c = 3.00 × 10⁸ m/s\nE = hν        h = 6.626 × 10⁻³⁴ J·s'),onShow:()=>{go('light');if(lt.mode!=='h')setLMode('h')}}];
@@ -766,6 +797,9 @@ const GEN=[
    ['Which colour of visible light has the most energy per photon?',['Violet','Red','Green','Yellow'],0,'Violet has the shortest wavelength, so the highest frequency and energy (E = hν).'],
    ['A flame test gives a bright yellow-orange colour. Which metal ion is present?',['Sodium','Potassium','Copper','Lithium'],0,'Sodium gives out strong light at 589 nm, yellow-orange.'],
    ['Why does each element give its own line spectrum?',['Its energy levels have their own exact energies','All atoms have the same levels','Electrons can have any energy','The flame colour changes the atom'],0,'Electrons only jump between fixed levels, so only photons with those energy differences come out.'],
+   ['Which is larger: a sodium atom (Na) or a sodium ion (Na⁺)?',['The Na atom','The Na⁺ ion','They are the same size','It depends on the temperature'],0,'Na loses its one outer electron, so Na⁺ has one energy level fewer: 186 pm → 102 pm.'],
+   ['Which is larger: a chlorine atom (Cl) or a chloride ion (Cl⁻)?',['The Cl⁻ ion','The Cl atom','They are the same size','Ions have no size'],0,'Cl gains an electron: more repulsion between electrons, 100 pm → 181 pm.'],
+   ['Boron: 800, 2430, 3660, 25,020 kJ/mol. How many valence electrons?',['3','4','2','5'],0,'The big jump comes after the 3rd electron: the 4th must come from the full inner 1s level.'],
    ['Which group has the highest first ionization energies in each period?',['Noble gases (group 18)','Alkali metals (group 1)','Halogens (group 17)','Transition metals'],0,'A full outer level is very stable, so it is hard to remove an electron.']])];
 let qi=0,score=0,tries=0,answered=false,lastG=-1;
 function nextQ(){let g;do{g=rint(0,GEN.length-1)}while(g===lastG);lastG=g;const q=GEN[g]();answered=false;
