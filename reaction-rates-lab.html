@@ -259,7 +259,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
      <div class="field-head"><label for="sEa">Activation energy Ea</label><output id="oEa"></output></div>
      <input id="sEa" type="range" min="3" max="18" step="0.5" value="8">
     </div>
-    <div class="checks"><label><input type="checkbox" id="cCat2"> Add a catalyst (lowers Ea)</label></div>
+    <div class="checks"><label><input type="checkbox" id="cCat2"> Add a catalyst (lowers Ea)</label><label><input type="checkbox" id="cInh2"> Add an inhibitor (slows the reaction)</label></div>
     <div class="card"><dl class="readouts">
      <div><dt>Share with E ≥ Ea at T₁</dt><dd id="f1">–</dd></div>
      <div><dt>Share with E ≥ Ea at T₂</dt><dd id="f2">–</dd></div>
@@ -583,7 +583,7 @@ function erfc(z){const t=1/(1+.5*z),r=t*Math.exp(-z*z-1.26551223+t*(1.00002368+t
 const shareAbove=(Ea,T)=>{const x=Ea/(R*T);return erfc(Math.sqrt(x))+2*Math.sqrt(x/Math.PI)*Math.exp(-x)};
 const mbf=(E,T)=>{const rt=R*T;return 2*Math.sqrt(E/Math.PI)*Math.pow(rt,-1.5)*Math.exp(-E/rt)};
 const pct=v=>v>=.1?fx(100*v,1)+' %':v>=.001?fx(100*v,2)+' %':(100*v).toExponential(1)+' %';
-function eaNow(){return +$('#sEa').value*($('#cCat2').checked?.55:1)}
+function eaNow(){return +$('#sEa').value*($('#cCat2').checked?.55:$('#cInh2').checked?1.45:1)}
 function drawMB(){const c=$('#mb');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const L=30,Rm=14,T=16,B=34,Emax=25;
  const T1=+$('#sT1').value,T2=+$('#sT2').value,ea=eaNow(),ea0=+$('#sEa').value;
  let ymax=0;for(let E=.05;E<=Emax;E+=.1)ymax=Math.max(ymax,mbf(E,T1),mbf(E,T2));ymax*=1.32;
@@ -594,12 +594,12 @@ function drawMB(){const c=$('#mb');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);con
  const shade=(TT,col)=>{x.fillStyle=col;x.beginPath();x.moveTo(X(ea),Y(0));for(let E=ea;E<=Emax;E+=.1)x.lineTo(X(E),Y(mbf(E,TT)));x.lineTo(X(Emax),Y(0));x.closePath();x.fill()};
  const curve=(TT,col)=>{x.strokeStyle=col;x.lineWidth=3;x.beginPath();for(let E=0;E<=Emax;E+=.1){const v=mbf(Math.max(E,1e-6),TT);E?x.lineTo(X(E),Y(v)):x.moveTo(X(E),Y(v))}x.stroke()};
  x.globalAlpha=.28;shade(T2,C.b);shade(T1,C.a);x.globalAlpha=1;curve(T1,C.a);curve(T2,C.b);
- if($('#cCat2').checked){x.strokeStyle=C.muted;x.setLineDash([4,5]);x.lineWidth=1.5;x.beginPath();x.moveTo(X(ea0),T+20);x.lineTo(X(ea0),h-B);x.stroke();x.setLineDash([]);txt(x,'Ea without catalyst',X(ea0)+4,T+30,C.muted,11)}
+ if($('#cCat2').checked||$('#cInh2').checked){x.strokeStyle=C.muted;x.setLineDash([4,5]);x.lineWidth=1.5;x.beginPath();x.moveTo(X(ea0),T+20);x.lineTo(X(ea0),h-B);x.stroke();x.setLineDash([]);txt(x,$('#cCat2').checked?'Ea without catalyst':'Ea without inhibitor',X(ea0)+4,T+30,C.muted,11)}
  x.strokeStyle=C.brass;x.lineWidth=2.5;x.beginPath();x.moveTo(X(ea),T);x.lineTo(X(ea),h-B);x.stroke();txt(x,'Ea',X(ea)+5,T+10,C.brass,13);
  // peak labels
  const pk=(TT,col)=>{const E=R*TT/2;txt(x,`${TT} K`,X(E)+8,Y(mbf(E,TT))-6,col,12)};pk(T1,C.a);if(T2!==T1)pk(T2,C.b);
  const f1=shareAbove(ea,T1),f2=shareAbove(ea,T2);$('#f1').textContent=pct(f1);$('#f2').textContent=pct(f2);$('#fr').textContent=fx(f2/f1,2)+' ×';
- $('#oT1').textContent=T1+' K';$('#oT2').textContent=T2+' K';$('#oEa').textContent=fx(ea0,1)+' kJ/mol'+($('#cCat2').checked?` → ${fx(ea,1)}`:'')}
+ $('#oT1').textContent=T1+' K';$('#oT2').textContent=T2+' K';$('#oEa').textContent=fx(ea0,1)+' kJ/mol'+($('#cCat2').checked||$('#cInh2').checked?` → ${fx(ea,1)}`:'')}
 function drawED(){const c=$('#ed');const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const dH=+$('#sDH').value,Ef=+$('#sEf').value,cat=$('#cCat2').checked,Ec=Ef*.55;
  $('#oDH').textContent=(dH>0?'+':'')+dH+' kJ/mol';$('#oEf').textContent=Ef+' kJ/mol';
  $('#eType').textContent=dH<0?'exothermic':dH>0?'endothermic':'thermoneutral';$('#eRev').textContent=(Ef-dH)+' kJ/mol';$('#eCat').textContent=fx(Ec,1)+' kJ/mol';$('#eCatH').textContent=(dH>0?'+':'')+dH+' kJ/mol (same)';
@@ -634,7 +634,8 @@ const ED={u:null,id:null};
 $('#edStep').onclick=()=>{cancelAnimationFrame(ED.id);const t0=performance.now();const go=now=>{ED.u=Math.min(1,(now-t0)/6000);drawED();if(ED.u<1)ED.id=requestAnimationFrame(go)};ED.id=requestAnimationFrame(go)};
 
 ['#sT1','#sT2','#sEa','#cCat2','#sDH','#sEf'].forEach(s=>$(s).addEventListener('input',()=>{drawMB();drawED()}));
-$('#cCat2').addEventListener('change',()=>{drawMB();drawED()});
+$('#cCat2').addEventListener('change',()=>{if($('#cCat2').checked)$('#cInh2').checked=false;drawMB();drawED()});
+$('#cInh2').addEventListener('change',()=>{if($('#cInh2').checked)$('#cCat2').checked=false;drawMB();drawED()});
 
 /* =========================================================
    TAB 3 — method of initial rates
@@ -744,7 +745,8 @@ function exRead(){const m=$('#exMsg'),bad=t=>{m.textContent=t;$('#exText').textC
  qs(['Is the reaction exothermic or endothermic?','Find the activation energy of the reverse reaction.','What does a catalyst change, and what stays the same?']);
  return {k:'ed',dH,Ef}}
 ['exX','exY'].concat([0,1,2,3].flatMap(i=>['exx'+i,'exy'+i,'exr'+i])).concat(['exDH','exEf']).forEach(id=>$('#'+id).addEventListener('input',exRead));
-$('#exEg').onclick=()=>{if(exK==='law'){$('#exX').value='CH₃Cl';$('#exY').value='OH⁻';[[0.10,0.10,'6.0e-8'],[0.20,0.10,'1.2e-7'],[0.10,0.20,'1.2e-7'],[0.20,0.20,'2.4e-7']].forEach((r,i)=>{$('#exx'+i).value=r[0];$('#exy'+i).value=r[1];$('#exr'+i).value=r[2]})}else{$('#exDH').value=40;$('#exEf').value=110}exRead()};
+let exEgN=0;
+$('#exEg').onclick=()=>{if(exK==='law'){const book=exEgN++%2===0;$('#exX').value=book?'A':'CH₃Cl';$('#exY').value=book?'B':'OH⁻';(book?[[0.100,0.100,'2.00e-3'],[0.200,0.100,'4.00e-3'],[0.200,0.200,'1.60e-2'],['','','']]:[[0.10,0.10,'6.0e-8'],[0.20,0.10,'1.2e-7'],[0.10,0.20,'1.2e-7'],[0.20,0.20,'2.4e-7']]).forEach((r,i)=>{$('#exx'+i).value=r[0];$('#exy'+i).value=r[1];$('#exr'+i).value=r[2]})}else{$('#exDH').value=40;$('#exEf').value=110}exRead()};
 exRead();
 function exSolve(){const X=exRead();if(!X||!window.Tour)return;
  const calc=t=>'<div class="t-calc">'+t+'</div>',go=t=>{const b=document.querySelector('.lg-nav [data-ph="lab"]');if(b&&root.getAttribute('data-phase')!=='lab')b.click();const tb=$(`.tab[data-tab="${t}"]`);if(tb)tb.click()};
