@@ -243,6 +243,15 @@
       mis: [["Atoms are solid little balls.", "They are mostly empty space; the nucleus is about 1/10 000 of the atom’s width."], ["Isotopes are different elements.", "Same protons, same element; only the neutrons differ."], ["Atomic mass is the mass number of the most common isotope.", "It is the weighted average of all the isotopes."], ["Ions have a different number of protons.", "Ions gain or lose electrons; the protons stay the same."]],
       qs: ["Why did a few alpha particles bounce straight back from the gold foil?", "How are carbon-12 and carbon-14 alike and different?", "Why is the atomic mass of chlorine 35.45 amu?"]
     },
+    'redox-lab.html': {
+      big: "In a redox reaction electrons move from one substance to another: the one that loses electrons is oxidized (its oxidation number rises), the one that gains them is reduced. Electrons lost must equal electrons gained, and that is the key to balancing.",
+      tryThis: ["Find the oxidation number of Cl in KClO₃. Which rules did you use?", "Why is O −1 in H₂O₂ but −2 in H₂O?", "Balance Fe + Cu²⁺. Which is the oxidizing agent?", "Balance Cu + HNO₃. Why do only some of the N atoms change?", "Balance MnO₄⁻ + Sn²⁺ in acid. Where do the H⁺ and H₂O come from?", "Check every balanced equation: are both the atoms and the charges equal?"],
+      words: [["Oxidation", "loss of electrons; oxidation number increases"], ["Reduction", "gain of electrons; oxidation number decreases"], ["Oxidizing agent", "the substance that is reduced"], ["Reducing agent", "the substance that is oxidized"], ["Oxidation number", "the charge an atom would have if its electrons went to the more electronegative atom"], ["Half-reaction", "the oxidation or the reduction part, with electrons shown"], ["Spectator ion", "an ion that does not change"], ["LEO GER", "Lose Electrons Oxidation, Gain Electrons Reduction"]],
+      goals: ["Assign oxidation numbers using the rules.", "Identify the substances oxidized and reduced and the oxidizing and reducing agents.", "Balance redox equations by the oxidation-number method and by half-reactions, in acid solution."],
+      flow: [["2 min", "Predict", "An iron nail goes into blue copper sulfate solution. What happens to the nail and the colour?"], ["6 min", "Explore", "Oxidation numbers: five formulas with the rules."], ["6 min", "Explain", "Balance: Fe + Cu²⁺ and ClO₄⁻ + Br⁻ step by step."], ["4 min", "Apply", "Exercise tab: balance MnO₄⁻ + Sn²⁺."]],
+      mis: [["Oxidation always needs oxygen.", "Oxidation is losing electrons; many redox reactions have no oxygen."], ["The oxidizing agent is oxidized.", "The oxidizing agent takes electrons, so it is reduced."], ["Oxidation numbers are real charges.", "In covalent compounds they are bookkeeping numbers, not real charges."], ["Balancing atoms is enough.", "Charge must balance too: electrons lost = electrons gained."]],
+      qs: ["In Fe + Cu²⁺ → Fe²⁺ + Cu, which is the reducing agent?", "What is the oxidation number of Mn in MnO₄⁻?", "Why do we add H₂O and H⁺ when balancing in acid solution?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -417,6 +426,7 @@
     'density-lab.html': ["Density is an intensive property: every piece of the same metal has the same density, whatever its size; mass depends on the amount.", "The metal pushes aside (displaces) its own volume of water, so the water rises by exactly that volume.", "The zero after the decimal point shows the reading was made to the nearest 0.1 mL; it is a measured digit."],
     'mixtures-lab.html': ["Dissolved salt particles are far smaller than the holes in the filter paper, so they pass through with the water.", "Dry salt and sand would both stay on the paper; water dissolves the salt so only the sand is caught.", "The single black spot separates into several coloured spots that travel different distances (different Rf values)."],
     'atom-lab.html': ["They hit, or came very close to, a tiny, dense, positive nucleus that repelled them strongly; most of the atom is empty space, so most passed straight through.", "Both have 6 protons and 6 electrons, so they are carbon and react the same way; carbon-14 has 8 neutrons and carbon-12 has 6.", "It is the weighted average of chlorine-35 (about 76 %) and chlorine-37 (about 24 %), so it is closer to 35."],
+    'redox-lab.html': ["Fe: it loses electrons (0 → +2), so it is oxidized and acts as the reducing agent.", "x + 4(−2) = −1, so x = +7.", "To balance the oxygen atoms with water and then the hydrogen atoms with H⁺, which are present in acid solution."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -596,6 +606,7 @@
     'density-lab.html': {"hide": [], "start": "#dNext"},
     'mixtures-lab.html': {"hide": [], "start": "[data-tech=\"mag\"]"},
     'atom-lab.html': {"hide": [], "start": "#rGo"},
+    'redox-lab.html': {"hide": [], "start": "#oF"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -790,6 +801,7 @@
     'density-lab.html': {"intro": "[data-tab=\"meas\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'mixtures-lab.html': {"intro": "[data-tab=\"sep\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'atom-lab.html': {"intro": "[data-tab=\"ruth\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'redox-lab.html': {"intro": "[data-tab=\"ox\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },

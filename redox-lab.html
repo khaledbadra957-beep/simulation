@@ -1,0 +1,435 @@
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Redox Reactions</title>
+<meta name="description" content="Assign oxidation numbers with the book&#x27;s rules, see which atoms are oxidized and reduced, and balance redox equations step by step with half-reactions (including acid solution with H⁺ and H₂O). Exercise solver and challenge.">
+<!-- og -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mr Khaled · Science Simulations">
+<meta property="og:title" content="Redox Reactions · Mr Khaled">
+<meta property="og:description" content="Assign oxidation numbers with the book&#x27;s rules, see which atoms are oxidized and reduced, and balance redox equations step by step with half-reactions (including acid solution with H⁺ and H₂O). Exercise solver and challenge.">
+<meta property="og:url" content="https://khaledbadra957-beep.github.io/simulation/redox-lab.html">
+<meta property="og:image" content="https://khaledbadra957-beep.github.io/simulation/og/redox-lab.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Redox Reactions: a picture of the lab">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- /og -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench layout as the other labs. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --a:#2F6FD0; --b:#D88A1C; --prod:#1E8A55; --rose:#C2185B;
+  --brass:#B8913A; --brass-soft:rgba(233,196,106,.45);
+  --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
+#beaker{height:clamp(300px,34vw,340px)}
+.mkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:.85rem;color:var(--muted)}.mkey i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+#kg{height:260px}
+#eg{height:250px;cursor:crosshair}
+.pred{display:flex;gap:6px;flex-wrap:wrap}
+.pred button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700}
+.pred button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pred button:hover{border-color:var(--accent)}
+.ans select{max-width:100%}
+
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%;align-self:flex-start}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.ans input{width:8em}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8125rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+tr.pick td{background:var(--brass-soft)}
+tbody tr{cursor:pointer}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body);cursor:default}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0;font-size:.92rem}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.15rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+.runs{display:flex;flex-wrap:wrap;gap:6px}
+.runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas.stage{border:0;border-radius:0}
+.stage-ui .sc-read{position:absolute;top:12px;right:12px;z-index:2;width:250px;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+@media (max-width:1100px){.stage-ui .sc-read{width:200px}}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{top:auto;bottom:8px;right:8px;width:170px;padding:6px 8px}.stage-ui .sc-read .readouts{gap:2px 8px}.stage-ui .sc-read dt{font-size:11.5px}.stage-ui .sc-read dd{font-size:12.5px}.stage-ui .sc-read div[style]{display:none}}
+.stage-ui .panel input[type=range]{height:22px}
+.stage-ui .panel .field{gap:0}
+.stage-ui .sc-read dd{white-space:nowrap;font-size:.92rem}
+.stage-ui .sc-read{width:290px}
+.stage-ui .sc-read div[style] dd{white-space:normal;font-size:.85rem}
+.stage-ui #runs:empty{display:none}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{display:none}}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui #beaker,.stage-ui #kg{height:auto}
+.stage-ui .play > .extra.tall{height:clamp(170px,32vh,290px)}
+.stage-ui .sc-eq{position:absolute;top:12px;left:14px;z-index:2;font-weight:600;font-size:15px;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+.stage-ui .scene .mkey{position:absolute;left:14px;bottom:10px;z-index:2;font-size:12.5px;background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 10px;border-radius:8px}
+.stage-ui .seg{width:100%;align-self:stretch}
+.stage-ui .transport .seg{width:auto}
+.stage-ui .gh .seg{width:auto}
+.stage-ui .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stage-ui .small{font-size:13px}
+.stage-ui .btn.small{min-height:34px;font-size:13.5px;padding:0 10px}
+.stage-ui .pred{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stage-ui .status{font-size:13.5px;padding:7px 10px}
+.stage-ui .readouts{gap:6px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .sol{font-size:12.5px;padding:8px 10px}
+.stage-ui .morein{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .flabel{font-size:14px}
+.stage-ui .solo-in > .benchhead{margin-top:4px}
+.stage-ui #eg{height:260px;border:1px solid var(--line);border-radius:10px}
+.stage-ui .solo-in{padding:8px 4px 20px}
+.stage-ui .solo-in .card{background:var(--surface)}
+.stage-ui #exSolve svg{flex:none}
+.stage-ui details.own summary{cursor:pointer;font-weight:700;list-style:none}.stage-ui details.own summary::-webkit-details-marker{display:none}.stage-ui details.own summary::before{content:"+ ";font-family:var(--data)}.stage-ui details.own[open] summary::before{content:"− "}
+.stage-ui .ownf{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 18px;margin:10px 0}
+.stage-ui .ownf label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.stage-ui .ownf label.ck{flex-direction:row;align-items:center;gap:8px;align-self:end;min-height:38px}
+.stage-ui .ownf span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .ownf input[type=number],.stage-ui .ownf select{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .ownf input[aria-invalid="true"]{border-color:var(--bad)}
+@media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.tall{height:220px}.stage-ui .scene .mkey{display:none}.stage-ui .sc-eq{font-size:12.5px;top:8px;left:8px}}
+
+
+/* ---------- this lab ---------- */
+:root{--fill:#0A6A88;--hot:#D9534F;--cold:#3D7BE0;--solid:#3D7BE0;--liq:#0A8A7A;--gas:#C2571A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}}
+:root[data-theme="dark"]{--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}
+.rule{font-size:.9rem;line-height:1.35;margin:0;padding:7px 10px;border-radius:9px;background:var(--surface);border:1.5px solid var(--line)}
+.rule.ok{border-color:var(--ok)}.rule.ok b{color:var(--ok)}.rule.bad{border-color:var(--bad)}
+.stage-ui .play > .extra.mid{height:clamp(150px,27vh,250px)}
+.eqn{font:600 1.1rem var(--data);margin:2px 0 4px}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px 14px}
+.exgrid label{display:flex;flex-direction:column;gap:3px;font-size:.88rem;color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.exgrid input[aria-invalid]{border-color:var(--bad)}
+.panel select{font:600 14px var(--data);padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);width:100%}
+.key{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;color:var(--muted);margin:4px 0 0}.key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}.btnrow .btn{padding:6px 10px}
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css"></head><body>
+
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Redox Reactions</h1>
+ <span class="tb-tag">Chemistry · G12</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button id="fsBtn" type="button" hidden></button><button id="themeBtn" type="button" hidden></button>
+<div class="tabs" role="tablist" hidden>
+ <button class="tab" role="tab" aria-selected="true" data-tab="ox" aria-controls="p-ox">Oxidation numbers</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="bal" aria-controls="p-bal">Balance</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Exercise</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">Challenge</button>
+</div>
+<main class="screens">
+ <section class="screen" id="p-ox" data-screens="intro ox" role="tabpanel">
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="oc" aria-label="A formula with the oxidation number of each element written above it"></canvas></div>
+   <div class="transport" id="oBar"><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Formula</h2><div class="field"><label class="flabel" for="oF">Choose</label><select id="oF"></select></div><div class="field"><label class="flabel" for="oT">…or type one (e.g. Na2Cr2O7, SO4^2-)</label><input id="oT" autocomplete="off" style="font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);width:100%"></div></section>
+   <section class="group"><h2>The rules used</h2><div class="note" id="oRules"></div></section>
+  </aside>
+ </section>
+ <section class="screen" id="p-bal" data-screens="bal" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="bc" aria-label="The redox equation with oxidation numbers and arrows for electrons lost and gained"></canvas></div>
+   <div class="transport" id="bBar"><button class="btn" id="bPrev" type="button">Back</button><button class="btn primary" id="bNext" type="button">Next step</button><button class="btn" id="bAll" type="button">Show all</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Reaction</h2><div class="field"><label class="flabel" for="bR">Choose</label><select id="bR"></select></div><p class="rule" id="bMsg"></p></section>
+   <section class="group"><h2>Working</h2><div class="note" id="bWork" style="font-family:var(--data)"></div></section>
+  </aside>
+ </section>
+ <section class="screen solo" id="p-ex" data-screens="ex" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button>
+   <button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+  <div class="card"><div class="field"><span class="flabel">Kind of exercise</span>
+   <div class="seg" role="group" aria-label="Kind of exercise" id="exKSeg" style="width:auto;flex-wrap:wrap"><button type="button" data-exk="ox" aria-pressed="true">Oxidation numbers</button><button type="button" data-exk="bal" aria-pressed="false">Balance a redox equation</button></div></div>
+   <div class="exgrid" id="exF"></div><p class="note" id="exMsg"></p><p id="exText" class="q" style="font-size:1rem"></p></div>
+ </div></section>
+ <section class="screen solo" id="p-chal" data-screens="chal" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
+  <p class="q" id="qText"></p><div class="opts" id="qOpts"></div><p class="status" id="qStatus" aria-live="polite" hidden></p>
+  <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
+ </div></section>
+</main>
+<p class="vh">Oxidation-number rules and examples from Inspire Chemistry Module 18.</p>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'ox', simple: true }, { id: 'ox', name: 'Oxidation numbers', tab: 'ox' }, { id: 'bal', name: 'Balance', tab: 'bal' }, { id: 'ex', name: 'Exercise', tab: 'ex' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ], tour: [ { el: '#oF', title: 'Choose a formula', text: 'The rules give some oxidation numbers; the last one makes the total equal the charge.' }, { el: '#oRules', title: 'The rules', text: 'Each rule used is listed in order.' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fx=(x,d=2)=>Number(x).toFixed(d);
+const sup=e=>String(e).split('').map(ch=>ch==='-'?'⁻':ch==='+'?'⁺':'⁰¹²³⁴⁵⁶⁷⁸⁹'[+ch]).join('');
+const sci=(v,d=2)=>{if(!isFinite(v))return '–';if(v===0)return '0';let e=Math.floor(Math.log10(Math.abs(v)));let m=v/Math.pow(10,e);if(Math.abs(+m.toFixed(d))>=10){m/=10;e++}return `${m.toFixed(d)} × 10${sup(e)}`};
+/* number input: 4.86e-7, 4.86×10^-7, 4.86x10-7, commas */
+function num(s){if(s==null)return NaN;s=String(s).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/[()]/g,'').replace(/\s/g,'');s=s.replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return s===''?NaN:Number(s)}
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+let C={};
+function readColors(){const s=getComputedStyle(root);['stage','surface','ink','muted','line','grid','accent','brass','rose','ok','bad','a','b','prod','fill','hot','cold','solid','liq','gas'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+new MutationObserver(()=>themeLabel()).observe(root,{attributes:true,attributeFilter:['data-theme']});
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='ox';
+const TABS=["ox", "bal", "ex", "chal"];
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));TABS.forEach(t=>$('#p-'+t).hidden=t!==tab);drawAll()});
+$('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen?.()}catch(e){}$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)};
+document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)});
+function segPick(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===btn))}
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function txt(x,s,a,b,col,size=12,align='left',base='alphabetic',wt=500,fam='"IBM Plex Mono",monospace'){x.fillStyle=col;x.font=`${wt} ${size}px ${fam}`;x.textAlign=align;x.textBaseline=base;x.fillText(s,a,b)}
+const go=id=>{const b=document.querySelector('.lg-nav [data-ph="'+id+'"]');if(b&&root.getAttribute('data-screen')!==id)b.click();else{const t=LAB.screens.find(s=>s.id===id);if(t){const tb=document.querySelector('.tab[data-tab="'+t.tab+'"]');if(tb&&tab!==t.tab)tb.click()}}};
+
+
+/* ---------- shared: challenge ---------- */
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const sf=(v,n=3)=>{if(!isFinite(v))return '–';const a=Math.abs(v);if(a>=1e5||(a<1e-3&&a>0))return sci(v,n-1);if(a>=1000)return Math.round(v).toLocaleString('en-US');return v.toPrecision(n)};
+const uniq=(right,wr,unit,f=sf)=>{const s=[right,...wr].map(x=>f(x)+unit),o=[];s.forEach(x=>{if(!o.includes(x))o.push(x)});let k=1;while(o.length<4){const x=f(right*(1+.37*k++))+unit;if(!o.includes(x))o.push(x)}return o.slice(0,4)};
+const calc=t=>'<div class="t-calc">'+t+'</div>';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function rrect(X,x,y,w,h,r){r=Math.min(r,w/2,h/2);X.beginPath();X.moveTo(x+r,y);X.arcTo(x+w,y,x+w,y+h,r);X.arcTo(x+w,y+h,x,y+h,r);X.arcTo(x,y+h,x,y,r);X.arcTo(x,y,x+w,y,r);X.closePath()}
+const hex=s=>{s=(s||'#888').trim().replace('#','');if(s.length===3)s=s.split('').map(c=>c+c).join('');const n=parseInt(s,16);return [n>>16&255,n>>8&255,n&255]};
+const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*clamp(t,0,1))).join(',')})`};
+const alpha=(c,a)=>{const A=hex(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const mns=v=>String(v).replace(/-/g,'−');
+let score=0,tries=0,answered=false,lastG=-1;
+function nextQ(){let g_;do{g_=rint(0,GEN.length-1)}while(g_===lastG&&GEN.length>1);lastG=g_;const q=GEN[g_]();answered=false;
+ $('#qText').textContent=q[0];$('#qStatus').hidden=true;const opts=shuffle(q[1].map((t,k)=>({t,k})));
+ $('#qOpts').innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;b.onclick=()=>{if(answered)return;answered=true;tries++;
+  const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
+  const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
+$('#qNext').onclick=nextQ;
+function tourGo(steps){if(!window.Tour)return;setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+
+/* =========================================================
+   OXIDATION NUMBERS
+   ========================================================= */
+const G1=['Li','Na','K','Rb','Cs'],G2=['Be','Mg','Ca','Sr','Ba'],USUAL={S:-2,N:-3,P:-3,C:-4,Se:-2,Cl:-1,Br:-1,I:-1};
+const ENV={F:3.98,O:3.44,Cl:3.16,N:3.04,Br:2.96,I:2.66,S:2.58,C:2.55,H:2.20,P:2.19,Se:2.55};
+function parseF(raw){let s=String(raw).trim().replace(/\s+/g,'').replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'.indexOf(d)).replace(/[₀₁₂₃₄₅₆₇₈₉]/g,d=>'₀₁₂₃₄₅₆₇₈₉'.indexOf(d)).replace(/⁺/g,'+').replace(/[⁻−]/g,'-');
+ let q=0;const m=s.match(/\^?(\d*)([+-])$/);if(m){q=(m[1]?+m[1]:1)*(m[2]==='+'?1:-1);s=s.slice(0,s.length-m[0].length);if(m[1]&&/\d$/.test(s)===false){}}
+ const order=[],cnt={};const st=[{}];let i=0;const add=(o,e,n)=>{o[e]=(o[e]||0)+n};
+ while(i<s.length){const ch=s[i];if(ch==='('){st.push({});i++}else if(ch===')'){i++;let n='';while(/\d/.test(s[i]||''))n+=s[i++];const g=st.pop();for(const e in g)add(st[st.length-1],e,g[e]*(n?+n:1))}else{const mm=s.slice(i).match(/^([A-Z][a-z]?)(\d*)/);if(!mm)return null;i+=mm[0].length;if(!order.includes(mm[1]))order.push(mm[1]);add(st[st.length-1],mm[1],mm[2]?+mm[2]:1)}}
+ if(st.length!==1)return null;return {order,c:st[0],q}}
+function oxNums(P){const {order,c,q}=P,k={},rules=[],els=order;
+ if(els.length===1){k[els[0]]=q/c[els[0]];rules.push(q?`A monatomic ion: oxidation number = its charge (${q>0?'+':''}${q}).`:'An element on its own: 0.');return {k,rules,ok:true}}
+ if(c.F){k.F=-1;rules.push('F is always −1 in compounds.')}
+ els.forEach(e=>{if(G1.includes(e)){k[e]=1;rules.push(`${e} (group 1) is +1.`)}if(G2.includes(e)){k[e]=2;rules.push(`${e} (group 2) is +2.`)}if(e==='Al'){k[e]=3;rules.push('Al is +3.')}});
+ const metalsOnly=els.every(e=>e==='H'||G1.includes(e)||G2.includes(e)||e==='Al');
+ if(c.H){if(metalsOnly&&els.length>1){k.H=-1;rules.push('H is −1 when bonded to a metal (metal hydride).')}else{k.H=1;rules.push('H is +1.')}}
+ let unk=els.filter(e=>k[e]==null);
+ if(c.O&&unk.length>1){k.O=-2;rules.push('O is −2.');unk=unk.filter(e=>e!=='O')}
+ if(unk.length>1){const ne=unk.filter(e=>USUAL[e]!=null).sort((a,b)=>(ENV[b]||0)-(ENV[a]||0));if(ne.length&&!c.O){k[ne[0]]=USUAL[ne[0]];rules.push(`${ne[0]} is the more electronegative element: ${USUAL[ne[0]]}.`);unk=unk.filter(e=>e!==ne[0])}}
+ if(unk.length!==1)return {k,rules,ok:false};
+ const u=unk[0],known=els.filter(e=>e!==u).reduce((s,e)=>s+k[e]*c[e],0);k[u]=(q-known)/c[u];
+ if(u==='O'&&k.O===-1)rules.push('Here O is −1: a peroxide.');
+ rules.push(`The sum of all oxidation numbers = ${q===0?'0 (neutral compound)':`the ion’s charge (${q>0?'+':'−'}${Math.abs(q)})`}, so ${u} = ${k[u]>0?'+':''}${Number.isInteger(k[u])?k[u]:fx(k[u],2)}.`);return {k,rules,ok:true,u,known}}
+const OXL=['KClO3','SO3^2-','H2O2','NaH','MnO4-','Cr2O7^2-','NH3','NH4+','NO3-','H2SO4','Fe2O3','CO2','CH4','K2Cr2O7','PO4^3-','HClO','Cl2','Fe3+','OF2','Na2S2O3'];
+const prettyF=f=>{const P=parseF(f);if(!P)return f;let s=f.replace(/\^?(\d*)([+-])$/,'');s=s.replace(/(\d+)/g,d=>d.split('').map(x=>'₀₁₂₃₄₅₆₇₈₉'[+x]).join(''));if(P.q)s+=(Math.abs(P.q)>1?sup(Math.abs(P.q)):'')+(P.q>0?'⁺':'⁻');return s};
+const sgn=v=>v===0?'0':(v>0?'+':'−')+(Number.isInteger(Math.abs(v))?Math.abs(v):fx(Math.abs(v),2));
+const OX={f:'KClO3'};
+$('#oF').innerHTML=OXL.map(f=>`<option value="${f}">${prettyF(f)}</option>`).join('');$('#oF').onchange=e=>{OX.f=e.target.value;$('#oT').value='';oUI()};$('#oT').addEventListener('input',e=>{if(e.target.value.trim()){OX.f=e.target.value.trim()}oUI()});
+function oUI(){const P=parseF(OX.f);if(!P){$('#oRules').innerHTML='I cannot read that formula. Try Na2Cr2O7 or SO4^2-.';OX.res=null;drawOC();return}const r=oxNums(P);OX.res={P,r};
+ $('#oRules').innerHTML=(r.ok?'':'<b>This one has more than one unknown element.</b> ')+'<ol style="margin:0;padding-left:18px">'+r.rules.map(x=>`<li>${x}</li>`).join('')+'</ol>'+(r.ok&&P.order.length>1?`<p style="margin:6px 0 0">${P.order.map(e=>`${P.c[e]>1?P.c[e]+' × ':''}(${sgn(r.k[e])})`).join(' + ')} = ${P.q}</p>`:'');drawOC()}
+let OG=null;
+function drawOC(){const c=$('#oc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const R=OX.res;if(!R)return;const {P,r}=R;
+ const fs=Math.min(84,w/(P.order.length*2.8+2)),y=h*.55;X.font=`700 ${fs}px "IBM Plex Mono",monospace`;const parts=P.order.map(e=>({e,n:P.c[e]}));
+ const widths=parts.map(p=>Math.max(X.measureText(p.e).width+(p.n>1?X.measureText(String(p.n)).width*.6:0),fs*1.15)+fs*.25),tot=widths.reduce((a,b)=>a+b,0)+(P.q?fs:0);let x=w/2-tot/2;OG={y,fs};
+ parts.forEach((p,i)=>{const ew=X.measureText(p.e).width;txt(X,p.e,x,y,C.ink,fs,'left','alphabetic',700);if(p.n>1)txt(X,String(p.n),x+ew+2,y+fs*.25,C.ink,fs*.55,'left','alphabetic',700);
+  const v=r.k[p.e],cx=x+ew/2;if(v!=null){const col=v>0?C.rose:v<0?C.solid:C.muted;X.fillStyle=alpha(col,.15);rrect(X,cx-fs*.5,y-fs*1.95,fs,fs*.7,8);X.fill();txt(X,sgn(v),cx,y-fs*1.4,col,fs*.5,'center','alphabetic',800);
+   X.strokeStyle=alpha(col,.6);X.lineWidth=2;X.beginPath();X.moveTo(cx,y-fs*1.22);X.lineTo(cx,y-fs*.95);X.stroke()}
+  x+=widths[i]});
+ if(P.q)txt(X,(Math.abs(P.q)>1?Math.abs(P.q):'')+(P.q>0?'+':'−'),x,y-fs*.55,C.ink,fs*.55,'left','alphabetic',700);
+ txt(X,'oxidation numbers',w/2,y-fs*2.3,C.muted,13,'center','alphabetic',600,'"IBM Plex Sans",sans-serif');
+ if(r.ok&&r.u&&P.order.length>1)txt(X,`solve: ${P.order.filter(e=>e!==r.u).map(e=>`${P.c[e]}(${sgn(r.k[e])})`).join(' + ')} + ${P.c[r.u]}(${r.u}) = ${P.q}  →  ${r.u} = ${sgn(r.k[r.u])}`,w/2,y+fs*1.2,C.ink,Math.max(12,Math.min(16,w/50)),"center","alphabetic",600)}
+
+/* =========================================================
+   BALANCING
+   ========================================================= */
+/* species: [display, skeleton coef, final coef, key element, ox] ; o/r: [reactant idx, product idx, e per formula] */
+const RX=[
+ {n:'Fe + Cu²⁺ → Fe²⁺ + Cu',R:[['Fe',1,1,'Fe',0],['Cu²⁺',1,1,'Cu',2]],P:[['Fe²⁺',1,1,'Fe',2],['Cu',1,1,'Cu',0]],o:[0,0,2],r:[1,1,2],h3:['Fe → Fe²⁺','Cu²⁺ → Cu'],h4:['Fe → Fe²⁺','Cu²⁺ → Cu'],h5:['Fe → Fe²⁺ + 2e⁻','Cu²⁺ + 2e⁻ → Cu'],m:[1,1],fin:'Fe + Cu²⁺ → Fe²⁺ + Cu'},
+ {n:'Al + Fe³⁺ → Al³⁺ + Fe (thermite)',R:[['Al',1,1,'Al',0],['Fe³⁺',1,1,'Fe',3]],P:[['Al³⁺',1,1,'Al',3],['Fe',1,1,'Fe',0]],o:[0,0,3],r:[1,1,3],h3:['Al → Al³⁺','Fe³⁺ → Fe'],h4:['Al → Al³⁺','Fe³⁺ → Fe'],h5:['Al → Al³⁺ + 3e⁻','Fe³⁺ + 3e⁻ → Fe'],m:[1,1],fin:'Al + Fe³⁺ → Al³⁺ + Fe'},
+ {n:'Zn + Ag⁺ → Zn²⁺ + Ag',R:[['Zn',1,1,'Zn',0],['Ag⁺',1,2,'Ag',1]],P:[['Zn²⁺',1,1,'Zn',2],['Ag',1,2,'Ag',0]],o:[0,0,2],r:[1,1,1],h3:['Zn → Zn²⁺','Ag⁺ → Ag'],h4:['Zn → Zn²⁺','Ag⁺ → Ag'],h5:['Zn → Zn²⁺ + 2e⁻','Ag⁺ + e⁻ → Ag'],m:[1,2],fin:'Zn + 2Ag⁺ → Zn²⁺ + 2Ag'},
+ {n:'Cl₂ + Br⁻ → Cl⁻ + Br₂',R:[['Cl₂',1,1,'Cl',0],['Br⁻',1,2,'Br',-1]],P:[['Cl⁻',1,2,'Cl',-1],['Br₂',1,1,'Br',0]],o:[1,1,1],r:[0,0,1],h3:['Br⁻ → Br₂','Cl₂ → Cl⁻'],h4:['2Br⁻ → Br₂','Cl₂ → 2Cl⁻'],h5:['2Br⁻ → Br₂ + 2e⁻','Cl₂ + 2e⁻ → 2Cl⁻'],m:[1,1],fin:'Cl₂ + 2Br⁻ → 2Cl⁻ + Br₂'},
+ {n:'Cu + HNO₃ → Cu(NO₃)₂ + NO₂ + H₂O',R:[['Cu',1,1,'Cu',0],['HNO₃',1,4,'N',5]],P:[['Cu(NO₃)₂',1,1,'Cu',2],['NO₂',1,2,'N',4],['H₂O',1,2,'',null]],o:[0,0,2],r:[1,1,1],h3:['Cu: 0 → +2, loses 2e⁻','N: +5 → +4, gains 1e⁻'],h4:['Cu: 0 → +2, loses 2e⁻','N: +5 → +4, gains 1e⁻'],h5:['1 Cu loses 2e⁻','each NO₂ needs 1e⁻'],m:[1,2],fin:'Cu + 4HNO₃ → Cu(NO₃)₂ + 2NO₂ + 2H₂O',onm:true},
+ {n:'ClO₄⁻ + Br⁻ → Cl⁻ + Br₂ (acid)',acid:true,R:[['ClO₄⁻',1,1,'Cl',7],['Br⁻',1,8,'Br',-1]],P:[['Cl⁻',1,1,'Cl',-1],['Br₂',1,4,'Br',0]],o:[1,1,1],r:[0,0,8],h3:['Br⁻ → Br₂','ClO₄⁻ → Cl⁻'],h4:['2Br⁻ → Br₂','ClO₄⁻ + 8H⁺ → Cl⁻ + 4H₂O'],h5:['2Br⁻ → Br₂ + 2e⁻','ClO₄⁻ + 8H⁺ + 8e⁻ → Cl⁻ + 4H₂O'],m:[4,1],fin:'ClO₄⁻ + 8Br⁻ + 8H⁺ → Cl⁻ + 4Br₂ + 4H₂O'},
+ {n:'MnO₄⁻ + Sn²⁺ → Mn²⁺ + Sn⁴⁺ (acid)',acid:true,R:[['MnO₄⁻',1,2,'Mn',7],['Sn²⁺',1,5,'Sn',2]],P:[['Mn²⁺',1,2,'Mn',2],['Sn⁴⁺',1,5,'Sn',4]],o:[1,1,2],r:[0,0,5],h3:['Sn²⁺ → Sn⁴⁺','MnO₄⁻ → Mn²⁺'],h4:['Sn²⁺ → Sn⁴⁺','MnO₄⁻ + 8H⁺ → Mn²⁺ + 4H₂O'],h5:['Sn²⁺ → Sn⁴⁺ + 2e⁻','MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O'],m:[5,2],fin:'2MnO₄⁻ + 5Sn²⁺ + 16H⁺ → 2Mn²⁺ + 5Sn⁴⁺ + 8H₂O'},
+ {n:'MnO₄⁻ + Fe²⁺ → Mn²⁺ + Fe³⁺ (acid)',acid:true,R:[['MnO₄⁻',1,1,'Mn',7],['Fe²⁺',1,5,'Fe',2]],P:[['Mn²⁺',1,1,'Mn',2],['Fe³⁺',1,5,'Fe',3]],o:[1,1,1],r:[0,0,5],h3:['Fe²⁺ → Fe³⁺','MnO₄⁻ → Mn²⁺'],h4:['Fe²⁺ → Fe³⁺','MnO₄⁻ + 8H⁺ → Mn²⁺ + 4H₂O'],h5:['Fe²⁺ → Fe³⁺ + e⁻','MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O'],m:[5,1],fin:'MnO₄⁻ + 5Fe²⁺ + 8H⁺ → Mn²⁺ + 5Fe³⁺ + 4H₂O'},
+ {n:'Cr₂O₇²⁻ + Fe²⁺ → Cr³⁺ + Fe³⁺ (acid)',acid:true,R:[['Cr₂O₇²⁻',1,1,'Cr',6],['Fe²⁺',1,6,'Fe',2]],P:[['Cr³⁺',1,2,'Cr',3],['Fe³⁺',1,6,'Fe',3]],o:[1,1,1],r:[0,0,6],h3:['Fe²⁺ → Fe³⁺','Cr₂O₇²⁻ → Cr³⁺'],h4:['Fe²⁺ → Fe³⁺','Cr₂O₇²⁻ + 14H⁺ → 2Cr³⁺ + 7H₂O'],h5:['Fe²⁺ → Fe³⁺ + e⁻','Cr₂O₇²⁻ + 14H⁺ + 6e⁻ → 2Cr³⁺ + 7H₂O'],m:[6,1],fin:'Cr₂O₇²⁻ + 6Fe²⁺ + 14H⁺ → 2Cr³⁺ + 6Fe³⁺ + 7H₂O'}];
+const BL={r:0,step:0};
+$('#bR').innerHTML=RX.map((r,i)=>`<option value="${i}">${r.n}</option>`).join('');$('#bR').onchange=e=>{BL.r=+e.target.value;BL.step=0;blUI()};
+$('#bNext').onclick=()=>{BL.step=Math.min(7,BL.step+1);blUI()};$('#bPrev').onclick=()=>{BL.step=Math.max(0,BL.step-1);blUI()};$('#bAll').onclick=()=>{BL.step=7;blUI()};
+function blMsg(R,s){const o=R.R[R.o[0]],rd=R.R[R.r[0]],oP=R.P[R.o[1]],rP=R.P[R.r[1]];
+ return [`Step 0 of 7. The skeleton equation: <b>${R.n.replace(/ \(.*\)/,'')}</b>${R.acid?' in acid solution':''}. Press <b>Next step</b>.`,
+  `<b>1 · Oxidation numbers</b> of the atoms that change: ${o[3]} ${sgn(o[4])} → ${sgn(oP[4])}, ${rd[3]} ${sgn(rd[4])} → ${sgn(rP[4])}.`,
+  `<b>2 · What changes?</b> ${o[3]} goes up (${sgn(o[4])} → ${sgn(oP[4])}): it loses electrons, it is <b>oxidized</b>, so ${o[0]} is the <b>reducing agent</b>. ${rd[3]} goes down (${sgn(rd[4])} → ${sgn(rP[4])}): it gains electrons, it is <b>reduced</b>, so ${rd[0]} is the <b>oxidizing agent</b>.`,
+  R.onm?'<b>3 · Oxidation-number method:</b> write the change for each atom.':'<b>3 · Write the two half-reactions:</b> one for the oxidation, one for the reduction.',
+  R.onm?'<b>4 · Electrons per atom:</b> Cu loses 2, each N that becomes NO₂ gains 1.':`<b>4 · Balance the atoms</b>${R.acid?': first the element that changes, then O with H₂O, then H with H⁺.':'.'}`,
+  R.onm?'<b>5 · So one Cu needs two N atoms to be reduced.</b>':'<b>5 · Add electrons</b> so the charges balance on both sides of each half.',
+  `<b>6 · Make the electrons equal:</b> multiply the oxidation by ${R.m[0]} and the reduction by ${R.m[1]}.`,
+  `<b>7 · Add and check.</b> ${R.onm?'Add 2 more HNO₃ for the nitrate ions in Cu(NO₃)₂ (they do not change), then balance H and O with water.':'The electrons cancel.'} Atoms and charge are balanced: <b>${R.fin}</b>`][s]}
+function blUI(){const R=RX[BL.r],s=BL.step;$('#bR').value=BL.r;$('#bMsg').innerHTML=blMsg(R,s);$('#bNext').disabled=s>=7;$('#bPrev').disabled=s<=0;
+ const L=[];if(s>=3){L.push(`oxidation: ${R.h3[0]}`,`reduction: ${R.h3[1]}`)}if(s>=4&&!R.onm){L.length=0;L.push(`oxidation: ${R.h4[0]}`,`reduction: ${R.h4[1]}`)}if(s>=5){L.length=0;L.push(`oxidation: ${R.h5[0]}`,`reduction: ${R.h5[1]}`)}if(s>=6)L.push(`× ${R.m[0]} and × ${R.m[1]}`);if(s>=7)L.push('',`${R.fin}`);
+ $('#bWork').innerHTML=L.map(x=>`<div>${x||'&nbsp;'}</div>`).join('')||'–';drawBC()}
+let BG=null;
+function drawBC(){const c=$('#bc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const R=RX[BL.r],s=BL.step,fin=s>=7;
+ const sp=[...R.R.map((x,i)=>({x,side:0,i})),...R.P.map((x,i)=>({x,side:1,i}))];const fs=Math.min(30,w/(sp.length*5.2));X.font=`700 ${fs}px "IBM Plex Mono",monospace`;
+ const items=[];sp.forEach((o,k)=>{const co=fin?o.x[2]:1,t=(co>1?co:'')+o.x[0];items.push({t,o});if(k<sp.length-1)items.push({t:k===R.R.length-1?' → ':' + ',op:true})});
+ const ws=items.map(it=>X.measureText(it.t).width),tot=ws.reduce((a,b)=>a+b,0)+(fin&&R.acid?0:0);let x=w/2-tot/2;const y=h*.36;BG={y};const pos={};
+ items.forEach((it,i)=>{txt(X,it.t,x,y,it.op?C.muted:C.ink,fs,'left','alphabetic',700);if(!it.op)pos[(it.o.side?'P':'R')+it.o.i]=x+ws[i]/2;x+=ws[i]});
+ if(s>=1)sp.forEach(o=>{if(o.x[4]==null)return;const cx=pos[(o.side?'P':'R')+o.i],v=o.x[4],chg=(o.side===0&&(o.i===R.o[0]||o.i===R.r[0]))||(o.side===1&&(o.i===R.o[1]||o.i===R.r[1]));const col=!chg?C.muted:(o.side===0&&o.i===R.o[0])||(o.side===1&&o.i===R.o[1])?C.rose:C.solid;txt(X,`${o.x[3]} ${sgn(v)}`,cx,y-fs*1.1,col,fs*.55,'center','alphabetic',800)});
+ if(s>=2){const arc=(a,b,up,col,lab)=>{const ya=up?y-fs*1.6:y+fs*.5;X.strokeStyle=col;X.lineWidth=2.5;X.beginPath();X.moveTo(a,ya);X.quadraticCurveTo((a+b)/2,ya+(up?-1:1)*fs*1.6,b,ya);X.stroke();X.beginPath();X.moveTo(b,ya);X.lineTo(b-7,ya+(up?-8:8));X.lineTo(b+5,ya+(up?-8:6));X.closePath();X.fillStyle=col;X.fill();txt(X,lab,(a+b)/2,ya+(up?-1:1)*fs*1.15+(up?0:12),col,Math.max(12,fs*.48),'center','alphabetic',700)};
+  const eo=R.o[2]*(s>=6?R.m[0]:1),er=R.r[2]*(s>=6?R.m[1]:1);arc(pos['R'+R.o[0]],pos['P'+R.o[1]],true,C.rose,`oxidized: loses ${eo} e⁻${s>=6&&R.m[0]>1?` (× ${R.m[0]})`:''}`);arc(pos['R'+R.r[0]],pos['P'+R.r[1]],false,C.solid,`reduced: gains ${er} e⁻${s>=6&&R.m[1]>1?` (× ${R.m[1]})`:''}`)}
+ if(s>=3){const hs=s>=5?R.h5:s>=4&&!R.onm?R.h4:R.h3,hy=h*.7,f2=Math.max(11,Math.min(20,w/42));txt(X,'oxidation:  '+hs[0]+(s>=6?`   × ${R.m[0]}`:''),w/2,hy,C.rose,f2,'center','alphabetic',700);txt(X,'reduction:  '+hs[1]+(s>=6?`   × ${R.m[1]}`:''),w/2,hy+f2*1.8,C.solid,f2,'center','alphabetic',700)}
+ if(fin)txt(X,'atoms ✓   charge ✓   electrons lost = electrons gained ✓',w/2,h-18,C.ok,13,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+
+/* =========================================================
+   EXERCISE
+   ========================================================= */
+const EXEG=[{k:'ox',v:{f:'KClO3'},s:'What is the oxidation number of chlorine in potassium chlorate, KClO₃?'},{k:'ox',v:{f:'SO3^2-'},s:'What is the oxidation number of sulfur in the sulfite ion, SO₃²⁻?'},{k:'ox',v:{f:'Cr2O7^2-'},s:'What is the oxidation number of chromium in the dichromate ion, Cr₂O₇²⁻?'},
+ {k:'bal',v:{r:'4'},s:'Balance by the oxidation-number method: Cu + HNO₃ → Cu(NO₃)₂ + NO₂ + H₂O.'},{k:'bal',v:{r:'5'},s:'Balance the net ionic equation in acid solution: ClO₄⁻ + Br⁻ → Cl⁻ + Br₂.'},{k:'bal',v:{r:'6'},s:'Balance in acid solution with half-reactions: MnO₄⁻ + Sn²⁺ → Mn²⁺ + Sn⁴⁺.'}];
+let exk='ox';const ex={v:{},story:null};
+function exBuild(){const v=ex.v;$('#exF').innerHTML=exk==='ox'?`<label>Formula (e.g. KClO3, SO3^2-)<input data-v="f" autocomplete="off" value="${v.f??''}"></label>`:`<label>Reaction<select data-v="r">${RX.map((r,i)=>`<option value="${i}"${+v.r===i?' selected':''}>${r.n}</option>`).join('')}</select></label>`;
+ $$('#exF [data-v]').forEach(i=>i.addEventListener(i.tagName==='SELECT'?'change':'input',()=>{ex.v[i.dataset.v]=i.value;ex.story=null;exUpdate()}));exUpdate()}
+function exSolve(){if(exk==='bal')return {R:RX[+ex.v.r]};const P=parseF(ex.v.f||'');const ok=P&&oxNums(P).ok;$$('#exF [data-v]').forEach(i=>i.toggleAttribute('aria-invalid',!ok));return ok?{P,r:oxNums(P)}:null}
+function exUpdate(){const r=exSolve();if(!r){$('#exMsg').textContent='Type a formula the rules can solve (only one unknown element), e.g. Na2Cr2O7 or NO3-.';$('#exText').innerHTML='';return null}$('#exMsg').textContent='Ready. Press “Solve it in the lab” to work through it.';
+ $('#exText').innerHTML=ex.story||(exk==='ox'?`Assign oxidation numbers to every element in ${prettyF(ex.v.f)}.`:`Balance: ${r.R.n}.`);return r}
+function setExK(k,eg){exk=k;segPick($(`[data-exk="${k}"]`));const d=eg||EXEG.find(e=>e.k===k);ex.v={...d.v};ex.story=d.s;exBuild()}
+$$('[data-exk]').forEach(b=>b.onclick=()=>setExK(b.dataset.exk));let egi=1;$('#exEg').onclick=()=>{const e=EXEG[egi++%EXEG.length];setExK(e.k,e)};
+$('#exSolve').onclick=()=>{const r=exUpdate();if(!r){$('#exMsg').textContent='Fix the red box first.';return}tourGo(exSteps(r))};
+function exSteps(r){if(exk==='ox'){const f=ex.v.f,S=[{title:'Solve it in the lab',html:'<p>Use the rules in order, then make the total equal the charge.</p>',onShow:()=>{go('ox');OX.f=f;$('#oT').value=f;oUI()}}];
+  r.r.rules.forEach((x,i)=>S.push({el:'#oRules',title:`Rule ${i+1}`,html:`<p>${x}</p>`}));S.push({el:'#oc',title:'Your answer',html:calc(r.P.order.map(e=>`${e}: ${sgn(r.r.k[e])}`).join('   '))});return S}
+ const i=+ex.v.r,S=[{title:'Solve it in the lab',html:'<p>Electrons lost must equal electrons gained. Work through the seven steps.</p>',onShow:()=>{go('bal');BL.r=i;BL.step=0;blUI()}}];
+ for(let s=1;s<=7;s++)S.push({el:'#bc',title:'Step '+s,html:'',onShow:function(){BL.r=i;BL.step=s;blUI();this.html='<p>'+blMsg(RX[i],s)+'</p>'+(s>=3?calc($('#bWork').innerText):'')}});return S}
+
+/* =========================================================
+   CHALLENGE
+   ========================================================= */
+const GEN=[
+ ()=>{const f=pick(OXL.filter(x=>parseF(x).order.length>1)),P=parseF(f),r=oxNums(P),u=r.u||P.order[0],v=r.k[u];return [`What is the oxidation number of ${u} in ${prettyF(f)}?`,uniq(v,[-v,v+2,v-1],'',sgn),0,r.rules[r.rules.length-1]]},
+ ()=>{const R=pick(RX),o=R.R[R.o[0]];return [`In ${R.n.replace(/ \(.*\)/,'')}, which species is oxidized?`,[o[0],R.R[R.r[0]][0],...R.P.map(x=>x[0])].filter((x,i,a)=>a.indexOf(x)===i).slice(0,4),0,`${o[3]} goes from ${sgn(o[4])} to ${sgn(R.P[R.o[1]][4])}: it loses electrons.`]},
+ ()=>{const R=pick(RX),rd=R.R[R.r[0]];return [`In ${R.n.replace(/ \(.*\)/,'')}, which is the oxidizing agent?`,[rd[0],R.R[R.o[0]][0],...R.P.map(x=>x[0])].filter((x,i,a)=>a.indexOf(x)===i).slice(0,4),0,`${rd[0]} is reduced (${sgn(rd[4])} → ${sgn(R.P[R.r[1]][4])}), so it is the oxidizing agent.`]},
+ ()=>{const R=pick(RX.filter(r=>!r.onm)),e=R.o[2]*R.m[0];return [`How many electrons are transferred in the balanced equation ${R.fin}?`,uniq(e,[R.o[2],R.r[2],e*2],'',x=>String(Math.round(x))),0,`${R.h5[0]} (× ${R.m[0]}) and ${R.h5[1]} (× ${R.m[1]}): ${e} electrons.`]},
+ ()=>pick([
+  ['Oxidation is…',['loss of electrons','gain of electrons','gain of protons','loss of neutrons'],0,'LEO GER: Lose Electrons Oxidation, Gain Electrons Reduction.'],
+  ['What is the oxidation number of an uncombined element such as O₂ or Fe?',['0','+1','−2','It depends on the element'],0,'Elements on their own always have oxidation number 0.'],
+  ['In which compound is the oxidation number of O equal to −1?',['H₂O₂','H₂O','CO₂','OF₂'],0,'Peroxides contain O–O bonds; each O is −1. In OF₂, O is +2.'],
+  ['In NaH, the oxidation number of hydrogen is…',['−1','+1','0','+2'],0,'In metal hydrides H is bonded to a less electronegative metal, so it is −1.'],
+  ['When balancing in acid solution, oxygen atoms are balanced with…',['H₂O','O₂','OH⁻','H⁺'],0,'Add water for O, then H⁺ for H, then electrons for charge.']])];
+
+/* =========================================================
+   START
+   ========================================================= */
+function drawAll(){if(!C.ink)readColors();if(tab==='ox')drawOC();if(tab==='bal')drawBC()}
+addEventListener('resize',drawAll);
+if(window.LabParts){window.__lp=LabParts.attach({key:'redox',wrap:$('#bc').parentElement,stage:$('#bc'),bar:$('#bBar'),max:2,parts:()=>{const G=BG;if(!G)return [];const c=$('#bc').getBoundingClientRect();return [
+ {id:'up',name:'Oxidation arrow',what:'Above the equation: the atom whose oxidation number rises loses electrons (oxidized).',hint:'The red arc on top.',q:'Which arrow shows oxidation?',x:c.width/2,y:G.y-60,boxes:[[20,G.y-110,c.width-20,G.y-30]]},
+ {id:'down',name:'Reduction arrow',what:'Below the equation: the atom whose oxidation number falls gains electrons (reduced).',hint:'The blue arc underneath.',q:'Which arrow shows reduction?',x:c.width/2,y:G.y+40,boxes:[[20,G.y+5,c.width-20,G.y+80]]}]}})}
+readColors();oUI();blUI();setExK('ox');nextQ();themeLabel();
+
+</script>
+<script src="tour.js" defer></script>
+<script src="lab-guide.js" defer></script>
+</body></html>
