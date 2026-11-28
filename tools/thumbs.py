@@ -32,6 +32,7 @@ PREP = {
   'atom-lab': "(()=>{if(tab==='ruth'&&RU.n<50){for(let i=0;i<400;i++)ruStep(1/30);RU.on=true}if(tab==='build'){BA.p=6;BA.n=8;BA.e=6;baUI()}})()",
   'redox-lab': "(()=>{if(tab==='bal'&&BL.step<7){BL.r=4;BL.step=7;blUI()}})()",
   'electrolysis-lab': "(()=>{if(tab==='cell'){CL.V=1.6;CL.t=40;clUI()}if(tab==='elec'){EL.s=2;EL.t=600;elUI()}})()",
+  'organic-reactions-lab': "(()=>{if(tab==='rx'){OR.r=9;OR.t=1;orUI()}if(tab==='poly'&&PL.n<5){PL.m=1;PL.n=6;plUI()}})()",
   'electrons-lab': "(()=>{if(tab==='cfg'&&cf.z!==26){setZ(26);setMode('show')}if(tab==='trend'){tr.b=17;drawTrend()}if(tab==='light'&&!lt.lines.length){lt.lines=[3,4,5,6].map(n=>({nm:lam(n,2),lab:n+'→2'}));lt.e.n=2;showPhoton(lam(4,2));drawLight();drawSpec()}})()",
   'five-types-of-chemical-reactions': "document.querySelector('[data-tab=pat]').click()",
   'galvanic-cell-lab': "(()=>{const b=document.getElementById('swBtn');if(/Close/.test(b.textContent))b.click()})()",

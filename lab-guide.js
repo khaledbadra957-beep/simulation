@@ -261,6 +261,15 @@
       mis: [["The anode is always positive.", "In a voltaic cell the anode is negative; in an electrolytic cell it is positive. It is always where oxidation happens."], ["Electrolysis of brine gives sodium.", "Water is reduced more easily than Na⁺, so hydrogen forms."], ["Electrolysis makes equal volumes of H₂ and O₂.", "Water splits 2 : 1: twice as much hydrogen."], ["Any voltage will run an electrolytic cell.", "The supply must be greater than the cell’s own E°."]],
       qs: ["Why must the power supply be more than 1.10 V to reverse the Zn–Cu cell?", "Why does brine give hydrogen at the cathode but molten NaCl gives sodium?", "At which electrode is the key placed for silver plating?"]
     },
+    'organic-reactions-lab.html': {
+      big: "Organic reactions are classified by what happens to the molecule: substitution swaps one atom or group for another, elimination removes atoms to make a double bond, addition adds atoms across a double bond, condensation joins two molecules and releases a small one such as water. Polymers are long chains made by addition or condensation.",
+      tryThis: ["Compare ethene + H₂ with ethane → ethene + H₂. Why are they opposite types?", "Bromine water + ethene: which bond breaks? Why does the colour disappear?", "Ethanol can lose water two ways. Which reaction makes ethene?", "Esterification: which atoms form the water?", "Grow polyethene, then PVC. What is different in the repeating unit?", "Make nylon. What small molecule is released at every link?"],
+      words: [["Substitution", "one atom or group is replaced by another"], ["Elimination", "atoms are removed and a double bond forms"], ["Addition", "atoms add to the carbons of a double or triple bond"], ["Condensation", "two molecules join and release a small molecule (often water)"], ["Dehydration", "elimination of water"], ["Hydration", "addition of water"], ["Monomer", "the small unit a polymer is made from"], ["Polymer", "a large molecule made of many repeating units"]],
+      goals: ["Classify organic reactions as substitution, elimination, addition, condensation or oxidation–reduction.", "Predict the products of common reactions of alkanes, alkenes, alkyl halides, alcohols and acids.", "Describe addition and condensation polymerization and draw the repeating unit."],
+      flow: [["2 min", "Predict", "What could you add to ethene to make ethanol?"], ["7 min", "Explore", "Reaction types: one example of each type."], ["4 min", "Explain", "Polymers: addition chain against condensation chain."], ["5 min", "Apply", "Exercise tab: predict products."]],
+      mis: [["Addition and substitution are the same.", "Addition needs a double bond and gives one product; substitution swaps atoms and gives two products."], ["Polymers are mixtures of monomers.", "The monomers are joined by covalent bonds into one long molecule."], ["Condensation reactions need water.", "They give off water (or another small molecule)."], ["Bromine reacts with alkanes the same way as with alkenes.", "With alkenes it adds quickly in the dark; with alkanes it substitutes only in UV light."]],
+      qs: ["Why is ethene + H₂O called an addition reaction?", "Why does bromine water lose its colour with ethene but not with ethane?", "How does the repeating unit of PVC show its monomer?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -437,6 +446,7 @@
     'atom-lab.html': ["They hit, or came very close to, a tiny, dense, positive nucleus that repelled them strongly; most of the atom is empty space, so most passed straight through.", "Both have 6 protons and 6 electrons, so they are carbon and react the same way; carbon-14 has 8 neutrons and carbon-12 has 6.", "It is the weighted average of chlorine-35 (about 76 %) and chlorine-37 (about 24 %), so it is closer to 35."],
     'redox-lab.html': ["Fe: it loses electrons (0 → +2), so it is oxidized and acts as the reducing agent.", "x + 4(−2) = −1, so x = +7.", "To balance the oxygen atoms with water and then the hydrogen atoms with H⁺, which are present in acid solution."],
     'electrolysis-lab.html': ["The cell itself pushes electrons the other way with 1.10 V; the supply must overcome that to force the non-spontaneous reaction.", "In water, H₂O is reduced (to H₂ and OH⁻) more easily than Na⁺; molten NaCl has no water, so Na⁺ must be reduced.", "At the cathode, where Ag⁺ ions gain electrons and form silver metal on it."],
+    'organic-reactions-lab.html': ["H and OH add to the two carbons of the double bond and only one product forms; the double bond becomes single.", "Ethene has a C=C double bond that Br₂ adds across, using up the brown bromine; ethane has only single bonds.", "It is the monomer vinyl chloride (CH₂=CHCl) with the double bond opened up: –CH₂–CHCl–."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -618,6 +628,7 @@
     'atom-lab.html': {"hide": [], "start": "#rGo"},
     'redox-lab.html': {"hide": [], "start": "#oF"},
     'electrolysis-lab.html': {"hide": [], "start": "#cV"},
+    'organic-reactions-lab.html': {"hide": [], "start": "#rR"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -814,6 +825,7 @@
     'atom-lab.html': {"intro": "[data-tab=\"ruth\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'redox-lab.html': {"intro": "[data-tab=\"ox\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrolysis-lab.html': {"intro": "[data-tab=\"cell\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'organic-reactions-lab.html': {"intro": "[data-tab=\"rx\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
