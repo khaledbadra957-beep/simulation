@@ -180,6 +180,15 @@
       mis: [["Stirring makes more solute dissolve.", "Stirring makes it dissolve faster; the solubility stays the same."], ["All solids dissolve better when hot.", "Ca(OH)₂ dissolves less when heated, and gases always dissolve less."], ["NaCl and sugar lower the freezing point the same at the same molality.", "NaCl gives two particles (Na⁺ and Cl⁻), so twice the effect."], ["Milk is a solution.", "Milk is a colloid: it scatters a light beam."]],
       qs: ["Why does a seed crystal make a supersaturated solution crystallise?", "Why does 1 m CaCl₂ lower the freezing point three times as much as 1 m sugar?", "Why do fish struggle in warm water?"]
     },
+    'acids-bases-ph-lab.html': {
+      big: "Acids raise [H⁺] and bases raise [OH⁻] in water, and their product is always Kw = 1.0 × 10⁻¹⁴ at 25 °C. pH = −log[H⁺]. Strong acids and bases ionise completely; weak ones only a little, so at the same concentration they have a higher pH (acid) and conduct less.",
+      tryThis: ["Make 0.10 M HCl, then dilute it ten times. How much does the pH change?", "Compare 0.10 M HCl and 0.10 M acetic acid. Which has the lower pH? Why?", "Read [H⁺] × [OH⁻] for three different solutions. What do you notice?", "Strong or weak: which bulb is brighter? What does the particle picture show?", "Add 5 drops of 1.0 M HCl to water, then to the acetic acid buffer. Compare the pH change.", "Keep adding acid to the buffer. When does it stop working?", "Salts: which salt solutions are acidic, neutral or basic? Look at where each one came from."],
+      words: [["Arrhenius acid", "produces H⁺ ions in water"], ["Brønsted–Lowry acid", "an H⁺ donor; a base is an H⁺ acceptor"], ["Conjugate acid–base pair", "two species that differ by one H⁺"], ["Strong acid", "ionises completely in water"], ["Ka", "acid ionisation constant: [H₃O⁺][A⁻] ÷ [HA]"], ["pH", "−log[H⁺]; pH + pOH = 14.00 at 25 °C"], ["Buffer", "a weak acid and its conjugate base that resist pH change"], ["Salt hydrolysis", "ions of a salt react with water to change the pH"]],
+      goals: ["Use Kw, pH and pOH to move between [H⁺], [OH⁻], pH and pOH.", "Explain the difference between strong and weak acids and bases.", "Calculate Ka from the pH of a weak acid.", "Explain how a buffer works and predict the pH of a salt solution."],
+      flow: [["2 min", "Predict", "Lemon juice and vinegar are both acids. Which do you think is stronger? What would you measure?"], ["6 min", "Explore", "pH scale: dilute HCl and acetic acid step by step."], ["5 min", "Explain", "Strong or weak: the bulbs and the particle pictures."], ["4 min", "Apply", "Buffer drops, then the Exercise tab."]],
+      mis: [["A strong acid is the same as a concentrated acid.", "Strong means it ionises completely; concentrated means a lot of acid per litre."], ["pH 4 is twice as acidic as pH 2.", "Each pH unit is ×10: pH 2 has 100 times more H⁺ than pH 4."], ["Neutral salts form from every neutralisation.", "NH₄Cl is acidic and KF is basic because their ions react with water."], ["A buffer keeps the pH fixed for any amount of acid.", "Once the conjugate base is used up, the pH falls quickly."]],
+      qs: ["Why does 0.10 M HCl have a lower pH than 0.10 M acetic acid?", "What is [OH⁻] in a solution with pH 3.00?", "Why is a solution of NH₄Cl acidic?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -347,6 +356,7 @@
     'gas-laws-lab.html': ['Halving the volume halves the space, so the particles hit the walls twice as often: the pressure doubles.', 'Volume and pressure are proportional to the kelvin temperature; at 0 K they would be zero. Celsius has the wrong zero.', 'HCl (36.46 g/mol) is heavier than NH₃ (17.03 g/mol), so it moves more slowly and the gases meet nearer the HCl end.'],
     'states-of-matter-lab.html': ["The energy goes into breaking the attractions between the molecules (into potential energy), not into making them move faster, so the temperature stays the same until all the water is vapor.", "Water molecules form hydrogen bonds with each other; methane molecules only have weak dispersion forces, so much less energy is needed to separate them.", "The triple point of CO₂ is at 5.11 atm. Below that pressure liquid CO₂ cannot exist, so the solid turns straight into gas."],
     'solutions-lab.html': ["The solution holds more solute than it can at that temperature; the seed gives the particles a surface to build a crystal on, so the extra solute comes out until the solution is just saturated.", "Each CaCl₂ unit splits into three ions (Ca²⁺ and 2 Cl⁻), and colligative properties depend only on the number of dissolved particles.", "Gases such as oxygen dissolve less in warm water, so there is less oxygen for the fish to breathe."],
+    'acids-bases-ph-lab.html': ["HCl ionises completely, so [H⁺] = 0.10 M; acetic acid ionises only about 1 %, so [H⁺] is much smaller.", "[H⁺] = 1.0 × 10⁻³ M, so [OH⁻] = Kw ÷ [H⁺] = 1.0 × 10⁻¹¹ M (pOH = 11.00).", "NH₄⁺ is the conjugate acid of the weak base NH₃; it gives H⁺ to water: NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -519,6 +529,7 @@
     'gas-laws-lab.html': { hide: ['#clrBtn'], start: '#recBtn' },
     'states-of-matter-lab.html': {"hide": ["#hReset"], "start": "#hGo"},
     'solutions-lab.html': {"hide": ["#sReset"], "start": "#sAdd5"},
+    'acids-bases-ph-lab.html': {"hide": [], "start": "#pC"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -706,6 +717,7 @@
     'gas-laws-lab.html': { intro: '[data-tab="law"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'states-of-matter-lab.html': {"intro": "[data-tab=\"heat\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'solutions-lab.html': {"intro": "[data-tab=\"sol\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'acids-bases-ph-lab.html': {"intro": "[data-tab=\"ph\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },

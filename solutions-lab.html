@@ -288,7 +288,7 @@ footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padd
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const fx=(x,d=2)=>Number(x).toFixed(d);
 const sup=e=>String(e).split('').map(ch=>ch==='-'?'⁻':ch==='+'?'⁺':'⁰¹²³⁴⁵⁶⁷⁸⁹'[+ch]).join('');
-const sci=(v,d=2)=>{if(!isFinite(v))return '–';if(v===0)return '0';const e=Math.floor(Math.log10(Math.abs(v)));const m=v/Math.pow(10,e);return `${m.toFixed(d)} × 10${sup(e)}`};
+const sci=(v,d=2)=>{if(!isFinite(v))return '–';if(v===0)return '0';let e=Math.floor(Math.log10(Math.abs(v)));let m=v/Math.pow(10,e);if(Math.abs(+m.toFixed(d))>=10){m/=10;e++}return `${m.toFixed(d)} × 10${sup(e)}`};
 /* number input: 4.86e-7, 4.86×10^-7, 4.86x10-7, commas */
 function num(s){if(s==null)return NaN;s=String(s).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/[()]/g,'').replace(/\s/g,'');s=s.replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return s===''?NaN:Number(s)}
 
