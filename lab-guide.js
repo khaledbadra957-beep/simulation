@@ -252,6 +252,15 @@
       mis: [["Oxidation always needs oxygen.", "Oxidation is losing electrons; many redox reactions have no oxygen."], ["The oxidizing agent is oxidized.", "The oxidizing agent takes electrons, so it is reduced."], ["Oxidation numbers are real charges.", "In covalent compounds they are bookkeeping numbers, not real charges."], ["Balancing atoms is enough.", "Charge must balance too: electrons lost = electrons gained."]],
       qs: ["In Fe + Cu²⁺ → Fe²⁺ + Cu, which is the reducing agent?", "What is the oxidation number of Mn in MnO₄⁻?", "Why do we add H₂O and H⁺ when balancing in acid solution?"]
     },
+    'electrolysis-lab.html': {
+      big: "A voltaic cell turns a spontaneous redox reaction into electricity. An electrolytic cell uses electricity to drive a non-spontaneous reaction. In both, oxidation happens at the anode and reduction at the cathode.",
+      tryThis: ["Set the power supply to 0.5 V, then 1.5 V. Which way do the electrons flow each time?", "Which electrode is the anode in each case? Why does it swap?", "Electrolyse molten NaCl. What forms at each electrode?", "Now electrolyse brine. Why is hydrogen made instead of sodium?", "Electrolyse water: compare the two gas volumes.", "Silver-plate the key. How does the current change the mass of silver?"],
+      words: [["Electrolysis", "using electrical energy to drive a non-spontaneous redox reaction"], ["Electrolytic cell", "a cell that needs a power supply"], ["Anode", "electrode where oxidation happens"], ["Cathode", "electrode where reduction happens"], ["Electroplating", "coating an object with a metal by electrolysis"], ["Brine", "concentrated sodium chloride solution"], ["Downs cell", "electrolysis of molten NaCl to make sodium and chlorine"], ["Faraday constant", "96 485 C per mole of electrons"]],
+      goals: ["Compare voltaic and electrolytic cells.", "Predict the products of electrolysis of molten salts, brine and water.", "Explain electroplating and purification of copper.", "(Extension) calculate the mass of metal deposited."],
+      flow: [["2 min", "Predict", "Can you recharge a cell by pushing current backwards? What has to happen?"], ["6 min", "Explore", "Voltaic or electrolytic: sweep the voltage past 1.10 V."], ["6 min", "Explain", "Electrolysis: molten NaCl against brine."], ["4 min", "Apply", "Electroplating, then the Exercise tab."]],
+      mis: [["The anode is always positive.", "In a voltaic cell the anode is negative; in an electrolytic cell it is positive. It is always where oxidation happens."], ["Electrolysis of brine gives sodium.", "Water is reduced more easily than Na⁺, so hydrogen forms."], ["Electrolysis makes equal volumes of H₂ and O₂.", "Water splits 2 : 1: twice as much hydrogen."], ["Any voltage will run an electrolytic cell.", "The supply must be greater than the cell’s own E°."]],
+      qs: ["Why must the power supply be more than 1.10 V to reverse the Zn–Cu cell?", "Why does brine give hydrogen at the cathode but molten NaCl gives sodium?", "At which electrode is the key placed for silver plating?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -427,6 +436,7 @@
     'mixtures-lab.html': ["Dissolved salt particles are far smaller than the holes in the filter paper, so they pass through with the water.", "Dry salt and sand would both stay on the paper; water dissolves the salt so only the sand is caught.", "The single black spot separates into several coloured spots that travel different distances (different Rf values)."],
     'atom-lab.html': ["They hit, or came very close to, a tiny, dense, positive nucleus that repelled them strongly; most of the atom is empty space, so most passed straight through.", "Both have 6 protons and 6 electrons, so they are carbon and react the same way; carbon-14 has 8 neutrons and carbon-12 has 6.", "It is the weighted average of chlorine-35 (about 76 %) and chlorine-37 (about 24 %), so it is closer to 35."],
     'redox-lab.html': ["Fe: it loses electrons (0 → +2), so it is oxidized and acts as the reducing agent.", "x + 4(−2) = −1, so x = +7.", "To balance the oxygen atoms with water and then the hydrogen atoms with H⁺, which are present in acid solution."],
+    'electrolysis-lab.html': ["The cell itself pushes electrons the other way with 1.10 V; the supply must overcome that to force the non-spontaneous reaction.", "In water, H₂O is reduced (to H₂ and OH⁻) more easily than Na⁺; molten NaCl has no water, so Na⁺ must be reduced.", "At the cathode, where Ag⁺ ions gain electrons and form silver metal on it."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -607,6 +617,7 @@
     'mixtures-lab.html': {"hide": [], "start": "[data-tech=\"mag\"]"},
     'atom-lab.html': {"hide": [], "start": "#rGo"},
     'redox-lab.html': {"hide": [], "start": "#oF"},
+    'electrolysis-lab.html': {"hide": [], "start": "#cV"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -802,6 +813,7 @@
     'mixtures-lab.html': {"intro": "[data-tab=\"sep\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'atom-lab.html': {"intro": "[data-tab=\"ruth\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'redox-lab.html': {"intro": "[data-tab=\"ox\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'electrolysis-lab.html': {"intro": "[data-tab=\"cell\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
