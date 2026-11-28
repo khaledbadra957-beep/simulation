@@ -215,6 +215,7 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s,color .3s,bord
   <div class="seg" role="group" aria-label="Grade" id="gradeSeg">
     <button type="button" data-grade="all" aria-pressed="true">All grades</button>
     <button type="button" data-grade="7" aria-pressed="false" aria-label="Grade 7">7</button>
+    <button type="button" data-grade="9" aria-pressed="false" aria-label="Grade 9">9</button>
     <button type="button" data-grade="10" aria-pressed="false" aria-label="Grade 10">10</button>
     <button type="button" data-grade="11" aria-pressed="false" aria-label="Grade 11">11</button>
     <button type="button" data-grade="12" aria-pressed="false" aria-label="Grade 12">12</button>
@@ -242,6 +243,149 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s,color .3s,bord
    f file · t title · s phys|chem · g grades · tp topic group · sim number (newest = highest) · o textbook order (sorting only)
    m module label (only when the lab states it) · cam = its camera version · co = camera lab only · k words for search */
 var LABS = [
+{
+"f": "nuclear-lab.html",
+"t": "Nuclear Chemistry",
+"s": "chem",
+"g": "12",
+"tp": "atoms",
+"sim": 41,
+"o": 23,
+"k": "Find a nucleus on the neutron–proton chart: above the band of stability it beta-decays, below it emits a positron or captures an electron, and heavy nuclei alpha-decay. Write each balanced nuclear equation, run the 14-step uranium-238 series to lead-206, watch Sr-90 and C-14 halve again and again, and start a U-235 chain reaction, then tame it with control rods.",
+"m": "Module 23"
+},
+{
+"f": "organic-reactions-lab.html",
+"t": "Organic Reactions and Polymers",
+"s": "chem",
+"g": "12",
+"tp": "organic",
+"sim": 40,
+"o": 21.5,
+"k": "Pick a starting molecule and a reagent and watch the product form as a structural formula: halogenation, hydrolysis and amination (substitution), dehydration and dehydrogenation (elimination), hydration, hydrogenation, HBr and Br₂ (addition), esterification (condensation) and oxidation of ethanol. Then grow polyethene, PVC, polystyrene or PTFE monomer by monomer, and make nylon and PET with water given off.",
+"m": "Module 21"
+},
+{
+"f": "electrolysis-lab.html",
+"t": "Electrolysis",
+"s": "chem",
+"g": "12",
+"tp": "reactions",
+"sim": 39,
+"o": 19.5,
+"k": "Connect a power supply to a Zn–Cu cell: below 1.10 V the cell still runs as a voltaic cell, above it the reaction goes backwards and zinc plates out. Then electrolyse molten NaCl (sodium and chlorine), brine (hydrogen, chlorine and NaOH), water (hydrogen and oxygen in a 2 : 1 ratio), purify copper and silver-plate a key.",
+"m": "Module 19"
+},
+{
+"f": "redox-lab.html",
+"t": "Redox Reactions",
+"s": "chem",
+"g": "12",
+"tp": "reactions",
+"sim": 38,
+"o": 18,
+"k": "Assign oxidation numbers with the book's rules (KClO₃, SO₃²⁻, MnO₄⁻, H₂O₂ and more), then balance redox equations step by step: find what is oxidized and reduced, write the half-reactions, add H₂O, H⁺ and electrons, multiply so the electrons cancel, and add. Includes Cu + HNO₃, ClO₄⁻ + Br⁻ and MnO₄⁻ + Sn²⁺.",
+"m": "Module 18"
+},
+{
+"f": "atom-lab.html",
+"t": "Inside the Atom",
+"s": "chem",
+"g": "9",
+"tp": "bonding",
+"sim": 37,
+"o": 3,
+"k": "Repeat Rutherford's gold-foil experiment: most alpha particles pass straight through, a few bounce back, which the plum-pudding model cannot explain. Build atoms, ions and isotopes from protons, neutrons and electrons (carbon-12, carbon-14, Na⁺), and read a mass spectrum to calculate the average atomic mass of chlorine, copper or lithium.",
+"m": "Module 3"
+},
+{
+"f": "mixtures-lab.html",
+"t": "Mixtures and Separation",
+"s": "chem",
+"g": "9",
+"tp": "bonding",
+"sim": 36,
+"o": 2,
+"k": "Separate a mixture of sand, salt and iron filings step by step: pull out the iron with a magnet, dissolve the salt, filter off the sand, evaporate or distil the filtrate, and check that every gram comes back. Then run paper chromatography of coloured inks, measure the Rf values and identify the unknown ink.",
+"m": "Module 2"
+},
+{
+"f": "density-lab.html",
+"t": "Density and Measurement",
+"s": "chem",
+"g": "9",
+"tp": "bonding",
+"sim": 35,
+"o": 1,
+"k": "Weigh a mystery metal on a balance, read the meniscus in a graduated cylinder with the estimated digit, drop the metal in and read again. Work out its density, identify it and find your percent error. Then plot mass against volume for several samples: the slope of the line is the density.",
+"m": "Module 1"
+},
+{
+"f": "mole-lab.html",
+"t": "The Mole and Stoichiometry",
+"s": "chem",
+"g": "10",
+"tp": "bonding",
+"sim": 34,
+"o": 9,
+"k": "Weigh any element or compound and follow the mole map between grams, moles and particles (6.02 × 10²³). Heat blue CuSO₄·xH₂O in a crucible until it turns white and find x, then mix reactants such as N₂ + 3H₂ or P₄ + 5O₂ to see the limiting reactant, the excess, the theoretical yield and your percent yield.",
+"m": "Modules 9–10"
+},
+{
+"f": "molecule-shapes-lab.html",
+"t": "Molecule Shapes and Polarity",
+"s": "chem",
+"g": "10",
+"tp": "bonding",
+"sim": 33,
+"o": 7,
+"k": "Draw Lewis structures the book's way: count the valence electrons, place single bonds, complete the octets and make double or triple bonds when you run short (NH₃, CO₂, PO₄³⁻, XeF₄ and more). Then turn the molecule in 3D to see its VSEPR shape, bond angle and hybridization, and use electronegativity to decide if the bonds and the molecule are polar.",
+"m": "Module 7"
+},
+{
+"f": "ionic-compounds-lab.html",
+"t": "Ionic Compounds",
+"s": "chem",
+"g": "10",
+"tp": "bonding",
+"sim": 32,
+"o": 6,
+"k": "Pick a metal and a nonmetal (or a polyatomic ion), move the electrons with electron-dot structures and watch the ions form. Charge tiles balance the formula unit (K₂O, Al₂S₃, Ca₃(PO₄)₂) and the name follows the book's rules, with Stock names such as iron(III). Then compare lattice energies, hit an ionic crystal and a metal, and test which states conduct.",
+"m": "Module 6"
+},
+{
+"f": "acids-bases-ph-lab.html",
+"t": "Acids, Bases and pH",
+"s": "chem",
+"g": "11",
+"tp": "reactions",
+"sim": 31,
+"o": 17,
+"k": "Pick a strong or weak acid or base, change its concentration and read pH, pOH, [H⁺] and [OH⁻] with a pH meter and universal indicator. Light a conductivity bulb in 0.10 M HCl and in acetic acid to see strong against weak, add drops of acid and base to water and to a buffer, and test salts such as NH₄Cl and KF with bromothymol blue.",
+"m": "Module 17"
+},
+{
+"f": "solutions-lab.html",
+"t": "Solutions",
+"s": "chem",
+"g": "11",
+"tp": "matter",
+"sim": 30,
+"o": 13,
+"k": "Spoon a salt into 100 g of water until crystals stay, then heat or cool it and read the solubility curves (KCl, NaCl, KNO₃, AgNO₃, sugar, Ca(OH)₂). Make a supersaturated solution and drop in a seed crystal. Add sugar, NaCl or CaCl₂ to see the freezing point fall and the boiling point rise (ΔT = i·K·m), and shine a torch through a solution, a colloid and a suspension (Tyndall effect).",
+"m": "Module 13"
+},
+{
+"f": "states-of-matter-lab.html",
+"t": "States of Matter",
+"s": "chem",
+"g": "11",
+"tp": "matter",
+"sim": 29,
+"o": 11,
+"k": "Heat ice until it melts and boils: the particles break out of the solid, the temperature stops on the heating curve while the energy breaks the forces. Compare dispersion forces, dipole–dipole forces and hydrogen bonds with boiling points, and drag a point around the phase diagrams of water and CO₂ (triple point, critical point, sublimation of dry ice).",
+"m": "Module 11"
+},
 {
 "f": "resonance-on-a-string.html",
 "t": "Resonance on a String",
@@ -370,6 +514,17 @@ var LABS = [
 "cam": "hands-on-chemical-change.html"
 },
 {
+"f": "gas-laws-lab.html",
+"t": "Gas Laws",
+"s": "chem",
+"g": "11",
+"tp": "matter",
+"sim": 28,
+"o": 12,
+"k": "Push a piston, heat the cylinder and watch the particles hit the walls. Boyle's, Charles's, Gay-Lussac's, combined and ideal gas laws with a live graph and a table of your points, a real gas (nitrogen) that stops behaving ideally, and a Graham's law race where NH₃ meets HCl in a white ring. Exercise solver with the book examples, and a challenge.",
+"m": "Module 12"
+},
+{
 "f": "electrons-lab.html",
 "t": "Electrons and Periodic Trends",
 "s": "chem",
@@ -495,7 +650,7 @@ var LABS = [
 }
 ];
 var GROUPS = [
-  ['waves', 'Waves and sound'], ['fields', 'Forces, fields and circuits'], ['atoms', 'Light and the nucleus'],
+  ['waves', 'Waves and sound'], ['fields', 'Forces, fields and circuits'], ['atoms', 'Light and the nucleus'], ['bonding', 'Atoms, bonding and the mole'], ['matter', 'Gases and states of matter'],
   ['reactions', 'Reactions and solutions'], ['energy', 'Energy, rates and equilibrium'], ['organic', 'Organic chemistry']
 ];
 (function () {

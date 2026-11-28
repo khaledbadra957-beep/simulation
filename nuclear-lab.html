@@ -1,0 +1,469 @@
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nuclear Chemistry</title>
+<meta name="description" content="Place nuclei on the band of stability and choose alpha, beta, positron or electron-capture decay to write balanced nuclear equations, follow the uranium-238 series, watch half-lives in action and start a fission chain reaction with control rods. Exercise solver and challenge.">
+<!-- og -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mr Khaled · Science Simulations">
+<meta property="og:title" content="Nuclear Chemistry · Mr Khaled">
+<meta property="og:description" content="Place nuclei on the band of stability and choose alpha, beta, positron or electron-capture decay to write balanced nuclear equations, follow the uranium-238 series, watch half-lives in action and start a fission chain reaction with control rods. Exercise solver and challenge.">
+<meta property="og:url" content="https://khaledbadra957-beep.github.io/simulation/nuclear-lab.html">
+<meta property="og:image" content="https://khaledbadra957-beep.github.io/simulation/og/nuclear-lab.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Nuclear Chemistry: a picture of the lab">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- /og -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench layout as the other labs. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --a:#2F6FD0; --b:#D88A1C; --prod:#1E8A55; --rose:#C2185B;
+  --brass:#B8913A; --brass-soft:rgba(233,196,106,.45);
+  --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
+#beaker{height:clamp(300px,34vw,340px)}
+.mkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:.85rem;color:var(--muted)}.mkey i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+#kg{height:260px}
+#eg{height:250px;cursor:crosshair}
+.pred{display:flex;gap:6px;flex-wrap:wrap}
+.pred button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700}
+.pred button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pred button:hover{border-color:var(--accent)}
+.ans select{max-width:100%}
+
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%;align-self:flex-start}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.ans input{width:8em}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8125rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+tr.pick td{background:var(--brass-soft)}
+tbody tr{cursor:pointer}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body);cursor:default}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0;font-size:.92rem}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.15rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+.runs{display:flex;flex-wrap:wrap;gap:6px}
+.runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas.stage{border:0;border-radius:0}
+.stage-ui .sc-read{position:absolute;top:12px;right:12px;z-index:2;width:250px;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+@media (max-width:1100px){.stage-ui .sc-read{width:200px}}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{top:auto;bottom:8px;right:8px;width:170px;padding:6px 8px}.stage-ui .sc-read .readouts{gap:2px 8px}.stage-ui .sc-read dt{font-size:11.5px}.stage-ui .sc-read dd{font-size:12.5px}.stage-ui .sc-read div[style]{display:none}}
+.stage-ui .panel input[type=range]{height:22px}
+.stage-ui .panel .field{gap:0}
+.stage-ui .sc-read dd{white-space:nowrap;font-size:.92rem}
+.stage-ui .sc-read{width:290px}
+.stage-ui .sc-read div[style] dd{white-space:normal;font-size:.85rem}
+.stage-ui #runs:empty{display:none}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{display:none}}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui #beaker,.stage-ui #kg{height:auto}
+.stage-ui .play > .extra.tall{height:clamp(170px,32vh,290px)}
+.stage-ui .sc-eq{position:absolute;top:12px;left:14px;z-index:2;font-weight:600;font-size:15px;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+.stage-ui .scene .mkey{position:absolute;left:14px;bottom:10px;z-index:2;font-size:12.5px;background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 10px;border-radius:8px}
+.stage-ui .seg{width:100%;align-self:stretch}
+.stage-ui .transport .seg{width:auto}
+.stage-ui .gh .seg{width:auto}
+.stage-ui .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stage-ui .small{font-size:13px}
+.stage-ui .btn.small{min-height:34px;font-size:13.5px;padding:0 10px}
+.stage-ui .pred{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stage-ui .status{font-size:13.5px;padding:7px 10px}
+.stage-ui .readouts{gap:6px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .sol{font-size:12.5px;padding:8px 10px}
+.stage-ui .morein{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .flabel{font-size:14px}
+.stage-ui .solo-in > .benchhead{margin-top:4px}
+.stage-ui #eg{height:260px;border:1px solid var(--line);border-radius:10px}
+.stage-ui .solo-in{padding:8px 4px 20px}
+.stage-ui .solo-in .card{background:var(--surface)}
+.stage-ui #exSolve svg{flex:none}
+.stage-ui details.own summary{cursor:pointer;font-weight:700;list-style:none}.stage-ui details.own summary::-webkit-details-marker{display:none}.stage-ui details.own summary::before{content:"+ ";font-family:var(--data)}.stage-ui details.own[open] summary::before{content:"− "}
+.stage-ui .ownf{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 18px;margin:10px 0}
+.stage-ui .ownf label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.stage-ui .ownf label.ck{flex-direction:row;align-items:center;gap:8px;align-self:end;min-height:38px}
+.stage-ui .ownf span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .ownf input[type=number],.stage-ui .ownf select{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .ownf input[aria-invalid="true"]{border-color:var(--bad)}
+@media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.tall{height:220px}.stage-ui .scene .mkey{display:none}.stage-ui .sc-eq{font-size:12.5px;top:8px;left:8px}}
+
+
+/* ---------- this lab ---------- */
+:root{--fill:#0A6A88;--hot:#D9534F;--cold:#3D7BE0;--solid:#3D7BE0;--liq:#0A8A7A;--gas:#C2571A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}}
+:root[data-theme="dark"]{--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}
+.rule{font-size:.9rem;line-height:1.35;margin:0;padding:7px 10px;border-radius:9px;background:var(--surface);border:1.5px solid var(--line)}
+.rule.ok{border-color:var(--ok)}.rule.ok b{color:var(--ok)}.rule.bad{border-color:var(--bad)}
+.stage-ui .play > .extra.mid{height:clamp(150px,27vh,250px)}
+.eqn{font:600 1.1rem var(--data);margin:2px 0 4px}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px 14px}
+.exgrid label{display:flex;flex-direction:column;gap:3px;font-size:.88rem;color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.exgrid input[aria-invalid]{border-color:var(--bad)}
+.panel select{font:600 14px var(--data);padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);width:100%}
+.key{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;color:var(--muted);margin:4px 0 0}.key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}.btnrow .btn{padding:6px 10px}
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css"></head><body>
+
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Nuclear Chemistry</h1>
+ <span class="tb-tag">Chemistry · G12</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button id="fsBtn" type="button" hidden></button><button id="themeBtn" type="button" hidden></button>
+<div class="tabs" role="tablist" hidden>
+ <button class="tab" role="tab" aria-selected="true" data-tab="band" aria-controls="p-band">Band of stability</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="half" aria-controls="p-half">Half-life</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="fis" aria-controls="p-fis">Fission</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Exercise</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">Challenge</button>
+</div>
+<main class="screens">
+ <section class="screen" id="p-band" data-screens="intro band" role="tabpanel">
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="bc" aria-label="Neutron number against proton number with the band of stability and the chosen nucleus"></canvas></div>
+   <div class="transport" id="bBar"><span class="btnrow"><button class="btn" type="button" data-dec="a">α decay</button><button class="btn" type="button" data-dec="bm">β⁻ decay</button><button class="btn" type="button" data-dec="bp">β⁺ (positron)</button><button class="btn" type="button" data-dec="ec">Electron capture</button></span><button class="btn" id="bSer" type="button">U-238 series</button><span class="grow"></span><label class="check"><input type="checkbox" id="bZoom"> Light nuclei</label></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Nucleus</h2><div class="field"><label class="flabel" for="bNuc">Choose</label><select id="bNuc"></select></div>
+    <dl class="readouts"><div><dt>Protons Z</dt><dd id="bZ">–</dd></div><div><dt>Neutrons N</dt><dd id="bN">–</dd></div><div><dt>N : Z</dt><dd id="bR">–</dd></div><div><dt>Position</dt><dd id="bPos">–</dd></div></dl></section>
+   <section class="group"><h2>Nuclear equation</h2><p class="eqn" id="bEq" style="font-size:1.05rem">–</p><p class="rule" id="bMsg"></p></section>
+  </aside>
+ </section>
+ <section class="screen" id="p-half" data-screens="half" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="hc" aria-label="Many radioactive nuclei decaying, and a graph of the amount left against time"></canvas></div>
+   <div class="transport" id="hBar"><button class="btn primary" id="hGo" type="button">Start</button><button class="btn" id="hReset" type="button">New sample</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Radioisotope</h2><div class="field"><label class="flabel" for="hIso">Choose</label><select id="hIso"></select></div>
+    <div class="field"><div class="field-head"><label for="hM">Starting mass</label><output id="hMo"></output></div><input id="hM" type="range" min="1" max="20" step="0.5" value="10"></div></section>
+   <section class="group"><h2>Readings</h2><dl class="readouts"><div><dt>Time</dt><dd id="hT">–</dd></div><div><dt>Half-lives n</dt><dd id="hN">–</dd></div><div><dt>Fraction left (½)ⁿ</dt><dd id="hF">–</dd></div><div><dt>Mass left</dt><dd id="hML">–</dd></div><div><dt>Nuclei left (of 400)</dt><dd id="hC">–</dd></div></dl></section>
+  </aside>
+ </section>
+ <section class="screen" id="p-fis" data-screens="fis" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="fc" aria-label="U-235 nuclei split when hit by neutrons, releasing more neutrons; control rods absorb neutrons"></canvas></div>
+   <div class="transport" id="fBar"><button class="btn primary" id="fGo" type="button">Fire a neutron</button><button class="btn" id="fReset" type="button">Reload fuel</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Chain reaction</h2>
+    <div class="field"><div class="field-head"><label for="fRod">Control rods pushed in</label><output id="fRodo"></output></div><input id="fRod" type="range" min="0" max="100" step="1" value="0"></div>
+    <div class="field"><div class="field-head"><label for="fFuel">Amount of U-235</label><output id="fFuelo"></output></div><input id="fFuel" type="range" min="20" max="240" step="1" value="150"></div>
+    <p class="eqn" style="font-size:.95rem">¹n + ²³⁵U → ¹⁴¹Ba + ⁹²Kr + 3 ¹n</p><p class="rule" id="fMsg"></p></section>
+   <section class="group"><h2>Counts</h2><dl class="readouts"><div><dt>Fissions</dt><dd id="fF">0</dd></div><div><dt>Neutrons now</dt><dd id="fN">0</dd></div><div><dt>Energy released</dt><dd id="fE">0</dd></div><div><dt>Status</dt><dd id="fS">–</dd></div></dl></section>
+  </aside>
+ </section>
+ <section class="screen solo" id="p-ex" data-screens="ex" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button>
+   <button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+  <div class="card"><div class="field"><span class="flabel">Kind of exercise</span>
+   <div class="seg" role="group" aria-label="Kind of exercise" id="exKSeg" style="width:auto;flex-wrap:wrap"><button type="button" data-exk="eq" aria-pressed="true">Decay equation</button><button type="button" data-exk="half" aria-pressed="false">Half-life</button><button type="button" data-exk="trans" aria-pressed="false">Missing particle</button></div></div>
+   <div class="exgrid" id="exF"></div><p class="note" id="exMsg"></p><p id="exText" class="q" style="font-size:1rem"></p></div>
+ </div></section>
+ <section class="screen solo" id="p-chal" data-screens="chal" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
+  <p class="q" id="qText"></p><div class="opts" id="qOpts"></div><p class="status" id="qStatus" aria-live="polite" hidden></p>
+  <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
+ </div></section>
+</main>
+<p class="vh">Inspire Chemistry Module 23. Half-lives: Sr-90 29 y, Kr-85 11 y, C-14 5730 y, I-131 8.0 d.</p>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'band', simple: true }, { id: 'band', name: 'Band of stability', tab: 'band' }, { id: 'half', name: 'Half-life', tab: 'half' }, { id: 'fis', name: 'Fission', tab: 'fis' }, { id: 'ex', name: 'Exercise', tab: 'ex' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ], tour: [ { el: '#bNuc', title: 'Choose a nucleus', text: 'Find it on the chart: above, inside or below the band of stability?' }, { el: '#bBar', title: 'Choose a decay', text: 'Each decay moves the nucleus a different way on the chart.' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fx=(x,d=2)=>Number(x).toFixed(d);
+const sup=e=>String(e).split('').map(ch=>ch==='-'?'⁻':ch==='+'?'⁺':'⁰¹²³⁴⁵⁶⁷⁸⁹'[+ch]).join('');
+const sci=(v,d=2)=>{if(!isFinite(v))return '–';if(v===0)return '0';let e=Math.floor(Math.log10(Math.abs(v)));let m=v/Math.pow(10,e);if(Math.abs(+m.toFixed(d))>=10){m/=10;e++}return `${m.toFixed(d)} × 10${sup(e)}`};
+/* number input: 4.86e-7, 4.86×10^-7, 4.86x10-7, commas */
+function num(s){if(s==null)return NaN;s=String(s).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/[()]/g,'').replace(/\s/g,'');s=s.replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return s===''?NaN:Number(s)}
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+let C={};
+function readColors(){const s=getComputedStyle(root);['stage','surface','ink','muted','line','grid','accent','brass','rose','ok','bad','a','b','prod','fill','hot','cold','solid','liq','gas'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+new MutationObserver(()=>themeLabel()).observe(root,{attributes:true,attributeFilter:['data-theme']});
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='band';
+const TABS=["band", "half", "fis", "ex", "chal"];
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));TABS.forEach(t=>$('#p-'+t).hidden=t!==tab);drawAll()});
+$('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen?.()}catch(e){}$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)};
+document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)});
+function segPick(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===btn))}
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function txt(x,s,a,b,col,size=12,align='left',base='alphabetic',wt=500,fam='"IBM Plex Mono",monospace'){x.fillStyle=col;x.font=`${wt} ${size}px ${fam}`;x.textAlign=align;x.textBaseline=base;x.fillText(s,a,b)}
+const go=id=>{const b=document.querySelector('.lg-nav [data-ph="'+id+'"]');if(b&&root.getAttribute('data-screen')!==id)b.click();else{const t=LAB.screens.find(s=>s.id===id);if(t){const tb=document.querySelector('.tab[data-tab="'+t.tab+'"]');if(tb&&tab!==t.tab)tb.click()}}};
+
+
+/* ---------- shared: challenge ---------- */
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const sf=(v,n=3)=>{if(!isFinite(v))return '–';const a=Math.abs(v);if(a>=1e5||(a<1e-3&&a>0))return sci(v,n-1);if(a>=1000)return Math.round(v).toLocaleString('en-US');return v.toPrecision(n)};
+const uniq=(right,wr,unit,f=sf)=>{const s=[right,...wr].map(x=>f(x)+unit),o=[];s.forEach(x=>{if(!o.includes(x))o.push(x)});let k=1;while(o.length<4){const x=f(right*(1+.37*k++))+unit;if(!o.includes(x))o.push(x)}return o.slice(0,4)};
+const calc=t=>'<div class="t-calc">'+t+'</div>';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function rrect(X,x,y,w,h,r){r=Math.min(r,w/2,h/2);X.beginPath();X.moveTo(x+r,y);X.arcTo(x+w,y,x+w,y+h,r);X.arcTo(x+w,y+h,x,y+h,r);X.arcTo(x,y+h,x,y,r);X.arcTo(x,y,x+w,y,r);X.closePath()}
+const hex=s=>{s=(s||'#888').trim().replace('#','');if(s.length===3)s=s.split('').map(c=>c+c).join('');const n=parseInt(s,16);return [n>>16&255,n>>8&255,n&255]};
+const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*clamp(t,0,1))).join(',')})`};
+const alpha=(c,a)=>{const A=hex(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const mns=v=>String(v).replace(/-/g,'−');
+let score=0,tries=0,answered=false,lastG=-1;
+function nextQ(){let g_;do{g_=rint(0,GEN.length-1)}while(g_===lastG&&GEN.length>1);lastG=g_;const q=GEN[g_]();answered=false;
+ $('#qText').textContent=q[0];$('#qStatus').hidden=true;const opts=shuffle(q[1].map((t,k)=>({t,k})));
+ $('#qOpts').innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;b.onclick=()=>{if(answered)return;answered=true;tries++;
+  const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
+  const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
+$('#qNext').onclick=nextQ;
+function tourGo(steps){if(!window.Tour)return;setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+
+/* =========================================================
+   NUCLIDES
+   ========================================================= */
+const SYM=['n','H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y','Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I','Xe','Cs','Ba','La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu','Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th','Pa','U','Np','Pu'];
+const NAME={1:'hydrogen',2:'helium',5:'boron',6:'carbon',7:'nitrogen',8:'oxygen',9:'fluorine',18:'argon',19:'potassium',20:'calcium',26:'iron',27:'cobalt',28:'nickel',36:'krypton',38:'strontium',39:'yttrium',53:'iodine',54:'xenon',55:'caesium',56:'barium',81:'thallium',82:'lead',83:'bismuth',84:'polonium',86:'radon',88:'radium',90:'thorium',91:'protactinium',92:'uranium',94:'plutonium',4:'beryllium',3:'lithium',10:'neon',11:'sodium',15:'phosphorus',16:'sulfur',17:'chlorine'};
+const NUC=[[6,14,'bm'],[6,11,'bp'],[7,13,'bp'],[9,18,'bp'],[4,7,'ec'],[18,37,'ec'],[19,40,'bm'],[27,60,'bm'],[38,90,'bm'],[53,131,'bm'],[55,137,'bm'],[88,226,'a'],[86,222,'a'],[84,218,'a'],[90,234,'bm'],[92,238,'a'],[94,238,'a'],[1,3,'bm'],[15,32,'bm']];
+const SER=['a','bm','bm','a','a','a','a','a','bm','bm','a','bm','bm','a'];
+const DEC={a:{n:'alpha decay',dZ:-2,dA:-4,p:'⁴₂He'},bm:{n:'beta decay',dZ:1,dA:0,p:'⁰₋₁e'},bp:{n:'positron emission',dZ:-1,dA:0,p:'⁰₊₁e'},ec:{n:'electron capture',dZ:-1,dA:0,p:'⁰₋₁e'}};
+const SUPD=n=>String(n).split('').map(d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+d]).join(''),SUBD=n=>String(n).replace('-','₋').split('').map(d=>d==='₋'?d:'₀₁₂₃₄₅₆₇₈₉'[+d]).join('');
+const iso=(Z,A)=>`${SUPD(A)}${SUBD(Z)}${SYM[Z]||'?'}`;const nameOf=(Z,A)=>`${NAME[Z]||SYM[Z]}-${A}`;
+/* band centre: stable N for a given Z (approximation to the real band) */
+const bandN=Z=>Z<=20?Z*1.0+(Z>8?0.3:0):Z*(1+0.0087*(Z-20));const bandW=Z=>1+0.045*Z;
+function stableMode(Z,A){const N=A-Z,c=bandN(Z);if(Z>83)return 'a';if(N>c+bandW(Z)*.6)return 'bm';if(N<c-bandW(Z)*.6)return Z<=30?'bp':'ec';return null}
+const BD={i:0,Z:6,A:14,hist:[],zoom:false,ser:false,anim:null,msg:''};
+$('#bNuc').innerHTML=NUC.map(([Z,A],i)=>`<option value="${i}">${nameOf(Z,A)}</option>`).join('');
+$('#bNuc').onchange=e=>{BD.i=+e.target.value;[BD.Z,BD.A]=NUC[BD.i];BD.hist=[];BD.eq='';BD.msg='';BD.ser=false;BD.zoom=BD.Z<=30;$('#bZoom').checked=BD.zoom;bdUI()};$('#bZoom').onchange=e=>{BD.zoom=e.target.checked;drawBC()};
+function bdDecay(k){const d=DEC[k],nZ=BD.Z+d.dZ,nA=BD.A+d.dA,real=(NUC.find(([Z,A])=>Z===BD.Z&&A===BD.A)||[])[2]||stableMode(BD.Z,BD.A);
+ if(nZ<1||nA<nZ){BD.msg='That decay is not possible for this nucleus.';bdUI();return}
+ BD.eq=k==='ec'?`${iso(BD.Z,BD.A)} + ⁰₋₁e → ${iso(nZ,nA)}`:`${iso(BD.Z,BD.A)} → ${iso(nZ,nA)} + ${d.p}`;
+ const ok=real===k||(real==='ec'&&k==='bp')||(real==='bp'&&k==='ec');BD.msg=(real?(ok?`<b>Yes:</b> ${nameOf(BD.Z,BD.A)} undergoes ${DEC[real].n}.`:`<b>Not quite:</b> ${nameOf(BD.Z,BD.A)} really undergoes ${DEC[real].n}. ${real==='bm'?'It has too many neutrons (above the band).':real==='a'?'It is too heavy (Z > 83).':'It has too few neutrons (below the band).'}`):`${nameOf(BD.Z,BD.A)} is inside the band: it is stable and does not decay.`)+` Mass number: ${BD.A} = ${nA}${d.dA?' + 4':''}. Charge: ${BD.Z} = ${nZ}${d.dZ===-2?' + 2':d.dZ===1?' + (−1)':k==='bp'?' + 1':' (the captured electron cancels a proton)'}.`;
+ BD.hist.push([BD.Z,BD.A,nZ,nA,k]);BD.Z=nZ;BD.A=nA;bdUI()}
+$$('[data-dec]').forEach(b=>b.onclick=()=>{BD.ser=false;bdDecay(b.dataset.dec)});
+function bdSeries(instant){BD.Z=92;BD.A=238;BD.hist=[];BD.zoom=false;$('#bZoom').checked=false;BD.i=15;$('#bNuc').value=15;BD.ser=true;BD.sk=0;if(instant){SER.forEach(k=>bdDecay(k));BD.ser=false;BD.eq='';BD.msg=`<b>Uranium-238 series:</b> 8 alpha and 6 beta decays turn U-238 into stable lead-206.`;bdUI()}else{BD.anim=performance.now();bdUI()}}
+$('#bSer').onclick=()=>bdSeries(false);
+function bdUI(){const N=BD.A-BD.Z,c=bandN(BD.Z),m=stableMode(BD.Z,BD.A);$('#bZ').textContent=BD.Z;$('#bN').textContent=N;$('#bR').textContent=fx(N/BD.Z,2)+' : 1';$('#bPos').textContent=BD.Z>83?'too heavy (Z > 83)':m==='bm'?'above the band':m?'below the band':'in the band (stable)';
+ $('#bEq').textContent=BD.eq||`${iso(BD.Z,BD.A)} (${nameOf(BD.Z,BD.A)})`;$('#bMsg').innerHTML=BD.msg||`Choose a decay. ${m==='bm'?'Too many neutrons: which decay turns a neutron into a proton?':m==='a'?'Too heavy: which decay removes 2 protons and 2 neutrons?':m?'Too few neutrons: which decay turns a proton into a neutron?':'This nucleus is stable.'}`;drawBC()}
+let BG=null;
+function drawBC(){const c=$('#bc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const zm=BD.zoom,Zx=zm?32:96,Nx=zm?40:150,L=50,R=16,T=18,B=36,pw=w-L-R,ph=h-T-B,sx=z=>L+z/Zx*pw,sy=n=>T+ph-n/Nx*ph;BG={sx,sy};
+ const st=zm?5:10;for(let z=0;z<=Zx;z+=st){X.strokeStyle=C.grid;X.lineWidth=1;X.beginPath();X.moveTo(sx(z),T);X.lineTo(sx(z),T+ph);X.stroke();txt(X,String(z),sx(z),T+ph+15,C.muted,11,'center')}
+ for(let n=0;n<=Nx;n+=st*(zm?1:2)){X.strokeStyle=C.grid;X.beginPath();X.moveTo(L,sy(n));X.lineTo(L+pw,sy(n));X.stroke();txt(X,String(n),L-6,sy(n)+4,C.muted,11,'right')}
+ X.strokeStyle=C.ink;X.lineWidth=1.5;X.beginPath();X.moveTo(L,T);X.lineTo(L,T+ph);X.lineTo(L+pw,T+ph);X.stroke();txt(X,'neutrons N',6,T-4,C.ink,11.5,'left','alphabetic',600);txt(X,'protons Z',L+pw,T+ph+30,C.ink,11.5,'right','alphabetic',600);
+ X.save();X.beginPath();X.rect(L,T,pw,ph);X.clip();X.fillStyle=alpha(C.ok,.25);X.beginPath();for(let z=1;z<=83;z+=.5)X.lineTo(sx(z),sy(bandN(z)+bandW(z)));for(let z=83;z>=1;z-=.5)X.lineTo(sx(z),sy(Math.max(0,bandN(z)-bandW(z))));X.closePath();X.fill();
+ X.setLineDash([5,4]);X.strokeStyle=C.muted;X.beginPath();X.moveTo(sx(0),sy(0));X.lineTo(sx(Math.min(Zx,Nx)),sy(Math.min(Zx,Nx)));X.stroke();X.setLineDash([]);
+ X.strokeStyle=C.accent;X.lineWidth=2.5;BD.hist.forEach(([z1,a1,z2,a2,k])=>{X.strokeStyle=k==='a'?C.rose:k==='bm'?C.solid:C.brass;X.beginPath();X.moveTo(sx(z1),sy(a1-z1));X.lineTo(sx(z2),sy(a2-z2));X.stroke();X.fillStyle=X.strokeStyle;X.beginPath();X.arc(sx(z2),sy(a2-z2),3.5,0,7);X.fill()});X.restore();
+ txt(X,'band of stability',sx(zm?20:60),sy(bandN(zm?20:60)+bandW(zm?20:60))-6,C.ok,12,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');txt(X,'N = Z',sx(Math.min(Zx,Nx)*.85),sy(Math.min(Zx,Nx)*.85)+16,C.muted,11,'left');
+ const x=sx(BD.Z),y=sy(BD.A-BD.Z);if(x<=L+pw&&y>=T){X.fillStyle=C.accent;X.strokeStyle=C.stage;X.lineWidth=2;X.beginPath();X.arc(x,y,7,0,7);X.fill();X.stroke();txt(X,`${SYM[BD.Z]}-${BD.A}`,x+10,y-8,C.ink,13,'left','alphabetic',800)}
+ txt(X,'α: ↙ 2 left, 2 down   β⁻: ↖ 1 right, 1 down   β⁺/EC: 1 left, 1 up',w/2,h-4,C.muted,11,'center','alphabetic',600,'"IBM Plex Sans",sans-serif')}
+
+/* =========================================================
+   HALF-LIFE
+   ========================================================= */
+const ISOS=[['strontium-90',29,'y'],['krypton-85',11,'y'],['carbon-14',5730,'y'],['iodine-131',8.0,'d'],['cobalt-60',5.27,'y'],['radium-226',1600,'y']];
+const HL={s:0,t:0,run:false,m0:10,alive:[],hist:[],iso(){return {n:ISOS[this.s][0],h:ISOS[this.s][1],u:ISOS[this.s][2]}}};
+$('#hIso').innerHTML=ISOS.map((x,i)=>`<option value="${i}">${x[0]} (t½ = ${x[1]} ${x[2]==='y'?'years':'days'})</option>`).join('');
+$('#hIso').onchange=e=>{HL.s=+e.target.value;hlReset()};$('#hM').addEventListener('input',e=>{HL.m0=+e.target.value;hlUI()});$('#hGo').onclick=()=>{HL.run=!HL.run;hlUI()};$('#hReset').onclick=hlReset;
+function hlReset(){HL.t=0;HL.run=false;HL.alive=Array(400).fill(true);HL.hist=[[0,400]];hlUI()}
+function hlSim(jump){if(jump){const n=HL.t/HL.iso().h,p=Math.pow(.5,n);HL.alive=HL.alive.map(()=>Math.random()<p);HL.hist=[];for(let k=0;k<=20;k++){const t=HL.t*k/20;HL.hist.push([t,400*Math.pow(.5,t/HL.iso().h)])}HL.hist[HL.hist.length-1][1]=HL.alive.filter(Boolean).length}}
+function hlUI(){const I=HL.iso(),n=HL.t/I.h,f=Math.pow(.5,n),cnt=HL.alive.filter(Boolean).length;$('#hMo').textContent=fx(HL.m0,1)+' g';$('#hT').textContent=`${sf(HL.t,3)} ${I.u==='y'?'years':'days'}`;$('#hN').textContent=fx(n,2);$('#hF').textContent=fx(f,3);$('#hML').textContent=sf(HL.m0*f,3)+' g';$('#hC').textContent=cnt;$('#hGo').textContent=HL.run?'Pause':HL.t>0?'Carry on':'Start';drawHC()}
+function drawHC(){const c=$('#hc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const I=HL.iso(),wide=w>620,gs=wide?Math.min(h-60,w*.4):Math.min(w-40,h*.45),cell=gs/20,gx=wide?24:(w-gs)/2,gy=30;
+ HL.alive.forEach((a,i)=>{const x=gx+(i%20)*cell+cell/2,y=gy+Math.floor(i/20)*cell+cell/2;X.fillStyle=a?C.rose:alpha(C.muted,.35);X.beginPath();X.arc(x,y,cell*.36,0,7);X.fill()});
+ txt(X,`● ${I.n} (parent)   ● decayed (daughter)`,gx,gy-10,C.muted,11.5,'left','alphabetic',600,'"IBM Plex Sans",sans-serif');
+ const L=wide?gx+gs+70:56,T2=wide?30:gy+gs+30,pw=w-L-20,ph=wide?h-80:h-T2-40;if(ph<60)return;const nmax=5,sx=t=>L+t/(I.h*nmax)*pw,sy=v=>T2+ph-v/400*ph;
+ for(let k=0;k<=nmax;k++){X.strokeStyle=C.grid;X.lineWidth=1;X.beginPath();X.moveTo(sx(k*I.h),T2);X.lineTo(sx(k*I.h),T2+ph);X.stroke();txt(X,k?`${k} t½`:'0',sx(k*I.h),T2+ph+15,C.muted,11,'center')}
+ [400,200,100,50].forEach(v=>{X.strokeStyle=C.grid;X.beginPath();X.moveTo(L,sy(v));X.lineTo(L+pw,sy(v));X.stroke();txt(X,v===400?'100 %':v===200?'50 %':v===100?'25 %':'12.5 %',L-6,sy(v)+4,C.muted,11,'right')});
+ X.strokeStyle=C.ink;X.lineWidth=1.5;X.beginPath();X.moveTo(L,T2);X.lineTo(L,T2+ph);X.lineTo(L+pw,T2+ph);X.stroke();
+ X.setLineDash([5,4]);X.strokeStyle=C.muted;X.lineWidth=1.5;X.beginPath();for(let k=0;k<=100;k++){const t=I.h*nmax*k/100;k?X.lineTo(sx(t),sy(400*Math.pow(.5,t/I.h))):X.moveTo(sx(t),sy(400))}X.stroke();X.setLineDash([]);
+ X.strokeStyle=C.rose;X.lineWidth=2.5;X.beginPath();HL.hist.forEach(([t,v],k)=>k?X.lineTo(sx(Math.min(t,I.h*nmax)),sy(v)):X.moveTo(sx(t),sy(v)));X.stroke();
+ txt(X,'nuclei left',L,T2-8,C.ink,11.5,'left','alphabetic',600);txt(X,'N = N₀ (½)ⁿ',L+pw,T2+12,C.muted,13,'right','alphabetic',700)}
+
+/* =========================================================
+   FISSION
+   ========================================================= */
+const FS={nuc:[],neu:[],frag:[],fis:0,rod:0,fuel:150,log:[]};
+$('#fRod').addEventListener('input',e=>{FS.rod=+e.target.value;fsUI()});$('#fFuel').addEventListener('input',e=>{FS.fuel=+e.target.value;fsReset()});
+$('#fGo').onclick=()=>{const G=FS.G;if(!G)return;const x=G.x0+4,y=G.y0+G.hh/2,live=FS.nuc.filter(u=>!u.gone);let tg=live.sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0];const dx=tg?tg.x-x:1,dy=tg?tg.y-y:0,l=Math.hypot(dx,dy)||1;FS.neu.push({x,y,vx:dx/l*260,vy:dy/l*260})};$('#fReset').onclick=fsReset;
+function fsReset(){FS.nuc=[];FS.neu=[];FS.frag=[];FS.fis=0;FS.log=[];FS.need=true;fsUI()}
+function fsLayout(w,h){const x0=20,y0=20,ww=w-40,hh=h-40;FS.G={x0,y0,ww,hh};FS.nuc=[];for(let i=0;i<FS.fuel;i++)FS.nuc.push({x:x0+30+Math.random()*(ww-50),y:y0+10+Math.random()*(hh-20)});FS.need=false}
+function fsUI(){$('#fRodo').textContent=FS.rod+' %';$('#fFuelo').textContent=FS.fuel+' nuclei';$('#fF').textContent=FS.fis;$('#fN').textContent=FS.neu.length;$('#fE').textContent=`${FS.fis*200} MeV`;
+ const recent=FS.log.filter(t=>performance.now()-t<1500).length,st=FS.fis===0?'–':FS.neu.length===0?(FS.fis<4?'subcritical: the reaction died out':'stopped'):recent>18?'supercritical: growing fast':recent>4?'critical: steady':'subcritical';$('#fS').textContent=st;
+ $('#fMsg').innerHTML='Each fission releases about 200 MeV and 2–3 neutrons. If on average more than one of them causes another fission, the chain reaction grows (supercritical); exactly one: steady (critical, like a power station); less than one: it dies out (subcritical). <b>Control rods</b> absorb neutrons. With too little fuel, neutrons escape before they hit a nucleus: below the critical mass.'}
+let FG=null;
+function fsStep(dt){const G=FS.G;if(!G)return;const rods=[0.2,0.35,0.5,0.65,0.8].map(f=>G.x0+G.ww*f),rodLen=G.hh*FS.rod/100;
+ FS.neu.forEach(n=>{n.x+=n.vx*dt;n.y+=n.vy*dt;for(const rx of rods)if(Math.abs(n.x-rx)<8&&n.y<G.y0+rodLen){n.dead=true}
+  for(const u of FS.nuc){if(!u.gone&&Math.hypot(n.x-u.x,n.y-u.y)<15){u.gone=true;n.dead=true;FS.fis++;FS.log.push(performance.now());const k=3;for(let j=0;j<k;j++){const a=Math.random()*6.3;FS.neu.push({x:u.x,y:u.y,vx:Math.cos(a)*240,vy:Math.sin(a)*240})}FS.frag.push({x:u.x,y:u.y,t:0,a:Math.random()*6.3});break}}
+  if(n.x<G.x0||n.x>G.x0+G.ww||n.y<G.y0||n.y>G.y0+G.hh)n.dead=true});
+ FS.neu=FS.neu.filter(n=>!n.dead).slice(0,400);FS.frag.forEach(f=>f.t+=dt);FS.frag=FS.frag.filter(f=>f.t<1.2)}
+function drawFC(){const c=$('#fc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);if(FS.need||!FS.G||FS.G.ww!==w-40)fsLayout(w,h);X.clearRect(0,0,w,h);const G=FS.G;
+ X.strokeStyle=C.line;X.lineWidth=2;X.strokeRect(G.x0,G.y0,G.ww,G.hh);
+ [0.2,0.35,0.5,0.65,0.8].forEach(f=>{const x=G.x0+G.ww*f;X.fillStyle=C.muted;X.fillRect(x-7,G.y0,14,G.hh*FS.rod/100)});
+ FS.nuc.forEach(u=>{if(u.gone)return;X.fillStyle=C.brass;X.beginPath();X.arc(u.x,u.y,6,0,7);X.fill()});
+ FS.frag.forEach(f=>{const d=f.t*60;X.fillStyle=alpha(C.rose,1-f.t/1.2);X.beginPath();X.arc(f.x+Math.cos(f.a)*d,f.y+Math.sin(f.a)*d,4,0,7);X.fill();X.beginPath();X.arc(f.x-Math.cos(f.a)*d,f.y-Math.sin(f.a)*d,3.5,0,7);X.fill();X.fillStyle=`rgba(255,200,80,${.5*(1-f.t/1.2)})`;X.beginPath();X.arc(f.x,f.y,10+f.t*20,0,7);X.fill()});
+ FS.neu.forEach(n=>{X.fillStyle=C.solid;X.beginPath();X.arc(n.x,n.y,2.8,0,7);X.fill()});
+ txt(X,'● U-235   ● neutron   ● fission fragments   ▮ control rod',w/2,h-6,C.muted,11,'center','alphabetic',600,'"IBM Plex Sans",sans-serif')}
+
+/* =========================================================
+   EXERCISE
+   ========================================================= */
+const EXEG=[{k:'eq',v:{Z:'94',A:'238',d:'a'},s:'Write the balanced equation for the alpha decay of plutonium-238.'},{k:'eq',v:{Z:'6',A:'14',d:'bm'},s:'Write the balanced equation for the beta decay of carbon-14.'},{k:'half',v:{m0:'2.000',h:'11',t:'33'},s:'Krypton-85 has a half-life of 11 years. How much of a 2.000 mg sample is left after 33 years?'},{k:'half',v:{m0:'10.0',h:'29',t:'116'},s:'Strontium-90 has a half-life of 29 years. How much of 10.0 g is left after 116 years?'},
+ {k:'trans',v:{z1:'8',a1:'16',z2:'1',a2:'1',z3:'7',a3:'13'},s:'Complete the equation: oxygen-16 + proton → nitrogen-13 + ?'},{k:'trans',v:{z1:'2',a1:'4',z2:'7',a2:'14',z3:'8',a3:'17'},s:'Rutherford’s transmutation: alpha particle + nitrogen-14 → oxygen-17 + ?'}];
+let exk='eq';const ex={v:{},story:null};
+function exBuild(){const v=ex.v;let h='';const inp=(k,l)=>`<label>${l}<input data-v="${k}" inputmode="decimal" autocomplete="off" value="${v[k]??''}"></label>`;
+ if(exk==='eq')h=inp('Z','Atomic number Z')+inp('A','Mass number A')+`<label>Decay<select data-v="d">${Object.entries(DEC).map(([k,d])=>`<option value="${k}"${v.d===k?' selected':''}>${d.n}</option>`).join('')}</select></label>`;
+ if(exk==='half')h=inp('m0','Starting amount')+inp('h','Half-life')+inp('t','Time passed (same unit)');
+ if(exk==='trans')h=inp('z1','Reactant 1: Z')+inp('a1','Reactant 1: A')+inp('z2','Reactant 2: Z')+inp('a2','Reactant 2: A')+inp('z3','Known product: Z')+inp('a3','Known product: A');
+ $('#exF').innerHTML=h;$$('#exF [data-v]').forEach(i=>i.addEventListener(i.tagName==='SELECT'?'change':'input',()=>{ex.v[i.dataset.v]=i.value;ex.story=null;exUpdate()}));exUpdate()}
+const partName=(Z,A)=>Z===0&&A===1?'a neutron, ¹₀n':Z===1&&A===1?'a proton, ¹₁H':Z===2&&A===4?'an alpha particle, ⁴₂He':Z===-1&&A===0?'a beta particle, ⁰₋₁e':Z===1&&A===0?'a positron, ⁰₊₁e':Z>=1&&A>=Z?`${nameOf(Z,A)}, ${iso(Z,A)}`:'(not a real particle)';
+function exSolve(){const v=ex.v,bad=[],I=k=>{const x=num(v[k]);if(!Number.isInteger(x))bad.push(k);return x};let r=null;
+ if(exk==='eq'){const Z=I('Z'),A=I('A');if(!bad.length&&(Z<1||Z>94))bad.push('Z');if(!bad.length&&A<Z)bad.push('A');if(!bad.length){const d=DEC[v.d];r={Z,A,d,nZ:Z+d.dZ,nA:A+d.dA}}}
+ if(exk==='half'){const m0=num(v.m0),h=num(v.h),t=num(v.t);if(!(m0>0))bad.push('m0');if(!(h>0))bad.push('h');if(!(t>=0))bad.push('t');if(!bad.length){const n=t/h;r={m0,h,t,n,m:m0*Math.pow(.5,n)}}}
+ if(exk==='trans'){const z1=I('z1'),a1=I('a1'),z2=I('z2'),a2=I('a2'),z3=I('z3'),a3=I('a3');if(!bad.length){const Z=z1+z2-z3,A=a1+a2-a3;r={Z,A,z1,a1,z2,a2,z3,a3}}}
+ $$('#exF [data-v]').forEach(i=>i.toggleAttribute('aria-invalid',bad.includes(i.dataset.v)));return r}
+function exUpdate(){const r=exSolve();if(!r){$('#exMsg').textContent='Type whole numbers for Z and A (Z from 1 to 94), or positive amounts.';$('#exText').innerHTML='';return null}$('#exMsg').textContent='Ready. Press “Solve it in the lab” to work through it.';if(ex.story){$('#exText').innerHTML=ex.story;return r}const v=ex.v;
+ $('#exText').innerHTML=exk==='eq'?`Write the equation for the ${r.d.n} of ${nameOf(r.Z,r.A)}.`:exk==='half'?`${v.m0} of a radioisotope with t½ = ${v.h}. How much is left after ${v.t}?`:`${iso(r.z1,r.a1)} + ${iso(r.z2,r.a2)} → ${iso(r.z3,r.a3)} + ?`;return r}
+function setExK(k,eg){exk=k;segPick($(`[data-exk="${k}"]`));const d=eg||EXEG.find(e=>e.k===k);ex.v={...d.v};ex.story=d.s;exBuild()}
+$$('[data-exk]').forEach(b=>b.onclick=()=>setExK(b.dataset.exk));let egi=1;$('#exEg').onclick=()=>{const e=EXEG[egi++%EXEG.length];setExK(e.k,e)};
+$('#exSolve').onclick=()=>{const r=exUpdate();if(!r){$('#exMsg').textContent='Fix the red box first.';return}tourGo(exSteps(r))};
+function exSteps(r){const v=ex.v;
+ if(exk==='eq'){const kk=v.d,eq=kk==='ec'?`${iso(r.Z,r.A)} + ⁰₋₁e → ${iso(r.nZ,r.nA)}`:`${iso(r.Z,r.A)} → ${iso(r.nZ,r.nA)} + ${r.d.p}`;return [{title:'Solve it in the lab',html:'<p>In a nuclear equation the mass numbers (top) and the atomic numbers (bottom) add up to the same on both sides.</p>'+calc(`${r.d.n}: particle ${r.d.p}`)},
+  {el:'#bc',title:'On the chart',html:`<p>${nameOf(r.Z,r.A)} on the band-of-stability chart.</p>`,onShow:()=>{go('band');BD.Z=r.Z;BD.A=r.A;BD.hist=[];BD.eq='';BD.msg='';BD.zoom=r.Z<=30;$('#bZoom').checked=BD.zoom;bdUI()},wait:()=>BD.hist.length>0,doIt:()=>bdDecay(kk),doLabel:'Decay it',done:'The arrow shows the change.'},
+  {title:'Balance',html:calc(`mass number: ${r.A} = ${r.nA}${r.d.dA?' + 4':''}\natomic number: ${r.Z} = ${r.nZ}${kk==='a'?' + 2':kk==='bm'?' + (−1)':kk==='bp'?' + 1':' (−1 + 1)'}\nnew element: Z = ${r.nZ} → ${SYM[r.nZ]}`)},
+  {title:'Your answer',html:calc(eq)}]}
+ if(exk==='half'){const sg=Math.max(2,String(v.m0).replace('.','').replace(/^0+/,'').length),S=[{title:'Solve it in the lab',html:calc('n = time ÷ half-life\namount left = starting amount × (½)ⁿ')},{title:'Number of half-lives',html:calc(`n = ${v.t} ÷ ${v.h} = ${sf(r.n,3)}`)},{title:'Amount left',html:calc(`${v.m0} × (½)^${sf(r.n,3)} = ${v.m0} × ${sf(Math.pow(.5,r.n),4)}\n= ${sf(r.m,sg)}`)}];
+  const ii=ISOS.findIndex(x=>Math.abs(x[1]-r.h)<1e-6);if(ii>=0)S.push({el:'#hc',title:'In the lab',html:`<p>The lab runs ${ISOS[ii][0]} for ${v.t} ${ISOS[ii][2]==='y'?'years':'days'}.</p>`,onShow:()=>{go('half');HL.s=ii;$('#hIso').value=ii;hlReset();HL.t=r.t;hlSim(true);hlUI()}});
+  S.push({title:'Your answer',html:calc(`${sf(r.m,sg)} left (same unit as the start)`)});return S}
+ return [{title:'Conservation',html:'<p>Mass numbers and atomic numbers are conserved.</p>'+calc(`A: ${r.a1} + ${r.a2} = ${r.a3} + A  →  A = ${r.A}\nZ: ${r.z1} + ${r.z2} = ${r.z3} + Z  →  Z = ${r.Z}`)},{title:'Your answer',html:calc(`missing: ${partName(r.Z,r.A)}`)}]}
+
+/* =========================================================
+   CHALLENGE
+   ========================================================= */
+const GEN=[
+ ()=>{const n=pick(NUC.filter(x=>x[2]==='a'||x[2]==='bm')),d=DEC[n[2]],z=n[0]+d.dZ,a=n[1]+d.dA;return [`What forms when ${nameOf(n[0],n[1])} undergoes ${d.n}?`,[`${SYM[z]}-${a}`,`${SYM[n[0]-d.dZ]||'?'}-${n[1]-d.dA}`,`${SYM[z]}-${n[1]}`,`${SYM[n[0]]}-${a}`].filter((x,i,arr)=>arr.indexOf(x)===i).concat([`${SYM[z+1]}-${a}`]).slice(0,4),0,`${d.n}: Z ${d.dZ>0?'+':''}${d.dZ}, A ${d.dA?d.dA:'unchanged'} → ${nameOf(z,a)}.`]},
+ ()=>{const n=pick(NUC),m=n[2];return [`${nameOf(n[0],n[1])} decays by…`,[DEC[m].n,...Object.values(DEC).map(d=>d.n).filter(x=>x!==DEC[m].n)],0,m==='bm'?'Too many neutrons: beta decay.':m==='a'?'Heavy nucleus: alpha decay.':'Too few neutrons: positron emission or electron capture.']},
+ ()=>{const m0=pick([8,10,16,20,40]),n=pick([1,2,3,4]);return [`A ${m0} g sample goes through ${n} half-lives. How much is left?`,uniq(m0*Math.pow(.5,n),[m0/(2*n),m0*Math.pow(.5,n+1),m0-m0/2*n],' g'),0,`${m0} × (½)^${n} = ${sf(m0*Math.pow(.5,n))} g.`]},
+ ()=>pick([
+  ['Which radiation is stopped by a sheet of paper?',['alpha','beta','gamma','X-rays'],0,'Alpha particles are large and doubly charged.'],
+  ['Which radiation has no charge and no mass?',['gamma','alpha','beta','positron'],0,'Gamma rays are high-energy electromagnetic waves.'],
+  ['In an electric field, which radiation is deflected most?',['beta','alpha','gamma','neutrons'],0,'Beta particles are very light, so they bend most (towards the + plate).'],
+  ['What holds the nucleus together?',['the strong nuclear force','electrostatic attraction between protons','gravity','the electron cloud'],0,'It acts between nucleons over very short distances and beats the repulsion of the protons.'],
+  ['Fusion in the Sun joins…',['hydrogen nuclei into helium','uranium nuclei into lead','helium into hydrogen','carbon into oxygen'],0,'Very high temperatures (about 15 million K) are needed.'],
+  ['Control rods in a reactor…',['absorb neutrons','produce neutrons','cool the reactor','contain the fuel'],0,'Fewer neutrons means fewer fissions.']])];
+
+/* =========================================================
+   START
+   ========================================================= */
+function drawAll(){if(!C.ink)readColors();if(tab==='band')drawBC();if(tab==='half')drawHC();if(tab==='fis')drawFC()}
+addEventListener('resize',drawAll);let lastF=0;
+function loop(t){const dt=Math.min(.05,(t-(lastF||t))/1000);lastF=t;
+ if(tab==='band'&&BD.ser&&BD.anim&&t-BD.anim>700){BD.anim=t;bdDecay(SER[BD.sk++]);if(BD.sk>=SER.length){BD.ser=false;BD.msg+=' <b>Series complete:</b> lead-206 is stable.';bdUI()}}
+ if(tab==='half'&&HL.run){const I=HL.iso(),dtt=I.h*dt/2.5,p=1-Math.pow(.5,dtt/I.h);HL.t+=dtt;HL.alive=HL.alive.map(a=>a&&Math.random()>p);HL.hist.push([HL.t,HL.alive.filter(Boolean).length]);if(HL.t>=I.h*5)HL.run=false;if(t-(loop.h||0)>120){loop.h=t;hlUI()}else drawHC()}
+ if(tab==='fis'){fsStep(dt);drawFC();if(t-(loop.f||0)>300){loop.f=t;fsUI()}}requestAnimationFrame(loop)}
+if(window.LabParts){window.__lp=LabParts.attach({key:'nuclear',wrap:$('#bc').parentElement,stage:$('#bc'),bar:$('#bBar'),max:2,parts:()=>{const G=BG;if(!G)return [];return [
+ {id:'band',name:'Band of stability',what:'Stable nuclei lie in this green band. Light nuclei have N ≈ Z; heavy ones need more neutrons (up to about 1.5 : 1).',hint:'The green strip.',q:'Where are the stable nuclei?',x:G.sx(BD.zoom?15:50),y:G.sy(bandN(BD.zoom?15:50)),boxes:[[G.sx(BD.zoom?8:30),G.sy(bandN(BD.zoom?25:70)),G.sx(BD.zoom?25:70),G.sy(bandN(BD.zoom?8:30))]]},
+ {id:'dot',name:'Your nucleus',what:'Its proton and neutron numbers. Each decay moves it on the chart.',hint:'The blue dot.',q:'Where is the chosen nucleus?',x:G.sx(BD.Z),y:G.sy(BD.A-BD.Z),boxes:[[G.sx(BD.Z)-12,G.sy(BD.A-BD.Z)-12,G.sx(BD.Z)+12,G.sy(BD.A-BD.Z)+12]]}]}})}
+readColors();BD.zoom=true;$('#bZoom').checked=true;bdUI();hlReset();fsUI();setExK('eq');nextQ();themeLabel();requestAnimationFrame(loop);
+
+</script>
+<script src="tour.js" defer></script>
+<script src="lab-guide.js" defer></script>
+</body></html>

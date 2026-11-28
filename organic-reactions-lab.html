@@ -1,0 +1,444 @@
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Organic Reactions and Polymers</title>
+<meta name="description" content="See substitution, elimination, addition, condensation and oxidation reactions of ethane, ethene, ethanol and their relatives drawn as structural formulas, then build addition and condensation polymers chain by chain. Exercise solver and challenge.">
+<!-- og -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mr Khaled · Science Simulations">
+<meta property="og:title" content="Organic Reactions and Polymers · Mr Khaled">
+<meta property="og:description" content="See substitution, elimination, addition, condensation and oxidation reactions of ethane, ethene, ethanol and their relatives drawn as structural formulas, then build addition and condensation polymers chain by chain. Exercise solver and challenge.">
+<meta property="og:url" content="https://khaledbadra957-beep.github.io/simulation/organic-reactions-lab.html">
+<meta property="og:image" content="https://khaledbadra957-beep.github.io/simulation/og/organic-reactions-lab.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Organic Reactions and Polymers: a picture of the lab">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- /og -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench layout as the other labs. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --a:#2F6FD0; --b:#D88A1C; --prod:#1E8A55; --rose:#C2185B;
+  --brass:#B8913A; --brass-soft:rgba(233,196,106,.45);
+  --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
+#beaker{height:clamp(300px,34vw,340px)}
+.mkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:.85rem;color:var(--muted)}.mkey i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+#kg{height:260px}
+#eg{height:250px;cursor:crosshair}
+.pred{display:flex;gap:6px;flex-wrap:wrap}
+.pred button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700}
+.pred button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pred button:hover{border-color:var(--accent)}
+.ans select{max-width:100%}
+
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%;align-self:flex-start}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.ans input{width:8em}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8125rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+tr.pick td{background:var(--brass-soft)}
+tbody tr{cursor:pointer}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body);cursor:default}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0;font-size:.92rem}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.15rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+.runs{display:flex;flex-wrap:wrap;gap:6px}
+.runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas.stage{border:0;border-radius:0}
+.stage-ui .sc-read{position:absolute;top:12px;right:12px;z-index:2;width:250px;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+@media (max-width:1100px){.stage-ui .sc-read{width:200px}}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{top:auto;bottom:8px;right:8px;width:170px;padding:6px 8px}.stage-ui .sc-read .readouts{gap:2px 8px}.stage-ui .sc-read dt{font-size:11.5px}.stage-ui .sc-read dd{font-size:12.5px}.stage-ui .sc-read div[style]{display:none}}
+.stage-ui .panel input[type=range]{height:22px}
+.stage-ui .panel .field{gap:0}
+.stage-ui .sc-read dd{white-space:nowrap;font-size:.92rem}
+.stage-ui .sc-read{width:290px}
+.stage-ui .sc-read div[style] dd{white-space:normal;font-size:.85rem}
+.stage-ui #runs:empty{display:none}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{display:none}}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui #beaker,.stage-ui #kg{height:auto}
+.stage-ui .play > .extra.tall{height:clamp(170px,32vh,290px)}
+.stage-ui .sc-eq{position:absolute;top:12px;left:14px;z-index:2;font-weight:600;font-size:15px;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+.stage-ui .scene .mkey{position:absolute;left:14px;bottom:10px;z-index:2;font-size:12.5px;background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 10px;border-radius:8px}
+.stage-ui .seg{width:100%;align-self:stretch}
+.stage-ui .transport .seg{width:auto}
+.stage-ui .gh .seg{width:auto}
+.stage-ui .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stage-ui .small{font-size:13px}
+.stage-ui .btn.small{min-height:34px;font-size:13.5px;padding:0 10px}
+.stage-ui .pred{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stage-ui .status{font-size:13.5px;padding:7px 10px}
+.stage-ui .readouts{gap:6px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .sol{font-size:12.5px;padding:8px 10px}
+.stage-ui .morein{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .flabel{font-size:14px}
+.stage-ui .solo-in > .benchhead{margin-top:4px}
+.stage-ui #eg{height:260px;border:1px solid var(--line);border-radius:10px}
+.stage-ui .solo-in{padding:8px 4px 20px}
+.stage-ui .solo-in .card{background:var(--surface)}
+.stage-ui #exSolve svg{flex:none}
+.stage-ui details.own summary{cursor:pointer;font-weight:700;list-style:none}.stage-ui details.own summary::-webkit-details-marker{display:none}.stage-ui details.own summary::before{content:"+ ";font-family:var(--data)}.stage-ui details.own[open] summary::before{content:"− "}
+.stage-ui .ownf{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 18px;margin:10px 0}
+.stage-ui .ownf label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.stage-ui .ownf label.ck{flex-direction:row;align-items:center;gap:8px;align-self:end;min-height:38px}
+.stage-ui .ownf span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .ownf input[type=number],.stage-ui .ownf select{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .ownf input[aria-invalid="true"]{border-color:var(--bad)}
+@media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.tall{height:220px}.stage-ui .scene .mkey{display:none}.stage-ui .sc-eq{font-size:12.5px;top:8px;left:8px}}
+
+
+/* ---------- this lab ---------- */
+:root{--fill:#0A6A88;--hot:#D9534F;--cold:#3D7BE0;--solid:#3D7BE0;--liq:#0A8A7A;--gas:#C2571A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}}
+:root[data-theme="dark"]{--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}
+.rule{font-size:.9rem;line-height:1.35;margin:0;padding:7px 10px;border-radius:9px;background:var(--surface);border:1.5px solid var(--line)}
+.rule.ok{border-color:var(--ok)}.rule.ok b{color:var(--ok)}.rule.bad{border-color:var(--bad)}
+.stage-ui .play > .extra.mid{height:clamp(150px,27vh,250px)}
+.eqn{font:600 1.1rem var(--data);margin:2px 0 4px}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px 14px}
+.exgrid label{display:flex;flex-direction:column;gap:3px;font-size:.88rem;color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.exgrid input[aria-invalid]{border-color:var(--bad)}
+.panel select{font:600 14px var(--data);padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);width:100%}
+.key{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;color:var(--muted);margin:4px 0 0}.key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}.btnrow .btn{padding:6px 10px}
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css"></head><body>
+
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Organic Reactions and Polymers</h1>
+ <span class="tb-tag">Chemistry · G12</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button id="fsBtn" type="button" hidden></button><button id="themeBtn" type="button" hidden></button>
+<div class="tabs" role="tablist" hidden>
+ <button class="tab" role="tab" aria-selected="true" data-tab="rx" aria-controls="p-rx">Reaction types</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="poly" aria-controls="p-poly">Polymers</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Exercise</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">Challenge</button>
+</div>
+<main class="screens">
+ <section class="screen" id="p-rx" data-screens="intro rx" role="tabpanel">
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="rc" aria-label="Structural formulas of the reactants, the reagent and conditions on the arrow, and the products"></canvas></div>
+   <div class="transport" id="rBar"><button class="btn primary" id="rGo" type="button">React</button><button class="btn" id="rBack" type="button">Before</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Reaction</h2><div class="field"><label class="flabel" for="rR">Choose</label><select id="rR"></select></div>
+    <div class="seg" role="group" aria-label="Filter" id="rType" style="flex-wrap:wrap"><button type="button" data-ty="" aria-pressed="true">All</button><button type="button" data-ty="Substitution" aria-pressed="false">Substitution</button><button type="button" data-ty="Elimination" aria-pressed="false">Elimination</button><button type="button" data-ty="Addition" aria-pressed="false">Addition</button><button type="button" data-ty="Condensation" aria-pressed="false">Condensation</button><button type="button" data-ty="Oxidation" aria-pressed="false">Oxidation</button></div>
+    <p class="rule" id="rMsg"></p></section>
+  </aside>
+ </section>
+ <section class="screen" id="p-poly" data-screens="poly" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="pc" aria-label="A polymer chain growing from monomers"></canvas></div>
+   <div class="transport" id="pBar"><button class="btn primary" id="pAdd" type="button">Add a monomer</button><button class="btn" id="pAuto" type="button">Grow it</button><button class="btn" id="pReset" type="button">Start again</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Monomer</h2><div class="field"><label class="flabel" for="pM">Choose</label><select id="pM"></select></div><p class="rule" id="pMsg"></p></section>
+   <section class="group"><h2>The chain</h2><dl class="readouts"><div><dt>Monomers joined</dt><dd id="pN">–</dd></div><div><dt>Molar mass</dt><dd id="pMM">–</dd></div><div><dt>Water released</dt><dd id="pW">–</dd></div><div><dt>Recycling code</dt><dd id="pCode">–</dd></div></dl></section>
+  </aside>
+ </section>
+ <section class="screen solo" id="p-ex" data-screens="ex" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button>
+   <button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+  <div class="card"><div class="field"><span class="flabel">Kind of exercise</span>
+   <div class="seg" role="group" aria-label="Kind of exercise" id="exKSeg" style="width:auto;flex-wrap:wrap"><button type="button" data-exk="rx" aria-pressed="true">Predict the product</button><button type="button" data-exk="poly" aria-pressed="false">Polymer</button></div></div>
+   <div class="exgrid" id="exF"></div><p class="note" id="exMsg"></p><p id="exText" class="q" style="font-size:1rem"></p></div>
+ </div></section>
+ <section class="screen solo" id="p-chal" data-screens="chal" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
+  <p class="q" id="qText"></p><div class="opts" id="qOpts"></div><p class="status" id="qStatus" aria-live="polite" hidden></p>
+  <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
+ </div></section>
+</main>
+<p class="vh">Reaction types and polymers from Inspire Chemistry Module 21 (Tables 6, 12, 13 and 14).</p>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'rx', simple: true }, { id: 'rx', name: 'Reaction types', tab: 'rx' }, { id: 'poly', name: 'Polymers', tab: 'poly' }, { id: 'ex', name: 'Exercise', tab: 'ex' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ], tour: [ { el: '#rR', title: 'Choose a reaction', text: 'Reactants, reagent and conditions.' }, { el: '#rGo', title: 'React', text: 'The atoms that change are coloured.' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fx=(x,d=2)=>Number(x).toFixed(d);
+const sup=e=>String(e).split('').map(ch=>ch==='-'?'⁻':ch==='+'?'⁺':'⁰¹²³⁴⁵⁶⁷⁸⁹'[+ch]).join('');
+const sci=(v,d=2)=>{if(!isFinite(v))return '–';if(v===0)return '0';let e=Math.floor(Math.log10(Math.abs(v)));let m=v/Math.pow(10,e);if(Math.abs(+m.toFixed(d))>=10){m/=10;e++}return `${m.toFixed(d)} × 10${sup(e)}`};
+/* number input: 4.86e-7, 4.86×10^-7, 4.86x10-7, commas */
+function num(s){if(s==null)return NaN;s=String(s).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/[()]/g,'').replace(/\s/g,'');s=s.replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return s===''?NaN:Number(s)}
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+let C={};
+function readColors(){const s=getComputedStyle(root);['stage','surface','ink','muted','line','grid','accent','brass','rose','ok','bad','a','b','prod','fill','hot','cold','solid','liq','gas'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+new MutationObserver(()=>themeLabel()).observe(root,{attributes:true,attributeFilter:['data-theme']});
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='rx';
+const TABS=["rx", "poly", "ex", "chal"];
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));TABS.forEach(t=>$('#p-'+t).hidden=t!==tab);drawAll()});
+$('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen?.()}catch(e){}$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)};
+document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)});
+function segPick(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===btn))}
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function txt(x,s,a,b,col,size=12,align='left',base='alphabetic',wt=500,fam='"IBM Plex Mono",monospace'){x.fillStyle=col;x.font=`${wt} ${size}px ${fam}`;x.textAlign=align;x.textBaseline=base;x.fillText(s,a,b)}
+const go=id=>{const b=document.querySelector('.lg-nav [data-ph="'+id+'"]');if(b&&root.getAttribute('data-screen')!==id)b.click();else{const t=LAB.screens.find(s=>s.id===id);if(t){const tb=document.querySelector('.tab[data-tab="'+t.tab+'"]');if(tb&&tab!==t.tab)tb.click()}}};
+
+
+/* ---------- shared: challenge ---------- */
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const sf=(v,n=3)=>{if(!isFinite(v))return '–';const a=Math.abs(v);if(a>=1e5||(a<1e-3&&a>0))return sci(v,n-1);if(a>=1000)return Math.round(v).toLocaleString('en-US');return v.toPrecision(n)};
+const uniq=(right,wr,unit,f=sf)=>{const s=[right,...wr].map(x=>f(x)+unit),o=[];s.forEach(x=>{if(!o.includes(x))o.push(x)});let k=1;while(o.length<4){const x=f(right*(1+.37*k++))+unit;if(!o.includes(x))o.push(x)}return o.slice(0,4)};
+const calc=t=>'<div class="t-calc">'+t+'</div>';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function rrect(X,x,y,w,h,r){r=Math.min(r,w/2,h/2);X.beginPath();X.moveTo(x+r,y);X.arcTo(x+w,y,x+w,y+h,r);X.arcTo(x+w,y+h,x,y+h,r);X.arcTo(x,y+h,x,y,r);X.arcTo(x,y,x+w,y,r);X.closePath()}
+const hex=s=>{s=(s||'#888').trim().replace('#','');if(s.length===3)s=s.split('').map(c=>c+c).join('');const n=parseInt(s,16);return [n>>16&255,n>>8&255,n&255]};
+const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*clamp(t,0,1))).join(',')})`};
+const alpha=(c,a)=>{const A=hex(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const mns=v=>String(v).replace(/-/g,'−');
+let score=0,tries=0,answered=false,lastG=-1;
+function nextQ(){let g_;do{g_=rint(0,GEN.length-1)}while(g_===lastG&&GEN.length>1);lastG=g_;const q=GEN[g_]();answered=false;
+ $('#qText').textContent=q[0];$('#qStatus').hidden=true;const opts=shuffle(q[1].map((t,k)=>({t,k})));
+ $('#qOpts').innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;b.onclick=()=>{if(answered)return;answered=true;tries++;
+  const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
+  const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
+$('#qNext').onclick=nextQ;
+function tourGo(steps){if(!window.Tour)return;setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+
+/* =========================================================
+   STRUCTURAL FORMULAS
+   ========================================================= */
+const MOL={
+ ethane:{n:'ethane',a:[['C','H','H','H'],['C','H','H','H']],b:[1]},chloroethane:{n:'chloroethane',a:[['C','H','H','H'],['C','H','H','Cl']],b:[1]},bromoethane:{n:'bromoethane',a:[['C','H','H','H'],['C','H','H','Br']],b:[1]},
+ ethanol:{n:'ethanol',a:[['C','H','H','H'],['C','H','H','OH']],b:[1]},ethylamine:{n:'ethanamine (ethylamine)',a:[['C','H','H','H'],['C','H','H','NH2']],b:[1]},
+ ethene:{n:'ethene',a:[['C','H','H',null],['C','H','H',null]],b:[2]},dibromo:{n:'1,2-dibromoethane',a:[['C','H','H','Br'],['C','H','H','Br']],b:[1]},
+ acid:{n:'ethanoic acid',a:[['C','H','H','H'],['C','=O',null,'OH']],b:[1]},ethanal:{n:'ethanal',a:[['C','H','H','H'],['C','=O',null,'H']],b:[1]},
+ ester:{n:'ethyl ethanoate',a:[['C','H','H','H'],['C','=O',null,null],['O',null,null,null],['C','H','H',null],['C','H','H','H']],b:[1,1,1,1]}};
+const RX=[
+ {n:'Ethane + chlorine (UV light)',type:'Substitution',R:['ethane','Cl₂'],P:['chloroethane','HCl'],c:'UV light',hl:{chloroethane:['1:end']},m:'A Cl atom takes the place of one H atom (halogenation). The H joins the other Cl to make HCl.'},
+ {n:'Bromoethane + hydroxide ion',type:'Substitution',R:['bromoethane','OH⁻'],P:['ethanol','Br⁻'],c:'NaOH(aq)',hl:{ethanol:['1:end']},m:'The OH⁻ ion replaces the Br atom: an alkyl halide becomes an alcohol.'},
+ {n:'Chloroethane + ammonia',type:'Substitution',R:['chloroethane','NH₃'],P:['ethylamine','HCl'],c:'',hl:{ethylamine:['1:end']},m:'NH₂ from ammonia replaces Cl: an alkyl halide becomes an amine.'},
+ {n:'Ethane → ethene (dehydrogenation)',type:'Elimination',R:['ethane'],P:['ethene','H₂'],c:'heat, catalyst',hl:{ethene:['b0']},m:'Two H atoms (one from each carbon) are removed and a C=C double bond forms. This is how ethene for polyethene is made.'},
+ {n:'Ethanol → ethene (dehydration)',type:'Elimination',R:['ethanol'],P:['ethene','H₂O'],c:'conc. H₂SO₄, heat',hl:{ethene:['b0']},m:'H and OH from neighbouring carbons leave as water, leaving a double bond.'},
+ {n:'Bromoethane + OH⁻ in ethanol, heat',type:'Elimination',R:['bromoethane','OH⁻'],P:['ethene','H₂O','Br⁻'],c:'in ethanol, heat',hl:{ethene:['b0']},m:'With hot ethanol as the solvent, HBr is eliminated instead of substituted (dehydrohalogenation).'},
+ {n:'Ethene + water (hydration)',type:'Addition',R:['ethene','H₂O'],P:['ethanol'],c:'H⁺ catalyst',hl:{ethanol:['0:end','1:end']},m:'H and OH add across the double bond. One product only: that is typical of addition.'},
+ {n:'Ethene + hydrogen (hydrogenation)',type:'Addition',R:['ethene','H₂'],P:['ethane'],c:'Ni or Pt catalyst',hl:{ethane:['0:end','1:end']},m:'H₂ adds across C=C: the alkene becomes an alkane (used to harden vegetable oils).'},
+ {n:'Ethene + hydrogen bromide',type:'Addition',R:['ethene','HBr'],P:['bromoethane'],c:'',hl:{bromoethane:['0:end','1:end']},m:'H adds to one carbon and Br to the other: an alkyl halide forms.'},
+ {n:'Ethene + bromine (bromine water)',type:'Addition',R:['ethene','Br₂'],P:['dibromo'],c:'',hl:{dibromo:['0:end','1:end']},m:'Br₂ adds across the double bond. The brown colour of bromine water disappears: the test for C=C.'},
+ {n:'Ethanoic acid + ethanol (esterification)',type:'Condensation',R:['acid','ethanol'],P:['ester','H₂O'],c:'conc. H₂SO₄',hl:{ester:['2:atom']},m:'OH from the acid and H from the alcohol leave as water; the two molecules join through an O atom (ester link).'},
+ {n:'Ethanol → ethanal (oxidation)',type:'Oxidation',R:['ethanol','[O]'],P:['ethanal','H₂O'],c:'K₂Cr₂O₇ / H⁺',hl:{ethanal:['1:up']},m:'Oxidation removes H atoms (or adds O): a primary alcohol becomes an aldehyde. The dichromate turns from orange to green.'},
+ {n:'Ethanal → ethanoic acid (oxidation)',type:'Oxidation',R:['ethanal','[O]'],P:['acid'],c:'K₂Cr₂O₇ / H⁺',hl:{acid:['1:end']},m:'Further oxidation adds an O atom: the aldehyde becomes a carboxylic acid.'}];
+function molExt(m,D){const n=m.a.length,half=(n-1)/2*D*1.25,ex=s=>s==='OH'||s==='NH2'?D*.85:0,l=half+(m.a[0][3]?D+ex(m.a[0][3]):D*.5)+D*.4,r=half+(m.a[n-1][3]?D+ex(m.a[n-1][3]):D*.5)+D*.4;return [l,r]}
+function molW(m,D){const e=molExt(m,D);return e[0]+e[1]}
+function drawMol(X,key,cx,cy,D,hl=[]){const m=MOL[key],n=m.a.length,xs=m.a.map((_,i)=>cx+(i-(n-1)/2)*D*1.25),col=k=>hl.includes(k)?C.accent:C.ink,fsz=Math.max(12,D*.42);
+ const atom=(x,y,t,c)=>{X.fillStyle=C.stage;X.beginPath();X.arc(x,y,fsz*.62,0,7);X.fill();txt(X,t,x,y+fsz*.36,c,fsz,'center','alphabetic',700)};
+ const bond=(x1,y1,x2,y2,o,c)=>{const dx=x2-x1,dy=y2-y1,l=Math.hypot(dx,dy),px=-dy/l,py=dx/l,sh=fsz*.62;X.strokeStyle=c;X.lineWidth=2.2;for(let k=0;k<o;k++){const of=(k-(o-1)/2)*5;X.beginPath();X.moveTo(x1+dx/l*sh+px*of,y1+dy/l*sh+py*of);X.lineTo(x2-dx/l*sh+px*of,y2-dy/l*sh+py*of);X.stroke()}};
+ for(let i=0;i<n-1;i++)bond(xs[i],cy,xs[i+1],cy,m.b[i],hl.includes('b'+i)?C.accent:C.ink);
+ m.a.forEach(([el,up,dn,end],i)=>{const sp2=(m.b[i]===2)||(m.b[i-1]===2),side=i===0?-1:1;
+  const pos={up:sp2?[side*.55,-.85]:[0,-1],down:sp2?[side*.55,.85]:[0,1],end:[side,0]};
+  [['up',up],['down',dn],['end',(i===0||i===n-1)?end:null]].forEach(([p,s])=>{if(!s)return;const [ux,uy]=pos[p],x=xs[i]+ux*D,y=cy+uy*D,c=col(i+':'+p);
+   if(s==='=O'){bond(xs[i],cy,x,y,2,c);atom(x,y,'O',c)}
+   else if(s==='OH'){bond(xs[i],cy,x,y,1,c);atom(x,y,'O',c);const hx=x+ux*D*.8,hy=y+uy*D*.8+(ux===0?0:0);bond(x,y,hx,hy,1,c);atom(hx,hy,'H',c)}
+   else if(s==='NH2'){bond(xs[i],cy,x,y,1,c);atom(x,y,'N',c);bond(x,y,x+ux*D*.8,y+uy*D*.8,1,c);atom(x+ux*D*.8,y+uy*D*.8,'H',c);bond(x,y,x,y+D*.8,1,c);atom(x,y+D*.8,'H',c)}
+   else{bond(xs[i],cy,x,y,1,c);atom(x,y,s,c)}});
+  atom(xs[i],cy,el,hl.includes(i+':atom')?C.accent:C.ink)});
+ txt(X,m.n,cx,cy+D*1.9,C.muted,Math.max(11,D*.3),'center','alphabetic',600,'"IBM Plex Sans",sans-serif')}
+const OR={r:0,t:0,anim:null,ty:''};
+function rList(){return RX.map((r,i)=>[r,i]).filter(([r])=>!OR.ty||r.type===OR.ty)}
+function rSel(){$('#rR').innerHTML=rList().map(([r,i])=>`<option value="${i}"${i===OR.r?' selected':''}>${r.n}</option>`).join('')}
+$('#rR').onchange=e=>{OR.r=+e.target.value;OR.t=0;OR.anim=null;orUI()};$$('[data-ty]').forEach(b=>b.onclick=()=>{OR.ty=b.dataset.ty;segPick(b);const L=rList();if(!L.some(([r,i])=>i===OR.r))OR.r=L[0][1];OR.t=0;rSel();orUI()});
+$('#rGo').onclick=()=>{OR.anim=performance.now();OR.t=0};$('#rBack').onclick=()=>{OR.t=0;OR.anim=null;orUI()};
+function orUI(){rSel();const R=RX[OR.r];$('#rMsg').innerHTML=`<b>${R.type}.</b> ${OR.t>=1?R.m:'Press <b>React</b>.'}`;drawRC()}
+let RG=null;
+function drawRC(){const c=$('#rc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const R=RX[OR.r],e=OR.t;
+ const items=[...R.R,'→',...(e>=1?R.P:[])];const D0=60;X.font='700 22px "IBM Plex Mono",monospace';
+ const wOf=(it,D)=>it==='→'?Math.max(w<520?64:110,X.measureText(R.c).width*(w<520?.45:.7)+30):MOL[it]?molW(MOL[it],D):X.measureText(it).width*(D/50)+20;
+ const plus=26,two=w<640,rowW=(list,D)=>list.reduce((a,it)=>a+wOf(it,D),0)+plus*(list.length-1);
+ const drawRow=(list,isProd,cy,D)=>{let x=w/2-rowW(list,D)/2;list.forEach((it,k)=>{const ww=wOf(it,D);X.globalAlpha=isProd?Math.min(1,e):1;if(MOL[it])drawMol(X,it,x+molExt(MOL[it],D)[0],cy,D,isProd?(R.hl[it]||[]):[]);else txt(X,it,x+ww/2,cy+D*.15,isProd?C.accent:C.ink,Math.max(14,D*.42),'center','alphabetic',700);X.globalAlpha=1;x+=ww;if(k<list.length-1){txt(X,'+',x+plus/2,cy+6,C.muted,20,'center','alphabetic',700);x+=plus}})};
+ if(two){let D=D0;while(Math.max(rowW(R.R,D),rowW(R.P,D))>w-16&&D>12)D-=1;D=Math.min(D,h*.12);const y1=h*.27,y2=h*.74,ym=h*.5;RG={cy:ym};drawRow(R.R,false,y1,D);X.strokeStyle=C.ink;X.lineWidth=2.5;X.beginPath();X.moveTo(w/2,ym-22);X.lineTo(w/2,ym+18);X.stroke();X.beginPath();X.moveTo(w/2,ym+22);X.lineTo(w/2-6,ym+12);X.lineTo(w/2+6,ym+12);X.closePath();X.fillStyle=C.ink;X.fill();if(R.c)txt(X,R.c,w/2+12,ym+4,C.muted,12,'left','alphabetic',600,'"IBM Plex Sans",sans-serif');if(e>=1)drawRow(R.P,true,y2,D);else txt(X,'press React',w/2,y2,C.muted,12,'center','alphabetic',600,'"IBM Plex Sans",sans-serif')}
+ else{const all=[...R.R,'→',...R.P];const tot=D=>all.reduce((s,it)=>s+wOf(it,D),0)+plus*(all.length-2);let D=D0;while(tot(D)>w-20&&D>12)D-=1;
+ let x=w/2-tot(D)/2,cy=h*.45;RG={cy};
+ all.forEach((it,k)=>{const ww=wOf(it,D),isP=k>R.R.length;if(it==='→'){X.strokeStyle=C.ink;X.lineWidth=2.5;X.beginPath();X.moveTo(x+8,cy);X.lineTo(x+ww-8,cy);X.stroke();X.beginPath();X.moveTo(x+ww-8,cy);X.lineTo(x+ww-18,cy-6);X.lineTo(x+ww-18,cy+6);X.closePath();X.fillStyle=C.ink;X.fill();if(R.c)txt(X,R.c,x+ww/2,cy-12,C.muted,Math.max(11,D*.24),'center','alphabetic',600,'"IBM Plex Sans",sans-serif')}
+  else if(!isP||e>=1){X.globalAlpha=isP?Math.min(1,e):1;if(MOL[it])drawMol(X,it,x+molExt(MOL[it],D)[0],cy,D,isP?(R.hl[it]||[]):[]);else txt(X,it,x+ww/2,cy+D*.15,isP?C.accent:C.ink,Math.max(14,D*.42),'center','alphabetic',700);X.globalAlpha=1}
+  x+=ww;if(k<all.length-1&&all[k+1]!=='→'&&it!=='→'){if(!isP||e>=1)txt(X,'+',x+plus/2,cy+6,C.muted,20,'center','alphabetic',700);x+=plus}});
+ if(e<1)txt(X,'products appear when you press React',w*.75,cy,C.muted,12,'center','alphabetic',600,'"IBM Plex Sans",sans-serif')}
+ txt(X,R.type.toUpperCase(),w/2,28,{Substitution:C.solid,Elimination:C.rose,Addition:C.ok,Condensation:C.brass,Oxidation:C.hot}[R.type],15,'center','alphabetic',800,'"IBM Plex Sans",sans-serif')}
+
+/* =========================================================
+   POLYMERS
+   ========================================================= */
+const MON=[{n:'ethene',p:'polyethene (PE)',s:['H','H','H','H'],M:28.05,code:'2 (HDPE) or 4 (LDPE)',use:'bags, bottles, film'},{n:'propene',p:'polypropene (PP)',s:['H','H','H','CH₃'],M:42.08,code:'5',use:'containers, ropes, car parts'},{n:'chloroethene (vinyl chloride)',p:'poly(vinyl chloride) (PVC)',s:['H','H','H','Cl'],M:62.50,code:'3',use:'pipes, window frames, flooring'},
+ {n:'phenylethene (styrene)',p:'polystyrene (PS)',s:['H','H','H','C₆H₅'],M:104.15,code:'6',use:'foam cups, packaging'},{n:'tetrafluoroethene',p:'polytetrafluoroethene (PTFE)',s:['F','F','F','F'],M:100.02,code:'7 (other)',use:'non-stick pans'},{n:'propenenitrile (acrylonitrile)',p:'polyacrylonitrile',s:['H','H','H','CN'],M:53.06,code:'7 (other)',use:'acrylic fibres'},
+ {n:'nylon-6,6 (diacid + diamine)',p:'nylon-6,6',cond:true,A:['HOOC–(CH₂)₄–COOH',146.14],B:['H₂N–(CH₂)₆–NH₂',116.21],link:'amide',code:'7 (other)',use:'clothing, ropes'},{n:'PET (diol + diacid)',p:'polyethylene terephthalate (PET)',cond:true,A:['HOOC–C₆H₄–COOH',166.13],B:['HO–CH₂CH₂–OH',62.07],link:'ester',code:'1',use:'drink bottles, fibres'}];
+const PL={m:0,n:0,anim:null,auto:false};
+$('#pM').innerHTML=MON.map((m,i)=>`<option value="${i}">${m.n}</option>`).join('');$('#pM').onchange=e=>{PL.m=+e.target.value;PL.n=0;plUI()};
+$('#pAdd').onclick=()=>{if(PL.n<40){PL.n++;PL.anim=performance.now();plUI()}};$('#pAuto').onclick=()=>{PL.auto=!PL.auto;$('#pAuto').textContent=PL.auto?'Stop':'Grow it'};$('#pReset').onclick=()=>{PL.n=0;PL.auto=false;$('#pAuto').textContent='Grow it';plUI()};
+function plMass(m,n){if(!m.cond)return n*m.M;let s=0;for(let i=0;i<n;i++)s+=i%2?m.B[1]:m.A[1];return s-Math.max(0,n-1)*18.02}
+function plUI(){const m=MON[PL.m];$('#pM').value=PL.m;$('#pN').textContent=PL.n;$('#pMM').textContent=PL.n?sf(plMass(m,PL.n),4)+' g/mol':'–';$('#pW').textContent=m.cond?Math.max(0,PL.n-1)+' H₂O':'none (addition)';$('#pCode').textContent=m.code;
+ $('#pMsg').innerHTML=m.cond?`<b>Condensation polymer:</b> each new link (${m.link}) releases one water molecule. Two different monomers alternate. Uses: ${m.use}.`:`<b>Addition polymer:</b> the C=C double bond of ${m.n} opens and the monomers join end to end. Nothing is released, so the polymer has the same atoms as the monomers. The repeating unit (in brackets) is the monomer with its double bond opened. Uses: ${m.use}.`;drawPC()}
+function drawPC(){const c=$('#pc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const m=MON[PL.m],t=PL.anim?clamp((performance.now()-PL.anim)/600,0,1):1,cy=h*.5;
+ txt(X,m.p,w/2,26,C.ink,15,'center','alphabetic',800,'"IBM Plex Sans",sans-serif');
+ if(m.cond){const bw=Math.min(150,w/5.5),bh=40,shown=Math.min(PL.n,Math.floor((w-40)/(bw*.9))),x0=w/2-shown*bw*.9/2;for(let i=0;i<shown;i++){const A=i%2===0,x=x0+i*bw*.9;X.fillStyle=alpha(A?C.solid:C.rose,.18);X.strokeStyle=A?C.solid:C.rose;X.lineWidth=2;rrect(X,x,cy-bh/2,bw*.8,bh,10);X.fill();X.stroke();txt(X,(A?m.A:m.B)[0],x+bw*.4,cy+5,C.ink,Math.max(9,bw*.075),'center','alphabetic',700);
+   if(i>0){txt(X,m.link,x-bw*.05,cy-bh/2-8,C.brass,11,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');const k=i===PL.n-1?t:1;txt(X,'H₂O',x-bw*.05,cy+bh/2+20+k*30,alpha(C.fill,1-k*.6),13,'center','alphabetic',700)}}
+  if(PL.n>shown)txt(X,`… ${PL.n} monomers in total`,w/2,cy+bh+70,C.muted,12,'center','alphabetic',600);if(!PL.n)txt(X,'Add monomers: '+m.A[0]+'  and  '+m.B[0],w/2,cy,C.muted,13,'center','alphabetic',600);return}
+ const D=Math.min(48,w/16),uw=D*2.4,shown=Math.min(PL.n,Math.floor((w-120)/uw)),x0=w/2-shown*uw/2,fs=Math.max(11,D*.42);
+ const atom=(x,y,s,col)=>{X.fillStyle=C.stage;X.beginPath();X.arc(x,y,fs*.7,0,7);X.fill();txt(X,s,x,y+fs*.36,col,s.length>2?fs*.75:fs,'center','alphabetic',700)};
+ if(!PL.n){const cx=w/2;X.strokeStyle=C.ink;X.lineWidth=2.2;[-3,3].forEach(o=>{X.beginPath();X.moveTo(cx-D*.5,cy+o);X.lineTo(cx+D*.5,cy+o);X.stroke()});atom(cx-D*.6,cy,'C',C.ink);atom(cx+D*.6,cy,'C',C.ink);[[-1.2,-.8,0],[-1.2,.8,1],[1.2,-.8,2],[1.2,.8,3]].forEach(([dx,dy,k])=>{X.beginPath();X.moveTo(cx+dx*D*.5,cy+dy*D*.5);X.lineTo(cx+dx*D,cy+dy*D);X.stroke();atom(cx+dx*D,cy+dy*D,m.s[k],C.ink)});txt(X,'monomer: '+m.n,cx,cy+D*1.8,C.muted,12,'center','alphabetic',600);return}
+ X.strokeStyle=C.ink;X.lineWidth=2.2;X.beginPath();X.moveTo(x0-D*.3,cy);X.lineTo(x0+shown*uw+D*.3,cy);X.stroke();
+ for(let i=0;i<shown;i++){const xa=x0+i*uw+uw*.25,xb=x0+i*uw+uw*.75,a=i===shown-1?t:1;X.globalAlpha=a;[[xa,0,1],[xb,2,3]].forEach(([x,u,d])=>{X.beginPath();X.moveTo(x,cy-fs*.7);X.lineTo(x,cy-D);X.moveTo(x,cy+fs*.7);X.lineTo(x,cy+D);X.stroke();atom(x,cy-D,m.s[u],C.ink);atom(x,cy+D,m.s[d],m.s[d]!=='H'&&m.s[d]!=='F'?C.accent:C.ink);atom(x,cy,'C',C.ink)});X.globalAlpha=1}
+ const bx=x0+uw*0-2,bw2=uw;X.strokeStyle=C.brass;X.lineWidth=2.5;[[bx,1],[bx+bw2,-1]].forEach(([x,d])=>{X.beginPath();X.moveTo(x+d*6,cy-D*1.45);X.lineTo(x,cy-D*1.45);X.lineTo(x,cy+D*1.45);X.lineTo(x+d*6,cy+D*1.45);X.stroke()});txt(X,'n',bx+bw2+6,cy+D*1.6,C.brass,15,'left','alphabetic',800);txt(X,'repeating unit',bx+bw2/2,cy-D*1.65,C.brass,11.5,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');
+ if(PL.n>shown)txt(X,`… ${PL.n} units`,x0+shown*uw+D,cy-8,C.muted,12,'left','alphabetic',600)}
+
+/* =========================================================
+   EXERCISE
+   ========================================================= */
+const RCT=[['ethane','ethane'],['ethene','ethene'],['ethanol','ethanol'],['bromoethane','bromoethane'],['chloroethane','chloroethane'],['acid','ethanoic acid'],['ethanal','ethanal']];
+const RGT=[['Cl₂','Cl₂ in UV light'],['OH⁻','OH⁻(aq)'],['NH₃','NH₃'],['H₂O','H₂O with H⁺'],['H₂','H₂ with a Ni catalyst'],['HBr','HBr'],['Br₂','Br₂ (bromine water)'],['heat','heat with a catalyst'],['H2SO4','concentrated H₂SO₄, heat'],['[O]','acidified K₂Cr₂O₇'],['ethanol','ethanol with H₂SO₄'],['OHeth','OH⁻ in hot ethanol']];
+function findRx(a,g){const map={'Cl₂':0,'OH⁻':1,'NH₃':2,'heat':3,'H2SO4':4,'OHeth':5,'H₂O':6,'H₂':7,'HBr':8,'Br₂':9,'ethanol':10};
+ const T={ethane:{'Cl₂':0,heat:3},bromoethane:{'OH⁻':1,OHeth:5},chloroethane:{'NH₃':2},ethanol:{H2SO4:4,'[O]':11},ethene:{'H₂O':6,'H₂':7,HBr:8,'Br₂':9},acid:{ethanol:10},ethanal:{'[O]':12}};return T[a]&&T[a][g]!=null?T[a][g]:-1}
+const EXEG=[{k:'rx',v:{a:'ethene',g:'Br₂'},s:'Ethene is bubbled through bromine water. Name the product and the type of reaction.'},{k:'rx',v:{a:'ethanol',g:'H2SO4'},s:'Ethanol is heated with concentrated sulfuric acid. What forms, and what type of reaction is it?'},{k:'rx',v:{a:'acid',g:'ethanol'},s:'Ethanoic acid is warmed with ethanol and a little sulfuric acid. What forms?'},{k:'rx',v:{a:'ethane',g:'Cl₂'},s:'Ethane and chlorine are mixed in UV light. Predict the products.'},{k:'poly',v:{m:'2',n:'1000'},s:'A PVC chain is made from 1000 chloroethene molecules. Draw the repeating unit and find the molar mass of the chain.'}];
+let exk='rx';const ex={v:{},story:null};
+function exBuild(){const v=ex.v;$('#exF').innerHTML=exk==='rx'?`<label>Starting molecule<select data-v="a">${RCT.map(([k,n])=>`<option value="${k}"${v.a===k?' selected':''}>${n}</option>`).join('')}</select></label><label>Reagent / conditions<select data-v="g">${RGT.map(([k,n])=>`<option value="${k}"${v.g===k?' selected':''}>${n}</option>`).join('')}</select></label>`
+ :`<label>Monomer<select data-v="m">${MON.filter(m=>!m.cond).map((m,i)=>`<option value="${i}"${+v.m===i?' selected':''}>${m.n}</option>`).join('')}</select></label><label>Number of monomers n<input data-v="n" inputmode="decimal" value="${v.n??''}"></label>`;
+ $$('#exF [data-v]').forEach(i=>i.addEventListener(i.tagName==='SELECT'?'change':'input',()=>{ex.v[i.dataset.v]=i.value;ex.story=null;exUpdate()}));exUpdate()}
+function exSolve(){const v=ex.v;if(exk==='rx'){const i=findRx(v.a,v.g);$$('#exF [data-v]').forEach(x=>x.toggleAttribute('aria-invalid',i<0));return i<0?null:{i,R:RX[i]}}const n=num(v.n);const ok=n>=2&&Number.isInteger(n);$$('#exF [data-v]').forEach(x=>x.toggleAttribute('aria-invalid',x.dataset.v==='n'&&!ok));return ok?{m:MON[+v.m],n,M:MON[+v.m].M*n}:null}
+function exUpdate(){const r=exSolve();if(!r){$('#exMsg').textContent=exk==='rx'?'These two do not react in this lab. Try another reagent.':'Type a whole number of monomers (2 or more).';$('#exText').innerHTML='';return null}$('#exMsg').textContent='Ready. Press “Solve it in the lab” to work through it.';
+ $('#exText').innerHTML=ex.story||(exk==='rx'?`${RCT.find(x=>x[0]===ex.v.a)[1]} + ${RGT.find(x=>x[0]===ex.v.g)[1]}: predict the product and the type of reaction.`:`${r.n} molecules of ${r.m.n} polymerise. Find the molar mass of the chain.`);return r}
+function setExK(k,eg){exk=k;segPick($(`[data-exk="${k}"]`));const d=eg||EXEG.find(e=>e.k===k);ex.v={...d.v};ex.story=d.s;exBuild()}
+$$('[data-exk]').forEach(b=>b.onclick=()=>setExK(b.dataset.exk));let egi=1;$('#exEg').onclick=()=>{const e=EXEG[egi++%EXEG.length];setExK(e.k,e)};
+$('#exSolve').onclick=()=>{const r=exUpdate();if(!r){$('#exMsg').textContent='Fix the red box first.';return}tourGo(exSteps(r))};
+function exSteps(r){if(exk==='rx'){const R=r.R;return [{title:'Solve it in the lab',html:'<p>Look at the functional group of the starting molecule and the reagent.</p>',onShow:()=>{go('rx');OR.ty='';segPick($('[data-ty=""]'));OR.r=r.i;OR.t=0;orUI()}},
+  {el:'#rc',title:'What can react?',html:`<p>${{Substitution:'A single-bonded molecule with a group that can be swapped.',Elimination:'Atoms on neighbouring carbons can leave to make a double bond.',Addition:'A C=C double bond can open up and add atoms.',Condensation:'Two molecules can join and release water.',Oxidation:'An oxidizing agent can remove H atoms or add O.'}[R.type]}</p>`},
+  {el:'#rGo',title:'React',html:'<p>Press <b>React</b>.</p>',wait:()=>OR.t>=1,doIt:()=>{OR.anim=performance.now()},done:'The product is drawn with the changed atoms coloured.'},
+  {title:'Your answer',html:calc(`${R.R.map(x=>MOL[x]?MOL[x].n:x).join(' + ')} → ${R.P.map(x=>MOL[x]?MOL[x].n:x).join(' + ')}\ntype: ${R.type.toLowerCase()}`)+`<p>${R.m}</p>`}]}
+ const mi=MON.indexOf(r.m);return [{title:'Addition polymer',html:'<p>The double bond opens; n monomers join and nothing is lost.</p>',onShow:()=>{go('poly');PL.m=mi;PL.n=6;plUI()}},{el:'#pc',title:'Repeating unit',html:`<p>The repeating unit is the monomer with its C=C opened to C–C: shown in the brackets.</p>`},{title:'Molar mass',html:calc(`M = n × M(monomer) = ${r.n} × ${r.m.M} g/mol\nM = ${sf(r.M,4)} g/mol`)},{title:'Your answer',html:calc(`${sf(r.M,4)} g/mol`)}]}
+
+/* =========================================================
+   CHALLENGE
+   ========================================================= */
+const GEN=[
+ ()=>{const R=pick(RX);return [`What type of reaction is: ${R.n.replace(/ \(.*\)$/,'')}?`,[R.type,...['Substitution','Elimination','Addition','Condensation','Oxidation'].filter(x=>x!==R.type)].slice(0,4),0,R.m]},
+ ()=>{const R=pick(RX.filter(r=>r.type!=='Oxidation'));const p=R.P.find(x=>MOL[x]);const o=[MOL[p].n,...Object.values(MOL).map(m=>m.n).filter(x=>x!==MOL[p].n).sort(()=>Math.random()-.5)].slice(0,4);return [`What organic product forms from ${R.n.replace(/ \(.*\)$/,'')}?`,o,0,R.m]},
+ ()=>{const m=pick(MON.filter(x=>!x.cond)),n=pick([100,500,1000,2000]);return [`What is the molar mass of a chain of ${n} ${m.n} units? (monomer ${m.M} g/mol)`,uniq(n*m.M,[n*m.M-n*18.02,m.M,n*m.M*2],' g/mol',x=>sf(x,4)),0,`Addition polymer: ${n} × ${m.M} = ${sf(n*m.M,4)} g/mol; nothing is lost.`]},
+ ()=>pick([
+  ['Which test shows that a compound has a C=C double bond?',['Bromine water loses its brown colour','It turns limewater milky','It turns blue litmus red','It burns with a yellow flame'],0,'Br₂ adds across the double bond and is used up.'],
+  ['Which polymer is made by condensation?',['Nylon-6,6','Polyethene','PVC','Polystyrene'],0,'Each link releases a water molecule.'],
+  ['Removing water from ethanol to make ethene is called…',['dehydration (elimination)','hydration (addition)','hydrogenation','esterification'],0,'Concentrated H₂SO₄ removes H and OH.'],
+  ['The monomer of PVC is…',['chloroethene (vinyl chloride)','ethene','propene','tetrafluoroethene'],0,'Its double bond opens up to make the chain.'],
+  ['Which reaction gives only one product?',['Ethene + H₂O → ethanol','Ethane + Cl₂ → chloroethane + HCl','Ethanol → ethene + H₂O','Acid + alcohol → ester + water'],0,'Addition reactions combine everything into one product.'],
+  ['A thermoplastic polymer…',['softens when heated and can be reshaped','sets hard permanently when heated','cannot be recycled','is always a condensation polymer'],0,'Thermosetting polymers cannot be remelted.']])];
+
+/* =========================================================
+   START
+   ========================================================= */
+function drawAll(){if(!C.ink)readColors();if(tab==='rx')drawRC();if(tab==='poly')drawPC()}
+addEventListener('resize',drawAll);
+function loop(t){if(tab==='rx'&&OR.anim){OR.t=Math.min(1,(t-OR.anim)/700);if(OR.t>=1){OR.anim=null;orUI()}else drawRC()}
+ if(tab==='poly'){if(PL.auto&&t-(loop.a||0)>500){loop.a=t;if(PL.n<40){PL.n++;PL.anim=t;plUI()}else{PL.auto=false;$('#pAuto').textContent='Grow it'}}if(PL.anim&&t-PL.anim<700)drawPC()}requestAnimationFrame(loop)}
+if(window.LabParts){window.__lp=LabParts.attach({key:'orgrx',wrap:$('#rc').parentElement,stage:$('#rc'),bar:$('#rBar'),max:2,parts:()=>{const G=RG;if(!G)return [];const c=$('#rc').getBoundingClientRect();return [
+ {id:'arrow',name:'Reaction arrow and conditions',what:'The reagent or catalyst and conditions (UV light, heat, acid) are written on the arrow.',hint:'The arrow in the middle.',q:'Where are the conditions written?',x:c.width/2,y:G.cy-10,boxes:[[c.width*.3,G.cy-40,c.width*.7,G.cy+16]]},
+ {id:'col',name:'Coloured atoms',what:'In the products, the atoms or bonds that changed are coloured.',hint:'Look for the coloured parts after React.',q:'Which atoms changed?',x:c.width*.78,y:G.cy,boxes:[[c.width*.55,G.cy-80,c.width-10,G.cy+80]]}]}})}
+readColors();orUI();plUI();setExK('rx');nextQ();themeLabel();requestAnimationFrame(loop);
+
+</script>
+<script src="tour.js" defer></script>
+<script src="lab-guide.js" defer></script>
+</body></html>

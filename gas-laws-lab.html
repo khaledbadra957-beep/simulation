@@ -1,0 +1,742 @@
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gas Laws</title>
+<meta name="description" content="Push a piston, heat a cylinder and watch the particles: Boyle&#x27;s, Charles&#x27;s, Gay-Lussac&#x27;s, combined and ideal gas laws with live graphs, a real gas, and Graham&#x27;s law race. Exercise solver and challenge.">
+<!-- og -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mr Khaled · Science Simulations">
+<meta property="og:title" content="Gas Laws · Mr Khaled">
+<meta property="og:description" content="Push a piston, heat a cylinder and watch the particles: Boyle&#x27;s, Charles&#x27;s, Gay-Lussac&#x27;s, combined and ideal gas laws with live graphs, a real gas, and Graham&#x27;s law race. Exercise solver and challenge.">
+<meta property="og:url" content="https://khaledbadra957-beep.github.io/simulation/gas-laws-lab.html">
+<meta property="og:image" content="https://khaledbadra957-beep.github.io/simulation/og/gas-laws-lab.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Gas Laws: a picture of the lab">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- /og -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench layout as the other labs. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --a:#2F6FD0; --b:#D88A1C; --prod:#1E8A55; --rose:#C2185B;
+  --brass:#B8913A; --brass-soft:rgba(233,196,106,.45);
+  --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
+#beaker{height:clamp(300px,34vw,340px)}
+.mkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:.85rem;color:var(--muted)}.mkey i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+#kg{height:260px}
+#eg{height:250px;cursor:crosshair}
+.pred{display:flex;gap:6px;flex-wrap:wrap}
+.pred button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700}
+.pred button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pred button:hover{border-color:var(--accent)}
+.ans select{max-width:100%}
+
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%;align-self:flex-start}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.ans input{width:8em}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8125rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+tr.pick td{background:var(--brass-soft)}
+tbody tr{cursor:pointer}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body);cursor:default}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0;font-size:.92rem}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.15rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+.runs{display:flex;flex-wrap:wrap;gap:6px}
+.runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas.stage{border:0;border-radius:0}
+.stage-ui .sc-read{position:absolute;top:12px;right:12px;z-index:2;width:250px;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+@media (max-width:1100px){.stage-ui .sc-read{width:200px}}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{top:auto;bottom:8px;right:8px;width:170px;padding:6px 8px}.stage-ui .sc-read .readouts{gap:2px 8px}.stage-ui .sc-read dt{font-size:11.5px}.stage-ui .sc-read dd{font-size:12.5px}.stage-ui .sc-read div[style]{display:none}}
+.stage-ui .panel input[type=range]{height:22px}
+.stage-ui .panel .field{gap:0}
+.stage-ui .sc-read dd{white-space:nowrap;font-size:.92rem}
+.stage-ui .sc-read{width:290px}
+.stage-ui .sc-read div[style] dd{white-space:normal;font-size:.85rem}
+.stage-ui #runs:empty{display:none}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{display:none}}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui #beaker,.stage-ui #kg{height:auto}
+.stage-ui .play > .extra.tall{height:clamp(170px,32vh,290px)}
+.stage-ui .sc-eq{position:absolute;top:12px;left:14px;z-index:2;font-weight:600;font-size:15px;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+.stage-ui .scene .mkey{position:absolute;left:14px;bottom:10px;z-index:2;font-size:12.5px;background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 10px;border-radius:8px}
+.stage-ui .seg{width:100%;align-self:stretch}
+.stage-ui .transport .seg{width:auto}
+.stage-ui .gh .seg{width:auto}
+.stage-ui .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stage-ui .small{font-size:13px}
+.stage-ui .btn.small{min-height:34px;font-size:13.5px;padding:0 10px}
+.stage-ui .pred{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stage-ui .status{font-size:13.5px;padding:7px 10px}
+.stage-ui .readouts{gap:6px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .sol{font-size:12.5px;padding:8px 10px}
+.stage-ui .morein{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .flabel{font-size:14px}
+.stage-ui .solo-in > .benchhead{margin-top:4px}
+.stage-ui #eg{height:260px;border:1px solid var(--line);border-radius:10px}
+.stage-ui .solo-in{padding:8px 4px 20px}
+.stage-ui .solo-in .card{background:var(--surface)}
+.stage-ui #exSolve svg{flex:none}
+.stage-ui details.own summary{cursor:pointer;font-weight:700;list-style:none}.stage-ui details.own summary::-webkit-details-marker{display:none}.stage-ui details.own summary::before{content:"+ ";font-family:var(--data)}.stage-ui details.own[open] summary::before{content:"− "}
+.stage-ui .ownf{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 18px;margin:10px 0}
+.stage-ui .ownf label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.stage-ui .ownf label.ck{flex-direction:row;align-items:center;gap:8px;align-self:end;min-height:38px}
+.stage-ui .ownf span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .ownf input[type=number],.stage-ui .ownf select{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .ownf input[aria-invalid="true"]{border-color:var(--bad)}
+@media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.tall{height:220px}.stage-ui .scene .mkey{display:none}.stage-ui .sc-eq{font-size:12.5px;top:8px;left:8px}}
+
+
+/* ---------- this lab ---------- */
+:root{--fill:#0A6A88;--hot:#D9534F;--cold:#3D7BE0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF}}
+:root[data-theme="dark"]{--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF}
+.rule{font-size:.9rem;line-height:1.35;margin:0;padding:7px 10px;border-radius:9px;background:var(--surface);border:1.5px solid var(--line)}
+.rule.bad{border-color:var(--bad)}.rule.bad b{color:var(--bad)}.rule.ok{border-color:var(--ok)}.rule.ok b{color:var(--ok)}
+.stage-ui .play > .extra.mid{height:clamp(150px,27vh,250px)}
+.lock{display:inline-block;font:600 11px var(--data);color:var(--muted);border:1.5px solid var(--line);border-radius:999px;padding:1px 8px;margin-left:6px}
+.field.locked input[type=range]{opacity:.35}
+.eqn{font:600 1.15rem var(--data);margin:2px 0 4px}
+.ptbl{width:100%;border-collapse:collapse;font:500 12.5px var(--data)}.ptbl th,.ptbl td{border-bottom:1px solid var(--line);padding:3px 4px;text-align:right}.ptbl th{color:var(--muted);font-weight:600}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px 14px}
+.exgrid label{display:flex;flex-direction:column;gap:3px;font-size:.88rem;color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.exgrid input[aria-invalid]{border-color:var(--bad)}
+.panel select{font:600 14px var(--data);padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);width:100%}
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css"></head><body>
+
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Gas Laws</h1>
+ <span class="tb-tag">Chemistry · G11</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button id="fsBtn" type="button" hidden></button><button id="themeBtn" type="button" hidden></button>
+<div class="tabs" role="tablist" hidden>
+ <button class="tab" role="tab" aria-selected="true" data-tab="law" aria-controls="p-law">Gas laws</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="graham" aria-controls="p-graham">Graham's law</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Exercise</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">Challenge</button>
+</div>
+<main class="screens">
+
+ <!-- ================= TAB 1: GAS LAWS ================= -->
+ <section class="screen" id="p-law" data-screens="intro lab" role="tabpanel">
+  <div class="play">
+   <div class="scene">
+    <canvas class="stage" id="cyl" aria-label="A cylinder of gas with a piston, a pressure gauge and a thermometer. The particles move faster when the gas is hotter."></canvas>
+   </div>
+   <div class="extra mid"><canvas class="stage" id="gr" aria-label="Graph of the gas law you chose, with your recorded points"></canvas></div>
+   <div class="transport" id="lawBar">
+    <div class="seg" role="group" aria-label="Gas law" id="lawSeg"><button type="button" data-law="boyle" aria-pressed="true">Boyle</button><button type="button" data-law="charles" aria-pressed="false">Charles</button><button type="button" data-law="gay" aria-pressed="false">Gay-Lussac</button><button type="button" data-law="comb" aria-pressed="false">Combined</button><button type="button" data-law="ideal" aria-pressed="false">Ideal PV = nRT</button></div>
+    <span class="grow"></span>
+    <button class="btn primary" id="recBtn" type="button">Record this point</button>
+    <button class="btn" id="clrBtn" type="button">Clear</button>
+   </div>
+  </div>
+  <aside class="panel">
+   <section class="group">
+    <h2 id="lawH">Boyle's law</h2>
+    <p class="eqn" id="lawEq">P₁V₁ = P₂V₂</p>
+    <p class="note" id="lawTxt">Temperature and amount of gas stay the same. Squeeze the gas into half the volume and the pressure doubles.</p>
+   </section>
+   <section class="group" id="ctlCard">
+    <h2>Change</h2>
+    <div class="field" id="fV"><div class="field-head"><label for="sV">Volume V</label><output id="oV"></output></div><input id="sV" type="range" min="0.5" max="5" step="0.05" value="2.5"></div>
+    <div class="field" id="fT"><div class="field-head"><label for="sT">Temperature T</label><output id="oT"></output></div><input id="sT" type="range" min="100" max="600" step="5" value="300"></div>
+    <div class="field" id="fN"><div class="field-head"><label for="sN">Amount n</label><output id="oN"></output></div><input id="sN" type="range" min="0.05" max="0.5" step="0.01" value="0.10"></div>
+    <p class="note" id="ctlNote">Drag the piston or the volume slider.</p>
+   </section>
+   <section class="group">
+    <h2>Readings</h2>
+    <dl class="readouts">
+     <div><dt>Pressure P</dt><dd id="rP">–</dd></div>
+     <div><dt>Volume V</dt><dd id="rV">–</dd></div>
+     <div><dt>Temperature T</dt><dd id="rT">–</dd></div>
+     <div><dt>Amount n</dt><dd id="rN">–</dd></div>
+     <div><dt id="rKl">P × V</dt><dd id="rK">–</dd></div>
+     <div><dt>Hits on the piston</dt><dd id="rHit">–</dd></div>
+    </dl>
+    <label class="check"><input type="checkbox" id="cReal"> Compare with a real gas (nitrogen)</label>
+    <p class="rule" id="realTxt" hidden></p>
+   </section>
+   <section class="group" data-adv>
+    <h2>Your points</h2>
+    <label class="check" id="invL"><input type="checkbox" id="cInv"> Plot P against 1/V (a straight line)</label>
+    <label class="check" id="kelL" hidden><input type="checkbox" id="cKel"> Use kelvin on the graph</label>
+    <table class="ptbl" id="ptTbl"></table>
+    <p class="note" id="ptNote">Press “Record this point” after each change.</p>
+   </section>
+  </aside>
+ </section>
+
+ <!-- ================= TAB 2: GRAHAM'S LAW ================= -->
+ <section class="screen" id="p-graham" data-screens="graham" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene">
+    <canvas class="stage" id="tube" aria-label="A long glass tube. One gas enters from each end; the lighter gas travels faster."></canvas>
+   </div>
+   <div class="transport">
+    <button class="btn primary" id="gGo" type="button">Open both ends</button>
+    <button class="btn" id="gReset" type="button">Reset</button>
+    <span class="grow"></span>
+   </div>
+  </div>
+  <aside class="panel">
+   <section class="group">
+    <h2>Graham's law of effusion</h2>
+    <p class="eqn" style="font-size:1rem">Rate A ÷ Rate B = √(M<sub>B</sub> ÷ M<sub>A</sub>)</p>
+    <p class="note">Lighter particles move faster at the same temperature, so a light gas spreads (diffuses) and escapes through a small hole (effuses) faster.</p>
+    <div class="field"><label class="flabel" for="gA">Gas A (left end)</label><select id="gA"></select></div>
+    <div class="field"><label class="flabel" for="gB">Gas B (right end)</label><select id="gB"></select></div>
+   </section>
+   <section class="group">
+    <h2>Results</h2>
+    <dl class="readouts">
+     <div><dt>Rate A ÷ Rate B</dt><dd id="gR">–</dd></div>
+     <div><dt>Distance A travelled</dt><dd id="gDA">–</dd></div>
+     <div><dt>Distance B travelled</dt><dd id="gDB">–</dd></div>
+     <div><dt>Distance A ÷ distance B</dt><dd id="gDR">–</dd></div>
+    </dl>
+    <p class="rule" id="gMsg">Choose two gases, then open both ends of the tube.</p>
+   </section>
+  </aside>
+ </section>
+
+ <!-- ================= EXERCISE ================= -->
+ <section class="screen solo" id="p-ex" data-screens="ex" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead">
+   <h2>Exercise</h2>
+   <div class="transport">
+    <button class="btn" type="button" id="exEg">Example</button>
+    <button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button>
+   </div>
+  </div>
+  <div class="card">
+   <div class="field"><span class="flabel">Which law?</span>
+    <div class="seg" role="group" aria-label="Kind of exercise" id="exKSeg" style="width:auto;flex-wrap:wrap"><button type="button" data-exk="boyle" aria-pressed="true">Boyle</button><button type="button" data-exk="charles" aria-pressed="false">Charles</button><button type="button" data-exk="gay" aria-pressed="false">Gay-Lussac</button><button type="button" data-exk="comb" aria-pressed="false">Combined</button><button type="button" data-exk="ideal" aria-pressed="false">Ideal gas</button><button type="button" data-exk="graham" aria-pressed="false">Graham</button></div></div>
+   <div class="exgrid" id="exF"></div>
+   <p class="note" id="exMsg"></p>
+   <p id="exText" class="q" style="font-size:1rem"></p>
+  </div>
+ </div></section>
+
+ <!-- ================= CHALLENGE ================= -->
+ <section class="screen solo" id="p-chal" data-screens="chal" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
+  <p class="q" id="qText"></p>
+  <div class="opts" id="qOpts"></div>
+  <p class="status" id="qStatus" aria-live="polite" hidden></p>
+  <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
+ </div></section>
+
+</main>
+<p class="vh">Model: ideal gas, P = nRT/V with R = 8.314 L·kPa/(mol·K). Real gas: van der Waals for nitrogen, a = 137 kPa·L²/mol², b = 0.0387 L/mol. Inspire Chemistry Module 12 (and Module 11 Lesson 1 for Graham's law).</p>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'law', simple: true }, { id: 'lab', name: 'Gas laws', tab: 'law' }, { id: 'graham', name: 'Graham', tab: 'graham' }, { id: 'ex', name: 'Exercise', tab: 'ex' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ], tour: [ { el: '#lawSeg', title: 'Choose a law', text: 'Each law keeps two things the same. Locked sliders show what stays constant.' }, { el: '#recBtn', title: 'Record points', text: 'Change one thing, record a point, and the graph builds up the law.' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fx=(x,d=2)=>Number(x).toFixed(d);
+const sup=e=>String(e).split('').map(ch=>ch==='-'?'⁻':ch==='+'?'⁺':'⁰¹²³⁴⁵⁶⁷⁸⁹'[+ch]).join('');
+const sci=(v,d=2)=>{if(!isFinite(v))return '–';if(v===0)return '0';let e=Math.floor(Math.log10(Math.abs(v)));let m=v/Math.pow(10,e);if(Math.abs(+m.toFixed(d))>=10){m/=10;e++}return `${m.toFixed(d)} × 10${sup(e)}`};
+/* number input: 4.86e-7, 4.86×10^-7, 4.86x10-7, commas */
+function num(s){if(s==null)return NaN;s=String(s).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/[()]/g,'').replace(/\s/g,'');s=s.replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return s===''?NaN:Number(s)}
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+let C={};
+function readColors(){const s=getComputedStyle(root);['stage','surface','ink','muted','line','grid','accent','brass','rose','ok','bad','a','b','prod','fill','hot','cold'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+new MutationObserver(()=>themeLabel()).observe(root,{attributes:true,attributeFilter:['data-theme']});
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='law';
+const TABS=["law", "graham", "ex", "chal"];
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));TABS.forEach(t=>$('#p-'+t).hidden=t!==tab);drawAll()});
+$('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen?.()}catch(e){}$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)};
+document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)});
+function segPick(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===btn))}
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function txt(x,s,a,b,col,size=12,align='left',base='alphabetic',wt=500,fam='"IBM Plex Mono",monospace'){x.fillStyle=col;x.font=`${wt} ${size}px ${fam}`;x.textAlign=align;x.textBaseline=base;x.fillText(s,a,b)}
+const go=id=>{const b=document.querySelector('.lg-nav [data-ph="'+id+'"]');if(b&&root.getAttribute('data-screen')!==id)b.click();else{const t=LAB.screens.find(s=>s.id===id);if(t){const tb=document.querySelector('.tab[data-tab="'+t.tab+'"]');if(tb&&tab!==t.tab)tb.click()}}};
+
+
+/* =========================================================
+   GAS LAWS: the model
+   ========================================================= */
+const R=8.314,VMAX=5,VMIN=0.5,VSHOW=5.5,TMIN=100,TMAX=600,NMIN=0.05,NMAX=0.5,K0=273;
+const VDW={a:137,b:0.0387};
+const g={law:'boyle',V:2.5,T:300,n:0.10,P0:99.8,real:false,pts:[],inv:false,kel:false};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const Pid=()=>g.n*R*g.T/g.V;
+const Preal=()=>g.n*R*g.T/(g.V-g.n*VDW.b)-VDW.a*g.n*g.n/(g.V*g.V);
+const Pnow=()=>g.law==='charles'?g.P0:Pid();
+const kpa=p=>p>=1000?Math.round(p).toLocaleString('en-US'):fx(p,1);
+const sf=(v,n=3)=>{if(!isFinite(v))return '–';const a=Math.abs(v);if(a>=1000)return Math.round(v).toLocaleString('en-US');if(a<1e-3&&a>0)return sci(v,n-1);return v.toPrecision(n)};
+const LAWS={
+ boyle:{h:"Boyle's law",eq:'P₁V₁ = P₂V₂',txt:'Temperature and amount of gas stay the same. Halve the volume and the pressure doubles: pressure and volume are inversely proportional.',lock:['T','n'],k:'P × V',kv:()=>Pnow()*g.V,ku:'kPa·L',note:'Drag the piston or move the volume slider.',gt:'Pressure against volume'},
+ charles:{h:"Charles's law",eq:'V₁ ÷ T₁ = V₂ ÷ T₂',txt:'Pressure and amount stay the same (the same weight sits on the piston). Heat the gas and it expands: volume is directly proportional to the kelvin temperature.',lock:['V','n'],k:'V ÷ T',kv:()=>g.V/g.T,ku:'L/K',note:'Change the temperature. The piston moves by itself.',gt:'Volume against temperature'},
+ gay:{h:"Gay-Lussac's law",eq:'P₁ ÷ T₁ = P₂ ÷ T₂',txt:'Volume and amount stay the same (pins hold the piston). Heat the gas and the pressure rises: pressure is directly proportional to the kelvin temperature.',lock:['V','n'],k:'P ÷ T',kv:()=>Pnow()/g.T,ku:'kPa/K',note:'Change the temperature.',gt:'Pressure against temperature'},
+ comb:{h:'Combined gas law',eq:'P₁V₁ ÷ T₁ = P₂V₂ ÷ T₂',txt:'Only the amount of gas stays the same. Change the volume and the temperature together: PV ÷ T does not change.',lock:['n'],k:'PV ÷ T',kv:()=>Pnow()*g.V/g.T,ku:'kPa·L/K',note:'Change the volume and the temperature.',gt:'PV against T: a straight line, slope nR'},
+ ideal:{h:'Ideal gas law',eq:'PV = nRT',txt:'Change anything, even the amount of gas. PV ÷ nT always comes out as R = 8.314 L·kPa/(mol·K).',lock:[],k:'PV ÷ nT',kv:()=>Pnow()*g.V/(g.n*g.T),ku:'= R',note:'Change the volume, the temperature or the amount.',gt:'PV against nT: the slope is R'}};
+const locked=k=>LAWS[g.law].lock.includes(k);
+function fitCharles(){g.V=g.n*R*g.T/g.P0;if(g.V>VMAX){g.V=VMAX;g.T=g.P0*VMAX/(g.n*R)}if(g.V<VMIN){g.V=VMIN;g.T=g.P0*VMIN/(g.n*R)}}
+function setLaw(l){g.law=l;g.pts=[];segPick($(`[data-law="${l}"]`));
+ if(l==='charles'){g.P0=Pid();fitCharles()}
+ const L=LAWS[l];$('#lawH').textContent=L.h;$('#lawEq').textContent=L.eq;$('#lawTxt').textContent=L.txt;$('#ctlNote').textContent=L.note;$('#rKl').textContent=L.k;
+ [['V','#fV','#sV'],['T','#fT','#sT'],['n','#fN','#sN']].forEach(([k,f,s])=>{$(f).classList.toggle('locked',locked(k));$(s).disabled=locked(k)});
+ $('#invL').hidden=l!=='boyle';$('#kelL').hidden=!(l==='charles'||l==='gay');sync()}
+function setV(v){if(locked('V'))return;g.V=clamp(v,VMIN,VMAX);sync()}
+function setT(t){if(locked('T'))return;g.T=clamp(t,TMIN,TMAX);if(g.law==='charles')fitCharles();sync()}
+function setN(n){if(locked('n'))return;g.n=clamp(n,NMIN,NMAX);sync()}
+function sync(){const L=LAWS[g.law],p=Pnow();
+ $('#sV').value=g.V;$('#sT').value=g.T;$('#sN').value=g.n;
+ const lb=k=>locked(k)?`<span class="lock">${g.law==='charles'&&k==='V'?'follows T':'fixed'}</span>`:'';
+ $('#oV').innerHTML=fx(g.V,2)+' L'+lb('V');$('#oT').innerHTML=`${Math.round(g.T)} K = ${String(Math.round(g.T-K0)).replace('-','−')} °C`+lb('T');$('#oN').innerHTML=fx(g.n,2)+' mol'+lb('n');
+ $('#rP').innerHTML=`${kpa(p)} kPa<small style="display:block;font-size:.8em;color:var(--muted)">= ${fx(p/101.3,p<101.3?3:2)} atm</small>`;
+ $('#rV').textContent=fx(g.V,2)+' L';$('#rT').textContent=`${Math.round(g.T)} K`;$('#rN').textContent=fx(g.n,3)+' mol';
+ const kv=L.kv();$('#rK').textContent=(g.law==='ideal'?fx(kv,3):sf(kv))+' '+L.ku;
+ const rt=$('#realTxt');rt.hidden=!g.real;
+ if(g.real){const q=Preal(),d=(q-Pid())/Pid()*100;rt.className='rule'+(Math.abs(d)>=3?' bad':' ok');
+  rt.innerHTML=Math.abs(d)<1?`<b>Nitrogen: ${kpa(q)} kPa</b>, almost the same as the ideal gas (${d>=0?'+':'−'}${fx(Math.abs(d),1)}%). At low pressure and high temperature a real gas behaves like an ideal gas.`
+  :`<b>Nitrogen: ${kpa(q)} kPa, ${fx(Math.abs(d),1)}% ${d<0?'lower':'higher'}.</b> ${d<0?'The molecules attract each other, so they hit the walls less hard.':'The molecules take up space themselves, so they have less room to move.'} Real gases differ most at high pressure and low temperature.`}
+ drawGraph()}
+$$('[data-law]').forEach(b=>b.onclick=()=>setLaw(b.dataset.law));
+$('#sV').addEventListener('input',e=>setV(+e.target.value));
+$('#sT').addEventListener('input',e=>setT(+e.target.value));
+$('#sN').addEventListener('input',e=>setN(+e.target.value));
+$('#cReal').onchange=e=>{g.real=e.target.checked;sync()};
+$('#cInv').onchange=e=>{g.inv=e.target.checked;drawGraph()};
+$('#cKel').onchange=e=>{g.kel=e.target.checked;drawGraph()};
+function record(){g.pts.push({P:Pnow(),V:g.V,T:g.T,n:g.n});if(g.pts.length>12)g.pts.shift();table();drawGraph()}
+$('#recBtn').onclick=record;$('#clrBtn').onclick=()=>{g.pts=[];table();drawGraph()};
+function table(){const t=$('#ptTbl'),L=LAWS[g.law],cols={boyle:['P','V'],charles:['V','T'],gay:['P','T'],comb:['P','V','T'],ideal:['P','V','n','T']}[g.law];
+ const H={P:'P (kPa)',V:'V (L)',T:'T (K)',n:'n (mol)'},F={P:p=>kpa(p.P),V:p=>fx(p.V,2),T:p=>Math.round(p.T),n:p=>fx(p.n,2)};
+ const kv=p=>({boyle:p.P*p.V,charles:p.V/p.T,gay:p.P/p.T,comb:p.P*p.V/p.T,ideal:p.P*p.V/(p.n*p.T)})[g.law];
+ if(!g.pts.length){t.innerHTML='';$('#ptNote').textContent='Press “Record this point” after each change.';return}
+ t.innerHTML='<tr><th>#</th>'+cols.map(c=>`<th>${H[c]}</th>`).join('')+`<th>${L.k}</th></tr>`+g.pts.slice(-6).map((p,i)=>`<tr><td>${g.pts.length-Math.min(6,g.pts.length)+i+1}</td>`+cols.map(c=>`<td>${F[c](p)}</td>`).join('')+`<td>${g.law==='ideal'?fx(kv(p),3):sf(kv(p))}</td></tr>`).join('');
+ $('#ptNote').textContent=g.pts.length<2?'Change something and record another point.':g.law==='ideal'?'The last column is 8.314 every time: that number is R.':'The last column stays the same. That is the law.'}
+
+/* ---------- particles ---------- */
+let parts=[],lastT=g.T,hitN=0,hitRate=0,hitClock=0,GEO=null;
+const spd=()=>0.55*Math.sqrt(g.T/300);
+function newPart(){const a=Math.random()*Math.PI*2,s=spd()*(0.55+Math.random()*0.9);return {x:Math.random()*(GEO?GEO.asp:0.6),y:Math.random()*g.V/VSHOW,vx:Math.cos(a)*s,vy:Math.sin(a)*s}}
+function stepParts(dt){if(!GEO)return;const N=Math.round(g.n*360);while(parts.length<N)parts.push(newPart());if(parts.length>N)parts.length=N;
+ if(g.T!==lastT){const f=Math.sqrt(g.T/lastT);parts.forEach(p=>{p.vx*=f;p.vy*=f});lastT=g.T}
+ const r=GEO.pr/GEO.Hmax,top=g.V/VSHOW,A=GEO.asp;
+ for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;
+  if(p.x<r){p.x=r;p.vx=Math.abs(p.vx)}else if(p.x>A-r){p.x=A-r;p.vx=-Math.abs(p.vx)}
+  if(p.y<r){p.y=r;p.vy=Math.abs(p.vy)}else if(p.y>top-r){if(p.vy>0)hitN++;p.y=top-r;p.vy=-Math.abs(p.vy)}}
+ hitClock+=dt;if(hitClock>=1){hitRate=hitN/hitClock;hitN=0;hitClock=0;$('#rHit').textContent=Math.round(hitRate)+' per second'}}
+const hex=s=>{s=(s||'#888').replace('#','');if(s.length===3)s=s.split('').map(c=>c+c).join('');const n=parseInt(s,16);return [n>>16&255,n>>8&255,n&255]};
+const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*clamp(t,0,1))).join(',')})`};
+function rrect(X,x,y,w,h,r){X.beginPath();X.moveTo(x+r,y);X.arcTo(x+w,y,x+w,y+h,r);X.arcTo(x+w,y+h,x,y+h,r);X.arcTo(x,y+h,x,y,r);X.arcTo(x,y,x+w,y,r);X.closePath()}
+
+/* ---------- the cylinder, gauge and thermometer ---------- */
+function drawCyl(){const c=$('#cyl'),{x:X,w,h}=fit(c);X.clearRect(0,0,w,h);
+ const wide=w>=520,cw=Math.min(w*(wide?0.40:0.45),h*0.74,380);let x0=Math.max(14,w*0.06);
+ const base=h-46,topLim=30,Hmax=base-topLim-18,wall=6,pistH=Math.max(10,Math.min(16,h*0.03));
+ let xi=x0+wall,wi=cw-2*wall,yTop=base-g.V/VSHOW*Hmax,pr=Math.max(2.5,Math.min(4.6,wi/68)),tc=mix(C.cold,C.hot,(g.T-TMIN)/(TMAX-TMIN));
+ let ix=x0+cw+(wide?50:34),iw=w-ix-8,gr=clamp(Math.min((iw-40)*0.42,h*0.24),24,96),gx=ix+gr+4,gy=topLim+gr+10,tx=Math.min(ix+iw-14,gx+gr+(wide?62:30)),ty0=topLim+4,ty1=base-8;
+ const dx=Math.max(0,(w-(tx+30)-x0)/2);x0+=dx;xi+=dx;ix+=dx;gx+=dx;tx+=dx;
+ GEO={x0,cw,base,Hmax,pistH,pistY:yTop-pistH/2,asp:wi/Hmax,pr,xi,wi,yTop,gx,gy,gr,tx,ty0,ty1};
+ // glass and gas
+ X.fillStyle=C.surface;X.fillRect(xi,topLim,wi,base-topLim);
+ X.globalAlpha=.12;X.fillStyle=C.fill;X.fillRect(xi,yTop,wi,base-yTop);X.globalAlpha=1;
+ X.fillStyle=tc;for(const p of parts){const px=xi+p.x*Hmax,py=base-p.y*Hmax;X.beginPath();X.arc(px,py,pr,0,7);X.fill()}
+ // volume scale
+ for(let v=0.5;v<=5.001;v+=0.5){const y=base-v/VSHOW*Hmax,maj=Math.abs(v-Math.round(v))<.01,xr=x0+cw;X.strokeStyle=C.muted;X.lineWidth=1.2;X.beginPath();X.moveTo(xr,y);X.lineTo(xr+(maj?10:5),y);X.stroke();if(maj)txt(X,v+' L',xr+13,y+4,C.muted,11,'left')}
+ // walls
+ X.strokeStyle=C.ink;X.lineWidth=wall;X.lineCap='round';X.beginPath();X.moveTo(x0+wall/2,topLim);X.lineTo(x0+wall/2,base+wall/2);X.lineTo(x0+cw-wall/2,base+wall/2);X.lineTo(x0+cw-wall/2,topLim);X.stroke();X.lineCap='butt';
+ // piston and rod
+ const cx=xi+wi/2;X.fillStyle=C.muted;X.fillRect(cx-4,0,8,yTop-pistH);
+ X.fillStyle=C.line;X.strokeStyle=C.ink;X.lineWidth=1.5;rrect(X,xi+1,yTop-pistH,wi-2,pistH,3);X.fill();X.stroke();
+ if(g.law==='charles'){const bw=wi*0.56,bh=Math.min(20,pistH*1.5);X.fillStyle=C.brass;rrect(X,cx-bw/2,yTop-pistH-bh-1,bw,bh,3);X.fill();txt(X,'same weight',cx,yTop-pistH-bh/2+3,C.stage,11,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+ if(g.law==='gay'){X.fillStyle=C.bad;const py=yTop-pistH-7;X.fillRect(x0-8,py,wall+16,5);X.fillRect(x0+cw-wall-8,py,wall+16,5);txt(X,'pins: V fixed',cx,py-6,C.bad,11,'center','alphabetic',600,'"IBM Plex Sans",sans-serif')}
+ if(!locked('V')){const ky=Math.max(12,yTop-pistH-20);X.fillStyle=C.accent;rrect(X,cx-15,ky-11,30,22,6);X.fill();X.strokeStyle=C.stage;X.lineWidth=2;X.beginPath();X.moveTo(cx,ky-6);X.lineTo(cx,ky+6);X.moveTo(cx-4,ky-2);X.lineTo(cx,ky-6);X.lineTo(cx+4,ky-2);X.moveTo(cx-4,ky+2);X.lineTo(cx,ky+6);X.lineTo(cx+4,ky+2);X.stroke()}
+ // heater / cooler
+ X.fillStyle=tc;rrect(X,x0-2,base+10,cw+4,14,5);X.fill();
+ txt(X,g.T>=320?'heater on':g.T<=280?'cooling':'room temperature',x0+cw/2,base+38,C.muted,11,'center','alphabetic',600,'"IBM Plex Sans",sans-serif');
+ if(g.T>=320){X.strokeStyle=tc;X.lineWidth=2;const k=Math.min(5,Math.round((g.T-300)/60)+1),ph=performance.now()/300;for(let i=0;i<k;i++){const fx_=x0+cw*(i+1)/(k+1);X.beginPath();for(let s=0;s<=6;s++){const yy=base+8-s*2.2,xx=fx_+Math.sin(ph+s+i)*2;s?X.lineTo(xx,yy):X.moveTo(xx,yy)}X.globalAlpha=.7;X.stroke();X.globalAlpha=1}}
+ // pipe to the gauge
+ const pa=gx-gr*.71,pb=gy+gr*.71;X.strokeStyle=C.muted;X.lineWidth=4;X.beginPath();X.moveTo(x0+cw,base-12);X.lineTo(pa,base-12);X.lineTo(pa,pb);X.stroke();
+ // gauge
+ const p=Pnow(),sc=[100,200,500,1000,2000,5000].find(s=>s>=p*1.04)||5000,a0=.75*Math.PI,sw=1.5*Math.PI;
+ X.fillStyle=C.surface;X.strokeStyle=C.ink;X.lineWidth=2;X.beginPath();X.arc(gx,gy,gr,0,7);X.fill();X.stroke();
+ for(let i=0;i<=10;i++){const a=a0+sw*i/10,maj=i%2===0;X.strokeStyle=C.ink;X.lineWidth=maj?2:1;X.beginPath();X.moveTo(gx+Math.cos(a)*gr*.86,gy+Math.sin(a)*gr*.86);X.lineTo(gx+Math.cos(a)*gr*(maj?.7:.78),gy+Math.sin(a)*gr*(maj?.7:.78));X.stroke();
+  if(maj&&gr>44)txt(X,String(sc*i/10),gx+Math.cos(a)*gr*.55,gy+Math.sin(a)*gr*.55+4,C.muted,Math.max(9,Math.min(13,gr*.14)),'center')}
+ const na=a0+sw*Math.min(p/sc,1.03);X.strokeStyle=C.bad;X.lineWidth=2.5;X.beginPath();X.moveTo(gx,gy);X.lineTo(gx+Math.cos(na)*gr*.8,gy+Math.sin(na)*gr*.8);X.stroke();X.fillStyle=C.ink;X.beginPath();X.arc(gx,gy,3.5,0,7);X.fill();
+ txt(X,'kPa',gx,gy+gr*.62,C.muted,Math.max(10,gr*.15),'center','alphabetic',600);
+ txt(X,kpa(p)+' kPa',wide?gx+gr*.15:gx,gy+gr+22,C.ink,wide?Math.max(13,Math.min(20,gr*.22)):12,'center','alphabetic',700);txt(X,'Pressure gauge',gx,gy-gr-9,C.muted,11,'center','alphabetic',600,'"IBM Plex Sans",sans-serif');
+ // thermometer
+ const tw=10,fr=t=>ty1-(t/650)*(ty1-ty0-14);X.fillStyle=C.surface;X.strokeStyle=C.ink;X.lineWidth=1.5;rrect(X,tx-tw/2,ty0,tw,ty1-ty0,5);X.fill();X.stroke();
+ X.beginPath();X.arc(tx,ty1+4,10,0,7);X.fillStyle=tc;X.fill();X.stroke();X.fillRect(tx-3,fr(g.T),6,ty1-fr(g.T)+4);
+ for(let t=100;t<=600;t+=100){const y=fr(t);X.strokeStyle=C.muted;X.lineWidth=1;X.beginPath();X.moveTo(tx-tw/2-4,y);X.lineTo(tx-tw/2,y);X.stroke();if(wide||t%200===100)txt(X,String(t),tx-tw/2-6,y+4,C.muted,wide?10:9,'right')}
+ txt(X,'K',tx,ty0-5,C.muted,11,'center','alphabetic',600)}
+const cv=$('#cyl');let drag=false;
+const onPist=(x,y)=>GEO&&!locked('V')&&x>GEO.x0-10&&x<GEO.x0+GEO.cw+10&&y>GEO.pistY-34&&y<GEO.pistY+18;
+cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect();if(onPist(e.clientX-r.left,e.clientY-r.top)){drag=true;cv.setPointerCapture(e.pointerId);e.preventDefault()}});
+cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;if(drag){setV((GEO.base-(y+GEO.pistH/2))/GEO.Hmax*VSHOW)}else cv.style.cursor=onPist(x,y)?'ns-resize':''});
+['pointerup','pointercancel'].forEach(ev=>cv.addEventListener(ev,()=>drag=false));
+
+/* ---------- the graph ---------- */
+const niceUp=v=>{const st=nice(v/5);return Math.ceil(v/st-1e-9)*st};
+const nice=x=>{const e=Math.pow(10,Math.floor(Math.log10(x))),f=x/e;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e};
+const fmtT=v=>Math.abs(v)>=100||v===0?String(Math.round(v)):String(+v.toFixed(2));
+function axes(X,w,h,xa,ya){const L=54,Rr=14,T=22,B=32,pw=w-L-Rr,ph=h-T-B;
+ const sx=v=>L+(v-xa.min)/(xa.max-xa.min)*pw,sy=v=>T+ph-(v-ya.min)/(ya.max-ya.min)*ph;
+ const ticks=a=>{const st=nice((a.max-a.min)/5),out=[];for(let v=Math.ceil(a.min/st)*st;v<=a.max+1e-9;v+=st)out.push(+v.toFixed(6));return out};
+ X.lineWidth=1;ticks(xa).forEach(v=>{X.strokeStyle=C.grid;X.beginPath();X.moveTo(sx(v),T);X.lineTo(sx(v),T+ph);X.stroke();txt(X,fmtT(v),sx(v),T+ph+15,C.muted,11,'center')});
+ ticks(ya).forEach(v=>{X.strokeStyle=C.grid;X.beginPath();X.moveTo(L,sy(v));X.lineTo(L+pw,sy(v));X.stroke();txt(X,fmtT(v),L-6,sy(v)+4,C.muted,11,'right')});
+ X.strokeStyle=C.ink;X.lineWidth=1.5;const x0=xa.min<0&&xa.max>0?sx(0):L;X.beginPath();X.moveTo(x0,T);X.lineTo(x0,T+ph);X.moveTo(L,T+ph);X.lineTo(L+pw,T+ph);X.stroke();
+ txt(X,xa.label,L+pw,T+ph+29,C.ink,11.5,'right','alphabetic',600);txt(X,ya.label,L-48,T-8,C.ink,11.5,'left','alphabetic',600);
+ return {sx,sy,L,T,pw,ph}}
+function line(X,A,f,a,b,col,wd=2,dash=null,n=120){X.save();X.beginPath();X.rect(A.L,A.T,A.pw,A.ph);X.clip();X.strokeStyle=col;X.lineWidth=wd;if(dash)X.setLineDash(dash);X.beginPath();for(let i=0;i<=n;i++){const u=a+(b-a)*i/n,[px,py]=f(u);i?X.lineTo(A.sx(px),A.sy(py)):X.moveTo(A.sx(px),A.sy(py))}X.stroke();X.restore()}
+function dot(X,A,px,py,col,ring){const x=A.sx(px),y=A.sy(py);if(x<A.L-2||x>A.L+A.pw+2||y<A.T-2||y>A.T+A.ph+2)return;X.beginPath();X.arc(x,y,ring?7:4.5,0,7);if(ring){X.strokeStyle=col;X.lineWidth=2.5;X.stroke()}else{X.fillStyle=col;X.fill()}}
+function drawGraph(){const c=$('#gr');if(!c||!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);
+ const nRT=g.n*R*g.T,nR=g.n*R,pts=g.pts,law=g.law,Tx=t=>g.kel?t:t-K0,txa={min:g.kel?0:-300,max:g.kel?650:400,label:g.kel?'T (K)':'T (°C)'};let A,cur;
+ txt(X,LAWS[law].gt,w-14,14,C.muted,11.5,'right','alphabetic',600,'"IBM Plex Sans",sans-serif');
+ if(law==='boyle'){
+  if(g.inv){A=axes(X,w,h,{min:0,max:2.2,label:'1/V (1/L)'},{min:0,max:niceUp(nRT*2.1),label:'P (kPa)'});line(X,A,u=>[u,nRT*u],0,2.2,C.accent,2);
+   if(g.real)line(X,A,u=>{const V=1/u;return [u,g.n*R*g.T/(V-g.n*VDW.b)-VDW.a*g.n*g.n/(V*V)]},0.2,2,C.rose,2,[6,4]);
+   pts.forEach(p=>dot(X,A,1/p.V,p.P,C.ink));cur=[1/g.V,Pid()]}
+  else{A=axes(X,w,h,{min:0,max:5.5,label:'V (L)'},{min:0,max:niceUp(nRT/0.5*1.02),label:'P (kPa)'});line(X,A,V=>[V,nRT/V],0.42,5.5,C.accent,2);
+   if(g.real)line(X,A,V=>[V,g.n*R*g.T/(V-g.n*VDW.b)-VDW.a*g.n*g.n/(V*V)],0.45,5.5,C.rose,2,[6,4]);
+   pts.forEach(p=>dot(X,A,p.V,p.P,C.ink));cur=[g.V,Pid()]}}
+ else if(law==='charles'){A=axes(X,w,h,txa,{min:0,max:5.5,label:'V (L)'});const k=nR/g.P0;
+  line(X,A,t=>[Tx(t),k*t],0,TMIN,C.muted,1.6,[5,5]);line(X,A,t=>[Tx(t),k*t],TMIN,650,C.accent,2);
+  const zx=A.sx(Tx(0));X.fillStyle=C.bad;X.beginPath();X.arc(zx,A.sy(0),4,0,7);X.fill();txt(X,g.kel?'0 K':'−273 °C',zx+6,A.sy(0)-8,C.bad,11,'left','alphabetic',600);
+  pts.forEach(p=>dot(X,A,Tx(p.T),p.V,C.ink));cur=[Tx(g.T),g.V]}
+ else if(law==='gay'){const ym=niceUp(nR*650/g.V);A=axes(X,w,h,txa,{min:0,max:ym,label:'P (kPa)'});
+  line(X,A,t=>[Tx(t),nR*t/g.V],0,TMIN,C.muted,1.6,[5,5]);line(X,A,t=>[Tx(t),nR*t/g.V],TMIN,650,C.accent,2);
+  const zx=A.sx(Tx(0));X.fillStyle=C.bad;X.beginPath();X.arc(zx,A.sy(0),4,0,7);X.fill();txt(X,g.kel?'0 K':'−273 °C',zx+6,A.sy(0)-8,C.bad,11,'left','alphabetic',600);
+  pts.forEach(p=>dot(X,A,Tx(p.T),p.P,C.ink));cur=[Tx(g.T),Pid()]}
+ else if(law==='comb'){A=axes(X,w,h,{min:0,max:650,label:'T (K)'},{min:0,max:niceUp(nR*650),label:'PV (kPa·L)'});line(X,A,t=>[t,nR*t],0,650,C.accent,2);
+  pts.forEach(p=>dot(X,A,p.T,p.P*p.V,C.ink));cur=[g.T,Pid()*g.V]}
+ else{const xm=300;A=axes(X,w,h,{min:0,max:xm,label:'nT (mol·K)'},{min:0,max:niceUp(R*xm),label:'PV (kPa·L)'});line(X,A,u=>[u,R*u],0,xm,C.accent,2);
+  txt(X,'slope = R = 8.314',A.sx(xm*.52),A.sy(R*xm*.62),C.accent,12,'right','alphabetic',600);
+  pts.forEach(p=>dot(X,A,p.n*p.T,p.P*p.V,C.ink));cur=[g.n*g.T,Pid()*g.V]}
+ dot(X,A,cur[0],cur[1],C.accent,true)}
+
+/* =========================================================
+   GRAHAM'S LAW
+   ========================================================= */
+const GASES=[['H₂','hydrogen',2.02],['He','helium',4.00],['CH₄','methane',16.04],['NH₃','ammonia',17.03],['N₂','nitrogen',28.02],['O₂','oxygen',32.00],['HCl','hydrogen chloride',36.46],['Ar','argon',39.95],['CO₂','carbon dioxide',44.01]];
+const gh={a:3,b:6,run:false,t:0,done:false,seed:[]};for(let i=0;i<70;i++)gh.seed.push([Math.random(),Math.random(),Math.random()*6.3]);
+['#gA','#gB'].forEach((s,j)=>{$(s).innerHTML=GASES.map((q,i)=>`<option value="${i}">${q[0]}, ${q[1]} (${fx(q[2],2)} g/mol)</option>`).join('');$(s).value=j?gh.b:gh.a;$(s).onchange=()=>{gh[j?'b':'a']=+$(s).value;gReset()}});
+const gk=20/(1/Math.sqrt(17.03)+1/Math.sqrt(36.46)),gv=i=>gk/Math.sqrt(GASES[i][2]);
+const gD=()=>{const va=gv(gh.a),vb=gv(gh.b),tm=100/(va+vb),t=Math.min(gh.t,tm);return [va*t,vb*t,t>=tm]};
+function gReset(){gh.run=false;gh.t=0;gh.done=false;gUI();drawTube()}
+function gGo(){if(gh.done||gh.t>0)gh.t=0;gh.done=false;gh.run=true;gUI()}
+$('#gGo').onclick=gGo;$('#gReset').onclick=gReset;
+const isNH4Cl=()=>(gh.a===3&&gh.b===6)||(gh.a===6&&gh.b===3);
+function gUI(){const A=GASES[gh.a],B=GASES[gh.b],r=Math.sqrt(B[2]/A[2]),[da,db]=gD();
+ $('#gR').textContent=fx(r,2);$('#gDA').textContent=gh.t?fx(da,1)+' cm':'–';$('#gDB').textContent=gh.t?fx(db,1)+' cm':'–';$('#gDR').textContent=gh.t?fx(da/db,2):'–';
+ const m=$('#gMsg');m.className='rule'+(gh.done?' ok':'');
+ m.innerHTML=gh.done?`<b>${A[0]} travelled ${fx(da,1)} cm and ${B[0]} ${fx(db,1)} cm.</b> Ratio ${fx(da/db,2)}, the same as √(${fx(B[2],2)} ÷ ${fx(A[2],2)}) = ${fx(r,2)}. ${gh.a===gh.b?'Same gas, same speed: they meet in the middle.':`The lighter gas (${A[2]<B[2]?A[0]:B[0]}) moves faster.`}${isNH4Cl()?' Where they meet, a white ring of solid ammonium chloride forms: NH₃ + HCl → NH₄Cl.':''}`
+ :gh.run?'The gases spread along the tube…':'Choose two gases, then open both ends of the tube.';
+ $('#gGo').textContent=gh.done?'Run again':'Open both ends'}
+function drawTube(){const c=$('#tube');if(!c||!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);
+ const L=Math.max(34,w*0.07),Rr=w-L,len=Rr-L,cy=h>420?h*0.36:h*0.42,th=clamp(h*0.15,36,96),A=GASES[gh.a],B=GASES[gh.b],[da,db,met]=gD(),pxA=L+da/100*len,pxB=Rr-db/100*len;
+ X.fillStyle=C.surface;rrect(X,L,cy-th/2,len,th,th/2);X.fill();
+ const ca=C.accent,cb=C.rose,t=performance.now()/600;
+ X.save();rrect(X,L,cy-th/2,len,th,th/2);X.clip();
+ const ga=X.createLinearGradient(L,0,Math.max(L+1,pxA),0);ga.addColorStop(0,ca);ga.addColorStop(1,'rgba(0,0,0,0)');X.globalAlpha=.22;X.fillStyle=ga;X.fillRect(L,cy-th/2,pxA-L,th);
+ const gb=X.createLinearGradient(Rr,0,Math.min(Rr-1,pxB),0);gb.addColorStop(0,cb);gb.addColorStop(1,'rgba(0,0,0,0)');X.fillStyle=gb;X.fillRect(pxB,cy-th/2,Rr-pxB,th);X.globalAlpha=1;
+ gh.seed.forEach(([u,v,ph],i)=>{const k=Math.pow(u,.7),yy=cy+(v-.5)*(th-10)+Math.sin(t+ph)*2;if(i%2===0){if(da>0){X.fillStyle=ca;X.beginPath();X.arc(L+(pxA-L)*k+Math.cos(t+ph)*2,yy,3,0,7);X.fill()}}else if(db>0){X.fillStyle=cb;X.beginPath();X.arc(Rr-(Rr-pxB)*k+Math.cos(t+ph)*2,yy,3,0,7);X.fill()}});
+ X.restore();
+ if(met){const mx=pxA;if(isNH4Cl()){X.save();X.shadowColor='rgba(0,0,0,.45)';X.shadowBlur=8;X.fillStyle='#FAFAF7';rrect(X,mx-8,cy-th/2-2,16,th+4,6);X.fill();X.restore();X.strokeStyle=C.ink;X.lineWidth=1.5;X.stroke();txt(X,'white ring: NH₄Cl',clamp(mx,L+70,Rr-70),cy-th/2-12,C.ink,12,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+  else{X.strokeStyle=C.brass;X.lineWidth=3;X.beginPath();X.moveTo(mx,cy-th/2-4);X.lineTo(mx,cy+th/2+4);X.stroke();txt(X,'the fronts meet',clamp(mx,L+60,Rr-60),cy-th/2-12,C.brass,12,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}}
+ X.strokeStyle=C.ink;X.lineWidth=2;rrect(X,L,cy-th/2,len,th,th/2);X.stroke();
+ X.fillStyle=C.line;X.fillRect(L-10,cy-th/2+4,14,th-8);X.fillRect(Rr-4,cy-th/2+4,14,th-8);
+ const ly=cy-th/2-36,fs=w<500?12:13;txt(X,`${A[0]}  (${fx(A[2],2)} g/mol)`,L,ly,ca,fs,'left','alphabetic',700);txt(X,`${B[0]}  (${fx(B[2],2)} g/mol)`,Rr,ly,cb,fs,'right','alphabetic',700);
+ const ry=cy+th/2+26;X.strokeStyle=C.muted;X.lineWidth=1;X.beginPath();X.moveTo(L,ry);X.lineTo(Rr,ry);X.stroke();
+ for(let k=0;k<=100;k+=10){const x=L+k/100*len;X.beginPath();X.moveTo(x,ry);X.lineTo(x,ry+(k%50?5:9));X.stroke();if(k%(w<500?20:10)===0)txt(X,String(k),x,ry+20,C.muted,11,'center')}
+ txt(X,'cm',Rr,ry+34,C.muted,11,'right');
+ if(gh.t>0){const ay=ry+46;X.strokeStyle=ca;X.lineWidth=3;X.beginPath();X.moveTo(L,ay);X.lineTo(pxA,ay);X.stroke();txt(X,fx(da,1)+' cm',L+4,ay+16,ca,12,'left','alphabetic',700);
+  X.strokeStyle=cb;X.beginPath();X.moveTo(Rr,ay);X.lineTo(pxB,ay);X.stroke();txt(X,fx(db,1)+' cm',Rr-4,ay+16,cb,12,'right','alphabetic',700)}
+ const by=ry+96;if(h-by>78){const sp=M=>Math.sqrt(3*R*298/(M/1000)),bw=len*0.8;txt(X,'Typical particle speed at 25 °C (the lighter gas is faster)',L,by,C.muted,12,'left','alphabetic',600,'"IBM Plex Sans",sans-serif');
+  [[A,ca],[B,cb]].forEach(([q,col],k)=>{const v=sp(q[2]),y=by+14+k*26;X.fillStyle=col;X.globalAlpha=.85;rrect(X,L,y,Math.max(4,bw*v/2000),16,4);X.fill();X.globalAlpha=1;txt(X,`${q[0]}  ${Math.round(v)} m/s`,L+bw*v/2000+8,y+13,col,12,'left','alphabetic',700)})}}
+
+/* =========================================================
+   EXERCISE
+   ========================================================= */
+const UN={P:[['kPa',1],['atm',101.3],['mmHg',101.3/760]],V:[['L',1],['mL',.001]],T:[['K',0],['°C',K0]]};
+const RU={kPa:['8.314','L·kPa/(mol·K)',8.314],atm:['0.0821','L·atm/(mol·K)',0.0821],mmHg:['62.4','L·mmHg/(mol·K)',62.4]};
+const EXK={boyle:{vars:['P1','V1','P2','V2'],keep:'The temperature and the amount of gas stay the same.',law:'boyle'},
+ charles:{vars:['V1','T1','V2','T2'],keep:'The pressure and the amount of gas stay the same.',law:'charles'},
+ gay:{vars:['P1','T1','P2','T2'],keep:'The volume and the amount of gas stay the same.',law:'gay'},
+ comb:{vars:['P1','V1','T1','P2','V2','T2'],keep:'The amount of gas stays the same.',law:'comb'},
+ ideal:{vars:['P','V','n','T'],keep:'',law:'ideal'},graham:{vars:['MA','MB'],keep:'',law:null}};
+const EXEG=[
+ {k:'boyle',find:'V2',u:{P:'atm',V:'L'},v:{P1:'2.25',V1:'0.75',P2:'1.03'},s:'A diver blows a 0.75 L air bubble deep under water, where the pressure is 2.25 atm. The bubble rises to the surface, where the pressure is 1.03 atm, and the temperature stays the same. What is the volume of the bubble at the surface?'},
+ {k:'charles',find:'V2',u:{V:'L',T:'°C'},v:{V1:'2.32',T1:'40.0',T2:'75.0'},s:'A helium balloon has a volume of 2.32 L at 40.0 °C. What is its volume at 75.0 °C if the pressure stays the same?'},
+ {k:'gay',find:'P2',u:{P:'atm',T:'°C'},v:{P1:'5.00',T1:'25',T2:'-10'},s:'A gas canister is at 5.00 atm and 25 °C. It is cooled to −10 °C and its volume does not change. What is the new pressure?'},
+ {k:'comb',find:'V2',u:{P:'kPa',V:'L',T:'°C'},v:{P1:'110',V1:'2.00',T1:'30.0',P2:'440',T2:'80.0'},s:'A gas at 110 kPa and 30.0 °C fills a 2.00 L container. The pressure rises to 440 kPa and the temperature to 80.0 °C. What is the new volume?'},
+ {k:'ideal',find:'n',u:{P:'atm',V:'L',T:'K'},v:{P:'1.50',V:'3.0',T:'300'},s:'How many moles of ammonia gas are in a 3.0 L container at 300 K and 1.50 atm?'},
+ {k:'graham',find:'r',u:{},v:{MA:'17.0',MB:'36.5'},s:'Ammonia (NH₃, 17.0 g/mol) and hydrogen chloride (HCl, 36.5 g/mol) are released at the two ends of a tube. What is the ratio of their rates of diffusion?'}];
+let exk='boyle';const ex={find:'V2',u:{P:'atm',V:'L',T:'°C'},v:{},story:null};
+const SUBD={1:'₁',2:'₂'},qOf=v=>v[0]==='M'?'M':v[0],iOf=v=>v.length>1&&v[0]!=='M'?v.slice(1):'';
+const symb=v=>v==='MA'?'M<sub>A</sub>':v==='MB'?'M<sub>B</sub>':v[0]+(SUBD[iOf(v)]||'');
+const symT=v=>v==='MA'?'M(A)':v==='MB'?'M(B)':v[0]+(SUBD[iOf(v)]||'');
+const LBL={P:'Pressure',V:'Volume',T:'Temperature',n:'Amount',M:'Molar mass'};
+function exBuild(){const K=EXK[exk],qs=[...new Set(K.vars.map(qOf))].filter(q=>UN[q]);
+ let h='';if(exk!=='graham')h+=`<label>Find<select id="exFind">${K.vars.map(v=>`<option value="${v}"${v===ex.find?' selected':''}>${symT(v)}</option>`).join('')}</select></label>`;
+ qs.forEach(q=>{h+=`<label>${LBL[q]} unit<select data-un="${q}">${UN[q].map(([u])=>`<option${u===ex.u[q]?' selected':''}>${u}</option>`).join('')}</select></label>`});
+ K.vars.forEach(v=>{const q=qOf(v),u=q==='n'?'mol':q==='M'?'g/mol':ex.u[q],me=v===ex.find;
+  h+=`<label>${v==='MA'?'Molar mass of gas A':v==='MB'?'Molar mass of gas B':`${LBL[q]} ${symb(v)}`} (${u})<input data-exv="${v}" inputmode="decimal" autocomplete="off" ${me?'disabled placeholder="?" value=""':`value="${ex.v[v]??''}"`}></label>`});
+ $('#exF').innerHTML=h;
+ $('#exFind')&&($('#exFind').onchange=e=>{ex.v[ex.find]=ex.v[ex.find]||'';ex.find=e.target.value;ex.story=null;exBuild()});
+ $$('[data-un]').forEach(s=>s.onchange=()=>{ex.u[s.dataset.un]=s.value;ex.story=null;exBuild()});
+ $$('[data-exv]').forEach(i=>i.addEventListener('input',()=>{ex.v[i.dataset.exv]=i.value;ex.story=null;exUpdate()}));exUpdate()}
+function exSolve(){const K=EXK[exk],val={},bad=[];
+ K.vars.forEach(v=>{if(v===ex.find)return;const x=num(ex.v[v]),q=qOf(v);let ok=isFinite(x);if(q==='T'){ok=ok&&(x+(ex.u.T==='°C'?K0:0))>0}else ok=ok&&x>0;if(!ok)bad.push(v);else val[v]=q==='T'?x+(ex.u.T==='°C'?K0:0):x});
+ $$('[data-exv]').forEach(i=>i.toggleAttribute('aria-invalid',bad.includes(i.dataset.exv)));if(bad.length)return null;
+ const f=ex.find,q=qOf(f),s=iOf(f);let X,toks;
+ if(exk==='graham'){X=Math.sqrt(val.MB/val.MA);return {val,X,f,q:'r'}}
+ if(exk==='ideal'){const Ru=RU[ex.u.P][2],V=val.V!=null?val.V*(ex.u.V==='mL'?.001:1):null;const v2={...val};if(V!=null)v2.V=V;
+  X=f==='n'?v2.P*v2.V/(Ru*v2.T):f==='P'?v2.n*Ru*v2.T/v2.V:f==='V'?v2.n*Ru*v2.T/v2.P:v2.P*v2.V/(v2.n*Ru);if(f==='V'&&ex.u.V==='mL')X*=1000;return {val:v2,X,f,q}}
+ const o=s==='1'?'2':'1',has=c=>K.vars.includes(c+'1'),gv_=(c,i)=>has(c)?val[c+i]:1;
+ const Ko=gv_('P',o)*gv_('V',o)/gv_('T',o);
+ X=q==='P'?Ko*gv_('T',s)/gv_('V',s):q==='V'?Ko*gv_('T',s)/gv_('P',s):gv_('P',s)*gv_('V',s)/Ko;
+ return {val,X,f,q,s,o}}
+const uText=(q)=>q==='T'?'K':q==='n'?'mol':q==='M'?'g/mol':ex.u[q];
+function ansText(r){if(r.q==='r')return fx(r.X,2);if(r.q==='T')return `${sf(r.X)} K`+(ex.u.T==='°C'?` = ${fx(r.X-K0,r.X-K0>=100||r.X-K0<=-100?0:1)} °C`:'');return `${sf(r.X)} ${r.q==='V'&&exk==='ideal'?ex.u.V:uText(r.q)}`}
+function exUpdate(){const m=$('#exMsg'),t=$('#exText'),r=exSolve();if(!r){m.textContent='Type a positive number in each red box. Temperatures must be above −273 °C (0 K).';t.innerHTML='';return null}
+ m.textContent='Ready. Press “Solve it in the lab” to work through it step by step.';
+ if(ex.story){t.innerHTML=ex.story;return r}
+ const K=EXK[exk],kn=K.vars.filter(v=>v!==ex.find).map(v=>`${symb(v)} = ${ex.v[v]} ${qOf(v)==='n'?'mol':qOf(v)==='M'?'g/mol':ex.u[qOf(v)]}`).join(', ');
+ t.innerHTML=exk==='graham'?`Gas A has M<sub>A</sub> = ${ex.v.MA} g/mol and gas B has M<sub>B</sub> = ${ex.v.MB} g/mol. How many times faster does gas A diffuse than gas B?`:`${exk==='ideal'?'A gas':'A sample of gas'}: ${kn}. ${K.keep} Find <b>${symb(ex.find)}</b>.`;return r}
+function setExK(k,eg){exk=k;segPick($(`[data-exk="${k}"]`));const d=eg||EXEG.find(e=>e.k===k);ex.find=d.find;ex.u={P:'kPa',V:'L',T:'K',...d.u};ex.v={...d.v};ex.story=d.s;exBuild()}
+$$('[data-exk]').forEach(b=>b.onclick=()=>setExK(b.dataset.exk));
+let egi=1;$('#exEg').onclick=()=>{const e=EXEG[egi++%EXEG.length];setExK(e.k,e)};
+const calc=t=>'<div class="t-calc">'+t+'</div>';
+/* formula tokens: [q,i] symbols, strings are operators */
+function forms(r){const s=r.s,o=r.o,q=r.q;
+ if(exk==='boyle')return q==='V'?[['P',o],['V',o],'÷',['P',s]]:[['P',o],['V',o],'÷',['V',s]];
+ if(exk==='charles')return q==='V'?[['V',o],'×',['T',s],'÷',['T',o]]:[['T',o],'×',['V',s],'÷',['V',o]];
+ if(exk==='gay')return q==='P'?[['P',o],'×',['T',s],'÷',['T',o]]:[['T',o],'×',['P',s],'÷',['P',o]];
+ return q==='V'?[['P',o],['V',o],['T',s],'÷','(',['T',o],['P',s],')']:q==='P'?[['P',o],['V',o],['T',s],'÷','(',['T',o],['V',s],')']:[['T',o],['P',s],['V',s],'÷','(',['P',o],['V',o],')']}
+function tokStr(tk,r,numeric){let out='',prev=false;tk.forEach(t=>{if(typeof t==='string'){out+=t==='('?' (':t===')'?')':` ${t} `;prev=t===')';return}
+ const [q,i]=t,v=q+i,val=q==='T'?sf(r.val[v],3)+' K':`${ex.v[v]} ${ex.u[q]}`;out+=(prev?(numeric?' × ':''):'')+(numeric?val:q+SUBD[i]);prev=true});return out.replace(/\s+/g,' ').replace('( ','(').trim()}
+function unitLines(r){const L=[];if(exk==='graham')return L;const K=EXK[exk];
+ if(ex.u.T==='°C')K.vars.filter(v=>qOf(v)==='T'&&v!==ex.find).forEach(v=>L.push(`${symT(v)} = ${String(ex.v[v]).replace('-','−')} + 273 = ${sf(r.val[v],3)} K`));
+ if(exk==='ideal'&&ex.u.V==='mL'&&ex.find!=='V')L.push(`V = ${ex.v.V} mL ÷ 1000 = ${sf(r.val.V,3)} L`);return L}
+/* how the lab can show the same change */
+function labPlan(r){const K=EXK[exk],v=r.val,Pk=x=>x*UN.P.find(u=>u[0]===ex.u.P)[1],Vl=x=>x*(ex.u.V==='mL'?.001:1);
+ const full={...v};full[r.f]=r.X;const inV=x=>x>=VMIN&&x<=VMAX,inT=x=>x>=TMIN&&x<=TMAX,inN=x=>x>=NMIN&&x<=NMAX;
+ if(exk==='ideal'){const P=Pk(full.P),V=r.f==='V'?Vl(r.X):full.V,T=full.T,n=full.n;return inV(V)&&inT(T)&&inN(n)?{law:'ideal',s1:{V,T,n},exact:true,P}:null}
+ const T1=full.T1,T2=full.T2,V1=full.V1!=null?Vl(full.V1):null,V2=full.V2!=null?Vl(full.V2):null,P1=full.P1!=null?Pk(full.P1):null;
+ let tA,tB,vA,vB,ex_=true;
+ if(T1!=null){if(inT(T1)&&inT(T2)){tA=T1;tB=T2}else{const k=T2/T1;if(k<1/6||k>6)return null;tA=Math.sqrt(TMIN*TMAX/k);tB=tA*k;ex_=false}}
+ if(V1!=null){if(inV(V1)&&inV(V2)){vA=V1;vB=V2}else{const k=V2/V1;if(k<.1||k>10)return null;vA=Math.sqrt(VMIN*VMAX/k);vB=vA*k;ex_=false}}
+ if(exk==='boyle'){let T=300,n=P1*vA/(R*T),m=ex_;if(!inN(n)){n=clamp(n,NMIN,NMAX);T=P1*vA/(n*R)}if(!inT(T)||!ex_){T=300;n=0.1;m=false}return {law:'boyle',s1:{V:vA,T,n},s2:{V:vB},exact:m}}
+ if(exk==='charles'){let vs=vA;if(!ex_||vs==null)vs=Math.sqrt(VMIN*VMAX*tA/tB);return {law:'charles',s1:{T:tA,n:0.1,P0:0.1*R*tA/vs},s2:{T:tB},exact:ex_}}
+ if(exk==='gay'){let n=0.1,V=2.5,m=false;if(ex_)for(const nn of [0.1,0.2,0.05,0.3,0.4,0.5]){const VV=nn*R*tA/P1;if(inV(VV)){n=nn;V=VV;m=true;break}}return {law:'gay',s1:{V,T:tA,n},s2:{T:tB},exact:m}}
+ let n=P1*vA/(R*tA),m=ex_&&inN(n);if(!m)n=0.1;return {law:'comb',s1:{V:vA,T:tA,n},s2:{V:vB,T:tB},exact:m}}
+function labTo(law,s){go('lab');if(g.law!==law)setLaw(law);if(law==='charles'){g.n=s.n??g.n;g.P0=s.P0??g.P0;g.T=s.T??g.T;fitCharles()}else{if(s.n!=null)g.n=s.n;if(s.V!=null)g.V=s.V;if(s.T!=null)g.T=s.T}sync()}
+function solveInLab(){if(!window.Tour)return;const r=exUpdate();if(!r){$('#exMsg').textContent='Fix the red box first.';return}
+ const steps=exk==='graham'?grSteps(r):exk==='ideal'?idSteps(r):lawSteps(r);setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+$('#exSolve').onclick=solveInLab;
+function lawSteps(r){const K=EXK[exk],L=LAWS[K.law],plan=r.s==='1'?null:labPlan(r),U=unitLines(r),tk=forms(r),S=[];
+ S.push({title:'Solve it in the lab',html:`<p>This is <b>${L.h.replace("'","’")}</b>. ${K.keep}</p>`+calc(L.eq)+`<p>We know ${K.vars.filter(v=>v!==r.f).map(v=>symT(v)).join(', ')} and want <b>${symT(r.f)}</b>.</p>`});
+ if(U.length||K.vars.some(v=>qOf(v)==='T'))S.push({title:'1 · Temperatures in kelvin',html:(U.length?calc(U.join('\n')):'<p>The temperatures are already in kelvin.</p>')+'<p>Gas laws only work with kelvin: at 0 K the particles would stop moving. Add 273 to a Celsius temperature.</p>'});
+ if(plan){const D=plan.s1,E=plan.s2,ch=E.V!=null&&E.T!=null?'V':E.V!=null?'V':'T';
+  S.push({el:'#lawSeg',title:'In the lab: '+L.h,html:`<p>The lab is on <b>${{boyle:'Boyle',charles:'Charles',gay:'Gay-Lussac',comb:'Combined'}[K.law]}</b> and holds the starting gas (state 1).</p>`+(plan.exact?'':'<p>The lab uses numbers that fit on its scales, but the <b>ratio</b> of the change is the same as in your exercise.</p>'),onShow:()=>labTo(K.law,D)});
+  S.push({el:'#recBtn',title:'Record state 1',html:'<p>Press <b>Record this point</b>.</p>',wait:()=>g.pts.length>=1,doIt:record,done:()=>`State 1: P = ${kpa(Pnow())} kPa, V = ${fx(g.V,2)} L, T = ${Math.round(g.T)} K.`,auto:900});
+  const want=()=>(E.V==null||Math.abs(g.V-E.V)<0.035)&&(E.T==null||Math.abs(g.T-E.T)<3.5);
+  const snap=()=>{if(g.law==='charles'){g.T=E.T;fitCharles()}else{if(E.V!=null)g.V=E.V;if(E.T!=null)g.T=E.T}sync()};
+  const cu=(K.law==='boyle'&&r.q==='V')||((K.law==='charles'||K.law==='gay')&&r.q==='T')||(K.law==='comb'&&(r.q==='V'||r.q==='T'));
+  const Tt=E.T??D.T,Vt=K.law==='charles'?D.n*R*E.T/D.P0:(E.V??D.V),Pt=K.law==='charles'?D.P0:D.n*R*Tt/Vt,giv=K.law==='charles'?'V2':'P2';
+  const what=[E.V!=null?`volume to <b>${fx(E.V,2)} L</b>`:'',E.T!=null?`temperature to <b>${Math.round(E.T)} K</b>`:''].filter(Boolean).join(' and the ');
+  const hm=cu?(K.law==='comb'&&r.q==='V'?`<p>Set the temperature to <b>${Math.round(E.T)} K</b>.</p>`:K.law==='comb'&&r.q==='T'?`<p>Set the volume to <b>${fx(E.V,2)} L</b>.</p>`:'')+`<p>${K.law==='comb'?'Then m':'M'}ove ${r.q==='V'?'the piston':'the temperature'} until the ${K.law==='charles'?`volume reads <b>${fx(Vt,2)} L</b>`:`gauge reads <b>${kpa(Pt)} kPa</b>`}${plan.exact?` (that is ${symT(giv)} = ${ex.v[giv]} ${K.law==='charles'?ex.u.V:ex.u.P})`:''}.</p>`:`<p>Move the ${what}. Watch the ${K.law==='charles'?'piston':'gauge'}.</p>`;
+  S.push({el:()=>$(K.law==='comb'?'#ctlCard':cu?(r.q==='V'?'#fV':'#fT'):(E.V!=null?'#fV':'#fT')),title:'Make the change',html:hm,wait:want,doIt:snap,done:()=>{snap();return `Now P = ${kpa(Pnow())} kPa, V = ${fx(g.V,2)} L, T = ${Math.round(g.T)} K.`}});
+  S.push({el:'#recBtn',title:'Record state 2',html:'<p>Record the new point.</p>',wait:()=>g.pts.length>=2,doIt:record,done:'Look at the last column of the table: it did not change.',auto:900});
+  const qn=r.q;
+  S.push({el:()=>$('#ptTbl').closest('.group'),title:'What the lab shows',html:'',onShow:function(){this.html=(()=>{const p1=g.pts[g.pts.length-2],p2=g.pts[g.pts.length-1];if(!p1||!p2)return '<p>Record both points first.</p>';
+   const k={P:p2.P/p1.P,V:p2.V/p1.V,T:p2.T/p1.T}[qn],kx=r.s==='2'?r.X/r.val[r.q+'1']:r.val[r.q+'2']/r.X;
+   return `<p>${qn==='P'?'Pressure':qn==='V'?'Volume':'Temperature'} changed by a factor of <b>${fx(k,3)}</b> in the lab.</p>`+(plan.exact?`<p>The lab gives ${qn==='P'?kpa(p2.P)+' kPa = '+fx(p2.P/101.3,3)+' atm':qn==='V'?fx(p2.V,2)+' L':Math.round(p2.T)+' K'}: the answer to your exercise.</p>`:`<p>Your exercise has the same factor, ${fx(kx,3)}.</p>`)})()}});
+ }
+ S.push({title:(S.length>2?'':'2 · ')+'Rearrange and substitute',html:calc(`${symT(r.f)} = ${tokStr(tk,r,false)}\n${symT(r.f)} = ${tokStr(tk,r,true)}\n${symT(r.f)} = ${ansText(r)}`)+(r.q==='T'?'':'<p>The units of the other quantity cancel, so the answer comes out in the same unit you used.</p>')});
+ S.push({title:'Your answer',html:calc(`${symT(r.f)} = ${ansText(r)}`)+`<p>Check it makes sense: ${checkWords(r)}</p><p>Round to the number of significant figures in the data.</p>`});return S}
+function checkWords(r){const v=r.val,q=r.q,s=r.s,o=r.o;
+ if(exk==='boyle')return q==='V'?(v['P'+s]>v['P'+o]?'the pressure went up, so the volume went down.':'the pressure went down, so the volume went up.'):(v['V'+s]>v['V'+o]?'the volume went up, so the pressure went down.':'the volume went down, so the pressure went up.');
+ if(exk==='charles')return q==='V'?(v['T'+s]>v['T'+o]?'hotter gas, bigger volume.':'colder gas, smaller volume.'):(v['V'+s]>v['V'+o]?'bigger volume needs a higher temperature.':'smaller volume means a lower temperature.');
+ if(exk==='gay')return q==='P'?(v['T'+s]>v['T'+o]?'hotter gas, higher pressure.':'colder gas, lower pressure.'):'pressure and kelvin temperature change by the same factor.';
+ return 'PV ÷ T is the same before and after.'}
+function idSteps(r){const Ru=RU[ex.u.P],plan=labPlan(r),U=unitLines(r),f=r.f,v=r.val;
+ const sym={P:`${ex.v.P} ${ex.u.P}`,V:`${sf(v.V,3)} L`,n:`${ex.v.n} mol`,T:`${sf(v.T,3)} K`},rr=`${Ru[0]} ${Ru[1]}`;
+ const F={n:['n = PV ÷ RT',`n = ${sym.P} × ${sym.V} ÷ (${rr} × ${sym.T})`],P:['P = nRT ÷ V',`P = ${sym.n} × ${rr} × ${sym.T} ÷ ${sym.V}`],V:['V = nRT ÷ P',`V = ${sym.n} × ${rr} × ${sym.T} ÷ ${sym.P}`],T:['T = PV ÷ nR',`T = ${sym.P} × ${sym.V} ÷ (${sym.n} × ${rr})`]}[f];
+ const S=[{title:'Solve it in the lab',html:'<p>The ideal gas law links pressure, volume, amount and temperature:</p>'+calc('PV = nRT')+`<p>Pick R to match the pressure unit (${ex.u.P}): <b>R = ${rr}</b>.</p>`}];
+ if(U.length)S.push({title:'1 · Units',html:calc(U.join('\n'))+'<p>V must be in litres and T in kelvin.</p>'});
+ if(plan)S.push({el:()=>$('#rP').closest('.group'),title:'In the lab',html:`<p>The lab is set to V = ${fx(plan.s1.V,2)} L, T = ${Math.round(plan.s1.T)} K and n = ${fx(plan.s1.n,3)} mol.</p><p>Its pressure gauge reads <b>${kpa(plan.P)} kPa = ${fx(plan.P/101.3,3)} atm</b>: the same gas as in your exercise.</p>`,onShow:()=>labTo('ideal',plan.s1)});
+ else S.push({title:'Too big for the lab',html:'<p>These numbers are outside the lab’s cylinder (0.5–5 L, 100–600 K, 0.05–0.5 mol), so we solve it on paper only.</p>'});
+ S.push({title:'Rearrange and substitute',html:calc(`${F[0]}\n${F[1]}\n${f} = ${ansText(r)}`)});
+ S.push({title:'Your answer',html:calc(`${f} = ${ansText(r)}`)+'<p>Round to the number of significant figures in the data.</p>'});return S}
+function grSteps(r){const ia=GASES.findIndex(q=>Math.abs(q[2]-r.val.MA)<.06),ib=GASES.findIndex(q=>Math.abs(q[2]-r.val.MB)<.06),S=[];
+ S.push({title:'Solve it in the lab',html:'<p>Graham’s law: at the same temperature, lighter particles move faster.</p>'+calc('Rate A ÷ Rate B = √(M_B ÷ M_A)')});
+ if(ia>=0&&ib>=0){S.push({el:'#gA',title:'Choose the gases',html:`<p>Gas A is ${GASES[ia][0]}, gas B is ${GASES[ib][0]}.</p>`,onShow:()=>{go('graham');gh.a=ia;gh.b=ib;$('#gA').value=ia;$('#gB').value=ib;gReset()}});
+  S.push({el:'#gGo',title:'Race them',html:'<p>Press <b>Open both ends</b> and watch the two gases spread.</p>',wait:()=>gh.done,doIt:()=>{if(!gh.run)gGo()},done:()=>{const [a,b]=gD();return `A: ${fx(a,1)} cm, B: ${fx(b,1)} cm. Ratio ${fx(a/b,2)}.`}})}
+ const lr=ia>=0&&ib>=0?Math.sqrt(GASES[ib][2]/GASES[ia][2]):null;S.push({title:'Substitute',html:calc(`Rate A ÷ Rate B = √(${ex.v.MB} ÷ ${ex.v.MA})\n               = √${fx(r.val.MB/r.val.MA,3)}\n               = ${fx(r.X,2)}`)+(lr&&fx(lr,2)!==fx(r.X,2)?`<p>The lab used ${fx(GASES[ia][2],2)} and ${fx(GASES[ib][2],2)} g/mol and got ${fx(lr,2)}. The small difference comes from rounding the molar masses.</p>`:'')});
+ S.push({title:'Your answer',html:calc(`Rate A ÷ Rate B = ${fx(r.X,2)}`)+`<p>Gas A diffuses ${fx(r.X,2)} times ${r.X>=1?'faster':'as fast'} than gas B${r.X>=1?'':' (it is slower)'}.</p>`});return S}
+
+/* =========================================================
+   CHALLENGE
+   ========================================================= */
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const uniq=(right,wr,unit,f=sf)=>{const s=[right,...wr].map(x=>f(x)+unit),o=[];s.forEach(x=>{if(!o.includes(x))o.push(x)});let k=1;while(o.length<4){const x=f(right*(1+.37*k++))+unit;if(!o.includes(x))o.push(x)}return o.slice(0,4)};
+const GEN=[
+ ()=>{const P1=rint(8,30)*10,V1=rint(10,50)/10,P2=P1*pick([2,3,.5,1.5,.75]),V2=P1*V1/P2;return [`A gas has a volume of ${fx(V1,1)} L at ${P1} kPa. The pressure changes to ${sf(P2)} kPa at the same temperature. What is the new volume?`,uniq(V2,[V1*P2/P1,P1*P2/V1/100,V1],' L'),0,`Boyle’s law: V₂ = P₁V₁ ÷ P₂ = ${P1} × ${fx(V1,1)} ÷ ${sf(P2)} = ${sf(V2)} L. Higher pressure, smaller volume.`]},
+ ()=>{const V1=rint(15,40)/10,t1=rint(1,4)*10,t2=rint(6,12)*10,V2=V1*(t2+K0)/(t1+K0);return [`A balloon holds ${fx(V1,1)} L at ${t1} °C. It is heated to ${t2} °C at constant pressure. What is its new volume?`,uniq(V2,[V1*t2/t1,V1*(t1+K0)/(t2+K0),V1],' L'),0,`Charles’s law with kelvin: V₂ = ${fx(V1,1)} × ${t2+K0} ÷ ${t1+K0} = ${sf(V2)} L. Using °C directly gives a wrong answer.`]},
+ ()=>{const P1=rint(10,30)*10,T1=rint(27,32)*10,T2=T1+rint(5,15)*10,P2=P1*T2/T1;return [`A sealed can (fixed volume) holds gas at ${P1} kPa and ${T1} K. It is heated to ${T2} K. What is the new pressure?`,uniq(P2,[P1*T1/T2,P1+(T2-T1),P1],' kPa'),0,`Gay-Lussac’s law: P₂ = P₁T₂ ÷ T₁ = ${P1} × ${T2} ÷ ${T1} = ${sf(P2)} kPa.`]},
+ ()=>{const P=rint(90,250),V=rint(10,60)/10,T=rint(27,40)*10,n=P*V/(R*T);return [`How many moles of gas are in ${fx(V,1)} L at ${P} kPa and ${T} K? (R = 8.314 L·kPa/(mol·K))`,uniq(n,[P*V/(R*(T-K0)),P*V/(0.0821*T),P*V*R/T],' mol'),0,`n = PV ÷ RT = ${P} × ${fx(V,1)} ÷ (8.314 × ${T}) = ${sf(n)} mol.`]},
+ ()=>{let a,b;do{a=rint(0,GASES.length-1);b=rint(0,GASES.length-1)}while(a===b);if(GASES[a][2]>GASES[b][2])[a,b]=[b,a];const A=GASES[a],B=GASES[b],r=Math.sqrt(B[2]/A[2]);
+  return [`How many times faster does ${A[0]} (${fx(A[2],2)} g/mol) diffuse than ${B[0]} (${fx(B[2],2)} g/mol)?`,uniq(r,[B[2]/A[2],Math.sqrt(A[2]/B[2]),A[2]/B[2]],'',x=>fx(x,2)),0,`Graham’s law: √(${fx(B[2],2)} ÷ ${fx(A[2],2)}) = ${fx(r,2)}. The lighter gas is faster.`]},
+ ()=>{const a=rint(20,60),b=rint(10,50),c=rint(5,30),t=a+b+c;return Math.random()<.5?[`A mixture contains N₂ at ${a} kPa, O₂ at ${b} kPa and CO₂ at ${c} kPa. What is the total pressure?`,uniq(t,[t/3,a*b*c/100,Math.max(a,b,c)],' kPa'),0,`Dalton’s law: the total pressure is the sum of the partial pressures, ${a} + ${b} + ${c} = ${t} kPa.`]
+  :[`The total pressure of a mixture of He, Ne and Ar is ${t} kPa. He is ${a} kPa and Ne is ${b} kPa. What is the partial pressure of Ar?`,uniq(c,[t,a+b,t/3],' kPa'),0,`Dalton’s law: P(Ar) = ${t} − ${a} − ${b} = ${c} kPa.`]},
+ ()=>{const k=pick([0,1,2]);if(k===0){const a=rint(15,40)/10;return [`${fx(a,1)} atm is how many kPa?`,uniq(a*101.3,[a*760,a/101.3,a*100/7.6],' kPa'),0,`1 atm = 101.3 kPa, so ${fx(a,1)} × 101.3 = ${sf(a*101.3)} kPa.`]}
+  if(k===1){const m=rint(60,90)*10;return [`${m} mmHg is how many atm?`,uniq(m/760,[m/101.3,m*760/1e5,m/100],' atm'),0,`1 atm = 760 mmHg, so ${m} ÷ 760 = ${sf(m/760)} atm.`]}
+  const c=rint(-50,120);return [`${c} °C is how many kelvin?`,uniq(c+K0,[c-K0,K0-c,c],' K',x=>String(Math.round(x))),0,`T(K) = T(°C) + 273 = ${c+K0} K.`]},
+ ()=>pick([
+  ['At constant temperature, the volume of a gas is halved. What happens to its pressure?',['It doubles','It halves','It stays the same','It becomes four times bigger'],0,'Boyle’s law: P × V stays the same, so half the volume means twice the pressure.'],
+  ['Why must temperatures be in kelvin in gas law calculations?',['Volume and pressure are proportional to the kelvin temperature','Kelvin numbers are bigger','Celsius cannot be used for gases','The kelvin scale has no negative numbers in water'],0,'At 0 K a gas would have no volume and no pressure. Only the kelvin scale starts there.'],
+  ['On a Charles’s law graph of V against T (°C), the line meets V = 0 at…',['−273 °C','0 °C','100 °C','−100 °C'],0,'Extending the line gives −273 °C: absolute zero, 0 K.'],
+  ['Real gases behave least like ideal gases at…',['High pressure and low temperature','Low pressure and high temperature','Room conditions','Any pressure if the gas is light'],0,'Particles are close together and slow, so their own volume and the attractions between them matter.'],
+  ['Avogadro’s principle: equal volumes of gases at the same temperature and pressure contain…',['Equal numbers of particles','Equal masses','Equal densities','Equal numbers of atoms in each molecule'],0,'The volume depends on the number of particles, not on what they are.'],
+  ['What is the volume of 1 mol of any gas at STP (0 °C and 1 atm)?',['22.4 L','1.00 L','24.0 L','8.31 L'],0,'The molar volume at STP is 22.4 L.'],
+  ['What causes the pressure of a gas?',['Particles hitting the walls of the container','Particles attracting each other','The weight of the particles','Particles stopping at the walls'],0,'Pressure is force per area from collisions with the walls.'],
+  ['Which gas diffuses fastest at the same temperature?',['H₂','He','N₂','CO₂'],0,'H₂ has the smallest molar mass (2.02 g/mol), so its particles are fastest.'],
+  ['Gas in a rigid container is heated. Why does the pressure rise?',['The particles move faster and hit the walls harder and more often','The particles get bigger','More particles are made','The container gets smaller'],0,'Higher temperature means more kinetic energy, so more force on the walls.'],
+  ['In PV = nRT with P in kPa and V in L, which value of R do you use?',['8.314 L·kPa/(mol·K)','0.0821 L·atm/(mol·K)','62.4 L·mmHg/(mol·K)','1.00'],0,'Match R to the pressure unit: kPa → 8.314.'],
+  ['The combined gas law holds which quantity constant?',['The amount of gas','The temperature','The pressure','The volume'],0,'P₁V₁/T₁ = P₂V₂/T₂ for a fixed amount of gas.']])];
+let score=0,tries=0,answered=false,lastG=-1;
+function nextQ(){let g_;do{g_=rint(0,GEN.length-1)}while(g_===lastG);lastG=g_;const q=GEN[g_]();answered=false;
+ $('#qText').textContent=q[0];$('#qStatus').hidden=true;const opts=shuffle(q[1].map((t,k)=>({t,k})));
+ $('#qOpts').innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;b.onclick=()=>{if(answered)return;answered=true;tries++;
+  const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
+  const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
+$('#qNext').onclick=nextQ;
+
+/* =========================================================
+   DRAW, ANIMATE, PARTS, START
+   ========================================================= */
+function drawAll(){if(!C.ink)readColors();if(tab==='law'){drawCyl();drawGraph()}if(tab==='graham'){drawTube();gUI()}}
+addEventListener('resize',drawAll);
+let lastF=0;
+function loop(t){const dt=Math.min(.05,(t-(lastF||t))/1000);lastF=t;
+ if(tab==='law'){stepParts(dt);drawCyl()}
+ if(tab==='graham'){if(gh.run){gh.t+=dt;const [,,met]=gD();if(met){gh.run=false;gh.done=true}gUI()}drawTube()}
+ requestAnimationFrame(loop)}
+if(window.LabParts){window.__lp=LabParts.attach({key:'gaslaws',wrap:$('#cyl').parentElement,stage:$('#cyl'),bar:$('#lawBar'),max:5,parts:()=>{const G=GEO;if(!G)return [];return [
+ {id:'piston',name:'Piston',what:'A movable lid. Push it down and the gas has less volume; the particles hit it more often, so the pressure rises.',hint:'The grey bar on top of the gas.',q:'What changes the volume of the gas?',x:G.xi+G.wi*.15,y:G.pistY,boxes:[[G.xi,G.yTop-G.pistH-2,G.xi+G.wi,G.yTop+2]]},
+ {id:'gas',name:'Gas particles',what:'Tiny particles far apart, moving fast in straight lines until they hit each other or a wall (kinetic-molecular theory). Hotter means faster.',hint:'The moving dots.',q:'Where are the gas particles?',x:G.xi+G.wi*.5,y:(G.yTop+G.base)/2,boxes:[[G.xi,G.yTop,G.xi+G.wi,G.base]]},
+ {id:'gauge',name:'Pressure gauge',what:'Measures the pressure: the force of the particles hitting the walls, per area. Here in kilopascals (101.3 kPa = 1 atm = 760 mmHg).',hint:'The round dial.',q:'What measures the pressure?',x:G.gx,y:G.gy-G.gr*.4,boxes:[[G.gx-G.gr,G.gy-G.gr,G.gx+G.gr,G.gy+G.gr]]},
+ {id:'thermo',name:'Thermometer (kelvin)',what:'Shows the temperature in kelvin. 0 K = −273 °C is absolute zero, where particles would stop moving.',hint:'The tall tube on the right.',q:'Which scale do gas laws use for temperature?',x:G.tx,y:(G.ty0+G.ty1)/2,boxes:[[G.tx-14,G.ty0,G.tx+14,G.ty1+14]]},
+ {id:'heater',name:'Heater',what:'Heating gives the particles more kinetic energy: they move faster and hit the walls harder.',hint:'The coloured bar under the cylinder.',q:'What makes the particles move faster?',x:G.x0+G.cw*.5,y:G.base+17,boxes:[[G.x0-2,G.base+8,G.x0+G.cw+2,G.base+26]]}]}})}
+readColors();setLaw('boyle');setExK('boyle');nextQ();gUI();themeLabel();requestAnimationFrame(loop);
+
+</script>
+<script src="tour.js" defer></script>
+<script src="lab-guide.js" defer></script>
+</body></html>

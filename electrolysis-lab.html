@@ -1,0 +1,430 @@
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Electrolysis</title>
+<meta name="description" content="Push a zinc–copper cell backwards with a power supply to turn a voltaic cell into an electrolytic cell, then electrolyse molten sodium chloride, brine and water, purify copper and silver-plate a key. Exercise solver and challenge.">
+<!-- og -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mr Khaled · Science Simulations">
+<meta property="og:title" content="Electrolysis · Mr Khaled">
+<meta property="og:description" content="Push a zinc–copper cell backwards with a power supply to turn a voltaic cell into an electrolytic cell, then electrolyse molten sodium chloride, brine and water, purify copper and silver-plate a key. Exercise solver and challenge.">
+<meta property="og:url" content="https://khaledbadra957-beep.github.io/simulation/electrolysis-lab.html">
+<meta property="og:image" content="https://khaledbadra957-beep.github.io/simulation/og/electrolysis-lab.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Electrolysis: a picture of the lab">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- /og -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench layout as the other labs. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --a:#2F6FD0; --b:#D88A1C; --prod:#1E8A55; --rose:#C2185B;
+  --brass:#B8913A; --brass-soft:rgba(233,196,106,.45);
+  --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
+#beaker{height:clamp(300px,34vw,340px)}
+.mkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:.85rem;color:var(--muted)}.mkey i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+#kg{height:260px}
+#eg{height:250px;cursor:crosshair}
+.pred{display:flex;gap:6px;flex-wrap:wrap}
+.pred button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700}
+.pred button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pred button:hover{border-color:var(--accent)}
+.ans select{max-width:100%}
+
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%;align-self:flex-start}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.ans input{width:8em}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8125rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+tr.pick td{background:var(--brass-soft)}
+tbody tr{cursor:pointer}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body);cursor:default}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0;font-size:.92rem}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.15rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+.runs{display:flex;flex-wrap:wrap;gap:6px}
+.runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas.stage{border:0;border-radius:0}
+.stage-ui .sc-read{position:absolute;top:12px;right:12px;z-index:2;width:250px;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+@media (max-width:1100px){.stage-ui .sc-read{width:200px}}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{top:auto;bottom:8px;right:8px;width:170px;padding:6px 8px}.stage-ui .sc-read .readouts{gap:2px 8px}.stage-ui .sc-read dt{font-size:11.5px}.stage-ui .sc-read dd{font-size:12.5px}.stage-ui .sc-read div[style]{display:none}}
+.stage-ui .panel input[type=range]{height:22px}
+.stage-ui .panel .field{gap:0}
+.stage-ui .sc-read dd{white-space:nowrap;font-size:.92rem}
+.stage-ui .sc-read{width:290px}
+.stage-ui .sc-read div[style] dd{white-space:normal;font-size:.85rem}
+.stage-ui #runs:empty{display:none}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{display:none}}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui #beaker,.stage-ui #kg{height:auto}
+.stage-ui .play > .extra.tall{height:clamp(170px,32vh,290px)}
+.stage-ui .sc-eq{position:absolute;top:12px;left:14px;z-index:2;font-weight:600;font-size:15px;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+.stage-ui .scene .mkey{position:absolute;left:14px;bottom:10px;z-index:2;font-size:12.5px;background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 10px;border-radius:8px}
+.stage-ui .seg{width:100%;align-self:stretch}
+.stage-ui .transport .seg{width:auto}
+.stage-ui .gh .seg{width:auto}
+.stage-ui .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stage-ui .small{font-size:13px}
+.stage-ui .btn.small{min-height:34px;font-size:13.5px;padding:0 10px}
+.stage-ui .pred{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stage-ui .status{font-size:13.5px;padding:7px 10px}
+.stage-ui .readouts{gap:6px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .sol{font-size:12.5px;padding:8px 10px}
+.stage-ui .morein{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .flabel{font-size:14px}
+.stage-ui .solo-in > .benchhead{margin-top:4px}
+.stage-ui #eg{height:260px;border:1px solid var(--line);border-radius:10px}
+.stage-ui .solo-in{padding:8px 4px 20px}
+.stage-ui .solo-in .card{background:var(--surface)}
+.stage-ui #exSolve svg{flex:none}
+.stage-ui details.own summary{cursor:pointer;font-weight:700;list-style:none}.stage-ui details.own summary::-webkit-details-marker{display:none}.stage-ui details.own summary::before{content:"+ ";font-family:var(--data)}.stage-ui details.own[open] summary::before{content:"− "}
+.stage-ui .ownf{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 18px;margin:10px 0}
+.stage-ui .ownf label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.stage-ui .ownf label.ck{flex-direction:row;align-items:center;gap:8px;align-self:end;min-height:38px}
+.stage-ui .ownf span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .ownf input[type=number],.stage-ui .ownf select{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .ownf input[aria-invalid="true"]{border-color:var(--bad)}
+@media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.tall{height:220px}.stage-ui .scene .mkey{display:none}.stage-ui .sc-eq{font-size:12.5px;top:8px;left:8px}}
+
+
+/* ---------- this lab ---------- */
+:root{--fill:#0A6A88;--hot:#D9534F;--cold:#3D7BE0;--solid:#3D7BE0;--liq:#0A8A7A;--gas:#C2571A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}}
+:root[data-theme="dark"]{--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}
+.rule{font-size:.9rem;line-height:1.35;margin:0;padding:7px 10px;border-radius:9px;background:var(--surface);border:1.5px solid var(--line)}
+.rule.ok{border-color:var(--ok)}.rule.ok b{color:var(--ok)}.rule.bad{border-color:var(--bad)}
+.stage-ui .play > .extra.mid{height:clamp(150px,27vh,250px)}
+.eqn{font:600 1.1rem var(--data);margin:2px 0 4px}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px 14px}
+.exgrid label{display:flex;flex-direction:column;gap:3px;font-size:.88rem;color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.exgrid input[aria-invalid]{border-color:var(--bad)}
+.panel select{font:600 14px var(--data);padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);width:100%}
+.key{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;color:var(--muted);margin:4px 0 0}.key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}.btnrow .btn{padding:6px 10px}
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css"></head><body>
+
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Electrolysis</h1>
+ <span class="tb-tag">Chemistry · G12</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button id="fsBtn" type="button" hidden></button><button id="themeBtn" type="button" hidden></button>
+<div class="tabs" role="tablist" hidden>
+ <button class="tab" role="tab" aria-selected="true" data-tab="cell" aria-controls="p-cell">Voltaic or electrolytic</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="elec" aria-controls="p-elec">Electrolysis</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Exercise</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">Challenge</button>
+</div>
+<main class="screens">
+ <section class="screen" id="p-cell" data-screens="intro cell" role="tabpanel">
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="cc" aria-label="A zinc and copper cell with a salt bridge and a power supply. Arrows show the electrons and ions."></canvas></div>
+   <div class="transport" id="cBar"><button class="btn primary" id="cRun" type="button">Pause</button><button class="btn" id="cReset" type="button">New electrodes</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Zn | Zn²⁺ ‖ Cu²⁺ | Cu</h2>
+    <div class="field"><div class="field-head"><label for="cV">Power supply (pushing against the cell)</label><output id="cVo"></output></div><input id="cV" type="range" min="0" max="2" step="0.01" value="0"></div>
+    <p class="rule" id="cMsg"></p></section>
+   <section class="group"><h2>Readings</h2><dl class="readouts"><div><dt>E° of the cell</dt><dd>+1.10 V</dd></div><div><dt>Net voltage</dt><dd id="cNet">–</dd></div><div><dt>Zn electrode</dt><dd id="cZn">–</dd></div><div><dt>Cu electrode</dt><dd id="cCu">–</dd></div></dl></section>
+  </aside>
+ </section>
+ <section class="screen" id="p-elec" data-screens="elec" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="ec" aria-label="An electrolysis cell with a power supply; products form at each electrode"></canvas></div>
+   <div class="transport" id="eBar"><button class="btn primary" id="eRun" type="button">Switch on</button><button class="btn" id="eReset" type="button">Start again</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Electrolysis</h2><div class="field"><label class="flabel" for="eS">Set-up</label><select id="eS"></select></div>
+    <div class="field"><div class="field-head"><label for="eI">Current</label><output id="eIo"></output></div><input id="eI" type="range" min="0.1" max="3" step="0.1" value="1"></div>
+    <p class="rule" id="eMsg"></p></section>
+   <section class="group"><h2>At the electrodes</h2><div class="note" id="eHalf" style="font-family:var(--data)"></div><dl class="readouts"><div><dt>Time (speeded up)</dt><dd id="eT">–</dd></div><div><dt id="eQl">Charge passed</dt><dd id="eQ">–</dd></div><div><dt id="eP1l">Cathode product</dt><dd id="eP1">–</dd></div><div><dt id="eP2l">Anode product</dt><dd id="eP2">–</dd></div></dl></section>
+  </aside>
+ </section>
+ <section class="screen solo" id="p-ex" data-screens="ex" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button>
+   <button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+  <div class="card"><div class="field"><span class="flabel">Kind of exercise</span>
+   <div class="seg" role="group" aria-label="Kind of exercise" id="exKSeg" style="width:auto;flex-wrap:wrap"><button type="button" data-exk="min" aria-pressed="true">Minimum voltage</button><button type="button" data-exk="prod" aria-pressed="false">Products</button><button type="button" data-exk="plate" aria-pressed="false">Electroplating mass</button></div></div>
+   <div class="exgrid" id="exF"></div><p class="note" id="exMsg"></p><p id="exText" class="q" style="font-size:1rem"></p></div>
+ </div></section>
+ <section class="screen solo" id="p-chal" data-screens="chal" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
+  <p class="q" id="qText"></p><div class="opts" id="qOpts"></div><p class="status" id="qStatus" aria-live="polite" hidden></p>
+  <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
+ </div></section>
+</main>
+<p class="vh">Standard reduction potentials from Inspire Chemistry Module 19 Table 1. F = 96 485 C/mol.</p>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'cell', simple: true }, { id: 'cell', name: 'Voltaic or electrolytic', tab: 'cell' }, { id: 'elec', name: 'Electrolysis', tab: 'elec' }, { id: 'ex', name: 'Exercise', tab: 'ex' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ], tour: [ { el: '#cV', title: 'The power supply', text: 'Below 1.10 V the cell wins. Above 1.10 V the supply forces the reaction backwards.' }, { el: '#cMsg', title: 'Anode and cathode', text: 'Oxidation is always at the anode, reduction at the cathode.' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fx=(x,d=2)=>Number(x).toFixed(d);
+const sup=e=>String(e).split('').map(ch=>ch==='-'?'⁻':ch==='+'?'⁺':'⁰¹²³⁴⁵⁶⁷⁸⁹'[+ch]).join('');
+const sci=(v,d=2)=>{if(!isFinite(v))return '–';if(v===0)return '0';let e=Math.floor(Math.log10(Math.abs(v)));let m=v/Math.pow(10,e);if(Math.abs(+m.toFixed(d))>=10){m/=10;e++}return `${m.toFixed(d)} × 10${sup(e)}`};
+/* number input: 4.86e-7, 4.86×10^-7, 4.86x10-7, commas */
+function num(s){if(s==null)return NaN;s=String(s).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/[()]/g,'').replace(/\s/g,'');s=s.replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return s===''?NaN:Number(s)}
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+let C={};
+function readColors(){const s=getComputedStyle(root);['stage','surface','ink','muted','line','grid','accent','brass','rose','ok','bad','a','b','prod','fill','hot','cold','solid','liq','gas'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+new MutationObserver(()=>themeLabel()).observe(root,{attributes:true,attributeFilter:['data-theme']});
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='cell';
+const TABS=["cell", "elec", "ex", "chal"];
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));TABS.forEach(t=>$('#p-'+t).hidden=t!==tab);drawAll()});
+$('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen?.()}catch(e){}$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)};
+document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)});
+function segPick(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===btn))}
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function txt(x,s,a,b,col,size=12,align='left',base='alphabetic',wt=500,fam='"IBM Plex Mono",monospace'){x.fillStyle=col;x.font=`${wt} ${size}px ${fam}`;x.textAlign=align;x.textBaseline=base;x.fillText(s,a,b)}
+const go=id=>{const b=document.querySelector('.lg-nav [data-ph="'+id+'"]');if(b&&root.getAttribute('data-screen')!==id)b.click();else{const t=LAB.screens.find(s=>s.id===id);if(t){const tb=document.querySelector('.tab[data-tab="'+t.tab+'"]');if(tb&&tab!==t.tab)tb.click()}}};
+
+
+/* ---------- shared: challenge ---------- */
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const sf=(v,n=3)=>{if(!isFinite(v))return '–';const a=Math.abs(v);if(a>=1e5||(a<1e-3&&a>0))return sci(v,n-1);if(a>=1000)return Math.round(v).toLocaleString('en-US');return v.toPrecision(n)};
+const uniq=(right,wr,unit,f=sf)=>{const s=[right,...wr].map(x=>f(x)+unit),o=[];s.forEach(x=>{if(!o.includes(x))o.push(x)});let k=1;while(o.length<4){const x=f(right*(1+.37*k++))+unit;if(!o.includes(x))o.push(x)}return o.slice(0,4)};
+const calc=t=>'<div class="t-calc">'+t+'</div>';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function rrect(X,x,y,w,h,r){r=Math.min(r,w/2,h/2);X.beginPath();X.moveTo(x+r,y);X.arcTo(x+w,y,x+w,y+h,r);X.arcTo(x+w,y+h,x,y+h,r);X.arcTo(x,y+h,x,y,r);X.arcTo(x,y,x+w,y,r);X.closePath()}
+const hex=s=>{s=(s||'#888').trim().replace('#','');if(s.length===3)s=s.split('').map(c=>c+c).join('');const n=parseInt(s,16);return [n>>16&255,n>>8&255,n&255]};
+const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*clamp(t,0,1))).join(',')})`};
+const alpha=(c,a)=>{const A=hex(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const mns=v=>String(v).replace(/-/g,'−');
+let score=0,tries=0,answered=false,lastG=-1;
+function nextQ(){let g_;do{g_=rint(0,GEN.length-1)}while(g_===lastG&&GEN.length>1);lastG=g_;const q=GEN[g_]();answered=false;
+ $('#qText').textContent=q[0];$('#qStatus').hidden=true;const opts=shuffle(q[1].map((t,k)=>({t,k})));
+ $('#qOpts').innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;b.onclick=()=>{if(answered)return;answered=true;tries++;
+  const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
+  const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
+$('#qNext').onclick=nextQ;
+function tourGo(steps){if(!window.Tour)return;setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+
+/* =========================================================
+   VOLTAIC OR ELECTROLYTIC
+   ========================================================= */
+const E0=1.10,F=96485;
+const CL={V:0,run:true,t:0,zn:20.00,cu:20.00};
+$('#cV').addEventListener('input',e=>{CL.V=+e.target.value;clUI()});$('#cRun').onclick=()=>{CL.run=!CL.run;clUI()};$('#cReset').onclick=()=>{CL.zn=20;CL.cu=20;clUI()};
+function clUI(){$('#cV').value=CL.V;const net=E0-CL.V,mode=Math.abs(net)<0.01?'off':net>0?'v':'e';$('#cVo').textContent=fx(CL.V,2)+' V';$('#cNet').textContent=(net>=0?'+':'−')+fx(Math.abs(net),2)+' V';$('#cZn').textContent=fx(CL.zn,3)+' g';$('#cCu').textContent=fx(CL.cu,3)+' g';$('#cRun').textContent=CL.run?'Pause':'Run';
+ $('#cMsg').innerHTML=mode==='off'?'<b>Balanced:</b> the supply pushes exactly as hard as the cell. No current flows.':mode==='v'?`<b>Voltaic cell:</b> the cell wins${CL.V>0?' (the supply only slows it)':''}. Zn is oxidized at the <b>anode</b> (Zn → Zn²⁺ + 2e⁻) and Cu²⁺ is reduced at the <b>cathode</b> (Cu²⁺ + 2e⁻ → Cu). Electrons flow from Zn to Cu through the wire. Spontaneous.`:`<b>Electrolytic cell:</b> the supply (${fx(CL.V,2)} V) is bigger than 1.10 V and forces the reaction backwards. Now Cu is oxidized at the <b>anode</b> (Cu → Cu²⁺ + 2e⁻) and Zn²⁺ is reduced at the <b>cathode</b> (Zn²⁺ + 2e⁻ → Zn). Electrical energy drives a non-spontaneous reaction.`;drawCC()}
+let CG=null;
+function drawCC(){const c=$('#cc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const net=E0-CL.V,mode=Math.abs(net)<0.01?'off':net>0?'v':'e',t=performance.now()/1000;
+ const bw=Math.min(w*.26,220),bh=Math.min(h*.42,200),by=h*.42,b1=w*.5-bw-50,b2=w*.5+50;CG={b1,b2,bw,by,bh};
+ [[b1,'Zn²⁺ (ZnSO₄)','#D9E4EE'],[b2,'Cu²⁺ (CuSO₄)','#5AA0E0']].forEach(([x,lab,col],i)=>{X.fillStyle=alpha(i?C.fill:C.muted,i?.35:.15);X.fillRect(x,by+bh*.2,bw,bh*.8);X.strokeStyle=C.ink;X.lineWidth=3;X.beginPath();X.moveTo(x,by);X.lineTo(x,by+bh);X.lineTo(x+bw,by+bh);X.lineTo(x+bw,by);X.stroke();txt(X,lab,x+bw/2,by+bh+20,C.muted,12,'center','alphabetic',600)});
+ // salt bridge
+ X.strokeStyle=C.muted;X.lineWidth=14;X.lineCap='round';X.beginPath();X.moveTo(b1+bw*.8,by+bh*.5);X.lineTo(b1+bw*.8,by-20);X.lineTo(b2+bw*.2,by-20);X.lineTo(b2+bw*.2,by+bh*.5);X.stroke();X.lineCap='butt';X.strokeStyle=alpha(C.surface,.8);X.lineWidth=8;X.beginPath();X.moveTo(b1+bw*.8,by+bh*.5);X.lineTo(b1+bw*.8,by-20);X.lineTo(b2+bw*.2,by-20);X.lineTo(b2+bw*.2,by+bh*.5);X.stroke();txt(X,'salt bridge',w/2,by-30,C.muted,11,'center');
+ // electrodes
+ const ex1=b1+bw*.3,ex2=b2+bw*.7,ew=Math.max(10,14*CL.zn/20),ew2=Math.max(10,14*CL.cu/20);X.fillStyle='#9AA3AD';X.fillRect(ex1-ew/2,by-70,ew,bh*.85+70);X.fillStyle='#C77B4A';X.fillRect(ex2-ew2/2,by-70,ew2,bh*.85+70);txt(X,'Zn',ex1,by+bh*.95,C.ink,13,'center','alphabetic',700);txt(X,'Cu',ex2,by+bh*.95,C.ink,13,'center','alphabetic',700);
+ const an1=mode==='e'?'cathode (−)':'anode (−)',an2=mode==='e'?'anode (+)':'cathode (+)';if(mode!=='off'){txt(X,an1,ex1,by-80,mode==='e'?C.solid:C.rose,12,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');txt(X,an2,ex2,by-80,mode==='e'?C.rose:C.solid,12,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+ // wire and supply
+ const wy=Math.max(26,by-150);X.strokeStyle=C.ink;X.lineWidth=2.5;X.beginPath();X.moveTo(ex1,by-70);X.lineTo(ex1,wy);X.lineTo(w/2-40,wy);X.moveTo(w/2+40,wy);X.lineTo(ex2,wy);X.lineTo(ex2,by-70);X.stroke();
+ X.fillStyle=C.surface;X.strokeStyle=C.ink;rrect(X,w/2-40,wy-22,80,44,6);X.fill();X.stroke();txt(X,fx(CL.V,2)+' V',w/2,wy+5,C.ink,15,'center','alphabetic',700);txt(X,'power supply',w/2,wy-28,C.muted,11,'center');
+ if(mode!=='off'){const dir=mode==='v'?1:-1,len=(ex2-ex1)+2*(by-70-wy),sp=Math.min(1,Math.abs(net))*0.25;for(let i=0;i<8;i++){let s=((i/8+t*sp*dir)%1+1)%1,d=s*len,px,py;const l1=by-70-wy;if(d<l1){px=ex1;py=by-70-d}else if(d<l1+(ex2-ex1)){px=ex1+(d-l1);py=wy}else{px=ex2;py=wy+(d-l1-(ex2-ex1))}if(Math.abs(px-w/2)<44&&Math.abs(py-wy)<24)continue;X.fillStyle=C.accent;X.beginPath();X.arc(px,py,4,0,7);X.fill()}
+  txt(X,mode==='v'?'e⁻ → (Zn to Cu)':'← e⁻ (forced from Cu to Zn)',w/2,wy+40,C.accent,12,'center','alphabetic',700);
+  for(let i=0;i<4;i++){const s=((i/4+t*.15)%1);X.fillStyle=C.rose;X.beginPath();X.arc(b1+bw*.8+(b2+bw*.2-b1-bw*.8)*(mode==='v'?1-s:s),by-20,3,0,7);X.fill();X.fillStyle=C.solid;X.beginPath();X.arc(b1+bw*.8+(b2+bw*.2-b1-bw*.8)*(mode==='v'?s:1-s),by-16,3,0,7);X.fill()}}
+ txt(X,mode==='v'?'VOLTAIC: spontaneous':mode==='e'?'ELECTROLYTIC: driven by the supply':'no current',w/2,h-12,mode==='v'?C.ok:mode==='e'?C.bad:C.muted,14,'center','alphabetic',800,'"IBM Plex Sans",sans-serif')}
+
+/* =========================================================
+   ELECTROLYSIS SET-UPS
+   ========================================================= */
+/* name, cathode product, anode product, cathode half, anode half, kind, metal molar mass/n for cathode deposit */
+const SET=[
+ {n:'Molten NaCl (Downs cell)',c:'Na (liquid metal)',a:'Cl₂ gas',ch:'Na⁺ + e⁻ → Na',ah:'2Cl⁻ → Cl₂ + 2e⁻',m:'No water, so Na⁺ must be reduced: sodium metal forms (the cell runs above 801 °C).',cm:[22.99,1],ag:[1,2],liq:'#E8D9B0',ck:'metal',ak:'gas'},
+ {n:'Brine, NaCl(aq)',c:'H₂ gas',a:'Cl₂ gas',ch:'2H₂O + 2e⁻ → H₂ + 2OH⁻',ah:'2Cl⁻ → Cl₂ + 2e⁻',m:'Water is reduced more easily than Na⁺ (E° −0.83 V against −2.71 V), so hydrogen forms and NaOH is left in the solution.',cg:[1,2],ag:[1,2],liq:'#D9E8F0',ck:'gas',ak:'gas'},
+ {n:'Water with a little H₂SO₄',c:'H₂ gas',a:'O₂ gas',ch:'4H⁺ + 4e⁻ → 2H₂',ah:'2H₂O → O₂ + 4H⁺ + 4e⁻',m:'Water splits into hydrogen and oxygen. For every 4 electrons: 2 H₂ but only 1 O₂, so twice the volume of hydrogen.',cg:[1,2],ag:[1,4],liq:'#E4F1F7',ck:'gas',ak:'gas'},
+ {n:'Purifying copper (CuSO₄, copper electrodes)',c:'pure Cu',a:'Cu dissolves',ch:'Cu²⁺ + 2e⁻ → Cu',ah:'Cu → Cu²⁺ + 2e⁻',m:'Impure copper is the anode and dissolves; pure copper plates onto the cathode. Impurities fall to the bottom as sludge.',cm:[63.55,2],liq:'#5AA0E0',ck:'metal',ak:'dissolve'},
+ {n:'Silver-plating a key (AgNO₃, silver anode)',c:'Ag coating on the key',a:'Ag dissolves',ch:'Ag⁺ + e⁻ → Ag',ah:'Ag → Ag⁺ + e⁻',m:'The key is the cathode: Ag⁺ ions gain electrons and coat it with silver. The silver anode dissolves to replace the Ag⁺ ions.',cm:[107.87,1],liq:'#EDEDED',ck:'plate',ak:'dissolve'}];
+const EL={s:0,I:1,t:0,run:false};
+$('#eS').innerHTML=SET.map((s,i)=>`<option value="${i}">${s.n}</option>`).join('');$('#eS').onchange=e=>{EL.s=+e.target.value;EL.t=0;EL.run=false;elUI()};
+$('#eI').addEventListener('input',e=>{EL.I=+e.target.value;elUI()});$('#eRun').onclick=()=>{EL.run=!EL.run;elUI()};$('#eReset').onclick=()=>{EL.t=0;EL.run=false;elUI()};
+const VM=24.0;/* L/mol at room conditions */
+function elCalc(){const S=SET[EL.s],q=EL.I*EL.t,ne=q/F;const r={q,ne};if(S.cm)r.mc=ne/S.cm[1]*S.cm[0];if(S.cg)r.vc=ne*S.cg[0]/S.cg[1]*VM*1000;if(S.ag)r.va=ne*S.ag[0]/S.ag[1]*VM*1000;return r}
+function elUI(){$('#eS').value=EL.s;$('#eI').value=EL.I;const S=SET[EL.s],r=elCalc();$('#eIo').textContent=fx(EL.I,1)+' A';$('#eRun').textContent=EL.run?'Switch off':'Switch on';$('#eT').textContent=`${Math.floor(EL.t/60)} min ${Math.round(EL.t%60)} s`;$('#eQ').textContent=sf(r.q,3)+' C';
+ $('#eHalf').innerHTML=`<div><b style="color:var(--solid)">cathode (−), reduction:</b> ${S.ch}</div><div><b style="color:var(--rose)">anode (+), oxidation:</b> ${S.ah}</div>`;
+ $('#eP1l').textContent='Cathode: '+S.c;$('#eP1').textContent=r.mc!=null?sf(r.mc,3)+' g':r.vc!=null?sf(r.vc,3)+' mL':'–';$('#eP2l').textContent='Anode: '+S.a;$('#eP2').textContent=r.va!=null?sf(r.va,3)+' mL':S.cm&&S.ak==='dissolve'?sf(r.mc,3)+' g lost':'–';
+ $('#eMsg').innerHTML=S.m+(EL.t>0?` <span style="color:var(--muted)">Extension: moles of electrons = I × t ÷ F = ${sf(r.ne,3)} mol.</span>`:'');drawEC()}
+let EG=null;
+function drawEC(){const c=$('#ec');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const S=SET[EL.s],r=elCalc(),tt=performance.now()/1000,on=EL.run;
+ const bw=Math.min(w*.5,340),bh=Math.min(h*.48,220),bx=(w-bw)/2,by=h*.42;EG={bx,bw,by,bh};
+ X.fillStyle=alpha(S.liq,.7);X.fillRect(bx,by+bh*.15,bw,bh*.85);X.strokeStyle=C.ink;X.lineWidth=3;X.beginPath();X.moveTo(bx,by);X.lineTo(bx,by+bh);X.lineTo(bx+bw,by+bh);X.lineTo(bx+bw,by);X.stroke();
+ const xa=bx+bw*.25,xc=bx+bw*.75,ey=by-(EL.s===2||EL.s===1?bh*.1:30),el=bh*.8+30;const anCol=S.ak==='dissolve'?(EL.s===3?'#C77B4A':'#D8DCE0'):'#555',caCol=S.ck==='plate'?'#B9A27A':S.ck==='metal'&&EL.s===3?'#C77B4A':'#555';
+ const loss=S.ak==='dissolve'?Math.min(.5,(r.mc||0)/4):0,gain=S.cm?Math.min(.5,(r.mc||0)/4):0;
+ X.fillStyle=anCol;X.fillRect(xa-9*(1-loss),ey,18*(1-loss),el);
+ if(S.ck==='plate'){X.fillStyle=C.muted;X.fillRect(xc-3,ey,6,el*.5);const ky=ey+el*.5;X.fillStyle=gain>0.02?mix('#B9A27A','#E6E8EC',Math.min(1,gain*4)):'#B9A27A';X.beginPath();X.arc(xc,ky+18,18,0,7);X.fill();X.fillRect(xc-6,ky+30,12,el*.4);X.fillRect(xc+6,ky+50,10,6);X.fillRect(xc+6,ky+66,7,6);txt(X,'key',xc+26,ky+22,C.muted,11)}
+ else{X.fillStyle=caCol;X.fillRect(xc-9-gain*10,ey,18+gain*20,el);if(S.ck==='metal'&&EL.s===0&&r.mc>0){for(let i=0;i<Math.min(14,r.mc*30);i++){X.fillStyle='#C9CDD2';X.beginPath();X.arc(xc+(i%3-1)*10,by+bh*.25+i*6,4,0,7);X.fill()}}}
+ txt(X,'anode (+)',xa,by+bh+18,C.rose,12,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');txt(X,'cathode (−)',xc,by+bh+18,C.solid,12,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');
+ const bub=(x,col,n)=>{for(let i=0;i<n;i++){const s=((i/n+tt*.5)%1),y=by+bh*.9-s*bh*.75;X.strokeStyle=col;X.lineWidth=1.5;X.beginPath();X.arc(x+Math.sin(i*2.3+tt)*8,y,3+i%3,0,7);X.stroke()}};
+ if(on){if(S.ak==='gas')bub(xa,S.a.startsWith('Cl')?'#9DBF3A':C.muted,8);if(S.ck==='gas')bub(xc,C.muted,EL.s===2?12:8)}
+ if(EL.s===2||EL.s===1){[[xa,r.va,S.a],[xc,r.vc,S.c]].forEach(([x,v,lab])=>{const ty=by-bh*.25,tb=by+bh*.8,th=tb-ty;X.strokeStyle=alpha(C.ink,.8);X.lineWidth=2;X.beginPath();X.moveTo(x-16,tb);X.lineTo(x-16,ty+8);X.arc(x,ty+8,16,Math.PI,0);X.lineTo(x+16,tb);X.stroke();const f=Math.min(.9,(v||0)/250);X.fillStyle=alpha(C.stage,.95);X.fillRect(x-15,ty+2,30,th*f);X.strokeStyle=C.fill;X.beginPath();X.moveTo(x-15,ty+2+th*f);X.lineTo(x+15,ty+2+th*f);X.stroke();txt(X,`${lab.split(' ')[0]} ${sf(v||0,3)} mL`,x,ty-8,C.ink,11.5,'center','alphabetic',700)})}
+ X.strokeStyle=C.ink;X.lineWidth=2.5;const sy=Math.max(52,by-(EL.s===2||EL.s===1?bh*.25+60:60));X.beginPath();X.moveTo(xa,ey);X.lineTo(xa,sy);X.lineTo(w/2-36,sy);X.moveTo(w/2+36,sy);X.lineTo(xc,sy);X.lineTo(xc,ey);X.stroke();X.fillStyle=C.surface;rrect(X,w/2-36,sy-18,72,36,6);X.fill();X.stroke();txt(X,'+   −',w/2,sy+5,C.ink,14,'center','alphabetic',700);
+ if(on){for(let i=0;i<6;i++){const s=((i/6+tt*.3)%1);const px=xa+(xc-xa)*s;if(Math.abs(px-w/2)<40)continue;X.fillStyle=C.accent;X.beginPath();X.arc(px,sy,3.5,0,7);X.fill()}txt(X,'e⁻ → into the cathode',w/2,sy+32,C.accent,11.5,'center','alphabetic',700)}
+ txt(X,S.n,w/2,16,C.ink,13,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+
+/* =========================================================
+   EXERCISE
+   ========================================================= */
+const POT=[['Li⁺/Li',-3.0401],['K⁺/K',-2.931],['Ca²⁺/Ca',-2.868],['Na⁺/Na',-2.71],['Mg²⁺/Mg',-2.372],['Al³⁺/Al',-1.662],['Zn²⁺/Zn',-0.7618],['Fe²⁺/Fe',-0.447],['Ni²⁺/Ni',-0.257],['Sn²⁺/Sn',-0.1375],['Pb²⁺/Pb',-0.1262],['H⁺/H₂',0],['Cu²⁺/Cu',0.3419],['I₂/I⁻',0.5355],['Ag⁺/Ag',0.7996],['Br₂/Br⁻',1.066],['Cl₂/Cl⁻',1.358]];
+const PLM=[['silver, Ag⁺ + e⁻ → Ag',107.87,1],['copper, Cu²⁺ + 2e⁻ → Cu',63.55,2],['nickel, Ni²⁺ + 2e⁻ → Ni',58.69,2],['zinc, Zn²⁺ + 2e⁻ → Zn',65.38,2],['gold, Au³⁺ + 3e⁻ → Au',196.97,3]];
+const EXEG=[{k:'min',v:{a:'6',b:'12'},s:'A Zn–Cu voltaic cell is to be recharged (run as an electrolytic cell). What is the smallest voltage the power supply must give?'},{k:'prod',v:{s:'1'},s:'Brine (concentrated NaCl solution) is electrolysed. What forms at each electrode?'},{k:'prod',v:{s:'0'},s:'Molten sodium chloride is electrolysed. What forms at each electrode?'},{k:'plate',v:{m:'0',I:'2.0',t:'30'},s:'(Extension) A key is silver-plated with a current of 2.0 A for 30 minutes. What mass of silver is deposited?'}];
+let exk='min';const ex={v:{},story:null};
+function exBuild(){const v=ex.v;let h='';const sel=(k,o)=>`<select data-v="${k}">${o.map(([a,b])=>`<option value="${a}"${String(v[k])===String(a)?' selected':''}>${b}</option>`).join('')}</select>`,inp=(k,l)=>`<label>${l}<input data-v="${k}" inputmode="decimal" autocomplete="off" value="${v[k]??''}"></label>`;
+ if(exk==='min')h=`<label>Half-cell 1${sel('a',POT.map((p,i)=>[i,`${p[0]} (${p[1]>=0?'+':''}${p[1]} V)`]))}</label><label>Half-cell 2${sel('b',POT.map((p,i)=>[i,`${p[0]} (${p[1]>=0?'+':''}${p[1]} V)`]))}</label>`;
+ if(exk==='prod')h=`<label>Set-up${sel('s',SET.map((s,i)=>[i,s.n]))}</label>`;
+ if(exk==='plate')h=`<label>Metal${sel('m',PLM.map((p,i)=>[i,p[0]]))}</label>`+inp('I','Current (A)')+inp('t','Time (minutes)');
+ $('#exF').innerHTML=h;$$('#exF [data-v]').forEach(i=>i.addEventListener(i.tagName==='SELECT'?'change':'input',()=>{ex.v[i.dataset.v]=i.value;ex.story=null;exUpdate()}));exUpdate()}
+function exSolve(){const v=ex.v,bad=[];let r=null;
+ if(exk==='min'){const a=POT[+v.a],b=POT[+v.b];if(+v.a===+v.b)bad.push('b');else{const cat=a[1]>b[1]?a:b,an=cat===a?b:a;r={cat,an,E:cat[1]-an[1]}}}
+ if(exk==='prod')r={S:SET[+v.s]};
+ if(exk==='plate'){const I=num(v.I),t=num(v.t),p=PLM[+v.m];if(!(I>0))bad.push('I');if(!(t>0))bad.push('t');if(!bad.length){const q=I*t*60,ne=q/F;r={p,I,t,q,ne,nm:ne/p[2],m:ne/p[2]*p[1]}}}
+ $$('#exF [data-v]').forEach(i=>i.toggleAttribute('aria-invalid',bad.includes(i.dataset.v)));return r}
+function exUpdate(){const r=exSolve();if(!r){$('#exMsg').textContent='Choose two different half-cells, or type positive numbers.';$('#exText').innerHTML='';return null}$('#exMsg').textContent='Ready. Press “Solve it in the lab” to work through it.';if(ex.story){$('#exText').innerHTML=ex.story;return r}
+ $('#exText').innerHTML=exk==='min'?`A voltaic cell is made from ${r.cat[0]} and ${r.an[0]}. What minimum voltage reverses it?`:exk==='prod'?`${r.S.n} is electrolysed. What forms at each electrode?`:`Plate ${r.p[0].split(',')[0]} with ${ex.v.I} A for ${ex.v.t} min. What mass is deposited?`;return r}
+function setExK(k,eg){exk=k;segPick($(`[data-exk="${k}"]`));const d=eg||EXEG.find(e=>e.k===k);ex.v={...d.v};ex.story=d.s;exBuild()}
+$$('[data-exk]').forEach(b=>b.onclick=()=>setExK(b.dataset.exk));let egi=1;$('#exEg').onclick=()=>{const e=EXEG[egi++%EXEG.length];setExK(e.k,e)};
+$('#exSolve').onclick=()=>{const r=exUpdate();if(!r){$('#exMsg').textContent='Fix the red box first.';return}tourGo(exSteps(r))};
+function exSteps(r){const v=ex.v;
+ if(exk==='min'){const S=[{title:'Solve it in the lab',html:'<p>As a voltaic cell, the half-cell with the higher reduction potential is the cathode.</p>'+calc(`E°cell = E°cathode − E°anode\nE°cell = ${r.cat[1]} − (${r.an[1]}) = ${fx(r.E,2)} V`)}];
+  const zc=r.cat[0]==='Cu²⁺/Cu'&&r.an[0]==='Zn²⁺/Zn';if(zc)S.push({el:'#cV',title:'In the lab',html:'<p>Turn the power supply up past 1.10 V and watch the electrons change direction.</p>',onShow:()=>{go('cell');CL.V=0.5;$('#cV').value=0.5;clUI()},wait:()=>CL.V>1.105,doIt:()=>{CL.V=1.5;$('#cV').value=1.5;clUI()},done:'Electrolytic: the reaction runs backwards.'});
+  S.push({title:'Your answer',html:calc(`more than ${fx(r.E,2)} V`)+'<p>The supply must push harder than the cell pushes back.</p>'});return S}
+ if(exk==='prod'){const S_=r.S,i=+v.s;return [{title:'Solve it in the lab',html:'<p>Reduction at the cathode (−), oxidation at the anode (+). In water, decide whether the ion or water reacts more easily.</p>',onShow:()=>{go('elec');EL.s=i;$('#eS').value=i;EL.t=0;EL.run=true;elUI()}},{el:'#eHalf',title:'Cathode',html:calc(S_.ch)+`<p>Product: <b>${S_.c}</b>.</p>`},{el:'#eHalf',title:'Anode',html:calc(S_.ah)+`<p>Product: <b>${S_.a}</b>.</p>`},{title:'Your answer',html:`<p>${S_.m}</p>`}]}
+ return [{title:'(Extension) Faraday’s law',html:calc('charge Q = I × t\nmol e⁻ = Q ÷ F   (F = 96 485 C/mol)\nmol metal = mol e⁻ ÷ n\nmass = mol × M')},{title:'Charge',html:calc(`Q = ${v.I} A × ${v.t} × 60 s = ${sf(r.q,4)} C`)},{title:'Moles',html:calc(`mol e⁻ = ${sf(r.q,4)} ÷ 96 485 = ${sf(r.ne,3)} mol\nmol metal = ${sf(r.ne,3)} ÷ ${r.p[2]} = ${sf(r.nm,3)} mol`)},{title:'Mass',html:calc(`m = ${sf(r.nm,3)} × ${r.p[1]} g/mol = ${sf(r.m,3)} g`)},{title:'Your answer',html:calc(`${sf(r.m,3)} g`)+'<p>Double the current or the time and the mass doubles.</p>'}]}
+
+/* =========================================================
+   CHALLENGE
+   ========================================================= */
+const GEN=[
+ ()=>{let a,b;do{a=pick(POT);b=pick(POT)}while(a===b);const cat=a[1]>b[1]?a:b,an=cat===a?b:a,E=cat[1]-an[1];return [`What minimum voltage would reverse a voltaic cell made of ${a[0]} and ${b[0]}?`,uniq(E,[cat[1]+an[1],E/2,Math.abs(cat[1])],' V',x=>fx(x,2)),0,`E°cell = ${cat[1]} − (${an[1]}) = ${fx(E,2)} V; the supply must give more than this.`]},
+ ()=>{const S=pick(SET);return [`${S.n}: what forms at the cathode?`,[S.c,...['Cl₂ gas','O₂ gas','Na (liquid metal)','H₂ gas','pure Cu'].filter(x=>x!==S.c&&x!==S.a)].slice(0,4),0,`Cathode (reduction): ${S.ch}.`]},
+ ()=>pick([
+  ['In every cell, oxidation happens at the…',['anode','cathode','salt bridge','power supply'],0,'An Ox and Red Cat: anode = oxidation, cathode = reduction.'],
+  ['In an electrolytic cell the anode is connected to the…',['positive terminal','negative terminal','salt bridge','ground'],0,'The supply pulls electrons out of the anode, so it is positive.'],
+  ['Electrolysis of water gives hydrogen and oxygen in a volume ratio of…',['2 : 1','1 : 1','1 : 2','4 : 1'],0,'2H₂O → 2H₂ + O₂.'],
+  ['Why does electrolysis of brine give H₂, not Na, at the cathode?',['Water is reduced more easily than Na⁺','Na⁺ is not attracted to the cathode','Sodium dissolves in the electrode','Chlorine reacts with sodium'],0,'E° for water (−0.83 V) is far less negative than for Na⁺ (−2.71 V).'],
+  ['To silver-plate a spoon, the spoon must be the…',['cathode','anode','electrolyte','salt bridge'],0,'Ag⁺ is reduced to silver on the cathode.'],
+  ['How is aluminium produced from its ore?',['Electrolysis of molten aluminium oxide (Hall–Héroult)','Heating the ore with carbon','Dissolving the ore in water','Distillation'],0,'Aluminium is too reactive to be made by carbon reduction.'],
+  ['A voltaic cell converts…',['chemical energy into electrical energy','electrical energy into chemical energy','heat into electricity','light into chemical energy'],0,'An electrolytic cell does the opposite.']])];
+
+/* =========================================================
+   START
+   ========================================================= */
+function drawAll(){if(!C.ink)readColors();if(tab==='cell')drawCC();if(tab==='elec')drawEC()}
+addEventListener('resize',drawAll);let lastF=0;
+function loop(t){const dt=Math.min(.05,(t-(lastF||t))/1000);lastF=t;if(tab==='cell'&&t-(loop.c||0)>40){loop.c=t;if(CL.run){const net=E0-CL.V,rate=net*0.004*dt;CL.zn=clamp(CL.zn-rate*65.38/63.55,5,35);CL.cu=clamp(CL.cu+rate,5,35);if(Math.abs(net)>0.01&&t-(loop.u||0)>400){loop.u=t;$('#cZn').textContent=fx(CL.zn,3)+' g';$('#cCu').textContent=fx(CL.cu,3)+' g'}}drawCC()}
+ if(tab==='elec'){if(EL.run){EL.t+=dt*60;if(t-(loop.e||0)>250){loop.e=t;elUI()}}if(t-(loop.d||0)>40){loop.d=t;drawEC()}}requestAnimationFrame(loop)}
+if(window.LabParts){window.__lp=LabParts.attach({key:'electrolysis',wrap:$('#cc').parentElement,stage:$('#cc'),bar:$('#cBar'),max:3,parts:()=>{const G=CG;if(!G)return [];const c=$('#cc').getBoundingClientRect();return [
+ {id:'zn',name:'Zinc half-cell',what:'Zn in Zn²⁺ solution. Anode in the voltaic cell, cathode when the supply wins.',hint:'The left beaker.',q:'Where is the zinc half-cell?',x:G.b1+G.bw/2,y:G.by+G.bh/2,boxes:[[G.b1,G.by-70,G.b1+G.bw,G.by+G.bh]]},
+ {id:'cu',name:'Copper half-cell',what:'Cu in Cu²⁺ solution (blue). Cathode in the voltaic cell, anode when reversed.',hint:'The right beaker.',q:'Where is the copper half-cell?',x:G.b2+G.bw/2,y:G.by+G.bh/2,boxes:[[G.b2,G.by-70,G.b2+G.bw,G.by+G.bh]]},
+ {id:'ps',name:'Power supply',what:'Pushes electrons against the cell. Above 1.10 V it reverses the reaction.',hint:'The box on the wire.',q:'What can reverse the cell?',x:c.width/2,y:Math.max(26,G.by-150),boxes:[[c.width/2-44,Math.max(26,G.by-150)-26,c.width/2+44,Math.max(26,G.by-150)+26]]}]}})}
+readColors();clUI();elUI();setExK('min');nextQ();themeLabel();requestAnimationFrame(loop);
+
+</script>
+<script src="tour.js" defer></script>
+<script src="lab-guide.js" defer></script>
+</body></html>

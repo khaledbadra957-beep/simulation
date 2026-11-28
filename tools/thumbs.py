@@ -20,13 +20,27 @@ def cover(png, w, h):
 # a good moment to photograph, per lab (runs in the page before the picture is taken)
 PREP = {
   'esterification-lab': "document.querySelector('[data-tab=eq]').click()",
+  'gas-laws-lab': "(()=>{if(tab==='law'&&!g.pts.length){setLaw('boyle');[2.5,1.25,0.8,4].forEach(v=>{setV(v);record()});setV(1.6)}if(tab==='graham'&&!gh.done){gh.t=99;gh.done=true;gUI();drawTube()}})()",
+  'states-of-matter-lab': "(()=>{if(tab==='heat'&&H.q<1){H.q=qTot()*0.55;H.run=false;hUI()}if(tab==='phase'){setPT(373,30)}})()",
+  'solutions-lab': "(()=>{if(tab==='sol'&&S.add<1){S.salt=0;S.T=20;S.add=40;S.D=0;sMix();sUI()}if(tab==='mix'){M.torch=true;mUI()}})()",
+  'acids-bases-ph-lab': "(()=>{if(tab==='buf'&&B.drops===0){for(let i=0;i<6;i++)bDrop(1)}})()",
+  'ionic-compounds-lab': "(()=>{if(tab==='ion'&&!IB.done){IB.cat=1;IB.an=4;IB.t=1;IB.done=true;iUI()}})()",
+  'molecule-shapes-lab': "(()=>{if(tab==='lewis'&&LW.step<5){LW.m=1;LW.step=5;lUI()}if(tab==='shape'){SH.m=2;SH.pol=true;shUI()}})()",
+  'mole-lab': "(()=>{if(tab==='hyd'&&HY.step<5){hyAuto()}if(tab==='sto'&&!ST.done){ST.r=1;ST.n=[3,3];ST.done=true;ST.t=1;stUI()}})()",
+  'density-lab': "(()=>{if(tab==='meas'&&DM.step<4){while(DM.step<4)dmNext()}if(tab==='graph'&&!GR.pts.length){[1,4,6].forEach(i=>{GR.s=i;for(let k=0;k<4;k++)grAdd()});grUI()}})()",
+  'mixtures-lab': "(()=>{if(tab==='sep'&&SP.log.length===0){['mag','water','filt'].forEach(t=>spDo(t,true))}if(tab==='chrom'&&CH.t<1){CH.t=1;CH.run=false;chUI()}})()",
+  'atom-lab': "(()=>{if(tab==='ruth'&&RU.n<50){for(let i=0;i<400;i++)ruStep(1/30);RU.on=true}if(tab==='build'){BA.p=6;BA.n=8;BA.e=6;baUI()}})()",
+  'redox-lab': "(()=>{if(tab==='bal'&&BL.step<7){BL.r=4;BL.step=7;blUI()}})()",
+  'electrolysis-lab': "(()=>{if(tab==='cell'){CL.V=1.6;CL.t=40;clUI()}if(tab==='elec'){EL.s=2;EL.t=600;elUI()}})()",
+  'organic-reactions-lab': "(()=>{if(tab==='rx'){OR.r=9;OR.t=1;orUI()}if(tab==='poly'&&PL.n<5){PL.m=1;PL.n=6;plUI()}})()",
+  'nuclear-lab': "(()=>{if(tab==='band'&&BD.hist.length<2){bdSeries(true)}if(tab==='half'&&HL.t<1){HL.s=0;HL.t=HL.iso().h*2.2;hlSim(true);hlUI()}})()",
   'electrons-lab': "(()=>{if(tab==='cfg'&&cf.z!==26){setZ(26);setMode('show')}if(tab==='trend'){tr.b=17;drawTrend()}if(tab==='light'&&!lt.lines.length){lt.lines=[3,4,5,6].map(n=>({nm:lam(n,2),lab:n+'→2'}));lt.e.n=2;showPhoton(lam(4,2));drawLight();drawSpec()}})()",
   'five-types-of-chemical-reactions': "document.querySelector('[data-tab=pat]').click()",
   'galvanic-cell-lab': "(()=>{const b=document.getElementById('swBtn');if(/Close/.test(b.textContent))b.click()})()",
   'pulse-at-a-boundary': "(()=>{const s=document.getElementById('scrub');document.getElementById('play').click();s.value=330;s.dispatchEvent(new Event('input'))})()",
 }
 # which screen makes the homepage card of a stage-layout lab (default: 'lab', else the first screen)
-CARD = {'organic-naming-lab': 'build', 'chemical-change-lab': 'signs'}
+CARD = {'mole-lab': 'sto', 'states-of-matter-lab': 'phase', 'organic-naming-lab': 'build', 'chemical-change-lab': 'signs'}
 
 async def shot_screen(pg):
     """The visible screen's scene; for a solo (scrolling) screen, the part of it in view."""
