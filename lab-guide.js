@@ -216,6 +216,15 @@
       mis: [["One mole of any substance has the same mass.", "Same number of particles, different masses: the molar mass changes."], ["The reactant with the smaller mass is limiting.", "Compare moles using the mole ratio, not grams."], ["Percent yield can be over 100 %.", "Above 100 % means the product was wet or impure."], ["Water in a hydrate is not part of its mass.", "It is: heating drives it off and the mass drops."]],
       qs: ["Why do 1 mol of carbon and 1 mol of gold have different masses?", "How do you know which reactant is limiting?", "Why must a hydrate be heated until its mass stays the same?"]
     },
+    'density-lab.html': {
+      big: "Density is mass per unit volume, D = m/V. It does not depend on how much of the substance you have, so it helps identify substances. Every measurement has an uncertain last digit, which is why we use significant figures.",
+      tryThis: ["Find the mass and volume of mystery metal A. Which metal is it?", "Read the cylinder: why do we read the bottom of the meniscus at eye level?", "Measure two different metals with the same mass. Which has the bigger volume?", "What is your percent error? Where could the error come from?", "Graph: add five samples of the same metal. Why do the points make a straight line through zero?", "Compare the lines for aluminum and lead. Which is steeper? Why?"],
+      words: [["Density", "mass ÷ volume, g/cm³ or g/mL"], ["Meniscus", "the curved surface of a liquid; read the bottom"], ["Water displacement", "volume of an object = rise in water level"], ["Accuracy", "how close a measurement is to the accepted value"], ["Precision", "how close repeated measurements are to each other"], ["Percent error", "|error| ÷ accepted value × 100"], ["Significant figures", "all certain digits plus one estimated digit"], ["Slope", "rise ÷ run; on a mass–volume graph it is the density"]],
+      goals: ["Measure mass and volume (by water displacement) and calculate density.", "Read instruments with one estimated digit and use significant figures.", "Calculate percent error and judge accuracy and precision.", "Find density from the slope of a mass–volume graph."],
+      flow: [["2 min", "Predict", "A small lead ball and a big aluminum block have the same mass. Which has the larger density?"], ["7 min", "Explore", "Measure: identify two mystery metals."], ["4 min", "Explain", "Graph: why is the slope the density?"], ["5 min", "Apply", "Exercise tab: density, percent error and significant figures."]],
+      mis: [["A bigger piece of iron has a bigger density.", "Density stays the same; mass and volume both grow."], ["Heavy objects always sink.", "Objects sink when their density is greater than the liquid’s."], ["More decimal places always means more accurate.", "Precision is about repeatability; accuracy is about being close to the true value."], ["Zeros are never significant.", "Zeros between digits and trailing zeros after a decimal point are significant."]],
+      qs: ["Why can density identify a metal but mass cannot?", "Why is the volume of the metal equal to the rise of the water level?", "Why does 25.0 mL have three significant figures but 25 mL only two?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -387,6 +396,7 @@
     'ionic-compounds-lab.html': ["Each Al loses 3 electrons (Al³⁺) and each S gains 2 (S²⁻). 2 × (+3) = +6 and 3 × (−2) = −6, so the charges cancel.", "Mg²⁺ and O²⁻ have twice the charges of Na⁺ and Cl⁻ and are smaller, so they attract much more strongly.", "In a metal the cations slide past each other in the sea of electrons; in an ionic crystal the shift brings like charges next to each other and they repel, so it splits."],
     'molecule-shapes-lab.html': ["CO₂ has 16 valence electrons. With single bonds the carbon would have only 4 electrons, so each oxygen shares a second pair: O=C=O gives every atom an octet.", "Water has two lone pairs on oxygen; lone pairs repel more than bonding pairs and squeeze the H–O–H angle to 104.5°.", "The four polar bonds point to the corners of a tetrahedron, so their dipoles cancel and there is no positive or negative end."],
     'mole-lab.html': ["Both have 6.02 × 10²³ atoms, but each gold atom is much heavier (197 g/mol against 12.01 g/mol).", "Change each reactant’s mass to moles, divide by its coefficient (or use the mole ratio): the reactant that can make less product is limiting.", "Only then has all the water been driven off; otherwise the anhydrous mass is too high and x comes out too small."],
+    'density-lab.html': ["Density is an intensive property: every piece of the same metal has the same density, whatever its size; mass depends on the amount.", "The metal pushes aside (displaces) its own volume of water, so the water rises by exactly that volume.", "The zero after the decimal point shows the reading was made to the nearest 0.1 mL; it is a measured digit."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -563,6 +573,7 @@
     'ionic-compounds-lab.html': {"hide": [], "start": "#iGo"},
     'molecule-shapes-lab.html': {"hide": [], "start": "#lNext"},
     'mole-lab.html': {"hide": [], "start": "#mSub"},
+    'density-lab.html': {"hide": [], "start": "#dNext"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -754,6 +765,7 @@
     'ionic-compounds-lab.html': {"intro": "[data-tab=\"ion\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'molecule-shapes-lab.html': {"intro": "[data-tab=\"lewis\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'mole-lab.html': {"intro": "[data-tab=\"mole\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'density-lab.html': {"intro": "[data-tab=\"meas\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
