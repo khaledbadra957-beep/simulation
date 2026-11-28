@@ -180,6 +180,23 @@
       mis: [['3d fills before 4s because 3 is smaller than 4.', '4s is lower in energy, so it fills first (K and Ca).'], ['Electrons pair up as soon as they can.', "Hund's rule: one per orbital first."], ['Atoms with more electrons are always bigger.', 'Across a period atoms get smaller: more protons pull the same level in.'], ['Red light has the most energy because it looks strong.', 'Shorter λ means more energy: violet beats red.']],
       qs: ['Why is the 4s sublevel filled before 3d?', 'Why is the first ionization energy of oxygen lower than that of nitrogen?', 'Which photon has more energy: 656 nm or 410 nm? Why?']
     },
+    'gas-laws-lab.html': {
+      big: 'Gas particles are far apart and always moving. Pressure comes from their hits on the walls. Squeeze them (smaller V), heat them (higher T) or add more (bigger n) and the pressure changes in a way we can predict: PV = nRT.',
+      tryThis: [
+        'Boyle: halve the volume. What happens to the pressure? Record four points and look at P × V.',
+        'Tick “Plot P against 1/V”. Why is it a straight line?',
+        'Charles: heat the gas from 200 K to 400 K. What happens to the volume? Read the graph in °C: where does the line meet zero?',
+        'Gay-Lussac: the pins hold the piston. Heat the gas and watch the hits per second and the gauge.',
+        'Ideal gas: pump in more gas (n). Does PV ÷ nT change?',
+        'Turn on the real gas. Make it small, cold and full: when does nitrogen stop behaving ideally?',
+        'Graham: race NH₃ against HCl. Where does the white ring form? Try H₂ against CO₂.'
+      ],
+      words: [['Pressure', 'force of particle hits per area (kPa, atm, mmHg)'], ['Kelvin', 'T(K) = T(°C) + 273; 0 K is absolute zero'], ['Boyle’s law', 'P₁V₁ = P₂V₂ (T, n fixed)'], ['Charles’s law', 'V₁/T₁ = V₂/T₂ (P, n fixed)'], ['Gay-Lussac’s law', 'P₁/T₁ = P₂/T₂ (V, n fixed)'], ['Ideal gas constant R', '8.314 L·kPa/(mol·K) = 0.0821 L·atm/(mol·K)'], ['Effusion', 'gas escaping through a tiny hole'], ['Diffusion', 'gas spreading through another gas']],
+      goals: ['State and use Boyle’s, Charles’s, Gay-Lussac’s and the combined gas laws.', 'Use the ideal gas law PV = nRT with the right value of R.', 'Explain each law with the kinetic-molecular theory.', 'Explain when real gases differ from ideal gases.', 'Use Graham’s law to compare rates of diffusion.'],
+      flow: [['2 min', 'Predict', 'A sealed bag of crisps goes up a mountain. What happens and why?'], ['7 min', 'Explore', 'Gas laws: one law per pair, record 4 points each.'], ['4 min', 'Explain', 'Compare the last column of each table: what stays the same?'], ['4 min', 'Apply', 'Graham race, then the Exercise tab.']],
+      mis: [['You can use °C in gas law problems.', 'Use kelvin: 20 °C to 40 °C does not double the volume.'], ['Hot gas particles get bigger.', 'They move faster; the particles themselves do not grow.'], ['Heavier gases spread faster because they push harder.', 'Lighter particles move faster at the same temperature.'], ['Gases always obey PV = nRT.', 'Real gases differ at high pressure and low temperature.']],
+      qs: ['Why does the pressure of a gas double when its volume is halved?', 'Why must gas law temperatures be in kelvin?', 'Why does the white ring of NH₄Cl form closer to the HCl end?']
+    },
     'organic-naming-lab.html': {
       big: 'An IUPAC name is built from the longest chain (or ring), the main functional group, and the positions of the branches, numbered to keep numbers low.',
       tryThis: [
@@ -309,6 +326,7 @@
     'five-types-of-chemical-reactions.html': ['A more reactive metal gives up electrons more easily, so it can push the ions of a less reactive metal out of a compound, but not the other way round (the activity series).', 'Synthesis: iron + oxygen → iron oxide, slowly and without a flame. Combustion is the fast burning of a fuel.'],
     'galvanic-cell-lab.html': ['Without the bridge, ions cannot move to keep each beaker neutral. Charge builds up, the circuit is open, and the electrons stop flowing.', 'The blue Cu²⁺ ions are reduced to copper metal on the cathode, so there are fewer of them in the solution.', 'The two metals furthest apart on the E° scale, because E°cell = E°cathode − E°anode. For example Zn and Ag: 0.80 − (−0.76) = 1.56 V.'],
     'keplers-laws.html': ['Equal areas in equal times: near the Sun the line to the Sun is short, so the comet must move faster to sweep the same area.', 'T² ∝ a³, so T ∝ a^1.5: 2^1.5 ≈ 2.8 times longer.'],
+    'gas-laws-lab.html': ['Halving the volume halves the space, so the particles hit the walls twice as often: the pressure doubles.', 'Volume and pressure are proportional to the kelvin temperature; at 0 K they would be zero. Celsius has the wrong zero.', 'HCl (36.46 g/mol) is heavier than NH₃ (17.03 g/mol), so it moves more slowly and the gases meet nearer the HCl end.'],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -478,6 +496,7 @@
   if (file === 'index.html' || file === '') return;
   var CFG = {
     'wave-speed-lab.html': { hide: ['[data-mode="manual"]', '.seg:has([data-end])', '#step1', '.seg:has([data-speed])', 'label:has(#tVRuler)', 'label:has(#tRef)', 'label:has(#tGraph)', 'label:has(#tVals)', '[data-n]', '.field:has(#damp1)'] },
+    'gas-laws-lab.html': { hide: ['#clrBtn'], start: '#recBtn' },
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -662,6 +681,7 @@
     'esterification-lab.html': { intro: '[data-tab="build"]', game: '[data-tab="chal"]', ex: '[data-tab="my"]' },
     'galvanic-cell-lab.html': { intro: '[data-tab="cell"]', game: '[data-tab="chal"]' },
     'keplers-laws.html': { intro: '#t-retro', game: null, ex: '#t-ex' },
+    'gas-laws-lab.html': { intro: '[data-tab="law"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
