@@ -1,0 +1,457 @@
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Molecule Shapes and Polarity</title>
+<meta name="description" content="Build Lewis structures step by step by counting valence electrons, then see the molecule&#x27;s VSEPR shape in 3D with bond angles and hybridization, and find bond and molecular polarity from electronegativity. Exercise solver and challenge.">
+<!-- og -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mr Khaled · Science Simulations">
+<meta property="og:title" content="Molecule Shapes and Polarity · Mr Khaled">
+<meta property="og:description" content="Build Lewis structures step by step by counting valence electrons, then see the molecule&#x27;s VSEPR shape in 3D with bond angles and hybridization, and find bond and molecular polarity from electronegativity. Exercise solver and challenge.">
+<meta property="og:url" content="https://khaledbadra957-beep.github.io/simulation/molecule-shapes-lab.html">
+<meta property="og:image" content="https://khaledbadra957-beep.github.io/simulation/og/molecule-shapes-lab.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Molecule Shapes and Polarity: a picture of the lab">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- /og -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench layout as the other labs. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --a:#2F6FD0; --b:#D88A1C; --prod:#1E8A55; --rose:#C2185B;
+  --brass:#B8913A; --brass-soft:rgba(233,196,106,.45);
+  --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
+#beaker{height:clamp(300px,34vw,340px)}
+.mkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:.85rem;color:var(--muted)}.mkey i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+#kg{height:260px}
+#eg{height:250px;cursor:crosshair}
+.pred{display:flex;gap:6px;flex-wrap:wrap}
+.pred button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700}
+.pred button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pred button:hover{border-color:var(--accent)}
+.ans select{max-width:100%}
+
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%;align-self:flex-start}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.ans input{width:8em}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8125rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+tr.pick td{background:var(--brass-soft)}
+tbody tr{cursor:pointer}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body);cursor:default}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0;font-size:.92rem}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.15rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+.runs{display:flex;flex-wrap:wrap;gap:6px}
+.runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas.stage{border:0;border-radius:0}
+.stage-ui .sc-read{position:absolute;top:12px;right:12px;z-index:2;width:250px;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+@media (max-width:1100px){.stage-ui .sc-read{width:200px}}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{top:auto;bottom:8px;right:8px;width:170px;padding:6px 8px}.stage-ui .sc-read .readouts{gap:2px 8px}.stage-ui .sc-read dt{font-size:11.5px}.stage-ui .sc-read dd{font-size:12.5px}.stage-ui .sc-read div[style]{display:none}}
+.stage-ui .panel input[type=range]{height:22px}
+.stage-ui .panel .field{gap:0}
+.stage-ui .sc-read dd{white-space:nowrap;font-size:.92rem}
+.stage-ui .sc-read{width:290px}
+.stage-ui .sc-read div[style] dd{white-space:normal;font-size:.85rem}
+.stage-ui #runs:empty{display:none}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{display:none}}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui #beaker,.stage-ui #kg{height:auto}
+.stage-ui .play > .extra.tall{height:clamp(170px,32vh,290px)}
+.stage-ui .sc-eq{position:absolute;top:12px;left:14px;z-index:2;font-weight:600;font-size:15px;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+.stage-ui .scene .mkey{position:absolute;left:14px;bottom:10px;z-index:2;font-size:12.5px;background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 10px;border-radius:8px}
+.stage-ui .seg{width:100%;align-self:stretch}
+.stage-ui .transport .seg{width:auto}
+.stage-ui .gh .seg{width:auto}
+.stage-ui .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stage-ui .small{font-size:13px}
+.stage-ui .btn.small{min-height:34px;font-size:13.5px;padding:0 10px}
+.stage-ui .pred{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stage-ui .status{font-size:13.5px;padding:7px 10px}
+.stage-ui .readouts{gap:6px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .sol{font-size:12.5px;padding:8px 10px}
+.stage-ui .morein{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .flabel{font-size:14px}
+.stage-ui .solo-in > .benchhead{margin-top:4px}
+.stage-ui #eg{height:260px;border:1px solid var(--line);border-radius:10px}
+.stage-ui .solo-in{padding:8px 4px 20px}
+.stage-ui .solo-in .card{background:var(--surface)}
+.stage-ui #exSolve svg{flex:none}
+.stage-ui details.own summary{cursor:pointer;font-weight:700;list-style:none}.stage-ui details.own summary::-webkit-details-marker{display:none}.stage-ui details.own summary::before{content:"+ ";font-family:var(--data)}.stage-ui details.own[open] summary::before{content:"− "}
+.stage-ui .ownf{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 18px;margin:10px 0}
+.stage-ui .ownf label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.stage-ui .ownf label.ck{flex-direction:row;align-items:center;gap:8px;align-self:end;min-height:38px}
+.stage-ui .ownf span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .ownf input[type=number],.stage-ui .ownf select{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .ownf input[aria-invalid="true"]{border-color:var(--bad)}
+@media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.tall{height:220px}.stage-ui .scene .mkey{display:none}.stage-ui .sc-eq{font-size:12.5px;top:8px;left:8px}}
+
+
+/* ---------- this lab ---------- */
+:root{--fill:#0A6A88;--hot:#D9534F;--cold:#3D7BE0;--solid:#3D7BE0;--liq:#0A8A7A;--gas:#C2571A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}}
+:root[data-theme="dark"]{--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}
+.rule{font-size:.9rem;line-height:1.35;margin:0;padding:7px 10px;border-radius:9px;background:var(--surface);border:1.5px solid var(--line)}
+.rule.ok{border-color:var(--ok)}.rule.ok b{color:var(--ok)}.rule.bad{border-color:var(--bad)}
+.stage-ui .play > .extra.mid{height:clamp(150px,27vh,250px)}
+.eqn{font:600 1.1rem var(--data);margin:2px 0 4px}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px 14px}
+.exgrid label{display:flex;flex-direction:column;gap:3px;font-size:.88rem;color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.exgrid input[aria-invalid]{border-color:var(--bad)}
+.panel select{font:600 14px var(--data);padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);width:100%}
+.key{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;color:var(--muted);margin:4px 0 0}.key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}.btnrow .btn{padding:6px 10px}
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css"></head><body>
+
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Molecule Shapes and Polarity</h1>
+ <span class="tb-tag">Chemistry · G10</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button id="fsBtn" type="button" hidden></button><button id="themeBtn" type="button" hidden></button>
+<div class="tabs" role="tablist" hidden>
+ <button class="tab" role="tab" aria-selected="true" data-tab="lewis" aria-controls="p-lewis">Lewis structure</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="shape" aria-controls="p-shape">Shape & polarity</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Exercise</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">Challenge</button>
+</div>
+<main class="screens">
+ <section class="screen" id="p-lewis" data-screens="intro lewis" role="tabpanel">
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="lc" aria-label="The Lewis structure of the molecule, drawn step by step, with an electron count"></canvas></div>
+   <div class="transport" id="lBar"><button class="btn" id="lPrev" type="button">Back</button><button class="btn primary" id="lNext" type="button">Next step</button><button class="btn" id="lAll" type="button">Show all</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Molecule or ion</h2><div class="field"><label class="flabel" for="lM">Choose</label><select id="lM"></select></div>
+    <p class="rule" id="lMsg"></p></section>
+   <section class="group"><h2>Electrons</h2><dl class="readouts">
+    <div><dt>Valence electrons</dt><dd id="lV">–</dd></div><div><dt>Used so far</dt><dd id="lU">–</dd></div>
+    <div><dt>Bonding pairs</dt><dd id="lB">–</dd></div><div><dt>Lone pairs</dt><dd id="lL">–</dd></div></dl></section>
+  </aside>
+ </section>
+ <section class="screen" id="p-shape" data-screens="shape" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="sc" aria-label="The molecule in 3D. Drag to turn it."></canvas></div>
+   <div class="transport" id="sBar"><label class="check"><input type="checkbox" id="sPol"> Show bond dipoles</label><label class="check"><input type="checkbox" id="sLP" checked> Show lone pairs</label><label class="check"><input type="checkbox" id="sRot" checked> Turn slowly</label><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Molecule</h2><div class="field"><label class="flabel" for="sM">Choose</label><select id="sM"></select></div></section>
+   <section class="group"><h2>VSEPR</h2><dl class="readouts">
+    <div><dt>Electron domains</dt><dd id="sD">–</dd></div><div><dt>Lone pairs on centre</dt><dd id="sLp">–</dd></div>
+    <div><dt>Molecular shape</dt><dd id="sS">–</dd></div><div><dt>Bond angle</dt><dd id="sA">–</dd></div>
+    <div><dt>Hybrid orbitals</dt><dd id="sH">–</dd></div><div><dt>Polar molecule?</dt><dd id="sP">–</dd></div></dl></section>
+   <section class="group"><h2>Bonds</h2><p class="rule" id="sMsg"></p></section>
+  </aside>
+ </section>
+ <section class="screen solo" id="p-ex" data-screens="ex" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button>
+   <button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+  <div class="card"><div class="field"><span class="flabel">Kind of exercise</span>
+   <div class="seg" role="group" aria-label="Kind of exercise" id="exKSeg" style="width:auto;flex-wrap:wrap"><button type="button" data-exk="lewis" aria-pressed="true">Lewis structure</button><button type="button" data-exk="shape" aria-pressed="false">Shape</button><button type="button" data-exk="polar" aria-pressed="false">Polarity</button></div></div>
+   <div class="exgrid" id="exF"></div><p class="note" id="exMsg"></p><p id="exText" class="q" style="font-size:1rem"></p></div>
+ </div></section>
+ <section class="screen solo" id="p-chal" data-screens="chal" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
+  <p class="q" id="qText"></p><div class="opts" id="qOpts"></div><p class="status" id="qStatus" aria-live="polite" hidden></p>
+  <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
+ </div></section>
+</main>
+<p class="vh">Pauling electronegativities. Shapes and angles follow Inspire Chemistry Module 7 (VSEPR).</p>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'lewis', simple: true }, { id: 'lewis', name: 'Lewis structure', tab: 'lewis' }, { id: 'shape', name: 'Shape & polarity', tab: 'shape' }, { id: 'ex', name: 'Exercise', tab: 'ex' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ], tour: [ { el: '#lM', title: 'Choose a molecule', text: 'Pick a molecule or polyatomic ion.' }, { el: '#lNext', title: 'Step by step', text: 'Count electrons, add single bonds, complete the octets, then make multiple bonds if you run short.' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fx=(x,d=2)=>Number(x).toFixed(d);
+const sup=e=>String(e).split('').map(ch=>ch==='-'?'⁻':ch==='+'?'⁺':'⁰¹²³⁴⁵⁶⁷⁸⁹'[+ch]).join('');
+const sci=(v,d=2)=>{if(!isFinite(v))return '–';if(v===0)return '0';let e=Math.floor(Math.log10(Math.abs(v)));let m=v/Math.pow(10,e);if(Math.abs(+m.toFixed(d))>=10){m/=10;e++}return `${m.toFixed(d)} × 10${sup(e)}`};
+/* number input: 4.86e-7, 4.86×10^-7, 4.86x10-7, commas */
+function num(s){if(s==null)return NaN;s=String(s).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/[()]/g,'').replace(/\s/g,'');s=s.replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return s===''?NaN:Number(s)}
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+let C={};
+function readColors(){const s=getComputedStyle(root);['stage','surface','ink','muted','line','grid','accent','brass','rose','ok','bad','a','b','prod','fill','hot','cold','solid','liq','gas'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+new MutationObserver(()=>themeLabel()).observe(root,{attributes:true,attributeFilter:['data-theme']});
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='lewis';
+const TABS=["lewis", "shape", "ex", "chal"];
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));TABS.forEach(t=>$('#p-'+t).hidden=t!==tab);drawAll()});
+$('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen?.()}catch(e){}$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)};
+document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)});
+function segPick(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===btn))}
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function txt(x,s,a,b,col,size=12,align='left',base='alphabetic',wt=500,fam='"IBM Plex Mono",monospace'){x.fillStyle=col;x.font=`${wt} ${size}px ${fam}`;x.textAlign=align;x.textBaseline=base;x.fillText(s,a,b)}
+const go=id=>{const b=document.querySelector('.lg-nav [data-ph="'+id+'"]');if(b&&root.getAttribute('data-screen')!==id)b.click();else{const t=LAB.screens.find(s=>s.id===id);if(t){const tb=document.querySelector('.tab[data-tab="'+t.tab+'"]');if(tb&&tab!==t.tab)tb.click()}}};
+
+
+/* ---------- shared: challenge ---------- */
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const sf=(v,n=3)=>{if(!isFinite(v))return '–';const a=Math.abs(v);if(a>=1e5||(a<1e-3&&a>0))return sci(v,n-1);if(a>=1000)return Math.round(v).toLocaleString('en-US');return v.toPrecision(n)};
+const uniq=(right,wr,unit,f=sf)=>{const s=[right,...wr].map(x=>f(x)+unit),o=[];s.forEach(x=>{if(!o.includes(x))o.push(x)});let k=1;while(o.length<4){const x=f(right*(1+.37*k++))+unit;if(!o.includes(x))o.push(x)}return o.slice(0,4)};
+const calc=t=>'<div class="t-calc">'+t+'</div>';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function rrect(X,x,y,w,h,r){r=Math.min(r,w/2,h/2);X.beginPath();X.moveTo(x+r,y);X.arcTo(x+w,y,x+w,y+h,r);X.arcTo(x+w,y+h,x,y+h,r);X.arcTo(x,y+h,x,y,r);X.arcTo(x,y,x+w,y,r);X.closePath()}
+const hex=s=>{s=(s||'#888').trim().replace('#','');if(s.length===3)s=s.split('').map(c=>c+c).join('');const n=parseInt(s,16);return [n>>16&255,n>>8&255,n&255]};
+const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*clamp(t,0,1))).join(',')})`};
+const alpha=(c,a)=>{const A=hex(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const mns=v=>String(v).replace(/-/g,'−');
+let score=0,tries=0,answered=false,lastG=-1;
+function nextQ(){let g_;do{g_=rint(0,GEN.length-1)}while(g_===lastG&&GEN.length>1);lastG=g_;const q=GEN[g_]();answered=false;
+ $('#qText').textContent=q[0];$('#qStatus').hidden=true;const opts=shuffle(q[1].map((t,k)=>({t,k})));
+ $('#qOpts').innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;b.onclick=()=>{if(answered)return;answered=true;tries++;
+  const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
+  const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
+$('#qNext').onclick=nextQ;
+function tourGo(steps){if(!window.Tour)return;setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+
+/* =========================================================
+   MOLECULES
+   ========================================================= */
+const VE={H:1,B:3,C:4,N:5,O:6,F:7,P:5,S:6,Cl:7,Xe:8};
+const EN={H:2.20,B:2.04,C:2.55,N:3.04,O:3.44,F:3.98,P:2.19,S:2.58,Cl:3.16,Xe:2.60};
+const COL={H:'#EDEDED',B:'#F2A6A6',C:'#4A4A4A',N:'#3D5BE8',O:'#E5322B',F:'#7CC84A',P:'#F08A1C',S:'#D9BC2C',Cl:'#2EBF3A',Xe:'#3E9CB0'};
+/* f, name, central, outer [[el,bond order]], lone pairs on centre, lone pairs on each outer, charge, angle text, note */
+const MOLS=[['H₂','hydrogen','H',[['H',1]],0,[0],0,'—'],['HF','hydrogen fluoride','H',[['F',1]],0,[3],0,'—'],['O₂','oxygen','O',[['O',2]],2,[2],0,'—'],['N₂','nitrogen','N',[['N',3]],1,[1],0,'—'],
+ ['H₂O','water','O',[['H',1],['H',1]],2,[0,0],0,'104.5°'],['NH₃','ammonia','N',[['H',1],['H',1],['H',1]],1,[0,0,0],0,'107°'],['CH₄','methane','C',[['H',1],['H',1],['H',1],['H',1]],0,[0,0,0,0],0,'109.5°'],['PH₃','phosphine','P',[['H',1],['H',1],['H',1]],1,[0,0,0],0,'about 107° (VSEPR)'],
+ ['CCl₄','carbon tetrachloride','C',[['Cl',1],['Cl',1],['Cl',1],['Cl',1]],0,[3,3,3,3],0,'109.5°'],['CO₂','carbon dioxide','C',[['O',2],['O',2]],0,[2,2],0,'180°'],['HCN','hydrogen cyanide','C',[['H',1],['N',3]],0,[0,1],0,'180°'],['CH₂O','methanal (formaldehyde)','C',[['O',2],['H',1],['H',1]],0,[2,0,0],0,'120°'],
+ ['BF₃','boron trifluoride','B',[['F',1],['F',1],['F',1]],0,[3,3,3],0,'120°','suboctet: boron has only 6 electrons'],['SO₂','sulfur dioxide','S',[['O',2],['O',1]],1,[2,3],0,'about 119°','resonance: the double bond can be on either O'],
+ ['NH₄⁺','ammonium ion','N',[['H',1],['H',1],['H',1],['H',1]],0,[0,0,0,0],1,'109.5°'],['NO₃⁻','nitrate ion','N',[['O',2],['O',1],['O',1]],0,[2,3,3],-1,'120°','resonance: three equivalent structures'],['PO₄³⁻','phosphate ion','P',[['O',1],['O',1],['O',1],['O',1]],0,[3,3,3,3],-3,'109.5°'],
+ ['PCl₅','phosphorus pentachloride','P',[['Cl',1],['Cl',1],['Cl',1],['Cl',1],['Cl',1]],0,[3,3,3,3,3],0,'90° and 120°','expanded octet: 10 electrons on P'],['SF₆','sulfur hexafluoride','S',[['F',1],['F',1],['F',1],['F',1],['F',1],['F',1]],0,[3,3,3,3,3,3],0,'90°','expanded octet: 12 electrons on S'],['XeF₄','xenon tetrafluoride','Xe',[['F',1],['F',1],['F',1],['F',1]],2,[3,3,3,3],0,'90°','expanded octet: 12 electrons on Xe']];
+const M=i=>{const m=MOLS[i];return {f:m[0],n:m[1],c:m[2],o:m[3],lpc:m[4],lpo:m[5],q:m[6],ang:m[7],note:m[8]||'',tot:VE[m[2]]+m[3].reduce((s,[e])=>s+VE[e],0)-m[6]}};
+function vsepr(m){const nb=m.o.length,lp=m.lpc,d=nb+lp;if(nb===1)return {d:nb+lp,shape:'linear',hyb:'—'};
+ const S={'2,0':'linear','3,0':'trigonal planar','2,1':'bent','4,0':'tetrahedral','3,1':'trigonal pyramidal','2,2':'bent','5,0':'trigonal bipyramidal','6,0':'octahedral','4,2':'square planar'}[nb+','+lp];
+ return {d,shape:S,hyb:['','','sp','sp²','sp³','sp³d','sp³d²'][d]}}
+/* Lewis stages */
+function stage(m,s){const nb=m.o.length;if(s<=1)return {bo:m.o.map(()=>0),lpo:m.o.map(()=>0),lpc:0};
+ const bo1=m.o.map(()=>1);if(s===2)return {bo:bo1,lpo:m.o.map(()=>0),lpc:0};
+ const lo=m.o.map(([e])=>e==='H'?0:3);if(s===3)return {bo:bo1,lpo:lo,lpc:0};
+ const rem=m.tot-2*nb-2*lo.reduce((a,b)=>a+b,0);if(s===4)return {bo:bo1,lpo:lo,lpc:Math.max(0,rem/2)};
+ return {bo:m.o.map(x=>x[1]),lpo:m.lpo.slice(),lpc:m.lpc}}
+const used=st=>2*st.bo.reduce((a,b)=>a+b,0)+2*st.lpo.reduce((a,b)=>a+b,0)+2*st.lpc;
+const LW={m:5,step:0};
+$('#lM').innerHTML=MOLS.map((x,i)=>`<option value="${i}">${x[0]}, ${x[1]}</option>`).join('');$('#sM').innerHTML=$('#lM').innerHTML;
+$('#lM').onchange=e=>{LW.m=+e.target.value;LW.step=0;lUI()};$('#lNext').onclick=()=>{LW.step=Math.min(5,LW.step+1);lUI()};$('#lPrev').onclick=()=>{LW.step=Math.max(0,LW.step-1);lUI()};$('#lAll').onclick=()=>{LW.step=5;lUI()};
+function lUI(){const m=M(LW.m),st=stage(m,LW.step);$('#lM').value=LW.m;$('#lV').textContent=LW.step>=1?m.tot:'?';$('#lU').textContent=LW.step>=2?used(st)+' of '+m.tot:'–';$('#lB').textContent=LW.step>=2?st.bo.reduce((a,b)=>a+b,0):'–';$('#lL').textContent=LW.step>=3?st.lpo.reduce((a,b)=>a+b,0)+st.lpc:'–';
+ const cen=2*st.bo.reduce((a,b)=>a+b,0)+2*st.lpc,s4=stage(m,4),cen4=2*s4.bo.reduce((a,b)=>a+b,0)+2*s4.lpc,same=JSON.stringify(s4)===JSON.stringify(stage(m,5));
+ const parts=m.o.map(([e])=>e),cnt={};parts.forEach(e=>cnt[e]=(cnt[e]||0)+1);const vline=[`${m.c}: ${VE[m.c]}`,...Object.entries(cnt).map(([e,n])=>`${e}: ${n} × ${VE[e]}`)].join(' + ');
+ const T=[`Step 0 of 5. <b>${m.f}</b>: the central atom is <b>${m.c}</b>${m.c==='H'?'':' (the atom with the least attraction for electrons; H is always on the outside)'}. Press <b>Next step</b>.`,
+  `<b>1 · Count the valence electrons:</b> ${vline}${m.q?` ${m.q>0?'−':'+'} ${Math.abs(m.q)} for the ${m.q>0?'positive':'negative'} charge`:''} = <b>${m.tot}</b> electrons, ${m.tot/2} pairs.`,
+  `<b>2 · Single bonds:</b> join each outer atom to ${m.c} with one pair (a sigma bond). That uses ${2*m.o.length} electrons.`,
+  `<b>3 · Complete the outer atoms:</b> give each outer atom lone pairs to make an octet (H needs only 2). Used: ${used(st)} of ${m.tot}.`,
+  `<b>4 · Put the rest on ${m.c}:</b> ${s4.lpc?`${2*s4.lpc} electrons left = ${s4.lpc} lone pair${s4.lpc>1?'s':''} on ${m.c}.`:'no electrons are left.'} ${m.c} now has ${cen4} electrons${cen4<8&&m.c!=='H'&&m.c!=='B'?', not an octet':''}.`,
+  same?`<b>5 · Check:</b> ${m.c==='H'?(m.f==='H₂'?'each H has 2 electrons':'H has 2 electrons and F has 8'):`${m.c} has ${cen} electrons`}. ${m.note?`<b>${m.note[0].toUpperCase()+m.note.slice(1)}.</b>`:'Every atom has an octet (H has 2).'} Done.`:`<b>5 · Not enough electrons:</b> turn lone pairs on the outer atom${m.o.filter(x=>x[1]>1).length>1?'s':''} into shared pairs: ${(()=>{const d=m.o.filter(x=>x[1]===2).length,t=m.o.filter(x=>x[1]===3).length;return [d?(d===1?'a double bond':(d===2?'two':'three')+' double bonds'):'',t?'a triple bond':''].filter(Boolean).join(' and ')})()}. Now ${m.c} has ${cen} electrons. ${m.note?m.note[0].toUpperCase()+m.note.slice(1)+'.':''}`];
+ $('#lMsg').innerHTML=T[LW.step];$('#lNext').disabled=LW.step>=5;$('#lPrev').disabled=LW.step<=0;drawLC()}
+const LAY={'1,0':[0],'1,1':[0],'1,2':[0],'2,0':[180,0],'2,1':[210,330],'2,2':[180,0],'3,0':[90,210,330],'3,1':[180,0,270],'4,0':[180,0,90,270],'4,2':[45,135,225,315],'5,0':[90,162,234,306,18],'6,0':[0,60,120,180,240,300]};
+const LPC={'1,1':[180],'1,2':[90,270],'2,1':[90],'2,2':[90,270],'3,1':[90],'4,2':[90,270]};
+let LG=null;
+function drawLC(){const c=$('#lc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const m=M(LW.m),st=stage(m,LW.step),n=m.o.length,key=n+','+m.lpc;
+ const ang=LAY[key]||LAY[n+',0'],lpa=LPC[key]||[],cx=w/2,cy=h*.5,L=Math.min(w,h)*(n>=5?.26:.24),ar=Math.min(26,L*.28);LG={cx,cy,L};
+ const pos=ang.map(a=>[cx+Math.cos(a*Math.PI/180)*L,cy-Math.sin(a*Math.PI/180)*L]);
+ const xc=n===1?cx-L/2:cx,P=n===1?[[cx+L/2,cy]]:pos;
+ const pair=(x,y,a,r,col)=>{const ux=Math.cos(a),uy=-Math.sin(a),px=-uy,py=ux,d=r+10;X.fillStyle=col;[-5,5].forEach(o=>{X.beginPath();X.arc(x+ux*d+px*o,y+uy*d+py*o,3.6,0,7);X.fill()})};
+ P.forEach(([x,y],i)=>{const bo=st.bo[i];if(!bo)return;const dx=x-xc,dy=y-cy,l=Math.hypot(dx,dy),px=-dy/l,py=dx/l;X.strokeStyle=C.ink;X.lineWidth=3;for(let k=0;k<bo;k++){const o=(k-(bo-1)/2)*8;X.beginPath();X.moveTo(xc+dx/l*ar+px*o,cy+dy/l*ar+py*o);X.lineTo(x-dx/l*ar+px*o,y-dy/l*ar+py*o);X.stroke()}});
+ const atom=(x,y,e)=>{X.fillStyle=C.surface;X.beginPath();X.arc(x,y,ar,0,7);X.fill();txt(X,e,x,y+8,C.ink,Math.max(18,ar*.95),'center','alphabetic',700);if(LW.step===0)txt(X,VE[e]+' e⁻',x,y+ar+18,C.muted,12,'center','alphabetic',600)};
+ atom(xc,cy,m.c);P.forEach(([x,y],i)=>{atom(x,y,m.o[i][0]);const k=st.lpo[i];if(!k)return;const out=Math.atan2(-(y-cy),x-xc),as=k===1?[out]:k===2?[out+Math.PI/3,out-Math.PI/3]:[out,out+Math.PI/2,out-Math.PI/2];as.forEach(a=>pair(x,y,a,ar,C.accent))});
+ const nlp=st.lpc;let lpaUse=lpa.slice(0,nlp);if(lpaUse.length<nlp){const free=[90,270,180,0].filter(a=>!ang.includes(a)&&!(n===1&&a===0));lpaUse=free.slice(0,nlp)}lpaUse.forEach(a=>pair(xc,cy,a*Math.PI/180,ar,C.rose));
+ if(m.q&&LW.step>=1){const xs=Math.min(xc,...P.map(p=>p[0]))-ar-40,xe=Math.max(xc,...P.map(p=>p[0]))+ar+40,ys=Math.min(cy,...P.map(p=>p[1]))-ar-34,ye=Math.max(cy,...P.map(p=>p[1]))+ar+34;X.strokeStyle=C.ink;X.lineWidth=2.5;X.beginPath();X.moveTo(xs+10,ys);X.lineTo(xs,ys);X.lineTo(xs,ye);X.lineTo(xs+10,ye);X.moveTo(xe-10,ys);X.lineTo(xe,ys);X.lineTo(xe,ye);X.lineTo(xe-10,ye);X.stroke();txt(X,(Math.abs(m.q)>1?Math.abs(m.q):'')+(m.q>0?'+':'−'),xe+6,ys+14,C.ink,18,'left','alphabetic',800)}
+ if(LW.step>=1){const bw=Math.min(w-60,420),bx=(w-bw)/2,by=h-34,u=used(st);X.fillStyle=C.surface;rrect(X,bx,by,bw,14,7);X.fill();X.fillStyle=u>m.tot?C.bad:C.accent;rrect(X,bx,by,Math.max(8,bw*Math.min(1,u/m.tot)),14,7);X.fill();txt(X,`electrons used: ${u} of ${m.tot}`,w/2,by-6,C.muted,12,'center','alphabetic',600)}
+ txt(X,m.f+' · '+m.n,w/2,24,C.ink,15,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');
+ if(LW.step===5&&m.note&&/resonance/.test(m.note))txt(X,'one of the resonance structures',w/2,44,C.muted,12,'center','alphabetic',600,'"IBM Plex Sans",sans-serif')}
+
+/* =========================================================
+   3D SHAPE AND POLARITY
+   ========================================================= */
+const SH={m:6,ax:-0.35,ay:0.6,pol:false,lp:true,rot:true,drag:null};
+const nrm=v=>{const l=Math.hypot(...v)||1;return v.map(x=>x/l)};
+function dirs(d,lp){const s3=Math.sqrt(3)/2;let D;
+ if(d===2)D=[[1,0,0],[-1,0,0]];else if(d===3)D=[[0,1,0],[s3,-.5,0],[-s3,-.5,0]];else if(d===4)D=[[0,1,0],[.943,-.333,0],[-.471,-.333,.816],[-.471,-.333,-.816]];
+ else if(d===5)D=[[1,0,0],[-.5,0,s3],[-.5,0,-s3],[0,1,0],[0,-1,0]];else D=[[0,1,0],[0,-1,0],[1,0,0],[-1,0,0],[0,0,1],[0,0,-1]];
+ if(d===4&&lp===2)D=[D[0],D[1],D[2],D[3]];return D}
+function geo(m){const nb=m.o.length,lp=m.lpc,d=nb+lp;if(nb===1)return {atoms:[[-.55,0,0],[.55,0,0]],lps:[]};
+ let D=dirs(d,lp),L=D.slice(0,lp),B=D.slice(lp);
+ if(d===4&&lp>0){B=B.map(b=>nrm(b.map((x,i)=>x-0.06*lp*L.reduce((s,l)=>s+l[i],0))))}
+ if(d===3&&lp===1){B=B.map(b=>nrm(b.map((x,i)=>x-0.05*L[0][i])))}
+ return {atoms:[[0,0,0],...B.map(b=>b.map(x=>x*1.15))],lps:L}}
+function rot(p){const [x,y,z]=p,ca=Math.cos(SH.ay),sa=Math.sin(SH.ay),cb=Math.cos(SH.ax),sb=Math.sin(SH.ax);const x1=x*ca+z*sa,z1=-x*sa+z*ca;return [x1,y*cb-z1*sb,y*sb+z1*cb]}
+function polarity(m){if(m.q)return {polar:null,net:[0,0,0]};const g=geo(m),c0=g.atoms[0];let net=[0,0,0];const bonds=m.o.map(([e],i)=>{const p=g.atoms[i+1],a=m.o.length===1?m.c:m.c,d=EN[e]-EN[a],u=nrm(p.map((x,k)=>x-c0[k]));net=net.map((x,k)=>x+u[k]*d);return {e,d}});const mag=Math.hypot(...net);return {polar:mag>0.15,net,mag,bonds}}
+const bondType=d=>{d=Math.abs(d);return d===0?'nonpolar covalent':d<0.4?'mostly covalent':d<=1.7?'polar covalent':'mostly ionic'};
+function shUI(){const m=M(SH.m),v=vsepr(m),p=polarity(m);$('#sM').value=SH.m;$('#sD').textContent=m.o.length===1?'—':v.d;$('#sLp').textContent=m.o.length===1?'—':m.lpc;$('#sS').textContent=v.shape;$('#sA').textContent=m.ang;$('#sH').textContent=v.hyb;$('#sP').textContent=p.polar==null?'ion (charged)':p.polar?'yes':'no';
+ const uniqB=[...new Set(m.o.map(x=>x[0]))].map(e=>{const d=Math.abs(EN[e]-EN[m.c]);return `${m.c}–${e}: ΔEN = |${EN[m.c].toFixed(2)} − ${EN[e].toFixed(2)}| = ${d.toFixed(2)} → ${bondType(d)}`});
+ $('#sMsg').innerHTML=uniqB.join('<br>')+'<br>'+(p.polar==null?`${m.f} has an overall charge of ${m.q>0?'+':'−'}${Math.abs(m.q)}, so it is an ion, not a neutral polar molecule.`:p.polar?`<b>Polar:</b> the bond dipoles do not cancel in a ${v.shape} shape, so one end is δ− and the other δ+.`:m.o.every(([e])=>e===m.c)?'<b>Nonpolar:</b> both atoms are the same, so the electrons are shared equally.':`<b>Nonpolar:</b> ${uniqB.some(s=>/polar covalent/.test(s))?`the ${v.shape} shape is symmetric, so the polar bonds cancel.`:'the bonds are almost nonpolar.'}`);drawSC()}
+$('#sM').onchange=e=>{SH.m=+e.target.value;shUI()};$('#sPol').onchange=e=>{SH.pol=e.target.checked;drawSC()};$('#sLP').onchange=e=>{SH.lp=e.target.checked;drawSC()};$('#sRot').onchange=e=>{SH.rot=e.target.checked};
+const sc=$('#sc');sc.addEventListener('pointerdown',e=>{SH.drag=[e.clientX,e.clientY];sc.setPointerCapture(e.pointerId)});sc.addEventListener('pointermove',e=>{if(!SH.drag)return;SH.ay+=(e.clientX-SH.drag[0])*.01;SH.ax+=(e.clientY-SH.drag[1])*.01;SH.drag=[e.clientX,e.clientY];drawSC()});['pointerup','pointercancel'].forEach(v=>sc.addEventListener(v,()=>SH.drag=null));
+let SG=null;
+function drawSC(){const c=$('#sc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const m=M(SH.m),g=geo(m),v=vsepr(m),S=Math.min(w,h)*(w<560?.22:.27),cx=w/2,cy=h*.54;SG={cx,cy,S};
+ const pj=p=>{const r=rot(p),f=3.2/(3.2-r[2]);return [cx+r[0]*S*f,cy-r[1]*S*f,r[2],f]};
+ const A=g.atoms.map((p,i)=>({p:pj(p),e:i===0?(m.o.length===1?m.c:m.c):m.o[i-1][0],i}));if(m.o.length===1){A[1].e=m.o[0][0]}
+ const items=[];
+ m.o.forEach((o,i)=>{const a=A[m.o.length===1?0:0],b=A[i+1];items.push({z:(a.p[2]+b.p[2])/2-.01,draw:()=>{const dx=b.p[0]-a.p[0],dy=b.p[1]-a.p[1],l=Math.hypot(dx,dy)||1,px=-dy/l,py=dx/l,bo=o[1];X.strokeStyle=C.muted;X.lineWidth=5;for(let k=0;k<bo;k++){const off=(k-(bo-1)/2)*7;X.beginPath();X.moveTo(a.p[0]+px*off,a.p[1]+py*off);X.lineTo(b.p[0]+px*off,b.p[1]+py*off);X.stroke()}}})});
+ if(SH.lp)g.lps.forEach(l=>{const tip=pj(l.map(x=>x*.95)),base=A[0].p;items.push({z:tip[2],draw:()=>{const dx=tip[0]-base[0],dy=tip[1]-base[1],ang=Math.atan2(dy,dx),len=Math.hypot(dx,dy);X.save();X.translate(base[0]+dx*.55,base[1]+dy*.55);X.rotate(ang);X.fillStyle=alpha(C.rose,.22);X.strokeStyle=alpha(C.rose,.6);X.lineWidth=1.5;X.beginPath();X.ellipse(0,0,Math.max(14,len*.55),S*.22*tip[3],0,0,7);X.fill();X.stroke();X.fillStyle=C.rose;[-5,5].forEach(o=>{X.beginPath();X.arc(len*.1,o,3.2,0,7);X.fill()});X.restore()}})});
+ A.forEach(a=>{const r=(a.e==='H'?.26:a.e==='Xe'?.42:.36)*S*a.p[3];items.push({z:a.p[2],draw:()=>{const gr=X.createRadialGradient(a.p[0]-r*.35,a.p[1]-r*.35,r*.1,a.p[0],a.p[1],r);gr.addColorStop(0,'#fff');gr.addColorStop(.35,COL[a.e]);gr.addColorStop(1,mix(COL[a.e],'#000000',.35));X.fillStyle=gr;X.beginPath();X.arc(a.p[0],a.p[1],r,0,7);X.fill();X.strokeStyle=alpha(C.ink,.5);X.lineWidth=1;X.stroke();txt(X,a.e,a.p[0],a.p[1]+5,a.e==='H'||a.e==='F'||a.e==='S'||a.e==='Cl'||a.e==='B'?'#222':'#fff',Math.max(11,r*.6),'center','alphabetic',700)}})});
+ items.sort((a,b)=>a.z-b.z).forEach(it=>it.draw());
+ if(SH.pol){const p=polarity(m);m.o.forEach(([e],i)=>{const a=A[0],b=A[i+1],d=EN[e]-EN[m.c];if(Math.abs(d)<0.05)return;const from=d>0?a:b,to=d>0?b:a,dx=to.p[0]-from.p[0],dy=to.p[1]-from.p[1],l=Math.hypot(dx,dy)||1,px=-dy/l*16,py=dx/l*16,x1=from.p[0]+dx*.2+px,y1=from.p[1]+dy*.2+py,x2=from.p[0]+dx*.8+px,y2=from.p[1]+dy*.8+py;
+   X.strokeStyle=C.brass;X.lineWidth=2.5;X.beginPath();X.moveTo(x1,y1);X.lineTo(x2,y2);X.stroke();X.beginPath();X.moveTo(x2,y2);X.lineTo(x2-dx/l*9+dy/l*5,y2-dy/l*9-dx/l*5);X.moveTo(x2,y2);X.lineTo(x2-dx/l*9-dy/l*5,y2-dy/l*9+dx/l*5);X.stroke();const tx=x1+dx/l*6,ty=y1+dy/l*6;X.beginPath();X.moveTo(tx-dy/l*6,ty+dx/l*6);X.lineTo(tx+dy/l*6,ty-dx/l*6);X.stroke()});
+  if(p.polar){const n=rot(p.net),l=Math.hypot(n[0],n[1])||1;X.strokeStyle=C.accent;X.lineWidth=5;const x0=cx-n[0]/l*S*.9,y0=cy+n[1]/l*S*.9+0,x1=cx+n[0]/l*S*.9,y1=cy-n[1]/l*S*.9;X.beginPath();X.moveTo(x0,y0);X.lineTo(x1,y1);X.stroke();X.fillStyle=C.accent;X.beginPath();X.moveTo(x1,y1);X.lineTo(x1-n[0]/l*16+n[1]/l*9,y1+n[1]/l*16+n[0]/l*9);X.lineTo(x1-n[0]/l*16-n[1]/l*9,y1+n[1]/l*16-n[0]/l*9);X.closePath();X.fill();txt(X,'net dipole',x1+8,y1-8,C.accent,12,'left','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+  txt(X,'arrows point to the more electronegative atom (δ−)',w/2,h-12,C.muted,11.5,'center','alphabetic',600,'"IBM Plex Sans",sans-serif')}
+ txt(X,`${m.f}: ${v.shape}`,w/2,26,C.ink,16,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');if(m.ang!=='—')txt(X,'bond angle '+m.ang,w/2,46,C.muted,13,'center','alphabetic',600,'"IBM Plex Sans",sans-serif')}
+
+/* =========================================================
+   EXERCISE
+   ========================================================= */
+const EXEG=[{k:'lewis',v:{m:'1'},s:'Draw the Lewis structure of hydrogen fluoride, HF.'},{k:'lewis',v:{m:'5'},s:'Draw the Lewis structure of ammonia, NH₃.'},{k:'lewis',v:{m:'9'},s:'Draw the Lewis structure of carbon dioxide, CO₂.'},{k:'lewis',v:{m:'16'},s:'Draw the Lewis structure of the phosphate ion, PO₄³⁻.'},{k:'lewis',v:{m:'19'},s:'Draw the Lewis structure of xenon tetrafluoride, XeF₄.'},{k:'shape',v:{m:'7'},s:'What is the shape of a phosphine (PH₃) molecule? Give the bond angle and the hybrid orbitals.'},{k:'polar',v:{m:'4'},s:'Is water polar? Explain with the bonds and the shape.'}];
+let exk='lewis';const ex={v:{m:'1'},story:null};
+function exBuild(){$('#exF').innerHTML=`<label>Molecule or ion<select data-v="m">${MOLS.map((x,i)=>`<option value="${i}"${+ex.v.m===i?' selected':''}>${x[0]}, ${x[1]}</option>`).join('')}</select></label>`;$$('#exF [data-v]').forEach(i=>i.onchange=()=>{ex.v.m=i.value;ex.story=null;exUpdate()});exUpdate()}
+function exUpdate(){const m=M(+ex.v.m);$('#exMsg').textContent='Ready. Press “Solve it in the lab” to work through it.';$('#exText').innerHTML=ex.story||(exk==='lewis'?`Draw the Lewis structure of ${m.f}.`:exk==='shape'?`Predict the shape, bond angle and hybridization of ${m.f}.`:`Is ${m.f} polar? Explain.`);return m}
+function setExK(k,eg){exk=k;segPick($(`[data-exk="${k}"]`));const d=eg||EXEG.find(e=>e.k===k);ex.v={...d.v};ex.story=d.s;exBuild()}
+$$('[data-exk]').forEach(b=>b.onclick=()=>setExK(b.dataset.exk));let egi=1;$('#exEg').onclick=()=>{const e=EXEG[egi++%EXEG.length];setExK(e.k,e)};
+$('#exSolve').onclick=()=>tourGo(exSteps(exUpdate()));
+function exSteps(m){const i=+ex.v.m,v=vsepr(m),S=[];
+ if(exk==='lewis'){S.push({title:'Solve it in the lab',html:'<p>Follow the book’s five steps: count electrons, single bonds, complete outer atoms, put the rest on the centre, make multiple bonds if needed.</p>',onShow:()=>{go('lewis');LW.m=i;LW.step=0;lUI()}});
+  for(let s=1;s<=5;s++)S.push({el:'#lc',title:['','1 · Count','2 · Single bonds','3 · Outer atoms','4 · The rest','5 · Check the octets'][s],html:'<p></p>',onShow:function(){LW.m=i;LW.step=s;lUI();this.html='<p>'+$('#lMsg').innerHTML+'</p>'}});
+  S.push({title:'Your answer',html:`<p>The Lewis structure is on the screen: ${m.o.reduce((a,b)=>a+b[1],0)} bonding pair${m.o.reduce((a,b)=>a+b[1],0)>1?'s':''} and ${m.lpc+m.lpo.reduce((a,b)=>a+b,0)} lone pair${m.lpc+m.lpo.reduce((a,b)=>a+b,0)===1?'':'s'} (${m.tot} electrons).</p>`});return S}
+ const setS=()=>{go('shape');SH.m=i;SH.pol=exk==='polar';$('#sPol').checked=SH.pol;shUI()};
+ if(exk==='shape'){S.push({title:'Solve it in the lab',html:'<p>1. Draw the Lewis structure. 2. Count the electron domains round the central atom (bonds count once, even double bonds; lone pairs count too). 3. Look up the shape.</p>',onShow:setS});
+  S.push({el:'#sD',title:'Electron domains',html:calc(`${m.o.length} bonded atom${m.o.length>1?'s':''} + ${m.lpc} lone pair${m.lpc===1?'':'s'} = ${v.d} domains`)+`<p>${v.d} domains spread out ${['','','in a line (180°)','in a triangle (120°)','to the corners of a tetrahedron (109.5°)','as a trigonal bipyramid','as an octahedron (90°)'][v.d]||''}.</p>`});
+  S.push({el:'#sc',title:'The shape',html:`<p>Only the atoms are used to name the shape: <b>${v.shape}</b>, angle ${m.ang}.${m.lpc?' The lone pair'+(m.lpc>1?'s push':' pushes')+' the bonds closer together.':''}</p>`});
+  S.push({el:'#sH',title:'Hybrid orbitals',html:`<p>${v.d} domains need ${v.d} hybrid orbitals: <b>${v.hyb}</b>.</p>`});
+  S.push({title:'Your answer',html:calc(`${m.f}: ${v.shape}, ${m.ang}, ${v.hyb}`)});return S}
+ const p=polarity(m),b=[...new Set(m.o.map(x=>x[0]))].map(e=>`${m.c}–${e}: ΔEN = ${Math.abs(EN[e]-EN[m.c]).toFixed(2)} (${bondType(EN[e]-EN[m.c])})`).join('\n');
+ S.push({title:'Solve it in the lab',html:'<p>1. Are the bonds polar? Use the electronegativity difference. 2. Does the shape make the bond dipoles cancel?</p>',onShow:setS});
+ S.push({el:'#sMsg',title:'1 · The bonds',html:calc(b)+'<p>ΔEN 0.4–1.7: polar covalent. Below 0.4: mostly covalent.</p>'});
+ S.push({el:'#sc',title:'2 · The shape',html:`<p>The shape is <b>${v.shape}</b>. The yellow arrows are the bond dipoles${p.polar?'; they add up to a net dipole (blue).':'.'}</p>`});
+ S.push({title:'Your answer',html:'',onShow:function(){this.html=calc(`${m.f}: ${p.polar==null?'an ion':p.polar?'polar':'nonpolar'}`)+`<p>${$('#sMsg').innerHTML.split('<br>').pop()}</p>`}});return S}
+
+/* =========================================================
+   CHALLENGE
+   ========================================================= */
+const GEN=[
+ ()=>{const m=M(rint(0,MOLS.length-1));return [`How many valence electrons are in the Lewis structure of ${m.f}?`,uniq(m.tot,[m.tot+2,m.tot-2,m.tot+(m.q?m.q:4)],'',x=>String(Math.round(x))),0,`Add the valence electrons of every atom${m.q?` and ${m.q>0?'subtract':'add'} ${Math.abs(m.q)} for the charge`:''}: ${m.tot}.`]},
+ ()=>{const i=pick([4,5,6,7,8,9,11,12,13,15,17,18,19]),m=M(i),v=vsepr(m),o=[v.shape];['linear','bent','trigonal planar','tetrahedral','trigonal pyramidal','square planar','octahedral'].forEach(s=>{if(!o.includes(s)&&o.length<4)o.push(s)});return [`What is the molecular shape of ${m.f}?`,o,0,`${m.o.length} bonded atoms + ${m.lpc} lone pair${m.lpc===1?'':'s'} on ${m.c}: ${v.shape}.`]},
+ ()=>{const i=pick([4,5,6,9,11,12,17,18]),m=M(i),v=vsepr(m),o=[m.ang];['180°','120°','109.5°','107°','104.5°','90°'].forEach(s=>{if(!o.includes(s)&&o.length<4&&!m.ang.includes(s))o.push(s)});return [`What is the bond angle in ${m.f}?`,o,0,`${m.f} is ${v.shape}: ${m.ang}.`]},
+ ()=>{const i=pick([4,5,6,9,10,11,12,17,18]),m=M(i),v=vsepr(m),o=[v.hyb,...['sp','sp²','sp³','sp³d','sp³d²'].filter(x=>x!==v.hyb)].slice(0,4);return [`What hybrid orbitals does the central atom of ${m.f} use?`,o,0,`${v.d} electron domains → ${v.hyb}.`]},
+ ()=>{const i=pick([1,4,5,6,8,9,10,12,13,17,18]),m=M(i),p=polarity(m);return [`Is ${m.f} a polar molecule?`,p.polar?['Yes','No','Only when it is a liquid','Only in water']:['No','Yes','Only when it is a liquid','Only in water'],0,p.polar?`Its polar bonds do not cancel in the ${vsepr(m).shape} shape.`:`The ${vsepr(m).shape} shape makes the bond dipoles cancel (or the bonds are nonpolar).`]},
+ ()=>{const pr=pick([['H','Cl'],['C','H'],['N','H'],['O','H'],['C','O'],['C','Cl'],['B','F'],['H','F'],['Cl','Cl'],['S','O']]),d=Math.abs(EN[pr[0]]-EN[pr[1]]),t=bondType(d);return [`What type of bond is ${pr[0]}–${pr[1]}? (EN ${EN[pr[0]].toFixed(2)} and ${EN[pr[1]].toFixed(2)})`,[t,...['nonpolar covalent','mostly covalent','polar covalent','mostly ionic'].filter(x=>x!==t)],0,`ΔEN = ${d.toFixed(2)}: ${t}.`]},
+ ()=>{const q=pick([['N₂','1 sigma and 2 pi'],['CO₂','2 sigma and 2 pi'],['HCN','2 sigma and 2 pi'],['CH₄','4 sigma and 0 pi'],['O₂','1 sigma and 1 pi'],['CH₂O','3 sigma and 1 pi']]);return [`How many sigma and pi bonds are in ${q[0]}?`,[q[1],...['1 sigma and 1 pi','2 sigma and 2 pi','4 sigma and 0 pi','1 sigma and 2 pi','3 sigma and 1 pi'].filter(x=>x!==q[1])].slice(0,4),0,'Every bond has one sigma bond; a double bond adds one pi bond, a triple bond adds two.']},
+ ()=>{const q=pick([['P₂O₅','diphosphorus pentoxide'],['CO','carbon monoxide'],['N₂O₄','dinitrogen tetroxide'],['SF₆','sulfur hexafluoride'],['CCl₄','carbon tetrachloride'],['NO₂','nitrogen dioxide'],['SO₃','sulfur trioxide']]);return [`What is the name of ${q[0]}?`,[q[1],...['carbon dioxide','dinitrogen pentoxide','sulfur tetrafluoride','phosphorus pentoxide','monocarbon oxide','nitrogen tetroxide'].filter(x=>x!==q[1])].slice(0,4),0,'Binary molecular compounds use prefixes: mono-, di-, tri-, tetra-, penta-, hexa-… (mono- is left off the first element).']}];
+
+/* =========================================================
+   DRAW, ANIMATE, START
+   ========================================================= */
+function drawAll(){if(!C.ink)readColors();if(tab==='lewis')drawLC();if(tab==='shape')drawSC()}
+addEventListener('resize',drawAll);let lastF=0;
+function loop(t){const dt=Math.min(.05,(t-(lastF||t))/1000);lastF=t;if(tab==='shape'&&SH.rot&&!SH.drag){SH.ay+=dt*.45;drawSC()}requestAnimationFrame(loop)}
+if(window.LabParts){window.__lp=LabParts.attach({key:'molecules',wrap:$('#lc').parentElement,stage:$('#lc'),bar:$('#lBar'),max:3,parts:()=>{const G=LG;if(!G)return [];const c=$('#lc').getBoundingClientRect();return [
+ {id:'cen',name:'Central atom',what:'The atom in the middle: the one with the least attraction for shared electrons. Hydrogen is never central.',hint:'The atom joined to all the others.',q:'Which atom is in the centre?',x:G.cx,y:G.cy,boxes:[[G.cx-30,G.cy-30,G.cx+30,G.cy+30]]},
+ {id:'bond',name:'Bonding pair',what:'A shared pair of electrons, drawn as a line. A double bond is two lines (one sigma + one pi bond).',hint:'The lines between atoms.',q:'What does a line stand for?',x:G.cx+G.L*.5,y:G.cy,boxes:[[G.cx-G.L,G.cy-G.L,G.cx+G.L,G.cy+G.L]]},
+ {id:'count',name:'Electron count',what:'All the valence electrons must be used, no more and no fewer.',hint:'The bar at the bottom.',q:'How many electrons have you used?',x:c.width/2,y:c.height-28,boxes:[[c.width/2-210,c.height-50,c.width/2+210,c.height-16]]}]}})}
+readColors();lUI();shUI();setExK('lewis');nextQ();themeLabel();requestAnimationFrame(loop);
+
+</script>
+<script src="tour.js" defer></script>
+<script src="lab-guide.js" defer></script>
+</body></html>

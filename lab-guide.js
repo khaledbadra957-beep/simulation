@@ -198,6 +198,15 @@
       mis: [["The formula shows a molecule of NaCl.", "It is a ratio of ions in a giant lattice (a formula unit)."], ["Subscripts come from the number of electrons in the atom.", "They come from balancing the charges to zero."], ["Polyatomic ions break apart in compounds.", "They stay together as one ion; use brackets when you need more than one."], ["Ionic solids conduct electricity.", "Only when molten or dissolved: the ions must be free to move."]],
       qs: ["Why is the formula of aluminium sulfide Al₂S₃?", "Why does MgO have a much larger lattice energy than NaCl?", "Why does a metal bend when you hit it but an ionic crystal shatters?"]
     },
+    'molecule-shapes-lab.html': {
+      big: "Atoms share electron pairs so that each atom has an octet (H has two). Electron pairs round the central atom push each other as far apart as possible (VSEPR), which sets the shape. Polar bonds in a symmetric shape cancel; in an unsymmetric shape they make a polar molecule.",
+      tryThis: ["Build NH₃ step by step. How many valence electrons are there? Where do the last two go?", "Build CO₂. Why must it have double bonds?", "Build PO₄³⁻. Where do the three extra electrons come from?", "XeF₄ has 36 valence electrons. Where are the two lone pairs?", "Shape: compare CH₄, NH₃ and H₂O. Why do the angles get smaller?", "Polarity: CO₂ and H₂O both have polar bonds. Why is only water polar?", "Find a molecule with fewer than eight electrons round the central atom."],
+      words: [["Lewis structure", "diagram of the valence electrons as bonds and dots"], ["Lone pair", "a pair of valence electrons not in a bond"], ["Sigma (σ) bond", "single bond: electrons between the nuclei"], ["Pi (π) bond", "the second and third bonds of a double or triple bond"], ["VSEPR", "electron pairs repel and spread as far apart as possible"], ["Hybrid orbitals", "mixed orbitals such as sp³ that point to the shape"], ["Electronegativity", "pull of an atom on shared electrons"], ["Polar molecule", "has a δ+ end and a δ− end"]],
+      goals: ["Draw Lewis structures of molecules and polyatomic ions, including multiple bonds, resonance and octet exceptions.", "Predict molecular shape, bond angle and hybridization with VSEPR.", "Classify bonds by electronegativity difference and decide if a molecule is polar."],
+      flow: [["2 min", "Predict", "Why is water bent and not straight like CO₂?"], ["7 min", "Explore", "Lewis: NH₃, CO₂ and PO₄³⁻ step by step."], ["5 min", "Explain", "Shape: CH₄ → NH₃ → H₂O angles."], ["4 min", "Apply", "Polarity of CO₂, H₂O, CCl₄, then the Exercise tab."]],
+      mis: [["Lone pairs do not affect the shape.", "They push the bonds closer together: 109.5° → 107° → 104.5°."], ["Molecules with polar bonds are always polar.", "In CO₂ and CCl₄ the bond dipoles cancel because the shape is symmetric."], ["Every atom always has exactly eight electrons.", "H has two; B in BF₃ has six; P in PCl₅ and S in SF₆ have more than eight."], ["A double bond is two sigma bonds.", "One sigma bond and one pi bond."]],
+      qs: ["Why does CO₂ have two double bonds?", "Why is the bond angle in water smaller than in methane?", "Why is CCl₄ nonpolar although each C–Cl bond is polar?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -367,6 +376,7 @@
     'solutions-lab.html': ["The solution holds more solute than it can at that temperature; the seed gives the particles a surface to build a crystal on, so the extra solute comes out until the solution is just saturated.", "Each CaCl₂ unit splits into three ions (Ca²⁺ and 2 Cl⁻), and colligative properties depend only on the number of dissolved particles.", "Gases such as oxygen dissolve less in warm water, so there is less oxygen for the fish to breathe."],
     'acids-bases-ph-lab.html': ["HCl ionises completely, so [H⁺] = 0.10 M; acetic acid ionises only about 1 %, so [H⁺] is much smaller.", "[H⁺] = 1.0 × 10⁻³ M, so [OH⁻] = Kw ÷ [H⁺] = 1.0 × 10⁻¹¹ M (pOH = 11.00).", "NH₄⁺ is the conjugate acid of the weak base NH₃; it gives H⁺ to water: NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺."],
     'ionic-compounds-lab.html': ["Each Al loses 3 electrons (Al³⁺) and each S gains 2 (S²⁻). 2 × (+3) = +6 and 3 × (−2) = −6, so the charges cancel.", "Mg²⁺ and O²⁻ have twice the charges of Na⁺ and Cl⁻ and are smaller, so they attract much more strongly.", "In a metal the cations slide past each other in the sea of electrons; in an ionic crystal the shift brings like charges next to each other and they repel, so it splits."],
+    'molecule-shapes-lab.html': ["CO₂ has 16 valence electrons. With single bonds the carbon would have only 4 electrons, so each oxygen shares a second pair: O=C=O gives every atom an octet.", "Water has two lone pairs on oxygen; lone pairs repel more than bonding pairs and squeeze the H–O–H angle to 104.5°.", "The four polar bonds point to the corners of a tetrahedron, so their dipoles cancel and there is no positive or negative end."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -541,6 +551,7 @@
     'solutions-lab.html': {"hide": ["#sReset"], "start": "#sAdd5"},
     'acids-bases-ph-lab.html': {"hide": [], "start": "#pC"},
     'ionic-compounds-lab.html': {"hide": [], "start": "#iGo"},
+    'molecule-shapes-lab.html': {"hide": [], "start": "#lNext"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -730,6 +741,7 @@
     'solutions-lab.html': {"intro": "[data-tab=\"sol\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'acids-bases-ph-lab.html': {"intro": "[data-tab=\"ph\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'ionic-compounds-lab.html': {"intro": "[data-tab=\"ion\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'molecule-shapes-lab.html': {"intro": "[data-tab=\"lewis\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
