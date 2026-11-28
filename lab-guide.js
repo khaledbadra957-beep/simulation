@@ -270,6 +270,15 @@
       mis: [["Addition and substitution are the same.", "Addition needs a double bond and gives one product; substitution swaps atoms and gives two products."], ["Polymers are mixtures of monomers.", "The monomers are joined by covalent bonds into one long molecule."], ["Condensation reactions need water.", "They give off water (or another small molecule)."], ["Bromine reacts with alkanes the same way as with alkenes.", "With alkenes it adds quickly in the dark; with alkanes it substitutes only in UV light."]],
       qs: ["Why is ethene + H₂O called an addition reaction?", "Why does bromine water lose its colour with ethene but not with ethane?", "How does the repeating unit of PVC show its monomer?"]
     },
+    'nuclear-lab.html': {
+      big: "A nucleus is stable when its neutron-to-proton ratio is inside the band of stability. Unstable nuclei decay to move towards the band: alpha decay (heavy nuclei), beta decay (too many neutrons), positron emission or electron capture (too few). Mass number and charge are conserved in every nuclear equation.",
+      tryThis: ["Choose carbon-14. Where is it compared with the band? Which decay moves it towards the band?", "Choose carbon-11. Why does it not beta-decay?", "Run the uranium-238 series. How many alpha and beta decays are there?", "Half-life: how much of 10.0 g of Sr-90 is left after 3 half-lives?", "Fission: fire one neutron with no control rods. Then push the rods in. What changes?", "Why is a chain reaction only possible above the critical mass?"],
+      words: [["Band of stability", "the region of stable nuclei on a neutron–proton chart"], ["Alpha particle", "⁴₂He nucleus"], ["Beta particle", "a fast electron, ⁰₋₁e, from n → p + e⁻"], ["Positron", "⁰₊₁e, emitted when p → n"], ["Electron capture", "the nucleus captures an inner electron: p + e⁻ → n"], ["Half-life", "time for half of a radioactive sample to decay"], ["Fission", "a heavy nucleus splits into smaller nuclei, releasing neutrons and energy"], ["Critical mass", "the smallest mass that keeps a chain reaction going"]],
+      goals: ["Use the band of stability to predict the type of decay.", "Write and balance nuclear equations (α, β⁻, β⁺, electron capture, transmutation).", "Use N = N₀(½)ⁿ for half-life calculations.", "Explain fission, chain reactions, critical mass and control rods."],
+      flow: [["2 min", "Predict", "Why are there no stable nuclei with 100 protons?"], ["6 min", "Explore", "Band of stability: C-14, C-11, U-238 series."], ["5 min", "Explain", "Half-life with Sr-90 and C-14."], ["5 min", "Apply", "Fission and control rods, then the Exercise tab."]],
+      mis: [["Half-life means it is all gone after two half-lives.", "After two half-lives one quarter is left."], ["Beta particles come from the electron cloud.", "They are made in the nucleus when a neutron turns into a proton."], ["Alpha decay is the most dangerous outside the body.", "Alpha is stopped by paper; it is most harmful if swallowed or breathed in."], ["A nuclear reactor can explode like a bomb.", "Reactor fuel is not enriched enough; control rods keep the chain reaction steady."]],
+      qs: ["Why does carbon-14 undergo beta decay?", "What is left of 8.0 g of a radioisotope after 3 half-lives?", "What do control rods do in a nuclear reactor?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -447,6 +456,7 @@
     'redox-lab.html': ["Fe: it loses electrons (0 → +2), so it is oxidized and acts as the reducing agent.", "x + 4(−2) = −1, so x = +7.", "To balance the oxygen atoms with water and then the hydrogen atoms with H⁺, which are present in acid solution."],
     'electrolysis-lab.html': ["The cell itself pushes electrons the other way with 1.10 V; the supply must overcome that to force the non-spontaneous reaction.", "In water, H₂O is reduced (to H₂ and OH⁻) more easily than Na⁺; molten NaCl has no water, so Na⁺ must be reduced.", "At the cathode, where Ag⁺ ions gain electrons and form silver metal on it."],
     'organic-reactions-lab.html': ["H and OH add to the two carbons of the double bond and only one product forms; the double bond becomes single.", "Ethene has a C=C double bond that Br₂ adds across, using up the brown bromine; ethane has only single bonds.", "It is the monomer vinyl chloride (CH₂=CHCl) with the double bond opened up: –CH₂–CHCl–."],
+    'nuclear-lab.html': ["It has too many neutrons for its protons (above the band); beta decay turns a neutron into a proton, making nitrogen-14.", "8.0 × (½)³ = 1.0 g.", "They absorb neutrons, so fewer neutrons cause new fissions and the chain reaction stays steady (critical) instead of growing."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -629,6 +639,7 @@
     'redox-lab.html': {"hide": [], "start": "#oF"},
     'electrolysis-lab.html': {"hide": [], "start": "#cV"},
     'organic-reactions-lab.html': {"hide": [], "start": "#rR"},
+    'nuclear-lab.html': {"hide": [], "start": "#bNuc"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -826,6 +837,7 @@
     'redox-lab.html': {"intro": "[data-tab=\"ox\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrolysis-lab.html': {"intro": "[data-tab=\"cell\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'organic-reactions-lab.html': {"intro": "[data-tab=\"rx\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'nuclear-lab.html': {"intro": "[data-tab=\"band\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
