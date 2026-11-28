@@ -475,10 +475,10 @@ function readCfg(){const z=cf.z,full=cf.mode==='show'||total()===z,o=cf.mode==='
  $('#valTxt').textContent=v!=null?`${v} valence electron${v>1?'s':''}`:'d block';
  $('#blkTxt').textContent=`${b} block · period ${per(z)} · group ${g}`+(v==null?'. Lewis dots are drawn for the s and p blocks only.':'');
  drawLewis(z,full?v:null)}
-function drawLewis(z,v){const s=$('#lewis'),ink=C.ink||'#13232B',acc=C.fill||'#0A6A88';let h=`<text x="37" y="45" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-weight="700" font-size="24" fill="${ink}">${sym(z)}</text>`;
+function drawLewis(z,v){const s=$('#lewis'),ink=C.ink||'#13232B',acc=C.fill||'#0A6A88';let h=`<text x="37" y="45" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-weight="700" font-size="24" style="fill:var(--ink)">${sym(z)}</text>`;
  if(v!=null){const pos=[[37,14],[64,37],[37,62],[10,37]],off=[[ -5,0],[0,-5],[-5,0],[0,-5]];const n=[0,0,0,0];
   const order=z===2?[0,0]:[0,1,2,3,0,1,2,3];for(let i=0;i<v;i++)n[order[i]]++;
-  pos.forEach(([x,y],k)=>{for(let j=0;j<n[k];j++){const dx=n[k]===2?(j?1:-1)*5:0;const px=k%2?x:x+dx,py=k%2?y+dx:y;h+=`<circle cx="${px}" cy="${py}" r="3.3" fill="${acc}"/>`}})}
+  pos.forEach(([x,y],k)=>{for(let j=0;j<n[k];j++){const dx=n[k]===2?(j?1:-1)*5:0;const px=k%2?x:x+dx,py=k%2?y+dx:y;h+=`<circle cx="${px}" cy="${py}" r="3.3" style="fill:var(--fill)"/>`}})}
  s.innerHTML=h;s.setAttribute('aria-label',v!=null?`Lewis dot symbol of ${nameOf(z)}: ${v} dots`:'No Lewis symbol yet')}
 /* periodic table buttons, H to Kr */
 (function(){const g=$('#pt1');let h='';for(let p=1;p<=4;p++)for(let c=1;c<=18;c++){const z=EL.findIndex((e,i)=>i&&i<=ZBUILD&&e[3]===p&&e[2]===c);
@@ -524,7 +524,7 @@ function drawOrb(){const c=$('#orb');if(!c.getClientRects().length)return;const 
   txt(x,'shells: '+(sh.length?sh.join(', '):'–'),cx,bot+18,mut,12,'center','alphabetic',600);
   G1s={cx,cy,R}}else G1s=null;
  G1={boxes,colX,bs,u,top,bot};
- if(flashS&&now-flashT<900)requestAnimationFrame(drawOrb);else flashS=null}
+ if(flashS&&now-flashT>=900)flashS=null}
 let G1s=null;
 $('#orb').addEventListener('click',e=>{if(!G1)return;const r=e.currentTarget.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
  const b=G1.boxes.find(b=>px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h);if(b)tryAdd(b.s,b.i)});
@@ -614,7 +614,9 @@ function showPhoton(nm,label){const f=CL/(nm*1e-9),E=HP*f;$('#lL').textContent=n
 function emit(){if(lt.mode!=='h'||lt.anim)return;const {ni,nf}=lt;if(ni<=nf){lt.msg='The electron must fall to a lower level to give out light.';drawLight();return}
  lt.e.n=ni;lt.anim={t0:performance.now(),ni,nf};lt.msg=null;drawLight()}
 function finishEmit(a){const nm=lam(a.ni,a.nf);if(!lt.lines.some(l=>Math.abs(l.nm-nm)<.5))lt.lines.push({nm,lab:`${a.ni}→${a.nf}`});lt.e.n=a.nf;showPhoton(nm);
+ lt.short=`n = ${a.ni} → ${a.nf}: λ = ${fx(nm,1)} nm, ${region(nm)}.`;
  lt.msg=`n = ${a.ni} → n = ${a.nf}: ${SERIES[a.nf]}. ΔE = ${fx(13.6*(1/(a.nf*a.nf)-1/(a.ni*a.ni)),2)} eV → λ = ${fx(nm,1)} nm, ${colourName(nm)}.`}
+function wrapTxt(x,s,maxw,font){x.font=font;const out=[''];for(const wd of s.split(' ')){const t=(out[out.length-1]+' '+wd).trim();if(x.measureText(t).width>maxw&&out[out.length-1])out.push(wd);else out[out.length-1]=t}return out}
 let GL=null;
 function drawLight(){const c=$('#lt');if(!c.getClientRects().length)return;const {x,w,h}=fit(c);x.clearRect(0,0,w,h);const now=performance.now();
  if(lt.mode==='flame')return drawFlame(x,w,h);
@@ -628,25 +630,25 @@ function drawLight(){const c=$('#lt');if(!c.getClientRects().length)return;const
  if(lt.anim){const a=lt.anim,u=Math.min(1,(now-a.t0)/900);const ya=Y(a.ni),yb=Y(a.nf);ey=ya+(yb-ya)*Math.min(1,u*1.6);
   const nm=lam(a.ni,a.nf),col=region(nm)==='visible'?rgbOf(nm):C.muted;x.strokeStyle=C.muted;x.setLineDash([4,4]);x.beginPath();x.moveTo(ex,ya);x.lineTo(ex,yb);x.stroke();x.setLineDash([]);
   if(u>.55){const p=(u-.55)/.45,px0=ex+10,px1=px0+(w-px0-10)*p;x.strokeStyle=col;x.lineWidth=2.5;x.beginPath();for(let k=0;k<=40;k++){const xx=px0+(px1-px0)*k/40,yy=yb-20+Math.sin(k*1.3)*6;k?x.lineTo(xx,yy):x.moveTo(xx,yy)}x.stroke();txt(x,'photon',px1,yb-32,col,12,'right','alphabetic',700)}
-  if(u>=1){lt.anim=null;finishEmit(a);requestAnimationFrame(()=>{drawLight();drawSpec()})}}
+  if(u>=1){lt.anim=null;finishEmit(a);lt.redraw=true}}
  else ey=Y(lt.e.n);
  x.fillStyle=C.fill;x.beginPath();x.arc(ex,ey,8,0,Math.PI*2);x.fill();txt(x,'e⁻',ex,ey,'#fff',10,'center','middle',700);
  if(lt.tap)txt(x,'from n = '+lt.tap+': now tap a lower level',L,h-6,C.accent,12,'left','alphabetic',700);
- else if(lt.msg){x.font='600 11.5px "IBM Plex Mono",monospace';const words=lt.msg.split(' '),lines=[''];const mw=w-L+40-14;for(const wd of words){const t=(lines[lines.length-1]+' '+wd).trim();if(x.measureText(t).width>mw&&lines[lines.length-1])lines.push(wd);else lines[lines.length-1]=t}
-  lines.slice(-2).forEach((l,i,a)=>txt(x,l,L-40,h-6-(a.length-1-i)*14,C.muted,11.5,'left','alphabetic',600))}
- GL={lv,L,Rr};if(lt.anim)requestAnimationFrame(()=>{drawLight();drawSpec()})}
-function drawFlame(x,w,h){const m=FLAME[lt.metal],cx=w*.42,base=h-40,t=performance.now()/1000;
+ else if(lt.msg){const lines=wrapTxt(x,w<600&&lt.short?lt.short:lt.msg,w-(L-40)-14,'600 11.5px "IBM Plex Mono",monospace');
+  lines.slice(0,2).forEach((l,i,a)=>txt(x,l,L-40,h-6-(a.length-1-i)*14,C.muted,11.5,'left','alphabetic',600))}
+ GL={lv,L,Rr}}
+function drawFlame(x,w,h){const m=FLAME[lt.metal],nar=w<600,cx=w*(nar?.3:.42),base=h-(nar?62:40),t=performance.now()/1000;
  // burner
  x.fillStyle=isDark()?'#5A666C':'#7A868C';x.fillRect(cx-16,base-80,32,80);x.fillRect(cx-46,base,92,12);x.fillStyle=isDark()?'#3A454A':'#4C585E';x.fillRect(cx-10,base-50,20,6);
  // flame: an outer coloured flame round a blue cone
- const fh=Math.min(h*.55,220);for(let k=0;k<3;k++){const wob=Math.sin(t*6+k)*4;x.fillStyle=m.col;x.globalAlpha=.32+.22*k;x.beginPath();x.moveTo(cx-22+k*5,base-80);x.quadraticCurveTo(cx-34+k*8+wob,base-80-fh*.55,cx+wob*.5,base-80-fh*(1-k*.15));x.quadraticCurveTo(cx+34-k*8+wob,base-80-fh*.55,cx+22-k*5,base-80);x.closePath();x.fill()}
+ const fh=Math.min(h*.55,220,base-100);for(let k=0;k<3;k++){const wob=Math.sin(t*6+k)*4;x.fillStyle=m.col;x.globalAlpha=.32+.22*k;x.beginPath();x.moveTo(cx-22+k*5,base-80);x.quadraticCurveTo(cx-34+k*8+wob,base-80-fh*.55,cx+wob*.5,base-80-fh*(1-k*.15));x.quadraticCurveTo(cx+34-k*8+wob,base-80-fh*.55,cx+22-k*5,base-80);x.closePath();x.fill()}
  x.globalAlpha=.7;x.fillStyle='#5AA0FF';x.beginPath();x.moveTo(cx-9,base-80);x.quadraticCurveTo(cx,base-80-fh*.3,cx+9,base-80);x.fill();x.globalAlpha=1;
  // wire loop with the salt
- x.strokeStyle=C.muted;x.lineWidth=2;x.beginPath();x.moveTo(cx+110,base-60-fh*.35);x.lineTo(cx+14,base-80-fh*.35);x.stroke();x.beginPath();x.arc(cx+8,base-80-fh*.35,6,0,Math.PI*2);x.stroke();
- txt(x,m.name+' salt in the flame',cx+120,base-64-fh*.35,C.ink,13,'left','middle',700);
- txt(x,'colour: '+m.say,cx+120,base-44-fh*.35,C.muted,12,'left','middle');
- txt(x,'The flame gives the electrons energy. As they fall back to lower levels they give out light of a few exact colours.',14,h-10,C.muted,11.5,'left','alphabetic',500);
- requestAnimationFrame(()=>{if(tab==='light'&&lt.mode==='flame')drawLight()})}
+ const lx=cx+(nar?60:110);x.strokeStyle=C.muted;x.lineWidth=2;x.beginPath();x.moveTo(lx,base-60-fh*.35);x.lineTo(cx+14,base-80-fh*.35);x.stroke();x.beginPath();x.arc(cx+8,base-80-fh*.35,6,0,Math.PI*2);x.stroke();
+ txt(x,m.name+(nar?' salt':' salt in the flame'),lx+10,base-64-fh*.35,C.ink,13,'left','middle',700);
+ txt(x,'colour: '+m.say,lx+10,base-44-fh*.35,C.muted,12,'left','middle');
+ wrapTxt(x,'The flame gives the electrons energy. As they fall back to lower levels they give out light of a few exact colours.',w-28,'500 11.5px "IBM Plex Mono",monospace').slice(0,3).reverse().forEach((l,i)=>txt(x,l,14,h-10-i*14,C.muted,11.5,'left','alphabetic',500));
+}
 function drawSpec(){const c=$('#spec');if(!c.getClientRects().length)return;const {x,w,h}=fit(c);const L=40,R=40,T=22,B=h-26,X=nm=>L+(nm-380)/(750-380)*(w-L-R);
  x.fillStyle='#0B0F12';x.fillRect(0,0,w,h);
  // faint rainbow guide
@@ -711,8 +713,8 @@ function cfgSteps(z){const o=config(z),v=valence(z),ex=!!EXC[z],nm=nameOf(z).toL
  const S=[
  {title:'Solve it in the lab',html:`<p>Your exercise: the electrons of <b>${nm} (Z = ${z})</b>.</p><p>A neutral atom has as many electrons as protons, so we place <b>${z} electron${z>1?'s':''}</b>, one at a time, following three rules.</p>`,onShow:()=>{go('lab');if(cf.mode!=='build')setMode('build')}},
  {el:'#pt1',title:'Choose the element',html:`<p>Tap <b>${sym(z)}</b> in the table.</p>`,wait:()=>cf.z===z,doIt:()=>setZ(z),done:`${nameOf(z)}: ${z} electrons to place.`,auto:800},
- {el:()=>$('#orb').closest('.scene'),title:'Fill the orbitals',html:`<p>Each box is one orbital. Tap a box to add an electron:</p><ul><li><b>Aufbau:</b> lowest energy first (the box is lit).</li><li><b>Pauli:</b> at most 2 per box, opposite spins.</li><li><b>Hund:</b> one in each box of a sublevel before pairing.</li></ul><p>Fill all ${z}, or press <b>Show me</b>.</p>`,
-  wait:()=>cf.mode==='build'&&cf.z===z&&total()===z,doIt:()=>{if(cf.mode!=='build')setMode('build');let n;while(total()<z&&(n=nextSlot()))tryAdd(n[0],n[1],true)},doLabel:'Show me',done:()=>`All ${z} electrons placed: ${cfgText(aufbau(z),false)}.`}];
+ {el:()=>$('#orb').closest('.scene'),title:'Fill the orbitals',html:`<p>Each box is one orbital. Tap a box to add an electron:</p><ul><li><b>Aufbau:</b> lowest energy first (the box is lit).</li><li><b>Pauli:</b> at most 2 per box, opposite spins.</li><li><b>Hund:</b> one in each box of a sublevel before pairing.</li></ul><p>Fill all ${z}, or press <b>Do it for me</b>.</p>`,
+  wait:()=>cf.mode==='build'&&cf.z===z&&total()===z,doIt:()=>{if(cf.mode!=='build')setMode('build');let n;while(total()<z&&(n=nextSlot()))tryAdd(n[0],n[1],true)},done:()=>`All ${z} electrons placed: ${cfgText(aufbau(z),false)}.`}];
  if(ex)S.push({el:'[data-mode="show"]',title:'An exception',html:`<p>The rules predict ${cfgText(aufbau(z),false)}, but real ${nm} moves one 4s electron into 3d: a ${z===24?'half-filled':'filled'} d sublevel is more stable.</p><p>Switch to <b>Show me</b> to see the real atom.</p>`,wait:()=>cf.mode==='show'&&cf.z===z,doIt:()=>setMode('show'),done:'Real configuration: '+plain+'.',auto:900});
  S.push({el:()=>$('#cfgFull').closest('.group'),title:'(a) and (b) The notation',html:calc(`Configuration:  ${plain}\nNoble gas:      ${nobleText(z,false)}`)+`<p>Superscripts = electrons in each sublevel. They add up to ${z}.</p>`+(z>2?`<p>The noble-gas core [${NOBLE.find(([nz])=>nz<z)[1]}] stands for the inner electrons.</p>`:'')});
  S.push({el:'#valCard',title:'(c) Valence electrons',html:v!=null?`<p>Valence electrons are in the highest energy level (n = ${per(z)}): <b>${v}</b>.</p><p>The Lewis dot symbol shows them as dots round ${sym(z)}.</p>`:`<p>${nameOf(z)} is a transition metal (d block). Its 4s electrons are the outermost; the 3d electrons can also take part in bonding, so we do not draw a simple Lewis symbol.</p>`});
@@ -744,7 +746,7 @@ const GEN=[
   const o=aufbau(z);if(o['3d']>0&&o['4s']===2){const q={...o};q['4s']=0;q['3d']+=2;add(cfgText(q,false))}else{const q={...o},last=SUBS.filter(([s])=>o[s]>0).pop()[0],prev=SUBS.filter(([s])=>o[s]>0).slice(-2)[0][0];if(last!==prev&&q[prev]>1){q[prev]--;q[last]++;add(cfgText(q,false))}}
   while(opts.length<4)add(cfgText(config(rint(3,36)),false));
   return [`Which is the electron configuration of ${nameOf(z).toLowerCase()} (Z = ${z})?`,opts.slice(0,4),0,`${nameOf(z)}: ${right}.`+(EXC[z]?' An exception: a '+(z===24?'half-filled':'filled')+' 3d sublevel is extra stable.':' Fill 1s 2s 2p 3s 3p 4s 3d 4p in order.')]},
- ()=>{const z=pick(MAIN.filter(z=>z<=36)),v=valence(z),o=[v,v===8?6:v+1,v>1?v-1:3,per(z)].map(String);const u=[...new Set(o)];while(u.length<4)u.push(String(rint(1,8)));const opts=[...new Set(u)].slice(0,4);
+ ()=>{const z=pick(MAIN.filter(z=>z<=36)),v=valence(z),o=[v,v===8?6:v+1,v>1?v-1:3,per(z)].map(String);const u=[...new Set(o)];while(u.length<4){const r=String(rint(1,8));if(!u.includes(r))u.push(r)}const opts=u.slice(0,4);
   return [`How many valence electrons does ${nameOf(z).toLowerCase()} have?`,opts,0,`${nameOf(z)} is in group ${grp(z)}: ${v} electron${v>1?'s':''} in its outer level (n = ${per(z)}). ${nobleText(z,false)}.`]},
  ()=>{const prop=pick(['r','ie','en']);let a,b;
   if(Math.random()<.5){const g=pick([1,2,13,14,15,16,17]);const zs=MAIN.filter(z=>grp(z)===g&&val(z,prop)!=null);[a,b]=shuffle(zs).slice(0,2)}
@@ -779,7 +781,10 @@ $('#qNext').onclick=nextQ;
 function drawAll(){if(!C.ink)readColors();if(tab==='cfg')drawOrb();if(tab==='trend')drawTrend();if(tab==='light'){drawLight();drawSpec()}}
 addEventListener('resize',drawAll);
 let lastStep=0;
-function loop(t){if(cf.anim&&tab==='cfg'&&t-lastStep>320){lastStep=t;const a=cf.anim;if(a.i<a.steps.length){const [s,i]=a.steps[a.i++];cf.box[s][i]++;drawOrb()}else{cf.anim=null;drawOrb()}}requestAnimationFrame(loop)}
+function loop(t){
+ if(tab==='cfg'&&flashS)drawOrb();
+ if(tab==='light'&&(lt.anim||lt.redraw||(lt.mode==='flame'&&t-(loop.f||0)>40))){loop.f=t;lt.redraw=false;drawLight();drawSpec()}
+ if(cf.anim&&tab==='cfg'&&t-lastStep>320){lastStep=t;const a=cf.anim;if(a.i<a.steps.length){const [s,i]=a.steps[a.i++];cf.box[s][i]++;drawOrb()}else{cf.anim=null;drawOrb()}}requestAnimationFrame(loop)}
 if(window.LabParts){window.__lp=LabParts.attach({key:'electrons',wrap:$('#orb').parentElement,stage:$('#orb'),bar:$('#cfgBar'),max:6,parts:()=>{const g=G1;if(!g||!g.boxes.length)return [];const L=[],B=s=>g.boxes.filter(b=>b.s===s),box=s=>{const a=B(s),f=a[0],l=a[a.length-1];return [f.x-4,f.y-4,l.x+l.w+4,l.y+l.h+4]};
  L.push({id:'axis',name:'Energy axis',what:'Higher on the diagram means higher energy. Electrons fill the lowest boxes first (aufbau principle).',hint:'The arrow on the left.',q:'Which way does energy increase?',x:40,y:(g.top+g.bot)/2,boxes:[[10,g.top-14,40,g.bot]]});
  const s1=B('1s')[0];L.push({id:'orb1s',name:'Orbital (a box)',what:'One orbital: it holds at most two electrons, with opposite spins ↑↓ (Pauli exclusion principle).',hint:'The lowest box: 1s.',q:'Find the 1s orbital.',x:s1.x+s1.w+14,y:s1.y+s1.h/2,boxes:[box('1s')]});
