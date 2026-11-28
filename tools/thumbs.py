@@ -28,6 +28,7 @@ PREP = {
   'molecule-shapes-lab': "(()=>{if(tab==='lewis'&&LW.step<5){LW.m=1;LW.step=5;lUI()}if(tab==='shape'){SH.m=2;SH.pol=true;shUI()}})()",
   'mole-lab': "(()=>{if(tab==='hyd'&&HY.step<5){hyAuto()}if(tab==='sto'&&!ST.done){ST.r=1;ST.n=[3,3];ST.done=true;ST.t=1;stUI()}})()",
   'density-lab': "(()=>{if(tab==='meas'&&DM.step<4){while(DM.step<4)dmNext()}if(tab==='graph'&&!GR.pts.length){[1,4,6].forEach(i=>{GR.s=i;for(let k=0;k<4;k++)grAdd()});grUI()}})()",
+  'mixtures-lab': "(()=>{if(tab==='sep'&&SP.log.length===0){['mag','water','filt'].forEach(t=>spDo(t,true))}if(tab==='chrom'&&CH.t<1){CH.t=1;CH.run=false;chUI()}})()",
   'electrons-lab': "(()=>{if(tab==='cfg'&&cf.z!==26){setZ(26);setMode('show')}if(tab==='trend'){tr.b=17;drawTrend()}if(tab==='light'&&!lt.lines.length){lt.lines=[3,4,5,6].map(n=>({nm:lam(n,2),lab:n+'→2'}));lt.e.n=2;showPhoton(lam(4,2));drawLight();drawSpec()}})()",
   'five-types-of-chemical-reactions': "document.querySelector('[data-tab=pat]').click()",
   'galvanic-cell-lab': "(()=>{const b=document.getElementById('swBtn');if(/Close/.test(b.textContent))b.click()})()",

@@ -225,6 +225,15 @@
       mis: [["A bigger piece of iron has a bigger density.", "Density stays the same; mass and volume both grow."], ["Heavy objects always sink.", "Objects sink when their density is greater than the liquid’s."], ["More decimal places always means more accurate.", "Precision is about repeatability; accuracy is about being close to the true value."], ["Zeros are never significant.", "Zeros between digits and trailing zeros after a decimal point are significant."]],
       qs: ["Why can density identify a metal but mass cannot?", "Why is the volume of the metal equal to the rise of the water level?", "Why does 25.0 mL have three significant figures but 25 mL only two?"]
     },
+    'mixtures-lab.html': {
+      big: "In a mixture each substance keeps its own properties, so we can separate it by physical means: magnetism, solubility, particle size, boiling point and how strongly a substance sticks to paper. No new substance forms and no mass is lost.",
+      tryThis: ["Try to filter the dry mixture. Why does nothing happen?", "What order of steps separates all three substances? Is there more than one order?", "Filter before using the magnet. What ends up on the filter paper?", "Evaporate the filtrate or distil it: what do you get back each time?", "Chromatography: which ink is a mixture of dyes? How can you tell?", "Measure the Rf values of the unknown. Which inks does it contain?"],
+      words: [["Mixture", "a combination of substances that keep their own properties"], ["Heterogeneous mixture", "not the same throughout (sand and salt)"], ["Homogeneous mixture (solution)", "the same throughout (salt water)"], ["Filtration", "separates an insoluble solid from a liquid"], ["Filtrate", "the liquid that passes through the filter"], ["Distillation", "separates by boiling point; the vapour is condensed"], ["Crystallization", "a dissolved solid forms crystals as the solvent evaporates"], ["Chromatography", "separates by how strongly substances stick to the paper; Rf = dye distance ÷ solvent distance"]],
+      goals: ["Classify matter as element, compound, homogeneous or heterogeneous mixture.", "Choose and order separation techniques based on physical properties.", "Use the law of conservation of mass.", "Calculate Rf values and use them to identify substances."],
+      flow: [["2 min", "Predict", "How would you get the salt back out of salty sand?"], ["7 min", "Explore", "Separate the mixture; record the mass of each part."], ["5 min", "Explain", "Chromatography: Rf values of the inks."], ["4 min", "Apply", "Exercise tab and classify challenge."]],
+      mis: [["Dissolving destroys the salt.", "The salt is still there: evaporate the water and it comes back."], ["Filtration can separate salt from water.", "Dissolved particles pass through the filter; you need evaporation or distillation."], ["Black ink is one substance.", "Chromatography shows it is a mixture of several dyes."], ["Mass is lost when water evaporates.", "The water’s mass leaves as vapour; total mass is conserved if you collect it (distillation)."]],
+      qs: ["Why does filtration not separate salt from salt water?", "Why must water be added before filtering the sand and salt mixture?", "How can chromatography show that black ink is a mixture?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -397,6 +406,7 @@
     'molecule-shapes-lab.html': ["CO₂ has 16 valence electrons. With single bonds the carbon would have only 4 electrons, so each oxygen shares a second pair: O=C=O gives every atom an octet.", "Water has two lone pairs on oxygen; lone pairs repel more than bonding pairs and squeeze the H–O–H angle to 104.5°.", "The four polar bonds point to the corners of a tetrahedron, so their dipoles cancel and there is no positive or negative end."],
     'mole-lab.html': ["Both have 6.02 × 10²³ atoms, but each gold atom is much heavier (197 g/mol against 12.01 g/mol).", "Change each reactant’s mass to moles, divide by its coefficient (or use the mole ratio): the reactant that can make less product is limiting.", "Only then has all the water been driven off; otherwise the anhydrous mass is too high and x comes out too small."],
     'density-lab.html': ["Density is an intensive property: every piece of the same metal has the same density, whatever its size; mass depends on the amount.", "The metal pushes aside (displaces) its own volume of water, so the water rises by exactly that volume.", "The zero after the decimal point shows the reading was made to the nearest 0.1 mL; it is a measured digit."],
+    'mixtures-lab.html': ["Dissolved salt particles are far smaller than the holes in the filter paper, so they pass through with the water.", "Dry salt and sand would both stay on the paper; water dissolves the salt so only the sand is caught.", "The single black spot separates into several coloured spots that travel different distances (different Rf values)."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -574,6 +584,7 @@
     'molecule-shapes-lab.html': {"hide": [], "start": "#lNext"},
     'mole-lab.html': {"hide": [], "start": "#mSub"},
     'density-lab.html': {"hide": [], "start": "#dNext"},
+    'mixtures-lab.html': {"hide": [], "start": "[data-tech=\"mag\"]"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -766,6 +777,7 @@
     'molecule-shapes-lab.html': {"intro": "[data-tab=\"lewis\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'mole-lab.html': {"intro": "[data-tab=\"mole\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'density-lab.html': {"intro": "[data-tab=\"meas\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'mixtures-lab.html': {"intro": "[data-tab=\"sep\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },

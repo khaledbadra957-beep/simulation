@@ -1,0 +1,429 @@
+<!doctype html><html lang="en" class="stage-ui"><head><script>try{var t=localStorage.getItem("site-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mixtures and Separation</title>
+<meta name="description" content="Separate a mixture of sand, salt and iron filings with a magnet, water, filtration, evaporation and distillation, and recover every gram. Run paper chromatography of inks and use Rf values to identify an unknown. Exercise solver for Rf, conservation of mass and percent by mass, and a classify-the-matter challenge.">
+<!-- og -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mr Khaled · Science Simulations">
+<meta property="og:title" content="Mixtures and Separation · Mr Khaled">
+<meta property="og:description" content="Separate a mixture of sand, salt and iron filings with a magnet, water, filtration, evaporation and distillation, and recover every gram. Run paper chromatography of inks and use Rf values to identify an unknown. Exercise solver for Rf, conservation of mass and percent by mass, and a classify-the-matter challenge.">
+<meta property="og:url" content="https://khaledbadra957-beep.github.io/simulation/mixtures-lab.html">
+<meta property="og:image" content="https://khaledbadra957-beep.github.io/simulation/og/mixtures-lab.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mixtures and Separation: a picture of the lab">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- /og -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Same lab-bench layout as the other labs. */
+:root{
+  --bg:#EDF1F0; --surface:#F8FAF9; --stage:#FFFFFF;
+  --ink:#13232B; --muted:#52646C; --line:#C6D2D1; --grid:#E2E9E8;
+  --accent:#0A6A88; --accent-ink:#FFFFFF;
+  --a:#2F6FD0; --b:#D88A1C; --prod:#1E8A55; --rose:#C2185B;
+  --brass:#B8913A; --brass-soft:rgba(233,196,106,.45);
+  --ok:#1E8A55; --bad:#C0392B;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D161A; --surface:#142127; --stage:#0F1B20;
+  --ink:#E7EFF1; --muted:#94A7AE; --line:#2B3D44; --grid:#1C2B31;
+  --accent:#56C3DF; --accent-ink:#06222B;
+  --a:#7FB0FF; --b:#F2B45A; --prod:#4ACB8A; --rose:#FF6FA8;
+  --brass:#E0BC5E; --brass-soft:rgba(201,162,74,.32);
+  --ok:#4ACB8A; --bad:#FF8A7A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:clamp(18px,3.5vw,40px);display:flex;flex-direction:column;gap:22px}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{margin:0;font-family:var(--data);font-size:.8125rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{margin:.15em 0 .2em;font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;text-wrap:balance}
+h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.25rem;text-wrap:balance}
+h3{margin:0;font-size:1rem}
+.lede{margin:0;max-width:64ch;color:var(--muted);font-size:1.04rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{border:1.5px solid var(--line);background:var(--stage);border-radius:9px;padding:7px 13px;font-weight:700;line-height:1.25}
+.btn:hover:not(:disabled){border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.85rem;padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--line)}
+.tab{border:0;background:none;color:var(--muted);padding:10px 14px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.bench{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:clamp(12px,2vw,20px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.bench.fs{position:fixed;inset:0;z-index:50;border-radius:0;overflow:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px))}
+.benchhead{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.mono{font-family:var(--data)}
+canvas.stage{display:block;width:100%;background:var(--stage);border:1px solid var(--line);border-radius:10px;touch-action:manipulation}
+#beaker{height:clamp(300px,34vw,340px)}
+.mkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:.85rem;color:var(--muted)}.mkey i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+#kg{height:260px}
+#eg{height:250px;cursor:crosshair}
+.pred{display:flex;gap:6px;flex-wrap:wrap}
+.pred button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:700}
+.pred button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pred button:hover{border-color:var(--accent)}
+.ans select{max-width:100%}
+
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.transport .sep{flex:1 1 auto}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--stage);max-width:100%;align-self:flex-start}
+.seg button{border:0;border-right:1.5px solid var(--line);background:none;padding:6px 12px;font-weight:700;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px 26px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.field-head label,.flabel{font-weight:700;font-size:.95rem}
+.field-head output{font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;height:26px;margin:0;accent-color:var(--accent)}
+.checks{display:flex;flex-wrap:wrap;gap:6px 16px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:.95rem;cursor:pointer;font-weight:700}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.card{background:var(--stage);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.readouts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.readouts dt{font-size:.82rem;color:var(--muted)}
+.readouts dd{margin:0;font-family:var(--data);font-weight:600;font-size:1.15rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem;color:var(--muted);align-items:center}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.ans{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans input,.ans select,select.sel{max-width:100%;font:inherit;font-family:var(--data);padding:6px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.ans input{width:8em}
+.status{font-weight:700;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--stage);margin:0}
+.status.ok{border-color:var(--ok);color:var(--ok)} .status.bad{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:10px;background:var(--stage)}
+table{border-collapse:collapse;width:100%;font-family:var(--data);font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-family:var(--body);font-size:.8125rem;color:var(--muted);background:var(--surface)}
+th:first-child,td:first-child{text-align:left}
+tr.pick td{background:var(--brass-soft)}
+tbody tr{cursor:pointer}
+.empty td{text-align:left;color:var(--muted);font-family:var(--body);cursor:default}
+.q{font-size:1.12rem;font-weight:700;margin:0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:600px){.opts{grid-template-columns:1fr}}
+.opts button{text-align:left;border:1.5px solid var(--line);background:var(--stage);border-radius:10px;padding:10px 12px;font-weight:700}
+.opts button.right{border-color:var(--ok);color:var(--ok)} .opts button.wrong{border-color:var(--bad);color:var(--bad)}
+.sol{font-family:var(--data);white-space:pre-wrap;background:var(--stage);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:0;font-size:.92rem}
+.formula{border-left:4px solid var(--accent);padding:.3em 0 .3em 1em;display:flex;flex-direction:column;gap:3px}
+.formula .eq{font-family:var(--data);font-weight:600;font-size:1.15rem}
+.formula .live{font-family:var(--data);font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+ol.steps li::marker{font-family:var(--data);font-weight:600;color:var(--accent)}
+.runs{display:flex;flex-wrap:wrap;gap:6px}
+.runs span{font-family:var(--data);font-size:.8125rem;border:1.5px solid currentColor;border-radius:999px;padding:2px 9px}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+/* ---------- stage layout (DESIGN.md) ---------- */
+.stage-ui canvas.stage{border:0;border-radius:0}
+.stage-ui .sc-read{position:absolute;top:12px;right:12px;z-index:2;width:250px;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage-ui .chk.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+@media (max-width:1100px){.stage-ui .sc-read{width:200px}}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{top:auto;bottom:8px;right:8px;width:170px;padding:6px 8px}.stage-ui .sc-read .readouts{gap:2px 8px}.stage-ui .sc-read dt{font-size:11.5px}.stage-ui .sc-read dd{font-size:12.5px}.stage-ui .sc-read div[style]{display:none}}
+.stage-ui .panel input[type=range]{height:22px}
+.stage-ui .panel .field{gap:0}
+.stage-ui .sc-read dd{white-space:nowrap;font-size:.92rem}
+.stage-ui .sc-read{width:290px}
+.stage-ui .sc-read div[style] dd{white-space:normal;font-size:.85rem}
+.stage-ui #runs:empty{display:none}
+@media (max-width:860px),(max-height:560px){.stage-ui .sc-read{display:none}}
+.stage-ui .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stage-ui #beaker,.stage-ui #kg{height:auto}
+.stage-ui .play > .extra.tall{height:clamp(170px,32vh,290px)}
+.stage-ui .sc-eq{position:absolute;top:12px;left:14px;z-index:2;font-weight:600;font-size:15px;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+.stage-ui .scene .mkey{position:absolute;left:14px;bottom:10px;z-index:2;font-size:12.5px;background:color-mix(in srgb,var(--surface) 85%,transparent);padding:4px 10px;border-radius:8px}
+.stage-ui .seg{width:100%;align-self:stretch}
+.stage-ui .transport .seg{width:auto}
+.stage-ui .gh .seg{width:auto}
+.stage-ui .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stage-ui .small{font-size:13px}
+.stage-ui .btn.small{min-height:34px;font-size:13.5px;padding:0 10px}
+.stage-ui .pred{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stage-ui .status{font-size:13.5px;padding:7px 10px}
+.stage-ui .readouts{gap:6px 14px}
+.stage-ui .readouts dd{font-size:1rem}
+.stage-ui .sol{font-size:12.5px;padding:8px 10px}
+.stage-ui .morein{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.stage-ui .flabel{font-size:14px}
+.stage-ui .solo-in > .benchhead{margin-top:4px}
+.stage-ui #eg{height:260px;border:1px solid var(--line);border-radius:10px}
+.stage-ui .solo-in{padding:8px 4px 20px}
+.stage-ui .solo-in .card{background:var(--surface)}
+.stage-ui #exSolve svg{flex:none}
+.stage-ui details.own summary{cursor:pointer;font-weight:700;list-style:none}.stage-ui details.own summary::-webkit-details-marker{display:none}.stage-ui details.own summary::before{content:"+ ";font-family:var(--data)}.stage-ui details.own[open] summary::before{content:"− "}
+.stage-ui .ownf{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 18px;margin:10px 0}
+.stage-ui .ownf label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px}.stage-ui .ownf label.ck{flex-direction:row;align-items:center;gap:8px;align-self:end;min-height:38px}
+.stage-ui .ownf span{display:flex;align-items:center;gap:6px;font:600 14px var(--data);color:var(--muted)}
+.stage-ui .ownf input[type=number],.stage-ui .ownf select{width:7.5em;font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.stage-ui .ownf input[aria-invalid="true"]{border-color:var(--bad)}
+@media (max-width:860px),(max-height:560px){.stage-ui .play > .extra.tall{height:220px}.stage-ui .scene .mkey{display:none}.stage-ui .sc-eq{font-size:12.5px;top:8px;left:8px}}
+
+
+/* ---------- this lab ---------- */
+:root{--fill:#0A6A88;--hot:#D9534F;--cold:#3D7BE0;--solid:#3D7BE0;--liq:#0A8A7A;--gas:#C2571A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}}
+:root[data-theme="dark"]{--fill:#56C3DF;--hot:#FF7B73;--cold:#7FB2FF;--solid:#7FB2FF;--liq:#4FD1BE;--gas:#FF9F5A}
+.rule{font-size:.9rem;line-height:1.35;margin:0;padding:7px 10px;border-radius:9px;background:var(--surface);border:1.5px solid var(--line)}
+.rule.ok{border-color:var(--ok)}.rule.ok b{color:var(--ok)}.rule.bad{border-color:var(--bad)}
+.stage-ui .play > .extra.mid{height:clamp(150px,27vh,250px)}
+.eqn{font:600 1.1rem var(--data);margin:2px 0 4px}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px 14px}
+.exgrid label{display:flex;flex-direction:column;gap:3px;font-size:.88rem;color:var(--muted)}
+.exgrid input,.exgrid select{font:600 15px var(--data);padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink)}
+.exgrid input[aria-invalid]{border-color:var(--bad)}
+.panel select{font:600 14px var(--data);padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--stage);color:var(--ink);width:100%}
+.key{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;color:var(--muted);margin:4px 0 0}.key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}.btnrow .btn{padding:6px 10px}
+</style><script src="lab-viz.js"></script><script src="parts.js"></script><link rel="stylesheet" href="site.css"></head><body>
+
+<header class="topbar">
+ <a class="tb-back" href="index.html" aria-label="All simulations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <h1>Mixtures and Separation</h1>
+ <span class="tb-tag">Chemistry · G9</span>
+ <span class="tb-space"></span>
+ <button class="tb-btn" type="button" data-tool="fs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Full screen</span></button>
+ <button class="tb-btn" type="button" data-tool="theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Dark</span></button>
+</header>
+<button id="fsBtn" type="button" hidden></button><button id="themeBtn" type="button" hidden></button>
+<div class="tabs" role="tablist" hidden>
+ <button class="tab" role="tab" aria-selected="true" data-tab="sep" aria-controls="p-sep">Separate a mixture</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chrom" aria-controls="p-chrom">Chromatography</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="ex" aria-controls="p-ex">Exercise</button>
+ <button class="tab" role="tab" aria-selected="false" data-tab="chal" aria-controls="p-chal">Challenge</button>
+</div>
+<main class="screens">
+ <section class="screen" id="p-sep" data-screens="intro sep" role="tabpanel">
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="sc" aria-label="The mixture and the apparatus for the separation step you choose, with the parts you have recovered"></canvas></div>
+   <div class="transport" id="sBar"><div class="btnrow" id="sTech"><button class="btn" type="button" data-tech="mag">Magnet</button><button class="btn" type="button" data-tech="water">Add water and stir</button><button class="btn" type="button" data-tech="filt">Filter</button><button class="btn" type="button" data-tech="evap">Evaporate</button><button class="btn" type="button" data-tech="dist">Distil</button></div><button class="btn" id="sReset" type="button">New mixture</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel">
+   <section class="group"><h2>Sand + salt + iron filings</h2><p class="rule" id="sMsg"></p></section>
+   <section class="group"><h2>Recovered</h2><div class="note" id="sRec"></div></section>
+   <section class="group" data-adv><h2>Your steps</h2><ol class="note" id="sLog" style="margin:0;padding-left:18px"></ol></section>
+  </aside>
+ </section>
+ <section class="screen" id="p-chrom" data-screens="chrom" role="tabpanel" hidden>
+  <div class="play">
+   <div class="scene"><canvas class="stage" id="cc" aria-label="Paper chromatography: ink spots on paper in a beaker of solvent; the dyes separate as the solvent rises"></canvas></div>
+   <div class="transport" id="cBar"><button class="btn primary" id="cGo" type="button">Run the solvent</button><button class="btn" id="cReset" type="button">New paper</button><span class="grow"></span></div>
+  </div>
+  <aside class="panel"><section class="group"><h2>Paper chromatography</h2><p class="note">Tap a spot after the run to measure it.</p><p class="rule" id="cMsg"></p></section>
+   <section class="group"><h2>Rf values</h2><div class="note" id="cTbl"></div></section></aside>
+ </section>
+ <section class="screen solo" id="p-ex" data-screens="ex" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Exercise</h2><div class="transport"><button class="btn" type="button" id="exEg">Example</button>
+   <button class="btn primary" type="button" id="exSolve"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>Solve it in the lab</button></div></div>
+  <div class="card"><div class="field"><span class="flabel">Kind of exercise</span>
+   <div class="seg" role="group" aria-label="Kind of exercise" id="exKSeg" style="width:auto;flex-wrap:wrap"><button type="button" data-exk="rf" aria-pressed="true">Rf value</button><button type="button" data-exk="cons" aria-pressed="false">Conservation of mass</button><button type="button" data-exk="pct" aria-pressed="false">Percent by mass</button></div></div>
+   <div class="exgrid" id="exF"></div><p class="note" id="exMsg"></p><p id="exText" class="q" style="font-size:1rem"></p></div>
+ </div></section>
+ <section class="screen solo" id="p-chal" data-screens="chal" role="tabpanel" hidden><div class="solo-in">
+  <div class="benchhead"><h2>Challenge</h2><span class="mono" id="score">Score 0 / 0</span></div>
+  <p class="q" id="qText"></p><div class="opts" id="qOpts"></div><p class="status" id="qStatus" aria-live="polite" hidden></p>
+  <div class="transport"><button class="btn primary" id="qNext" type="button">Next question</button></div>
+ </div></section>
+</main>
+<p class="vh">Inspire Chemistry Module 2: physical properties and separation of mixtures.</p>
+<script>window.LAB = { screens: [ { id: 'intro', name: 'Intro', tab: 'sep', simple: true }, { id: 'sep', name: 'Separate', tab: 'sep' }, { id: 'chrom', name: 'Chromatography', tab: 'chrom' }, { id: 'ex', name: 'Exercise', tab: 'ex' }, { id: 'chal', name: 'Challenge', tab: 'chal' } ], tour: [ { el: '#sTech', title: 'Choose a technique', text: 'Each technique uses a different physical property. The order matters.' }, { el: '#sRec', title: 'Recovered', text: 'Every gram should come back: mass is conserved.' } ], onScreen: function(){ setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 30); } };</script>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fx=(x,d=2)=>Number(x).toFixed(d);
+const sup=e=>String(e).split('').map(ch=>ch==='-'?'⁻':ch==='+'?'⁺':'⁰¹²³⁴⁵⁶⁷⁸⁹'[+ch]).join('');
+const sci=(v,d=2)=>{if(!isFinite(v))return '–';if(v===0)return '0';let e=Math.floor(Math.log10(Math.abs(v)));let m=v/Math.pow(10,e);if(Math.abs(+m.toFixed(d))>=10){m/=10;e++}return `${m.toFixed(d)} × 10${sup(e)}`};
+/* number input: 4.86e-7, 4.86×10^-7, 4.86x10-7, commas */
+function num(s){if(s==null)return NaN;s=String(s).trim().replace(/,/g,'.').replace(/−/g,'-').replace(/[()]/g,'').replace(/\s/g,'');s=s.replace(/[x×*·]10\^?(-?\d+)/i,'e$1');return s===''?NaN:Number(s)}
+
+/* ---------- theme, tabs, full screen ---------- */
+const root=document.documentElement;
+const isDark=()=>{const t=root.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+let C={};
+function readColors(){const s=getComputedStyle(root);['stage','surface','ink','muted','line','grid','accent','brass','rose','ok','bad','a','b','prod','fill','hot','cold','solid','liq','gas'].forEach(k=>C[k]=s.getPropertyValue('--'+k).trim())}
+const themeLabel=()=>{$('#themeBtn').textContent=isDark()?'Light mode':'Dark mode';readColors();drawAll()};
+try{const t=localStorage.getItem('site-theme');if(t)root.setAttribute('data-theme',t)}catch(e){}
+new MutationObserver(()=>themeLabel()).observe(root,{attributes:true,attributeFilter:['data-theme']});
+$('#themeBtn').onclick=()=>{const n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('site-theme',n)}catch(e){}themeLabel()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeLabel);
+let tab='sep';
+const TABS=["sep", "chrom", "ex", "chal"];
+$$('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));TABS.forEach(t=>$('#p-'+t).hidden=t!==tab);drawAll()});
+$('#fsBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen?.()}catch(e){}$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)};
+document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?'Exit full screen':'Full screen';setTimeout(drawAll,60)});
+function segPick(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===btn))}
+function fit(c){const r=c.getBoundingClientRect();const d=window.devicePixelRatio||1;const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));
+ if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);return {x,w,h}}
+function txt(x,s,a,b,col,size=12,align='left',base='alphabetic',wt=500,fam='"IBM Plex Mono",monospace'){x.fillStyle=col;x.font=`${wt} ${size}px ${fam}`;x.textAlign=align;x.textBaseline=base;x.fillText(s,a,b)}
+const go=id=>{const b=document.querySelector('.lg-nav [data-ph="'+id+'"]');if(b&&root.getAttribute('data-screen')!==id)b.click();else{const t=LAB.screens.find(s=>s.id===id);if(t){const tb=document.querySelector('.tab[data-tab="'+t.tab+'"]');if(tb&&tab!==t.tab)tb.click()}}};
+
+
+/* ---------- shared: challenge ---------- */
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const sf=(v,n=3)=>{if(!isFinite(v))return '–';const a=Math.abs(v);if(a>=1e5||(a<1e-3&&a>0))return sci(v,n-1);if(a>=1000)return Math.round(v).toLocaleString('en-US');return v.toPrecision(n)};
+const uniq=(right,wr,unit,f=sf)=>{const s=[right,...wr].map(x=>f(x)+unit),o=[];s.forEach(x=>{if(!o.includes(x))o.push(x)});let k=1;while(o.length<4){const x=f(right*(1+.37*k++))+unit;if(!o.includes(x))o.push(x)}return o.slice(0,4)};
+const calc=t=>'<div class="t-calc">'+t+'</div>';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function rrect(X,x,y,w,h,r){r=Math.min(r,w/2,h/2);X.beginPath();X.moveTo(x+r,y);X.arcTo(x+w,y,x+w,y+h,r);X.arcTo(x+w,y+h,x,y+h,r);X.arcTo(x,y+h,x,y,r);X.arcTo(x,y,x+w,y,r);X.closePath()}
+const hex=s=>{s=(s||'#888').trim().replace('#','');if(s.length===3)s=s.split('').map(c=>c+c).join('');const n=parseInt(s,16);return [n>>16&255,n>>8&255,n&255]};
+const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*clamp(t,0,1))).join(',')})`};
+const alpha=(c,a)=>{const A=hex(c);return `rgba(${A[0]},${A[1]},${A[2]},${a})`};
+const mns=v=>String(v).replace(/-/g,'−');
+let score=0,tries=0,answered=false,lastG=-1;
+function nextQ(){let g_;do{g_=rint(0,GEN.length-1)}while(g_===lastG&&GEN.length>1);lastG=g_;const q=GEN[g_]();answered=false;
+ $('#qText').textContent=q[0];$('#qStatus').hidden=true;const opts=shuffle(q[1].map((t,k)=>({t,k})));
+ $('#qOpts').innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;b.onclick=()=>{if(answered)return;answered=true;tries++;
+  const ok=o.k===q[2];if(ok)score++;b.classList.add(ok?'right':'wrong');if(!ok)[...$('#qOpts').children].forEach((bb,i)=>{if(opts[i].k===q[2])bb.classList.add('right')});
+  const st=$('#qStatus');st.hidden=false;st.className='status '+(ok?'ok':'bad');st.textContent=(ok?'Correct. ':'Not quite. ')+q[3];$('#score').textContent=`Score ${score} / ${tries}`};$('#qOpts').appendChild(b)})}
+$('#qNext').onclick=nextQ;
+function tourGo(steps){if(!window.Tour)return;setTimeout(()=>Tour.start(steps,{label:'Exercise',skipText:'Stop',doneText:'Finish',lazy:true}),80)}
+
+/* =========================================================
+   SEPARATING A MIXTURE
+   ========================================================= */
+const SP={m:{sand:10.0,salt:5.0,iron:3.0},iron:true,water:false,filtered:false,salt:'mix',wcol:false,anim:null,show:'mix',log:[],rec:{}};
+const grains=[];for(let i=0;i<220;i++)grains.push([Math.random(),Math.random(),Math.random()]);
+function spNew(){const r=x=>+(x*(0.8+Math.random()*.4)).toFixed(1);SP.m={sand:r(10),salt:r(5),iron:r(3)};SP.iron=true;SP.water=false;SP.filtered=false;SP.salt='mix';SP.wcol=false;SP.show='mix';SP.log=[];SP.rec={};SP.anim=null;sUI()}
+function spDo(t,quiet){let ok=true,msg='';
+ if(t==='mag'){if(!SP.iron){ok=false;msg='There is no iron left to pull out.'}else if(SP.filtered){ok=false;msg='The iron is mixed in with the sand on the filter paper now. Hold the magnet over the residue… (start again and use the magnet first to keep it simple).'}else{SP.iron=false;SP.rec.iron=SP.m.iron;msg=`<b>Magnet:</b> iron is magnetic, sand and salt are not. ${fx(SP.m.iron,1)} g of iron filings recovered.`}}
+ if(t==='water'){if(SP.water){ok=false;msg='Water is already added.'}else{SP.water=true;SP.salt='dissolved';msg='<b>Water and stir:</b> the salt dissolves (it is soluble). Sand does not dissolve'+(SP.iron?', nor does iron':'')+'. Now the salt is in a solution.'}}
+ if(t==='filt'){if(!SP.water){ok=false;msg='Filtering a dry mixture does nothing: salt and sand would both stay on the paper. Dissolve the salt first.'}else if(SP.filtered){ok=false;msg='Already filtered.'}else{SP.filtered=true;SP.rec.sand=SP.m.sand+(SP.iron?SP.m.iron:0);msg=`<b>Filter:</b> the sand${SP.iron?' and iron':''} cannot pass through the paper (residue, ${fx(SP.rec.sand,1)} g after drying${SP.iron?': still mixed!':''}). The salt solution passes through (filtrate).`;if(SP.iron){SP.ironInSand=true;SP.iron=false}}}
+ if(t==='evap'||t==='dist'){if(!SP.filtered){ok=false;msg=SP.water?'Filter out the sand first, or the sand will end up in the salt.':'There is nothing to evaporate yet: there is no solution.'}else if(SP.salt==='solid'){ok=false;msg='The salt is already recovered.'}else{SP.salt='solid';SP.rec.salt=SP.m.salt;if(t==='dist'){SP.wcol=true;msg=`<b>Distil:</b> the water boils at 100 °C, the vapour cools in the condenser and drips into the flask as pure water. ${fx(SP.m.salt,1)} g of salt is left behind.`}else msg=`<b>Evaporate:</b> the water leaves as vapour and the salt crystallises: ${fx(SP.m.salt,1)} g recovered (the water is lost to the air; distil to keep it).`}}
+ if(ok){SP.show=t;SP.log.push(t);SP.anim=quiet?null:performance.now()}SP.msg=(ok?'':'<b>Not yet.</b> ')+msg;sUI()}
+$$('[data-tech]').forEach(b=>b.onclick=()=>spDo(b.dataset.tech));$('#sReset').onclick=spNew;
+const TN={mag:'magnet',water:'add water and stir',filt:'filter',evap:'evaporate',dist:'distil'};
+function sUI(){const R=SP.rec,tot=SP.m.sand+SP.m.salt+SP.m.iron,got=(R.iron||0)+(R.sand||0)+(R.salt||0),done=R.salt!=null&&R.sand!=null;
+ $('#sMsg').innerHTML=SP.msg||`Original mixture: ${fx(SP.m.sand,1)} g sand + ${fx(SP.m.salt,1)} g salt + ${fx(SP.m.iron,1)} g iron = <b>${fx(tot,1)} g</b>. Choose a technique.`;
+ $('#sRec').innerHTML=`<div>iron filings: <b>${R.iron!=null?fx(R.iron,1)+' g':'–'}</b></div><div>sand: <b>${R.sand!=null?fx(R.sand,1)+' g'+(SP.ironInSand?' (with iron mixed in)':''):'–'}</b></div><div>salt: <b>${R.salt!=null?fx(R.salt,1)+' g':'–'}</b></div><div style="margin-top:4px">total: <b>${fx(got,1)} of ${fx(tot,1)} g</b>${done?(Math.abs(got-tot)<.05?' ✓ mass is conserved':''):''}</div>`+(done?`<div style="margin-top:4px">percent by mass: sand ${fx(SP.m.sand/tot*100,1)} %, salt ${fx(SP.m.salt/tot*100,1)} %, iron ${fx(SP.m.iron/tot*100,1)} %</div>`:'');
+ $('#sLog').innerHTML=SP.log.map(t=>`<li>${TN[t]}</li>`).join('')||'<li style="list-style:none;margin-left:-18px">none yet</li>';drawSC()}
+let SG=null;
+function drawSC(){const c=$('#sc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const t=performance.now(),k=SP.anim?clamp((t-SP.anim)/1800,0,1):1,show=SP.show,wide=w>600;
+ const cx=w>600?w*.4:w*.5,base=h*.8,bw=Math.min(150,w*.28),bh=Math.min(130,h*.4);SG={cx,base,bw,bh};
+ const beaker=(x,y,ww,hh,water)=>{if(water){X.fillStyle=alpha(C.fill,.22);X.fillRect(x-ww/2,y-hh*.8,ww,hh*.8)}X.strokeStyle=C.ink;X.lineWidth=2.5;X.beginPath();X.moveTo(x-ww/2,y-hh);X.lineTo(x-ww/2,y);X.lineTo(x+ww/2,y);X.lineTo(x+ww/2,y-hh);X.stroke()};
+ const pile=(x,y,ww,list)=>{let i=0;list.forEach(([n,col,sz])=>{for(let j=0;j<n;j++){const g=grains[i++%220];X.fillStyle=col;const px=x-ww/2+4+g[0]*(ww-8),py=y-3-g[1]*Math.min(30,ww*.18);X.fillRect(px,py,sz,sz)}})};
+ const flame=(x,y)=>{X.fillStyle='rgba(80,140,255,.7)';X.beginPath();X.moveTo(x-8,y);X.quadraticCurveTo(x+Math.sin(t/90)*3,y-30,x+8,y);X.fill();X.fillStyle=C.muted;X.fillRect(x-7,y,14,30)};
+ const steam=(x,y)=>{for(let i=0;i<3;i++){const ph=(t/900+i/3)%1;X.strokeStyle=alpha(C.muted,.6*(1-ph));X.lineWidth=3;X.beginPath();for(let s=0;s<6;s++){const yy=y-ph*40-s*5,xx=x-12+i*12+Math.sin(t/300+s+i)*3;s?X.lineTo(xx,yy):X.moveTo(xx,yy)}X.stroke()}};
+ const SAND='#D9B66A',SALT='#F2F2EE',IRON='#4A4E55';
+ const SC=clamp(Math.min(w*.62/360,h/320),1,2.1);X.save();X.translate(cx,base);X.scale(SC,SC);X.translate(-cx,-base);
+ if(show==='mix'||show==='mag'||show==='water'){beaker(cx,base,bw,bh,SP.water);const list=[[110,SAND,4]];if(!SP.water)list.push([55,SALT,4]);if(SP.iron||(show==='mag'&&k<1))list.push([40,IRON,3]);
+  if(show==='mag'&&k<1){pile(cx,base,bw,[[110,SAND,4],[SP.water?0:55,SALT,4]]);const my=base-bh-60+(1-Math.abs(k*2-1))*40;X.fillStyle=C.rose;X.fillRect(cx-36,my,30,22);X.fillStyle=C.solid;X.fillRect(cx+6,my,30,22);X.fillStyle=C.muted;X.fillRect(cx-36,my-14,72,14);for(let i=0;i<40;i++){const g=grains[i],p=Math.min(1,k*1.6);X.fillStyle=IRON;X.fillRect(cx-bw/2+4+g[0]*(bw-8)+(cx-(cx-bw/2+4+g[0]*(bw-8)))*p*.7,base-3-g[1]*20+(my+28-(base-3-g[1]*20))*p,3,3)}}
+  else pile(cx,base,bw,list);
+  if(SP.water){for(let i=0;i<40;i++){const g=grains[i+50];X.fillStyle=alpha(C.accent,.5);X.beginPath();X.arc(cx-bw/2+6+g[0]*(bw-12),base-bh*.75+g[1]*bh*.5,1.6,0,7);X.fill()}txt(X,'salt dissolved',cx,base-bh*.85,C.muted,11,'center')}
+  txt(X,SP.water?'sand at the bottom, salt in the water':'sand + salt'+(SP.iron?' + iron':''),cx,base+20,C.ink,13,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+ if(show==='filt'){const fy=base-bh-30;X.strokeStyle=C.ink;X.lineWidth=2.5;X.beginPath();X.moveTo(cx-60,fy-60);X.lineTo(cx,fy);X.lineTo(cx+60,fy-60);X.moveTo(cx-6,fy);X.lineTo(cx-6,fy+30);X.moveTo(cx+6,fy);X.lineTo(cx+6,fy+30);X.stroke();X.fillStyle='#F4F4EE';X.beginPath();X.moveTo(cx-52,fy-56);X.lineTo(cx,fy-4);X.lineTo(cx+52,fy-56);X.closePath();X.fill();
+  pile(cx,fy-14,50,[[90,SAND,4],[SP.ironInSand?40:0,IRON,3]]);txt(X,'residue',cx+70,fy-30,C.muted,11);beaker(cx,base,bw,bh*.8,true);const dy=fy+30+((t/400)%1)*(base-bh*.6-fy-30);X.fillStyle=alpha(C.fill,.8);X.beginPath();X.arc(cx,dy,3,0,7);X.fill();txt(X,'filtrate: salt water',cx,base+20,C.ink,13,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+ if(show==='evap'){const dy=base-40;X.strokeStyle=C.ink;X.lineWidth=2.5;X.beginPath();X.ellipse(cx,dy,70,20,0,0,Math.PI);X.stroke();X.fillStyle=alpha(C.fill,.25*(1-k));X.beginPath();X.ellipse(cx,dy,64*(1-k*.3),14*(1-k*.3),0,0,Math.PI);X.fill();pile(cx,dy+12,90*k+10,[[Math.round(70*k),SALT,4]]);flame(cx,dy+44);if(k<1)steam(cx,dy-10);txt(X,k<1?'water evaporating':'salt crystals',cx,base+40,C.ink,13,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+ if(show==='dist'){const fx_=cx-110,fy=base-50;X.strokeStyle=C.ink;X.lineWidth=2.5;X.beginPath();X.arc(fx_,fy,34,0,7);X.stroke();X.fillStyle=alpha(C.fill,.25*(1-k));X.beginPath();X.arc(fx_,fy,30,0.2,Math.PI-.2);X.fill();X.beginPath();X.moveTo(fx_-8,fy-34);X.lineTo(fx_-8,fy-70);X.moveTo(fx_+8,fy-34);X.lineTo(fx_+8,fy-60);X.lineTo(fx_+150,fy-20);X.stroke();
+  X.fillStyle=alpha(C.cold,.25);X.save();X.translate(fx_+40,fy-56);X.rotate(Math.atan2(40,142));X.fillRect(0,-10,110,20);X.restore();txt(X,'condenser (cold water)',fx_+90,fy-80,C.muted,11,'center');flame(fx_,fy+40);txt(X,'100 °C',fx_-8,fy-76,C.bad,11,'center','alphabetic',700);
+  beaker(fx_+160,base,60,60,false);X.fillStyle=alpha(C.fill,.4);X.fillRect(fx_+131,base-50*k,58,50*k);if(k<1){const dy=fy-18+((t/300)%1)*30;X.fillStyle=C.fill;X.beginPath();X.arc(fx_+152,dy,3,0,7);X.fill()}
+  pile(fx_,fy+24,40,[[Math.round(40*k),SALT,3]]);txt(X,'pure water',fx_+160,base+18,C.ink,12,'center','alphabetic',700,'"IBM Plex Sans",sans-serif')}
+ X.restore();
+ // recovered shelf
+ if(!wide)return;const items=[['iron',SP.rec.iron,IRON],['sand',SP.rec.sand,SAND],['salt',SP.rec.salt,SALT]].concat(SP.wcol?[['water',null,C.fill]]:[]);const sx0=wide?w*.74:w*.08,sy0=wide?h*.12:h*.06;
+ txt(X,'Recovered',sx0,sy0,C.ink,13,'left','alphabetic',700,'"IBM Plex Sans",sans-serif');items.forEach(([n,m,col],i)=>{const y=sy0+16+i*52;X.fillStyle=C.surface;X.strokeStyle=C.line;X.lineWidth=1.5;rrect(X,sx0,y,wide?w*.22:110,44,8);X.fill();X.stroke();if(m!=null||n==='water'){X.fillStyle=col;X.beginPath();X.arc(sx0+20,y+22,10,0,7);X.fill();X.strokeStyle=alpha(C.ink,.3);X.stroke()}txt(X,n,sx0+38,y+19,C.ink,12,'left','alphabetic',700,'"IBM Plex Sans",sans-serif');txt(X,m!=null?fx(m,1)+' g':n==='water'?'collected':'–',sx0+38,y+36,C.muted,12,'left')})}
+
+/* =========================================================
+   CHROMATOGRAPHY
+   ========================================================= */
+const DYES={y:['#E8C22E',0.82],r:['#D9364A',0.55],b:['#2F6BD8',0.30],g:['#2EA05A',0.68],p:['#8A3FB5',0.18]};
+const INKS=[['black',['p','b','r','y']],['red',['r']],['blue',['b']],['green',['b','y']],['unknown',['b','r']]];
+const CH={t:0,run:false,sel:null,spots:[]};
+$('#cGo').onclick=()=>{if(CH.t>=1)CH.t=0;CH.run=true;chUI()};$('#cReset').onclick=()=>{CH.t=0;CH.run=false;CH.sel=null;chUI()};
+function chUI(){const done=CH.t>=1;$('#cGo').textContent=CH.run?'Running…':done?'Run again':'Run the solvent';
+ $('#cTbl').innerHTML=done?INKS.map(([n,ds])=>`<div><b>${n}</b>: ${ds.map(d=>`<span style="color:${DYES[d][0]};font-weight:800">●</span> ${DYES[d][1].toFixed(2)}`).join('  ')}</div>`).join(''):'Run the solvent first.';
+ $('#cMsg').innerHTML=CH.sel?`<b>${CH.sel.ink} ink, ${CH.sel.col} dye:</b> spot moved ${fx(CH.sel.d,1)} cm, solvent front ${fx(CH.sel.f,1)} cm. Rf = ${fx(CH.sel.d,1)} ÷ ${fx(CH.sel.f,1)} = <b>${fx(CH.sel.d/CH.sel.f,2)}</b>.`:done?'<b>Black ink splits into four dyes:</b> it is a mixture. Dyes that stick less to the paper and dissolve better in the solvent travel further (bigger Rf). The unknown matches the blue and red dyes.':'Pencil line at the bottom, ink spots on it, solvent below the line. Press <b>Run the solvent</b>.';drawCC()}
+let CG=null;
+function drawCC(){const c=$('#cc');if(!c.offsetParent)return;const {x:X,w,h}=fit(c);X.clearRect(0,0,w,h);const pw=Math.min(w-80,520),px=(w-pw)/2,py=24,ph=h-70,start=py+ph-50,frontMax=py+30,sf_=start-(start-frontMax)*CH.t,cm=(start-frontMax)/10;CG={px,pw,start,cm,sf_};
+ X.fillStyle=alpha(C.fill,.18);X.fillRect(px-20,py+ph-30,pw+40,30);X.strokeStyle=C.ink;X.lineWidth=2;X.strokeRect(px-24,py+ph-70,pw+48,70);
+ X.fillStyle='#F7F5EC';X.fillRect(px,py,pw,ph-10);X.fillStyle=alpha(C.fill,.12);X.fillRect(px,sf_,pw,py+ph-10-sf_);
+ X.strokeStyle='#888';X.lineWidth=1;X.beginPath();X.moveTo(px+6,start);X.lineTo(px+pw-6,start);X.stroke();txt(X,'pencil line',px+pw-8,start+14,'#666',11,'right');
+ if(CH.t>0){X.setLineDash([4,3]);X.strokeStyle=C.fill;X.lineWidth=1.5;X.beginPath();X.moveTo(px,sf_);X.lineTo(px+pw,sf_);X.stroke();X.setLineDash([]);txt(X,'solvent front',px+pw-8,sf_-5,C.fill,11,'right','alphabetic',600)}
+ CH.spots=[];const gap=pw/(INKS.length+1);INKS.forEach(([n,ds],i)=>{const x=px+gap*(i+1);txt(X,n,x,start+30,'#333',12,'center','alphabetic',700,'"IBM Plex Sans",sans-serif');
+  if(CH.t===0){X.fillStyle=n==='black'?'#222':n==='unknown'?'#5A2F8A':DYES[ds[0]][0];if(n==='green')X.fillStyle=DYES.g[0];X.beginPath();X.arc(x,start,7,0,7);X.fill();return}
+  ds.forEach(d=>{const y=start-(start-sf_)*DYES[d][1];X.fillStyle=alpha(DYES[d][0],.85);X.beginPath();X.ellipse(x,y,9,6+CH.t*2,0,0,7);X.fill();CH.spots.push({x,y,ink:n,col:{y:'yellow',r:'red',b:'blue',g:'green',p:'purple'}[d],d:(start-y)/cm,f:(start-sf_)/cm})})});
+ if(CH.sel&&CH.t>=1){const s=CH.sel,x=s.x+22;X.strokeStyle=C.ink;X.lineWidth=1.5;X.beginPath();X.moveTo(x,start);X.lineTo(x,s.y);X.moveTo(x-4,s.y);X.lineTo(x+4,s.y);X.moveTo(x-4,start);X.lineTo(x+4,start);X.stroke();txt(X,fx(s.d,1)+' cm',x+6,(start+s.y)/2,C.ink,11,'left','alphabetic',700);
+  X.strokeStyle=C.fill;X.beginPath();X.moveTo(px+12,start);X.lineTo(px+12,sf_);X.stroke();txt(X,fx(s.f,1)+' cm',px+16,(start+sf_)/2,C.fill,11,'left','alphabetic',700)}}
+$('#cc').addEventListener('click',e=>{if(CH.t<1)return;const r=$('#cc').getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let best=null,bd=20;CH.spots.forEach(s=>{const d=Math.hypot(s.x-x,s.y-y);if(d<bd){bd=d;best=s}});if(best){CH.sel=best;chUI()}});
+
+/* =========================================================
+   EXERCISE
+   ========================================================= */
+const EXEG=[{k:'rf',v:{d:'3.6',f:'8.0'},s:'A red dye moves 3.6 cm while the solvent moves 8.0 cm. What is its Rf value?'},{k:'cons',v:{find:'p',r1:'10.00',p1:'9.26',r2:'',p2:''},s:'10.00 g of mercury(II) oxide is heated and decomposes into 9.26 g of mercury and oxygen gas. What mass of oxygen forms?'},
+ {k:'pct',v:{part:'8.44',whole:'20.00'},s:'A 20.00 g sample of sucrose contains 8.44 g of carbon. What is the percent by mass of carbon?'},{k:'cons',v:{find:'p',r1:'110.3',p1:'8.2',r2:'',p2:''},s:'10.3 g of aluminum and 100.0 g of bromine (110.3 g in all) are mixed. After the reaction 8.2 g of bromine is left over. What mass of aluminum bromide formed?'}];
+let exk='rf';const ex={v:{},story:null};
+function exBuild(){const v=ex.v;let h='';const inp=(k,l)=>`<label>${l}<input data-v="${k}" inputmode="decimal" autocomplete="off" value="${v[k]??''}"></label>`;
+ if(exk==='rf')h=inp('d','Distance moved by the dye (cm)')+inp('f','Distance moved by the solvent (cm)');
+ if(exk==='cons')h=`<label>Find<select data-v="find"><option value="p"${v.find==='p'?' selected':''}>a product mass</option><option value="r"${v.find==='r'?' selected':''}>a reactant mass</option></select></label>`+(v.find==='p'?inp('r1','Total mass of reactants (g)')+inp('p1','Known product mass (g)'):inp('r1','Known reactant mass (g)')+inp('p2','Total mass of products (g)'));
+ if(exk==='pct')h=inp('part','Mass of the element or part (g)')+inp('whole','Mass of the whole sample (g)');
+ $('#exF').innerHTML=h;$$('#exF [data-v]').forEach(i=>i.addEventListener(i.tagName==='SELECT'?'change':'input',()=>{ex.v[i.dataset.v]=i.value;ex.story=null;if(i.tagName==='SELECT')exBuild();else exUpdate()}));exUpdate()}
+function exSolve(){const v=ex.v,bad=[],P=k=>{const x=num(v[k]);if(!(x>0))bad.push(k);return x};let r=null;
+ if(exk==='rf'){const d=P('d'),f=P('f');if(!bad.length&&d>f)bad.push('d');if(!bad.length)r={X:d/f}}
+ if(exk==='cons'){if(v.find==='p'){const a=P('r1'),b=P('p1');if(!bad.length&&b>=a)bad.push('p1');if(!bad.length)r={X:a-b}}else{const a=P('r1'),b=P('p2');if(!bad.length&&a>=b)bad.push('r1');if(!bad.length)r={X:b-a}}}
+ if(exk==='pct'){const a=P('part'),b=P('whole');if(!bad.length&&a>b)bad.push('part');if(!bad.length)r={X:a/b*100}}
+ $$('#exF [data-v]').forEach(i=>i.toggleAttribute('aria-invalid',bad.includes(i.dataset.v)));return r}
+function exUpdate(){const r=exSolve();if(!r){$('#exMsg').textContent='Type positive numbers in the red boxes (a part cannot be bigger than the whole).';$('#exText').innerHTML='';return null}$('#exMsg').textContent='Ready. Press “Solve it in the lab” to work through it.';if(ex.story){$('#exText').innerHTML=ex.story;return r}const v=ex.v;
+ $('#exText').innerHTML=exk==='rf'?`A dye moves ${v.d} cm and the solvent ${v.f} cm. Find Rf.`:exk==='cons'?(v.find==='p'?`${v.r1} g of reactants give ${v.p1} g of one product. Find the mass of the other product.`:`${v.r1} g of one reactant gives ${v.p2} g of product. Find the mass of the other reactant.`):`${v.part} g of a ${v.whole} g sample is one element. Find its percent by mass.`;return r}
+function setExK(k,eg){exk=k;segPick($(`[data-exk="${k}"]`));const d=eg||EXEG.find(e=>e.k===k);ex.v={...d.v};ex.story=d.s;exBuild()}
+$$('[data-exk]').forEach(b=>b.onclick=()=>setExK(b.dataset.exk));let egi=1;$('#exEg').onclick=()=>{const e=EXEG[egi++%EXEG.length];setExK(e.k,e)};
+$('#exSolve').onclick=()=>{const r=exUpdate();if(!r){$('#exMsg').textContent='Fix the red box first.';return}tourGo(exSteps(r))};
+function exSteps(r){const v=ex.v;
+ if(exk==='rf'){const m=Object.entries(DYES).reduce((b,[k,d])=>Math.abs(d[1]-r.X)<Math.abs(b[1][1]-r.X)?[k,d]:b,['y',DYES.y]);return [{title:'Solve it in the lab',html:calc('Rf = distance moved by the dye ÷ distance moved by the solvent')+'<p>Both distances are measured from the pencil line.</p>'},{el:'#cc',title:'In the lab',html:'<p>The lab runs a chromatogram. Tap any spot to see its distances.</p>',onShow:()=>{go('chrom');CH.t=1;CH.run=false;CH.sel=null;chUI()}},{title:'Substitute',html:calc(`Rf = ${v.d} ÷ ${v.f} = ${fx(r.X,2)}`)},{title:'Your answer',html:calc(`Rf = ${fx(r.X,2)}`)+'<p>Rf has no unit and is always between 0 and 1.</p>'}]}
+ const dp=Math.min(...[v.r1,v.p1,v.p2].filter(x=>x!=null&&x!=='').map(x=>(String(x).split('.')[1]||'').length));if(exk==='cons')return [{title:'Law of conservation of mass',html:'<p>Mass is neither created nor destroyed in a chemical reaction:</p>'+calc('mass of reactants = mass of products')},{title:'Substitute',html:calc(v.find==='p'?`${v.r1} g = ${v.p1} g + m\nm = ${v.r1} − ${v.p1} = ${fx(r.X,dp)} g`:`${v.r1} g + m = ${v.p2} g\nm = ${v.p2} − ${v.r1} = ${fx(r.X,dp)} g`)},{title:'Your answer',html:calc(`${fx(r.X,dp)} g`)}];
+ return [{title:'Percent by mass',html:calc('percent by mass = mass of part ÷ mass of whole × 100')},{title:'Substitute',html:calc(`${v.part} ÷ ${v.whole} × 100 = ${fx(r.X,2)} %`)},{title:'Your answer',html:calc(`${fx(r.X,2)} %`)+'<p>Law of definite proportions: every sample of the same compound has the same percent by mass, whatever its size.</p>'}]}
+
+/* =========================================================
+   CHALLENGE
+   ========================================================= */
+const CLS=[['Iron (Fe)','element'],['Oxygen gas (O₂)','element'],['Mercury','element'],['Water (H₂O)','compound'],['Table salt (NaCl)','compound'],['Sugar (sucrose)','compound'],['Carbon dioxide','compound'],['Salt water','homogeneous mixture'],['Air','homogeneous mixture'],['Brass','homogeneous mixture'],['Vinegar','homogeneous mixture'],['Sand and water','heterogeneous mixture'],['Granite','heterogeneous mixture'],['Salad dressing (oil and vinegar)','heterogeneous mixture'],['Sand, salt and iron filings','heterogeneous mixture']];
+const GEN=[
+ ()=>{const q=pick(CLS);return [`Classify: ${q[0]}.`,[q[1],...['element','compound','homogeneous mixture','heterogeneous mixture'].filter(x=>x!==q[1])],0,{element:'One kind of atom only.',compound:'Two or more elements chemically combined in a fixed ratio.','homogeneous mixture':'A mixture that is the same throughout (a solution).','heterogeneous mixture':'A mixture you can see is not the same throughout.'}[q[1]]]},
+ ()=>{const q=pick([['iron filings from sand','a magnet'],['sand from salt water','filtration'],['salt from salt water','evaporation (crystallization)'],['pure water from sea water','distillation'],['the dyes in black ink','chromatography'],['iodine from sand (iodine sublimes)','sublimation']]);return [`Which technique separates ${q[0]}?`,[q[1],...['a magnet','filtration','evaporation (crystallization)','distillation','chromatography','sublimation'].filter(x=>x!==q[1]).sort(()=>Math.random()-.5)].slice(0,4),0,`${q[1][0].toUpperCase()+q[1].slice(1)} uses a physical property that differs between the parts.`]},
+ ()=>{const d=+(1+Math.random()*6).toFixed(1),f=+(d+1+Math.random()*4).toFixed(1);return [`A spot moves ${d} cm and the solvent ${f} cm. What is the Rf value?`,uniq(d/f,[f/d,f-d,d/(f+d)],'',x=>fx(x,2)),0,`Rf = ${d} ÷ ${f} = ${fx(d/f,2)}.`]},
+ ()=>{const a=+(5+Math.random()*20).toFixed(2),b=+(a*(.6+Math.random()*.3)).toFixed(2);return [`${a} g of a compound decomposes into ${b} g of one product and one other product. What is the mass of the other product?`,uniq(a-b,[a+b,b,a],' g',x=>fx(x,2)),0,`Conservation of mass: ${a} − ${b} = ${fx(a-b,2)} g.`]},
+ ()=>pick([
+  ['Which is a chemical change?',['Iron rusting','Ice melting','Salt dissolving','Water boiling'],0,'Rusting makes a new substance (iron oxide).'],
+  ['Which is an intensive property?',['Density','Mass','Volume','Length'],0,'Intensive properties do not depend on the amount of matter.'],
+  ['Which is a chemical property of copper?',['It forms a green coating in moist air','It is shiny','It conducts electricity','Its density is 8.96 g/cm³'],0,'A chemical property describes how a substance reacts.'],
+  ['Water decomposes into hydrogen and oxygen in a volume ratio of…',['2 : 1','1 : 1','1 : 2','8 : 1'],0,'Electrolysis of water gives twice as much hydrogen as oxygen by volume.'],
+  ['H₂O and H₂O₂ show the law of…',['multiple proportions','definite proportions','conservation of mass','Charles'],0,'The same elements combine in different whole-number mass ratios to make different compounds.'],
+  ['Why can filtration not separate dissolved salt from water?',['The dissolved particles pass through the paper','Salt is magnetic','Salt is heavier than water','Filter paper dissolves salt'],0,'Use evaporation or distillation instead.']])];
+
+/* =========================================================
+   START
+   ========================================================= */
+function drawAll(){if(!C.ink)readColors();if(tab==='sep')drawSC();if(tab==='chrom')drawCC()}
+addEventListener('resize',drawAll);let lastF=0;
+function loop(t){const dt=Math.min(.05,(t-(lastF||t))/1000);lastF=t;if(tab==='sep'&&(SP.anim&&t-SP.anim<2000||['filt','evap','dist'].includes(SP.show))&&t-(loop.p||0)>40){loop.p=t;drawSC()}
+ if(tab==='chrom'&&CH.run){CH.t=Math.min(1,CH.t+dt/6);if(CH.t>=1){CH.run=false;chUI()}else drawCC()}requestAnimationFrame(loop)}
+if(window.LabParts){window.__lp=LabParts.attach({key:'mixtures',wrap:$('#sc').parentElement,stage:$('#sc'),bar:$('#sBar'),max:2,parts:()=>{const G=SG;if(!G)return [];const c=$('#sc').getBoundingClientRect();return [
+ {id:'app',name:'Apparatus',what:'Shows the step you chose: beaker, magnet, filter funnel, evaporating dish or distillation set.',hint:'The middle of the picture.',q:'Where is the separation happening?',x:G.cx,y:G.base-G.bh/2,boxes:[[G.cx-G.bw,G.base-G.bh-80,G.cx+G.bw,G.base+24]]},
+ {id:'shelf',name:'Recovered parts',what:'Each part you separate goes here with its mass. They should add up to the starting mass.',hint:'The boxes on the side.',q:'Where are the separated substances?',x:c.width*.85,y:c.height*.3,boxes:[[c.width*.72,c.height*.08,c.width-6,c.height*.62]]}]}})}
+readColors();spNew();chUI();setExK('rf');nextQ();themeLabel();requestAnimationFrame(loop);
+
+</script>
+<script src="tour.js" defer></script>
+<script src="lab-guide.js" defer></script>
+</body></html>
