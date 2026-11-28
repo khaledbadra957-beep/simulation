@@ -234,6 +234,15 @@
       mis: [["Dissolving destroys the salt.", "The salt is still there: evaporate the water and it comes back."], ["Filtration can separate salt from water.", "Dissolved particles pass through the filter; you need evaporation or distillation."], ["Black ink is one substance.", "Chromatography shows it is a mixture of several dyes."], ["Mass is lost when water evaporates.", "The water’s mass leaves as vapour; total mass is conserved if you collect it (distillation)."]],
       qs: ["Why does filtration not separate salt from salt water?", "Why must water be added before filtering the sand and salt mixture?", "How can chromatography show that black ink is a mixture?"]
     },
+    'atom-lab.html': {
+      big: "An atom is mostly empty space with a tiny, dense, positive nucleus of protons and neutrons, surrounded by electrons. The number of protons (atomic number) decides the element; different numbers of neutrons make isotopes, and the atomic mass is their weighted average.",
+      tryThis: ["Fire alpha particles with the plum-pudding model, then the nuclear model. What is different?", "Why do only a few alpha particles bounce back?", "Build carbon-12, then add two neutrons. Is it still carbon? What changed?", "Make a sodium ion, Na⁺. What did you change?", "Average atomic mass: why is chlorine’s 35.45 and not 36?", "Change the abundances of the two isotopes. Which way does the average move?"],
+      words: [["Nucleus", "tiny, dense, positive centre of the atom"], ["Proton", "positive particle in the nucleus"], ["Neutron", "neutral particle in the nucleus"], ["Electron", "negative particle, about 1/1840 the mass of a proton"], ["Atomic number", "number of protons"], ["Mass number", "protons + neutrons"], ["Isotopes", "atoms of the same element with different numbers of neutrons"], ["Atomic mass", "weighted average mass of an element’s isotopes, in amu"]],
+      goals: ["Describe the experiments that revealed electrons and the nucleus.", "Use atomic number and mass number to find protons, neutrons and electrons in atoms, ions and isotopes.", "Calculate average atomic mass from isotope masses and abundances."],
+      flow: [["2 min", "Predict", "If an atom were a solid ball of positive charge, what would happen to alpha particles fired at it?"], ["6 min", "Explore", "Gold foil: compare the two models and count the bounces."], ["5 min", "Explain", "Build carbon-12, carbon-14 and Na⁺."], ["4 min", "Apply", "Atomic mass of chlorine, then the Exercise tab."]],
+      mis: [["Atoms are solid little balls.", "They are mostly empty space; the nucleus is about 1/10 000 of the atom’s width."], ["Isotopes are different elements.", "Same protons, same element; only the neutrons differ."], ["Atomic mass is the mass number of the most common isotope.", "It is the weighted average of all the isotopes."], ["Ions have a different number of protons.", "Ions gain or lose electrons; the protons stay the same."]],
+      qs: ["Why did a few alpha particles bounce straight back from the gold foil?", "How are carbon-12 and carbon-14 alike and different?", "Why is the atomic mass of chlorine 35.45 amu?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -407,6 +416,7 @@
     'mole-lab.html': ["Both have 6.02 × 10²³ atoms, but each gold atom is much heavier (197 g/mol against 12.01 g/mol).", "Change each reactant’s mass to moles, divide by its coefficient (or use the mole ratio): the reactant that can make less product is limiting.", "Only then has all the water been driven off; otherwise the anhydrous mass is too high and x comes out too small."],
     'density-lab.html': ["Density is an intensive property: every piece of the same metal has the same density, whatever its size; mass depends on the amount.", "The metal pushes aside (displaces) its own volume of water, so the water rises by exactly that volume.", "The zero after the decimal point shows the reading was made to the nearest 0.1 mL; it is a measured digit."],
     'mixtures-lab.html': ["Dissolved salt particles are far smaller than the holes in the filter paper, so they pass through with the water.", "Dry salt and sand would both stay on the paper; water dissolves the salt so only the sand is caught.", "The single black spot separates into several coloured spots that travel different distances (different Rf values)."],
+    'atom-lab.html': ["They hit, or came very close to, a tiny, dense, positive nucleus that repelled them strongly; most of the atom is empty space, so most passed straight through.", "Both have 6 protons and 6 electrons, so they are carbon and react the same way; carbon-14 has 8 neutrons and carbon-12 has 6.", "It is the weighted average of chlorine-35 (about 76 %) and chlorine-37 (about 24 %), so it is closer to 35."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -585,6 +595,7 @@
     'mole-lab.html': {"hide": [], "start": "#mSub"},
     'density-lab.html': {"hide": [], "start": "#dNext"},
     'mixtures-lab.html': {"hide": [], "start": "[data-tech=\"mag\"]"},
+    'atom-lab.html': {"hide": [], "start": "#rGo"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -778,6 +789,7 @@
     'mole-lab.html': {"intro": "[data-tab=\"mole\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'density-lab.html': {"intro": "[data-tab=\"meas\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'mixtures-lab.html': {"intro": "[data-tab=\"sep\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'atom-lab.html': {"intro": "[data-tab=\"ruth\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
