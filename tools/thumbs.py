@@ -24,6 +24,7 @@ PREP = {
   'states-of-matter-lab': "(()=>{if(tab==='heat'&&H.q<1){H.q=qTot()*0.55;H.run=false;hUI()}if(tab==='phase'){setPT(373,30)}})()",
   'solutions-lab': "(()=>{if(tab==='sol'&&S.add<1){S.salt=0;S.T=20;S.add=40;S.D=0;sMix();sUI()}if(tab==='mix'){M.torch=true;mUI()}})()",
   'acids-bases-ph-lab': "(()=>{if(tab==='buf'&&B.drops===0){for(let i=0;i<6;i++)bDrop(1)}})()",
+  'ionic-compounds-lab': "(()=>{if(tab==='ion'&&!IB.done){IB.cat=1;IB.an=4;IB.t=1;IB.done=true;iUI()}})()",
   'electrons-lab': "(()=>{if(tab==='cfg'&&cf.z!==26){setZ(26);setMode('show')}if(tab==='trend'){tr.b=17;drawTrend()}if(tab==='light'&&!lt.lines.length){lt.lines=[3,4,5,6].map(n=>({nm:lam(n,2),lab:n+'→2'}));lt.e.n=2;showPhoton(lam(4,2));drawLight();drawSpec()}})()",
   'five-types-of-chemical-reactions': "document.querySelector('[data-tab=pat]').click()",
   'galvanic-cell-lab': "(()=>{const b=document.getElementById('swBtn');if(/Close/.test(b.textContent))b.click()})()",

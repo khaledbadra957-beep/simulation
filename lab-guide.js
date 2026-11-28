@@ -189,6 +189,15 @@
       mis: [["A strong acid is the same as a concentrated acid.", "Strong means it ionises completely; concentrated means a lot of acid per litre."], ["pH 4 is twice as acidic as pH 2.", "Each pH unit is ×10: pH 2 has 100 times more H⁺ than pH 4."], ["Neutral salts form from every neutralisation.", "NH₄Cl is acidic and KF is basic because their ions react with water."], ["A buffer keeps the pH fixed for any amount of acid.", "Once the conjugate base is used up, the pH falls quickly."]],
       qs: ["Why does 0.10 M HCl have a lower pH than 0.10 M acetic acid?", "What is [OH⁻] in a solution with pH 3.00?", "Why is a solution of NH₄Cl acidic?"]
     },
+    'ionic-compounds-lab.html': {
+      big: "Metals lose electrons to become positive ions and nonmetals gain them to become negative ions, so both reach a noble-gas configuration. The ions attract in a crystal lattice; the formula unit is the smallest ratio that makes the total charge zero.",
+      tryThis: ["Make potassium oxide. How many potassium atoms does one oxygen atom need? Why?", "Build aluminium sulfide. How many electrons move in total?", "Build calcium phosphate. Why are there brackets round PO₄?", "Make iron(II) chloride and iron(III) chloride. What does the Roman numeral tell you?", "Properties: which has the bigger lattice energy, NaCl or MgO? Why?", "Hit the ionic crystal and the metal. Why does one shatter and the other bend?", "Conductivity: when does NaCl conduct, and why not as a solid?"],
+      words: [["Cation", "positive ion; metals lose electrons"], ["Anion", "negative ion; nonmetals gain electrons"], ["Formula unit", "the simplest ratio of ions in an ionic compound"], ["Polyatomic ion", "a group of atoms with one charge, e.g. SO₄²⁻"], ["Oxyanion", "polyatomic ion with oxygen: -ate has more O than -ite"], ["Lattice energy", "energy needed to separate 1 mol of an ionic crystal"], ["Electrolyte", "ionic compound that conducts when molten or dissolved"], ["Electron sea model", "metal cations in a sea of delocalised electrons"]],
+      goals: ["Predict ion charges from the periodic table and show electron transfer with electron-dot structures.", "Write formulas of binary and polyatomic ionic compounds so the charges add up to zero.", "Name ionic compounds, including Stock names and oxyanions.", "Explain lattice energy, brittleness and conductivity of ionic compounds and the properties of metals."],
+      flow: [["2 min", "Predict", "Sodium is a soft metal, chlorine a poisonous gas. Why is NaCl safe to eat?"], ["7 min", "Explore", "Formula builder: K₂O, Al₂S₃, Ca₃(PO₄)₂ in pairs."], ["4 min", "Explain", "Properties: lattice energy and the hammer test."], ["4 min", "Apply", "Exercise tab: write and name five compounds."]],
+      mis: [["The formula shows a molecule of NaCl.", "It is a ratio of ions in a giant lattice (a formula unit)."], ["Subscripts come from the number of electrons in the atom.", "They come from balancing the charges to zero."], ["Polyatomic ions break apart in compounds.", "They stay together as one ion; use brackets when you need more than one."], ["Ionic solids conduct electricity.", "Only when molten or dissolved: the ions must be free to move."]],
+      qs: ["Why is the formula of aluminium sulfide Al₂S₃?", "Why does MgO have a much larger lattice energy than NaCl?", "Why does a metal bend when you hit it but an ionic crystal shatters?"]
+    },
     'electrons-lab.html': {
       big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
       tryThis: [
@@ -357,6 +366,7 @@
     'states-of-matter-lab.html': ["The energy goes into breaking the attractions between the molecules (into potential energy), not into making them move faster, so the temperature stays the same until all the water is vapor.", "Water molecules form hydrogen bonds with each other; methane molecules only have weak dispersion forces, so much less energy is needed to separate them.", "The triple point of CO₂ is at 5.11 atm. Below that pressure liquid CO₂ cannot exist, so the solid turns straight into gas."],
     'solutions-lab.html': ["The solution holds more solute than it can at that temperature; the seed gives the particles a surface to build a crystal on, so the extra solute comes out until the solution is just saturated.", "Each CaCl₂ unit splits into three ions (Ca²⁺ and 2 Cl⁻), and colligative properties depend only on the number of dissolved particles.", "Gases such as oxygen dissolve less in warm water, so there is less oxygen for the fish to breathe."],
     'acids-bases-ph-lab.html': ["HCl ionises completely, so [H⁺] = 0.10 M; acetic acid ionises only about 1 %, so [H⁺] is much smaller.", "[H⁺] = 1.0 × 10⁻³ M, so [OH⁻] = Kw ÷ [H⁺] = 1.0 × 10⁻¹¹ M (pOH = 11.00).", "NH₄⁺ is the conjugate acid of the weak base NH₃; it gives H⁺ to water: NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺."],
+    'ionic-compounds-lab.html': ["Each Al loses 3 electrons (Al³⁺) and each S gains 2 (S²⁻). 2 × (+3) = +6 and 3 × (−2) = −6, so the charges cancel.", "Mg²⁺ and O²⁻ have twice the charges of Na⁺ and Cl⁻ and are smaller, so they attract much more strongly.", "In a metal the cations slide past each other in the sea of electrons; in an ionic crystal the shift brings like charges next to each other and they repel, so it splits."],
     'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
@@ -530,6 +540,7 @@
     'states-of-matter-lab.html': {"hide": ["#hReset"], "start": "#hGo"},
     'solutions-lab.html': {"hide": ["#sReset"], "start": "#sAdd5"},
     'acids-bases-ph-lab.html': {"hide": [], "start": "#pC"},
+    'ionic-compounds-lab.html': {"hide": [], "start": "#iGo"},
     'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
@@ -718,6 +729,7 @@
     'states-of-matter-lab.html': {"intro": "[data-tab=\"heat\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'solutions-lab.html': {"intro": "[data-tab=\"sol\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'acids-bases-ph-lab.html': {"intro": "[data-tab=\"ph\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
+    'ionic-compounds-lab.html': {"intro": "[data-tab=\"ion\"]", "game": "[data-tab=\"chal\"]", "ex": "[data-tab=\"ex\"]"},
     'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
