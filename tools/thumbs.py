@@ -20,6 +20,7 @@ def cover(png, w, h):
 # a good moment to photograph, per lab (runs in the page before the picture is taken)
 PREP = {
   'esterification-lab': "document.querySelector('[data-tab=eq]').click()",
+  'electrons-lab': "(()=>{if(tab==='cfg'&&cf.z!==26){setZ(26);setMode('show')}if(tab==='trend'){tr.b=17;drawTrend()}if(tab==='light'&&!lt.lines.length){lt.lines=[3,4,5,6].map(n=>({nm:lam(n,2),lab:n+'→2'}));lt.e.n=2;showPhoton(lam(4,2));drawLight();drawSpec()}})()",
   'five-types-of-chemical-reactions': "document.querySelector('[data-tab=pat]').click()",
   'galvanic-cell-lab': "(()=>{const b=document.getElementById('swBtn');if(/Close/.test(b.textContent))b.click()})()",
   'pulse-at-a-boundary': "(()=>{const s=document.getElementById('scrub');document.getElementById('play').click();s.value=330;s.dispatchEvent(new Event('input'))})()",

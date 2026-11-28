@@ -162,6 +162,22 @@
       mis: [['t½ is half of the time the experiment lasted.', 'It is defined by half of n(I₂)max.'], ['The rate stays constant.', 'Tangent slopes fall over time.'], ['The reaction ends when the table ends.', 'Compare with n(I₂)max (step 2).']],
       qs: ['Why does the curve flatten?', 'How would doubling V(H₂O₂) change n(I₂)max?', 'Why is the sample put in ice water?']
     },
+    'electrons-lab.html': {
+      big: 'Electrons fill orbitals from the lowest energy up (aufbau), two per orbital with opposite spins (Pauli), one per orbital before pairing (Hund). The outer electrons explain where an element sits in the table and its trends.',
+      tryThis: [
+        'Build oxygen box by box. Try to pair the 2p electrons too early: which rule stops you?',
+        'Build potassium. Why does the 19th electron go into 4s and not 3d?',
+        'Show chromium and copper: what is different from the rule?',
+        'Trends: tap Na, then compare with Cl. Which is bigger? Which holds its electrons more tightly?',
+        'Find the two small dips in ionization energy across period 2 (Be→B and N→O).',
+        'Light: drop the electron from n = 3, 4, 5 and 6 to n = 2. Which line has the most energy?'
+      ],
+      words: [['Orbital', 'a region that holds up to 2 electrons'], ['Valence electrons', 'electrons in the highest energy level'], ['Ionization energy', 'energy to remove the first electron'], ['Electronegativity', 'pull on electrons in a bond'], ['Photon', 'a packet of light, E = hν']],
+      goals: ['Write electron configurations, noble-gas notation and orbital diagrams for H to Kr.', 'Use aufbau, Pauli and Hund to explain each step.', 'Draw Lewis dot symbols from valence electrons.', 'Explain radius, ionization energy and electronegativity trends across a period and down a group.', 'Use c = λν and E = hν, and link spectrum lines to electron jumps.'],
+      flow: [['2 min', 'Predict', 'Where does the 19th electron go: 3d or 4s? Vote.'], ['6 min', 'Explore', 'Configuration: build O, K and Fe; show Cr and Cu.'], ['5 min', 'Explain', 'Trends: compare pairs and read the reason.'], ['4 min', 'Apply', 'Light: the Balmer lines, then the Exercise tab.']],
+      mis: [['3d fills before 4s because 3 is smaller than 4.', '4s is lower in energy, so it fills first (K and Ca).'], ['Electrons pair up as soon as they can.', "Hund's rule: one per orbital first."], ['Atoms with more electrons are always bigger.', 'Across a period atoms get smaller: more protons pull the same level in.'], ['Red light has the most energy because it looks strong.', 'Shorter λ means more energy: violet beats red.']],
+      qs: ['Why is the 4s sublevel filled before 3d?', 'Why is the first ionization energy of oxygen lower than that of nitrogen?', 'Which photon has more energy: 656 nm or 410 nm? Why?']
+    },
     'organic-naming-lab.html': {
       big: 'An IUPAC name is built from the longest chain (or ring), the main functional group, and the positions of the branches, numbered to keep numbers low.',
       tryThis: [
@@ -291,6 +307,7 @@
     'five-types-of-chemical-reactions.html': ['A more reactive metal gives up electrons more easily, so it can push the ions of a less reactive metal out of a compound, but not the other way round (the activity series).', 'Synthesis: iron + oxygen → iron oxide, slowly and without a flame. Combustion is the fast burning of a fuel.'],
     'galvanic-cell-lab.html': ['Without the bridge, ions cannot move to keep each beaker neutral. Charge builds up, the circuit is open, and the electrons stop flowing.', 'The blue Cu²⁺ ions are reduced to copper metal on the cathode, so there are fewer of them in the solution.', 'The two metals furthest apart on the E° scale, because E°cell = E°cathode − E°anode. For example Zn and Ag: 0.80 − (−0.76) = 1.56 V.'],
     'keplers-laws.html': ['Equal areas in equal times: near the Sun the line to the Sun is short, so the comet must move faster to sweep the same area.', 'T² ∝ a³, so T ∝ a^1.5: 2^1.5 ≈ 2.8 times longer.'],
+    'electrons-lab.html': ['4s is lower in energy than 3d, so the aufbau principle fills it first.', 'Oxygen’s fourth 2p electron has to pair up in an orbital that already has one electron. The two repel, so it is easier to remove.', '410 nm: a shorter wavelength means a higher frequency, and E = hν, so more energy (about 4.85 × 10⁻¹⁹ J against 3.03 × 10⁻¹⁹ J).'],
     'kinetics-lab.html': ['The reagents are used up, so collisions become rarer and the rate (the slope) falls to zero when the limiting reagent is gone.', 'If H₂O₂ is the limiting reagent, n(I₂)max doubles. If iodide is limiting, it stays the same.', 'Cold water slows the reaction almost to a stop, so the amount you measure is the amount at that moment.'],
     'organic-naming-lab.html': ['Same formula, C₄H₁₀, but a different shape. The straight chain has more surface contact and stronger London forces, so butane boils higher (about −1 °C, against about −12 °C).', 'Tollens’ reagent (silver mirror) or Fehling’s solution (red precipitate): positive with an aldehyde, negative with a ketone.'],
     'pulse-at-a-boundary.html': ['The pulse lasts the same time, but in a slower medium it travels a shorter distance in that time: width = speed × duration.', 'The same mass per metre on both sides (the same speed): nothing reflects, and the whole pulse passes through unchanged (R = 0, T = 1).'],
@@ -459,6 +476,7 @@
   if (file === 'index.html' || file === '') return;
   var CFG = {
     'wave-speed-lab.html': { hide: ['[data-mode="manual"]', '.seg:has([data-end])', '#step1', '.seg:has([data-speed])', 'label:has(#tVRuler)', 'label:has(#tRef)', 'label:has(#tGraph)', 'label:has(#tVals)', '[data-n]', '.field:has(#damp1)'] },
+    'electrons-lab.html': { hide: ['#undoE', '#specClr'], start: '#nextE' },
     'kinetics-lab.html': { hide: ['.seg:has([data-spd])', '.field:has([data-every])', '.seg:has([data-view])', 'label:has(#cMax)'], start: '#runBtn' },
     'galvanic-cell-lab.html': { hide: ['#p-cell > .checks', '.seg:has([data-rep])', 'label:has(#c3Lab)', '#t3Reset'], start: '#swBtn' },
     'organic-naming-lab.html': { hide: ['.row:has(> #o3dSF)', 'label:has(#o3dH)', '#o3dReset'] },
@@ -642,6 +660,7 @@
     'esterification-lab.html': { intro: '[data-tab="build"]', game: '[data-tab="chal"]', ex: '[data-tab="my"]' },
     'galvanic-cell-lab.html': { intro: '[data-tab="cell"]', game: '[data-tab="chal"]' },
     'keplers-laws.html': { intro: '#t-retro', game: null, ex: '#t-ex' },
+    'electrons-lab.html': { intro: '[data-tab="cfg"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
     'kinetics-lab.html': { intro: '[data-tab="lab"]', game: '[data-tab="chal"]' },
     'organic-naming-lab.html': { intro: '#t-build', game: '#t-quiz', gameName: 'Name challenge' },
     'reaction-rates-lab.html': { intro: '[data-tab="box"]', game: '[data-tab="chal"]', ex: '[data-tab="ex"]' },
